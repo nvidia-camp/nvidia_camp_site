@@ -46,7 +46,7 @@ SUBJECTS = {
 # 문제 풀이 사이트 (홈 위쪽 링크)
 PRACTICE = [
     ("SWEA", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
-    ("프로그래머스", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
+    ("Programmers", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
 ]
 # 치트시트: pages/cheatsheet/<이름> → 보이는 이름
 CHEATSHEETS = {"sklearn": "scikit-learn", "pytorch": "PyTorch", "opencv": "OpenCV"}
