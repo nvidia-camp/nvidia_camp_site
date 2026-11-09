@@ -3,57 +3,83 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DL · 딥러닝 핵심 아키텍처 및 학습</title>
+<title>DL · AI 코어 엔지니어 학습 노트</title>
 <style>
-:root{--color-primary:#142849;--color-heading:#1C2B40;--color-text:#222F44;--color-muted:#52667E;
-  --color-canvas:#F9FBFE;--color-surface:#FFFFFF;--color-soft:#F0F6FD;--color-border:#D8E4F2;
-  --color-accent:#4B74A6;--radius-card:1rem;--radius-badge:9999px}
+:root{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
+  --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
+  --on-primary:#FFFFFF;--focus:#4B74A6}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--border:#2A3B5C;
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--cell-past:#33476B;
+  --cell-future:#1C2943;--on-primary:#0E1626;--focus:#A9C3EC;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--color-canvas);color:var(--color-text);
-  font:400 1rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
-  word-break:keep-all;overflow-wrap:break-word}
-main{max-width:64rem;margin:0 auto;padding:2rem 1rem 4rem}
-h1,h2,h3{color:var(--color-heading);margin:0;line-height:1.35}
-h1{font-size:clamp(1.625rem,3vw,2.125rem);letter-spacing:-.02em}
-h2{font-size:1.25rem;margin:2.5rem 0 1rem}
-h3{font-size:1.0625rem}
-.lede{color:var(--color-muted);margin:.5rem 0 0}
-.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(18rem,1fr))}
-.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);
-  padding:1.25rem}
-.card .meta{color:var(--color-muted);font-size:.875rem;margin:.25rem 0 .75rem}
-a{color:var(--color-accent)}
-.main-link{display:inline-block;font-weight:700;text-decoration:none;color:var(--color-primary);
-  background:var(--color-soft);border-radius:var(--radius-badge);padding:.25rem .875rem;margin-bottom:.75rem}
-.main-link:hover,.main-link:focus-visible{background:var(--color-border)}
-ul.days{list-style:none;margin:0;padding:0;display:grid;gap:.375rem}
-ul.days li{display:grid;grid-template-columns:3.5rem 1fr auto;gap:.5rem;align-items:baseline}
-.day{font-weight:700;color:var(--color-heading);font-size:.875rem}
-.todo{color:var(--color-muted)}
-.badge{font-size:.75rem;border:1px solid var(--color-border);border-radius:var(--radius-badge);
-  padding:0 .5rem;margin-left:.25rem;color:var(--color-muted);white-space:nowrap}
-.empty{background:var(--color-soft);border:1px dashed var(--color-border)}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:break-word}
+main{max-width:1120px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:56px}
+h1,h2,h3{color:var(--heading);margin:0;line-height:1.35;text-wrap:balance}
+h1{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}
+h2{font-size:20px}
+h3{font-size:16px;line-height:1.45;font-weight:600}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}
+p{margin:0}
+.top{display:grid;gap:20px}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
+  border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}
+.links a:hover{border-color:var(--primary)}
+.quiet-list{display:grid;gap:12px}
+.quiet h2{font-size:17px;color:var(--muted);font-weight:600}
+.soon{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}
+.count{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.timeline{display:flex;flex-wrap:wrap;gap:14px 24px;padding:20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:16px}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:13px;font-weight:600;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:14px;height:14px;border-radius:3px;display:inline-block;background:var(--cell-future)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.25)}
+.cell.today{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
+.subject{display:grid;gap:16px}
+.subject-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.subject-head a:hover h2{text-decoration:underline}
+.subject-head span{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}
+.card{display:grid;gap:8px;align-content:start;min-width:0}
+.thumb{display:block;aspect-ratio:16/10;max-width:100%;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);background:var(--soft)}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .18s}
+.card:hover .thumb img{transform:scale(1.03)}
+.card:hover h3{text-decoration:underline}
+.meta{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta b{color:var(--heading)}
+.pdf{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px;justify-self:start}
+.feature{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:center;
+  padding:20px;background:var(--soft);border-radius:16px}
+.feature .body{display:grid;gap:10px;justify-items:start}
+.feature h3{font-size:22px;font-weight:700}
+.label{font-size:13px;font-weight:600;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
+  background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}
+.sheets{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.feature{grid-template-columns:1fr}.sheets{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
 </style>
 </head>
 <body><style>
-.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;
-  padding:.5rem 1rem;background:#142849;color:#fff;
-  font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif}
-.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .25rem;border-radius:.375rem}
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
 .cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
-.cn-nav .cn-home{font-weight:700}
-.cn-nav .cn-sep{opacity:.5}
-.cn-nav .cn-step{margin-left:auto;display:flex;gap:.5rem}
-.cn-nav .cn-off{opacity:.4;padding:.125rem .25rem}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a class="cn-home" href="../">AI 코어 엔지니어 학습 노트</a><span class="cn-sep">/</span><a href="../dl/">DL</a></nav>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 노트</a><span class="cn-here">DL</span></nav>
 <main>
-<header>
-<h1>딥러닝 핵심 아키텍처 및 학습</h1>
-<p class="lede">2026.10.29 ~ 11.03 · 4일 종합 요약은 준비 중입니다. 날짜별 요약을 먼저 볼 수 있습니다.</p>
-</header>
-<h2>날짜별 요약</h2>
-<section class="card"><ul class="days"><li class="todo"><span class="day">Day9</span><span>Tensor·ANN 학습 루프</span><span class="badge">준비 중</span></li><li><span class="day">Day10</span><a href="../dl/20261030/">학습 안정화 (Optimizer·과적합 제어)</a><span class="badge">10/30</span></li><li><span class="day">Day11</span><a href="../dl/20261102/">CNN 이미지 분류·전이학습</a><span class="badge">11/02</span></li><li><span class="day">Day12</span><a href="../dl/20261103/">RNN·LSTM·Transformer</a><span class="badge">11/03</span></li></ul></section>
+<section class="subject"><div class="subject-head"><h2>딥러닝 핵심 아키텍처 및 학습</h2><span>Day9–12</span></div><div class="grid"><div class="card"><a href="../dl/20261030/"><span class="thumb"><img src="../dl/20261030/thumb.jpg" alt=""></span><p class="meta"><b>Day10</b><span>10/30</span></p><h3>학습을 안정시키는 도구들은 어디에 있을까</h3></a><a class="pdf" href="../dl/20261030/Day10_개념지도.pdf">PDF</a></div><div class="card"><a href="../dl/20261102/"><span class="thumb"><img src="../dl/20261102/thumb.jpg" alt=""></span><p class="meta"><b>Day11</b><span>11/2</span></p><h3>CNN 개념 지도 · 모델 안과 모델 밖</h3></a><a class="pdf" href="../dl/20261102/Day11_개념지도.pdf">PDF</a></div><div class="card"><a href="../dl/20261103/"><span class="thumb"><img src="../dl/20261103/thumb.jpg" alt=""></span><p class="meta"><b>Day12</b><span>11/3</span></p><h3>순서 모델 한눈에 보기</h3></a><a class="pdf" href="../dl/20261103/Day12_개념지도.pdf">PDF</a></div></div></section>
 </main>
 </body>
 </html>

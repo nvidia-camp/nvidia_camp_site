@@ -12,7 +12,8 @@ pages/                     ← 원본 (구성안·템플릿·제작 스크립트
 ├─ overview/                전체 과목 연결 요약 → /overview/
 └─ cheatsheet/<이름>/        라이브러리 치트시트 → /cheatsheet/<이름>/
 public/                    ← build_site.py가 만드는 배포본 (Vercel이 이 폴더만 배포)
-build_site.py              ← pages/ → public/ (위쪽 메뉴를 붙이고 목록 페이지를 만듦)
+make_thumbs.py             ← 각 페이지 첫 화면 미리보기(thumb.jpg)
+build_site.py              ← pages/ → public/ (위쪽 메뉴, 홈·과목 목록)
 DESIGN.md                  ← 모든 페이지 공통 디자인 원칙
 ```
 
@@ -25,6 +26,7 @@ DESIGN.md                  ← 모든 페이지 공통 디자인 원칙
 
 ```bash
 cd ~/workspace/nvidia_camp/site
+uv run make_thumbs.py   # 바뀐 페이지만
 uv run build_site.py
 git add -A && git commit -m "..." && git push
 ```

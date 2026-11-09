@@ -5,59 +5,81 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI 코어 엔지니어 학습 노트</title>
 <style>
-:root{--color-primary:#142849;--color-heading:#1C2B40;--color-text:#222F44;--color-muted:#52667E;
-  --color-canvas:#F9FBFE;--color-surface:#FFFFFF;--color-soft:#F0F6FD;--color-border:#D8E4F2;
-  --color-accent:#4B74A6;--radius-card:1rem;--radius-badge:9999px}
+:root{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
+  --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
+  --on-primary:#FFFFFF;--focus:#4B74A6}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--border:#2A3B5C;
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--cell-past:#33476B;
+  --cell-future:#1C2943;--on-primary:#0E1626;--focus:#A9C3EC;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--color-canvas);color:var(--color-text);
-  font:400 1rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
-  word-break:keep-all;overflow-wrap:break-word}
-main{max-width:64rem;margin:0 auto;padding:2rem 1rem 4rem}
-h1,h2,h3{color:var(--color-heading);margin:0;line-height:1.35}
-h1{font-size:clamp(1.625rem,3vw,2.125rem);letter-spacing:-.02em}
-h2{font-size:1.25rem;margin:2.5rem 0 1rem}
-h3{font-size:1.0625rem}
-.lede{color:var(--color-muted);margin:.5rem 0 0}
-.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(18rem,1fr))}
-.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);
-  padding:1.25rem}
-.card .meta{color:var(--color-muted);font-size:.875rem;margin:.25rem 0 .75rem}
-a{color:var(--color-accent)}
-.main-link{display:inline-block;font-weight:700;text-decoration:none;color:var(--color-primary);
-  background:var(--color-soft);border-radius:var(--radius-badge);padding:.25rem .875rem;margin-bottom:.75rem}
-.main-link:hover,.main-link:focus-visible{background:var(--color-border)}
-ul.days{list-style:none;margin:0;padding:0;display:grid;gap:.375rem}
-ul.days li{display:grid;grid-template-columns:3.5rem 1fr auto;gap:.5rem;align-items:baseline}
-.day{font-weight:700;color:var(--color-heading);font-size:.875rem}
-.todo{color:var(--color-muted)}
-.badge{font-size:.75rem;border:1px solid var(--color-border);border-radius:var(--radius-badge);
-  padding:0 .5rem;margin-left:.25rem;color:var(--color-muted);white-space:nowrap}
-.empty{background:var(--color-soft);border:1px dashed var(--color-border)}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:break-word}
+main{max-width:1120px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:56px}
+h1,h2,h3{color:var(--heading);margin:0;line-height:1.35;text-wrap:balance}
+h1{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}
+h2{font-size:20px}
+h3{font-size:16px;line-height:1.45;font-weight:600}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}
+p{margin:0}
+.top{display:grid;gap:20px}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
+  border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}
+.links a:hover{border-color:var(--primary)}
+.quiet-list{display:grid;gap:12px}
+.quiet h2{font-size:17px;color:var(--muted);font-weight:600}
+.soon{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}
+.count{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.timeline{display:flex;flex-wrap:wrap;gap:14px 24px;padding:20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:16px}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:13px;font-weight:600;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:14px;height:14px;border-radius:3px;display:inline-block;background:var(--cell-future)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.25)}
+.cell.today{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
+.subject{display:grid;gap:16px}
+.subject-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.subject-head a:hover h2{text-decoration:underline}
+.subject-head span{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}
+.card{display:grid;gap:8px;align-content:start;min-width:0}
+.thumb{display:block;aspect-ratio:16/10;max-width:100%;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);background:var(--soft)}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .18s}
+.card:hover .thumb img{transform:scale(1.03)}
+.card:hover h3{text-decoration:underline}
+.meta{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta b{color:var(--heading)}
+.pdf{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px;justify-self:start}
+.feature{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:center;
+  padding:20px;background:var(--soft);border-radius:16px}
+.feature .body{display:grid;gap:10px;justify-items:start}
+.feature h3{font-size:22px;font-weight:700}
+.label{font-size:13px;font-weight:600;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
+  background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}
+.sheets{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.feature{grid-template-columns:1fr}.sheets{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
 </style>
 </head>
-<body><style>
-.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;
-  padding:.5rem 1rem;background:#142849;color:#fff;
-  font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif}
-.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .25rem;border-radius:.375rem}
-.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
-.cn-nav .cn-home{font-weight:700}
-.cn-nav .cn-sep{opacity:.5}
-.cn-nav .cn-step{margin-left:auto;display:flex;gap:.5rem}
-.cn-nav .cn-off{opacity:.4;padding:.125rem .25rem}
-@media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a class="cn-home" href="./">AI 코어 엔지니어 학습 노트</a></nav>
+<body>
 <main>
-<header>
+<header class="top">
 <h1>AI 코어 엔지니어 학습 노트</h1>
-<p class="lede">과목별 4일 종합 요약과 매일 요약, 라이브러리 치트시트를 모았습니다.</p>
+<div class="row"><p class="count">수업 <b>16</b> / 94일 · 요약 <b>7</b>일</p>
+<nav class="links" aria-label="문제 풀이"><a href="https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG" target="_blank" rel="noopener">SWEA 솔빙클럽 ↗</a><a href="https://school.programmers.co.kr/learn/challenges?order=recent&amp;page=1&amp;languages=python3" target="_blank" rel="noopener">프로그래머스 Python ↗</a></nav></div>
+<div class="timeline" aria-label="과정 전체 일정"><div class="tl"><span class="tl-name">Python</span><span class="tl-cells"><span class="cell past" title="Day1 · 10/19 · 과정 오리엔테이션"></span><span class="cell past" title="Day2 · 10/20 · 조건문·반복문과 문제 분해"></span><span class="cell past" title="Day3 · 10/21 · List·Tuple·Dict·Set 활용"></span><span class="cell past" title="Day4 · 10/22 · NumPy 배열 연산과 Pandas 정제·집계 심화"></span></span></div><div class="tl"><span class="tl-name">ML</span><span class="tl-cells"><span class="cell past" title="Day5 · 10/23 · 머신러닝 문제 유형과 전체 학습 절차"></span><span class="cell past" title="Day6 · 10/26 · 선형회귀·로지스틱회귀 원리와 구현"></span><span class="cell past" title="Day7 · 10/27 · Decision Tree·Random Forest 원리와 특성 중요도"></span><span class="cell past" title="Day8 · 10/28 · Accuracy·Precision·Recall·F1·ROC-AUC·RMSE"></span></span></div><div class="tl"><span class="tl-name">DL</span><span class="tl-cells"><span class="cell past" title="Day9 · 10/29 · NVIDIA RTX Laptop GPU 확인(nvidia-smi)"></span><a class="cell has" href="dl/20261030/" title="Day10 · 10/30 · Optimizer·학습률·Batch·Epoch" aria-label="Day10 · 10/30 · Optimizer·학습률·Batch·Epoch"></a><a class="cell has" href="dl/20261102/" title="Day11 · 11/2 · CNN 합성곱·Pooling 구조와 이미지 분류" aria-label="Day11 · 11/2 · CNN 합성곱·Pooling 구조와 이미지 분류"></a><a class="cell has" href="dl/20261103/" title="Day12 · 11/3 · RNN·LSTM·Autoencoder 구조와 활용" aria-label="Day12 · 11/3 · RNN·LSTM·Autoencoder 구조와 활용"></a></span></div><div class="tl"><span class="tl-name">Vision</span><span class="tl-cells"><a class="cell has" href="vision/20261104/" title="Day13 · 11/4 · OpenCV 이미지 표현" aria-label="Day13 · 11/4 · OpenCV 이미지 표현"></a><a class="cell has" href="vision/20261105/" title="Day14 · 11/5 · 전이학습 기반 Vision 모델 구성과 데이터셋 설계" aria-label="Day14 · 11/5 · 전이학습 기반 Vision 모델 구성과 데이터셋 설계"></a><a class="cell has" href="vision/20261106/" title="Day15 · 11/6 · 객체탐지 원리·IoU·mAP" aria-label="Day15 · 11/6 · 객체탐지 원리·IoU·mAP"></a><a class="cell has today" href="vision/20261109/" title="Day16 · 11/9 · OCR 파이프라인과 문서 정보 추출" aria-label="Day16 · 11/9 · OCR 파이프라인과 문서 정보 추출"></a></span></div><div class="tl"><span class="tl-name">LLM·RAG</span><span class="tl-cells"><span class="cell " title="Day17 · 11/10 · FASTAPI 프로젝트·앱 구조"></span><span class="cell " title="Day18 · 11/11 · PostgreSQL·관계형 DB·SQL 기초"></span><span class="cell " title="Day19 · 11/12 · FASTAPI–PostgreSQL 연동"></span><span class="cell " title="Day20 · 11/13 · 생성형 AI·LLM 생태계·활용·한계"></span><span class="cell " title="Day21 · 11/16 · Prompt 구조·Zero/Few-shot·CoT"></span><span class="cell " title="Day22 · 11/17 · LLM API 인증·메시지·Streaming·Rate Limit"></span><span class="cell " title="Day23 · 11/18 · Embedding·유사도·거리 척도"></span><span class="cell " title="Day24 · 11/19 · 문서 수집·정제·파싱"></span><span class="cell " title="Day25 · 11/20 · 기본 RAG 아키텍처"></span><span class="cell " title="Day26 · 11/23 · Keyword Search·Dense Search 비교"></span><span class="cell " title="Day27 · 11/24 · Query Rewrite·Expansion·Multi-query"></span><span class="cell " title="Day28 · 11/25 · Retrieval 평가: Recall@k·MRR·nDCG"></span><span class="cell " title="Day29 · 11/26 · Hallucination 유형과 원인"></span><span class="cell " title="Day30 · 11/27 · Fine-tuning 적용 판단"></span><span class="cell " title="Day31 · 11/30 · NVIDIA NeMo·Nemotron 구성과 활용 시나리오"></span><span class="cell " title="Day32 · 12/1 · 생성형 AI 위협: Prompt Injection·Data Leakage"></span><span class="cell " title="Day33 · 12/2 · Tool Calling·Memory·Planner·Agent Harness"></span><span class="cell " title="Day34 · 12/3 · End-to-End LLM·RAG 서비스 통합 및 Agent 확장 설계"></span></span></div><div class="tl"><span class="tl-name">LLM·RAG 프로젝트</span><span class="tl-cells"><span class="cell " title="Day35 · 12/4 · 현업 과제 브리핑"></span><span class="cell " title="Day36 · 12/7 · 사용자 시나리오·요구사항·비기능 요구 정의"></span><span class="cell " title="Day37 · 12/8 · 데이터 수집·정제·문서 파싱"></span><span class="cell " title="Day38 · 12/9 · Retriever·Hybrid Search 구현"></span><span class="cell " title="Day39 · 12/10 · Prompt·Context·Structured Output 구현"></span><span class="cell " title="Day40 · 12/11 · FastAPI 기반 서비스 API 설계"></span><span class="cell " title="Day41 · 12/14 · 평가 질문·정답·근거 데이터 구축"></span><span class="cell " title="Day42 · 12/15 · 실패 사례 개선"></span><span class="cell " title="Day43 · 12/16 · Docker 기본 구조·Image·Container·Volume·Network"></span><span class="cell " title="Day44 · 12/17 · 팀별 최종 데모와 질의응답"></span></span></div><div class="tl"><span class="tl-name">Agent</span><span class="tl-cells"><span class="cell " title="Day45 · 12/18 · VS Code 기반 Agentic Software Development와 AI 코딩 도구"></span><span class="cell " title="Day46 · 12/21 · OS 프로세스·환경변수·권한"></span><span class="cell " title="Day47 · 12/22 · Agent 구성요소: Model·Tool·Memory·Planner"></span><span class="cell " title="Day48 · 12/23 · LangChain Runnable·Prompt·Model·Parser"></span><span class="cell " title="Day49 · 12/24 · 외부 REST API·DB·파일 도구 설계"></span><span class="cell " title="Day50 · 12/28 · RAG Agent의 검색 도구화와 라우팅"></span><span class="cell " title="Day51 · 12/29 · Short-term·Long-term Memory와 상태"></span><span class="cell " title="Day52 · 12/30 · LangGraph State·Node·Edge 개념"></span><span class="cell " title="Day53 · 12/31 · Router·Subgraph·병렬 분기 설계"></span><span class="cell " title="Day54 · 1/4 · Checkpointing·Thread·재개·Time Travel"></span><span class="cell " title="Day55 · 1/5 · ReAct 추론·행동·관찰 Loop"></span><span class="cell " title="Day56 · 1/6 · Planner–Executor 패턴"></span><span class="cell " title="Day57 · 1/7 · Multi-Agent 필요성·역할 분리·통신"></span><span class="cell " title="Day58 · 1/8 · Supervisor·Handoff·Delegation 패턴"></span><span class="cell " title="Day59 · 1/11 · Human-in-the-loop와 승인 지점"></span><span class="cell " title="Day60 · 1/12 · Guardrails·최소권한·Sandbox·Secret 관리"></span><span class="cell " title="Day61 · 1/13 · Agent Evaluation: 목표 달성·경로·도구 정확성"></span><span class="cell " title="Day62 · 1/14 · Observability·구조화 로그·메트릭"></span><span class="cell " title="Day63 · 1/15 · NVIDIA NIM·Local LLM 추론 연계"></span><span class="cell " title="Day64 · 1/18 · Jetson·TensorRT 기반 Edge Agent 구조"></span></span></div><div class="tl"><span class="tl-name">Agent 프로젝트</span><span class="tl-cells"><span class="cell " title="Day65 · 1/19 · 산업 문제 후보 발굴과 팀 구성"></span><span class="cell " title="Day66 · 1/20 · 시장·유사 서비스·기술 타당성 조사"></span><span class="cell " title="Day67 · 1/21 · 사용자 Journey·Use Case 작성"></span><span class="cell " title="Day68 · 1/22 · KPI·품질지표·운영지표 정의"></span><span class="cell " title="Day69 · 1/25 · 전체 시스템·데이터 흐름 설계"></span><span class="cell " title="Day70 · 1/26 · VS Code 개발환경·Git Repository·Branch·Issue·PR 규칙 설정"></span><span class="cell " title="Day71 · 1/27 · 원천 데이터 수집·권리·보안 검토"></span><span class="cell " title="Day72 · 1/28 · Chunking·Metadata 실험"></span><span class="cell " title="Day73 · 1/29 · Hybrid Search·Filter 구현"></span><span class="cell " title="Day74 · 2/1 · Prompt·Context·Structured Output 설계"></span><span class="cell " title="Day75 · 2/2 · 도메인 Tool 목록·입출력 계약 설계"></span><span class="cell " title="Day76 · 2/3 · Memory 범위·보존정책 설계"></span><span class="cell " title="Day77 · 2/4 · LangGraph State·Node·Edge 구현"></span><span class="cell " title="Day78 · 2/5 · ReAct 또는 Planner–Executor 적용"></span><span class="cell " title="Day79 · 2/10 · Multi-Agent 역할·통신 설계"></span><span class="cell " title="Day80 · 2/11 · 기술 멘토링 및 아키텍처 집중 리뷰"></span><span class="cell " title="Day81 · 2/12 · Human-in-the-loop 승인·수정 흐름"></span><span class="cell " title="Day82 · 2/15 · Prompt Injection·Tool Abuse 위협 모델링"></span><span class="cell " title="Day83 · 2/16 · 서비스 API·Session·인증 구조 구현"></span><span class="cell " title="Day84 · 2/17 · Agent 실행 Trace·구조화 로그"></span><span class="cell " title="Day85 · 2/18 · Retrieval·Generation 평가 자동화"></span><span class="cell " title="Day86 · 2/19 · 오류 군집화와 Root Cause 분석"></span><span class="cell " title="Day87 · 2/22 · 동시성·Caching·Batching·모델 라우팅"></span><span class="cell " title="Day88 · 2/23 · NVIDIA NIM·GPU 배포 아키텍처"></span><span class="cell " title="Day89 · 2/24 · 장애 시나리오·Timeout·Retry·Fallback"></span><span class="cell " title="Day90 · 2/25 · 사용자 검증 계획과 Task-based Test"></span><span class="cell " title="Day91 · 2/26 · 기술 멘토링 및 코드·운영 리뷰"></span><span class="cell " title="Day92 · 3/2 · README·설치·API·아키텍처 문서 완성"></span><span class="cell " title="Day93 · 3/3 · 포트폴리오 Story·개인 기여·성과 수치화"></span><span class="cell " title="Day94 · 3/4 · 최종 데모·발표·질의응답"></span></span></div></div>
 </header>
-<h2>전체 과목</h2>
-<section class="card empty"><h3>전체 과목 연결 요약 <small class="badge">준비 중</small></h3><p class="meta">과목 사이에 무엇이 이어지는지 한 장으로 정리할 예정입니다.</p></section>
-<h2>과목별 요약</h2>
-<div class="grid"><section class="card"><h3>머신러닝 모델링 및 성능평가</h3><p class="meta">2026.10.23 ~ 10.28</p><a class="main-link" href="ml/">날짜별 목록 →</a><ul class="days"><li class="todo"><span class="day">Day5</span><span>문제 정의·전처리 Pipeline</span><span class="badge">준비 중</span></li><li class="todo"><span class="day">Day6</span><span>선형 모델·KNN (회귀·분류)</span><span class="badge">준비 중</span></li><li class="todo"><span class="day">Day7</span><span>트리·앙상블·교차검증</span><span class="badge">준비 중</span></li><li class="todo"><span class="day">Day8</span><span>평가지표·최종 평가</span><span class="badge">준비 중</span></li></ul></section><section class="card"><h3>딥러닝 핵심 아키텍처 및 학습</h3><p class="meta">2026.10.29 ~ 11.03</p><a class="main-link" href="dl/">날짜별 목록 →</a><ul class="days"><li class="todo"><span class="day">Day9</span><span>Tensor·ANN 학습 루프</span><span class="badge">준비 중</span></li><li><span class="day">Day10</span><a href="dl/20261030/">학습 안정화 (Optimizer·과적합 제어)</a><span class="badge">10/30</span></li><li><span class="day">Day11</span><a href="dl/20261102/">CNN 이미지 분류·전이학습</a><span class="badge">11/02</span></li><li><span class="day">Day12</span><a href="dl/20261103/">RNN·LSTM·Transformer</a><span class="badge">11/03</span></li></ul></section><section class="card"><h3>Vision·멀티모달 AI 응용</h3><p class="meta">2026.11.04 ~ 11.09</p><a class="main-link" href="vision/">4일 종합 요약 →</a><ul class="days"><li><span class="day">Day13</span><a href="vision/20261104/">OpenCV 이미지 전처리</a><span class="badge">11/04</span></li><li><span class="day">Day14</span><a href="vision/20261105/">전이학습 기반 이미지 분류</a><span class="badge">11/05</span></li><li><span class="day">Day15</span><a href="vision/20261106/">객체 탐지·추적 (YOLO)</a><span class="badge">11/06</span></li><li><span class="day">Day16</span><a href="vision/20261109/">OCR·VLM 문서 AI</a><span class="badge">11/09</span></li></ul></section></div>
-<h2 id="cheatsheet">라이브러리 치트시트</h2>
-<div class="grid"><section class="card"><h3>scikit-learn</h3><p class="meta">머신러닝 7단계 핵심 치트시트</p><a class="main-link" href="cheatsheet/sklearn/">치트시트 →</a></section><section class="card"><h3>PyTorch</h3><p class="meta">전체 흐름과 파라미터</p><a class="main-link" href="cheatsheet/pytorch/">치트시트 →</a></section><section class="card"><h3>OpenCV</h3><p class="meta">이미지 한 장에서 영상 처리까지</p><a class="main-link" href="cheatsheet/opencv/">치트시트 →</a></section></div>
+<section class="subject"><div class="subject-head"><a href="vision/"><h2>Vision·멀티모달 AI 응용</h2></a><span>Day13–16</span></div><div class="feature"><a href="vision/" tabindex="-1" aria-hidden="true"><span class="thumb"><img src="vision/thumb.jpg" alt=""></span></a><div class="body"><p class="label">4일 종합</p><h3>이미지 전처리에서 분류·객체 탐지·OCR까지</h3><a class="btn" href="vision/">열기</a><a class="pdf" href="vision/Vision_4일종합.pdf">PDF</a></div></div><div class="grid"><div class="card"><a href="vision/20261104/"><span class="thumb"><img src="vision/20261104/thumb.jpg" alt=""></span><p class="meta"><b>Day13</b><span>11/4</span></p><h3>사진 한 장이 상자를 지나며 바뀌는 과정</h3></a><a class="pdf" href="vision/20261104/Day13_개념지도.pdf">PDF</a></div><div class="card"><a href="vision/20261105/"><span class="thumb"><img src="vision/20261105/thumb.jpg" alt=""></span><p class="meta"><b>Day14</b><span>11/5</span></p><h3>전이학습 기반 이미지 분류</h3></a><a class="pdf" href="vision/20261105/Day14_oneday요약.pdf">PDF</a></div><div class="card"><a href="vision/20261106/"><span class="thumb"><img src="vision/20261106/thumb.jpg" alt=""></span><p class="meta"><b>Day15</b><span>11/6</span></p><h3>객체 탐지와 YOLO 학습·추론·추적</h3></a><a class="pdf" href="vision/20261106/Day15_oneday요약.pdf">PDF</a></div><div class="card"><a href="vision/20261109/"><span class="thumb"><img src="vision/20261109/thumb.jpg" alt=""></span><p class="meta"><b>Day16</b><span>11/9</span></p><h3>OCR·VLM 문서 AI와 엣지 배포</h3></a><a class="pdf" href="vision/20261109/Day16_oneday요약.pdf">PDF</a></div></div></section><section class="subject"><div class="subject-head"><a href="dl/"><h2>딥러닝 핵심 아키텍처 및 학습</h2></a><span>Day9–12</span></div><div class="grid"><div class="card"><a href="dl/20261030/"><span class="thumb"><img src="dl/20261030/thumb.jpg" alt=""></span><p class="meta"><b>Day10</b><span>10/30</span></p><h3>학습을 안정시키는 도구들은 어디에 있을까</h3></a><a class="pdf" href="dl/20261030/Day10_개념지도.pdf">PDF</a></div><div class="card"><a href="dl/20261102/"><span class="thumb"><img src="dl/20261102/thumb.jpg" alt=""></span><p class="meta"><b>Day11</b><span>11/2</span></p><h3>CNN 개념 지도 · 모델 안과 모델 밖</h3></a><a class="pdf" href="dl/20261102/Day11_개념지도.pdf">PDF</a></div><div class="card"><a href="dl/20261103/"><span class="thumb"><img src="dl/20261103/thumb.jpg" alt=""></span><p class="meta"><b>Day12</b><span>11/3</span></p><h3>순서 모델 한눈에 보기</h3></a><a class="pdf" href="dl/20261103/Day12_개념지도.pdf">PDF</a></div></div></section><div class="quiet-list"><section class="subject quiet"><div class="subject-head"><h2>머신러닝 모델링 및 성능평가</h2><span>Day5–8</span><span class="soon">준비 중</span></div></section><section class="subject quiet"><div class="subject-head"><h2>AI 개발을 위한 Python 데이터 처리 기초</h2><span>Day1–4</span><span class="soon">준비 중</span></div></section></div>
+<section class="subject" id="cheatsheet"><div class="subject-head"><h2>치트시트</h2></div>
+<div class="grid sheets"><div class="card"><a href="cheatsheet/sklearn/"><span class="thumb"><img src="cheatsheet/sklearn/thumb.jpg" alt=""></span><h3>scikit-learn</h3></a></div><div class="card"><a href="cheatsheet/pytorch/"><span class="thumb"><img src="cheatsheet/pytorch/thumb.jpg" alt=""></span><h3>PyTorch</h3></a></div><div class="card"><a href="cheatsheet/opencv/"><span class="thumb"><img src="cheatsheet/opencv/thumb.jpg" alt=""></span><h3>OpenCV</h3></a></div></div></section>
 </main>
 </body>
 </html>

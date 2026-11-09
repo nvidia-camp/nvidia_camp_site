@@ -2,21 +2,21 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""pages/의 요약 HTML을 모아 배포용 사이트(public/)를 만든다.
+"""pages/의 요약을 모아 배포용 사이트(public/)를 만든다.
 
-사용: uv run build_site.py   (site 폴더에서)
+사용: uv run make_thumbs.py && uv run build_site.py   (site 폴더에서)
 
 - 원본은 pages/ 아래에 둔다. 폴더 이름만 맞추면 자동으로 사이트에 들어간다.
-    pages/<과목>/<YYYYMMDD>/index.html 매일 요약     → /<과목>/<YYYYMMDD>/
-    pages/<과목>/all/index.html     과목 4일 종합    → /<과목>/  (없으면 날짜 목록 페이지)
-    pages/overview/index.html       전체 과목 연결   → /overview/
-    pages/cheatsheet/<이름>/index.html 치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 이름·설명 등록)
-- pages/의 원본은 고치지 않는다. 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는
-  상대 링크(실습 코드 등)는 글자만 남긴다.
-- public/은 매번 지우고 새로 만든다. 직접 고치지 않는다.
-- 페이지 폴더에 요약 PDF가 있으면 public/에 함께 복사하고 위쪽 메뉴에 PDF 링크를 단다.
-- 강의 교재 PDF는 넣지 않는다 (nvidia_camp에만 둔다).
+    pages/<과목>/<YYYYMMDD>/   매일 요약     → /<과목>/<YYYYMMDD>/
+    pages/<과목>/all/          과목 4일 종합 → /<과목>/  (없으면 날짜 카드 목록)
+    pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 보이는 이름 등록)
+- 각 폴더의 index.html, 요약 PDF, thumb.jpg(make_thumbs.py가 만듦)를 public/에 복사한다.
+- 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
+- 날짜와 Day 번호, 과정 전체 일정은 nvidia_camp의 커리큘럼 CSV에서 읽는다.
+- public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
 """
+import csv
+import datetime
 import html
 import re
 import shutil
@@ -25,158 +25,179 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 PAGES = HERE / "pages"
 PUBLIC = HERE / "public"
+CURRICULUM = HERE.parent / "Curriculum_Daily_20261014.csv"
 SITE_NAME = "AI 코어 엔지니어 학습 노트"
 
-# 과목: 사이트 경로, 이름, 기간, 날짜별 (DayNN, 날짜, 주제)
-SUBJECTS = [
-    {
-        "key": "ml", "name": "머신러닝 모델링 및 성능평가", "short": "ML",
-        "period": "2026.10.23 ~ 10.28",
-        "days": [
-            (5, "20261023", "문제 정의·전처리 Pipeline"),
-            (6, "20261026", "선형 모델·KNN (회귀·분류)"),
-            (7, "20261027", "트리·앙상블·교차검증"),
-            (8, "20261028", "평가지표·최종 평가"),
-        ],
-    },
-    {
-        "key": "dl", "name": "딥러닝 핵심 아키텍처 및 학습", "short": "DL",
-        "period": "2026.10.29 ~ 11.03",
-        "days": [
-            (9, "20261029", "Tensor·ANN 학습 루프"),
-            (10, "20261030", "학습 안정화 (Optimizer·과적합 제어)"),
-            (11, "20261102", "CNN 이미지 분류·전이학습"),
-            (12, "20261103", "RNN·LSTM·Transformer"),
-        ],
-    },
-    {
-        "key": "vision", "name": "Vision·멀티모달 AI 응용", "short": "Vision",
-        "period": "2026.11.04 ~ 11.09",
-        "days": [
-            (13, "20261104", "OpenCV 이미지 전처리"),
-            (14, "20261105", "전이학습 기반 이미지 분류"),
-            (15, "20261106", "객체 탐지·추적 (YOLO)"),
-            (16, "20261109", "OCR·VLM 문서 AI"),
-        ],
-    },
-]
-
-# 매일 요약·과목 요약·전체 연결 요약은 pages/ 폴더를 보고 자동으로 찾는다.
-def day_src(key, date):
-    d = PAGES / key / date
-    return d if (d / "index.html").exists() else None
-
-
-def summary_src(key):
-    d = PAGES / key / "all"
-    return d if (d / "index.html").exists() else None
-
-
-OVERVIEW = PAGES / "overview" if (PAGES / "overview" / "index.html").exists() else None
-
-# 치트시트: pages/cheatsheet/<이름> → (보이는 이름, 설명)
-CHEATSHEETS = {
-    "sklearn": ("scikit-learn", "머신러닝 7단계 핵심 치트시트"),
-    "pytorch": ("PyTorch", "전체 흐름과 파라미터"),
-    "opencv": ("OpenCV", "이미지 한 장에서 영상 처리까지"),
+# 커리큘럼 폴더 → (사이트 경로, 짧은 이름)
+SUBJECTS = {
+    "01_python": ("python", "Python"),
+    "02_ML": ("ml", "ML"),
+    "03_DL": ("dl", "DL"),
+    "04_vision": ("vision", "Vision"),
+    "05_LLM_RAG": ("llm", "LLM·RAG"),
+    "06_LLM_RAG_project": ("llm-project", "LLM·RAG 프로젝트"),
+    "07_agent": ("agent", "Agent"),
+    "08_agent_project": ("agent-project", "Agent 프로젝트"),
 }
+# 문제 풀이 사이트 (홈 위쪽 링크)
+PRACTICE = [
+    ("SWEA 솔빙클럽", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
+    ("프로그래머스 Python", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
+]
+# 치트시트: pages/cheatsheet/<이름> → 보이는 이름
+CHEATSHEETS = {"sklearn": "scikit-learn", "pytorch": "PyTorch", "opencv": "OpenCV"}
 
-# ── 위쪽 메뉴 ───────────────────────────────────────────────────────────
-NAV_CSS = """<style>
-.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;
-  padding:.5rem 1rem;background:#142849;color:#fff;
-  font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif}
-.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .25rem;border-radius:.375rem}
-.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
-.cn-nav .cn-home{font-weight:700}
-.cn-nav .cn-sep{opacity:.5}
-.cn-nav .cn-step{margin-left:auto;display:flex;gap:.5rem}
-.cn-nav .cn-off{opacity:.4;padding:.125rem .25rem}
-@media print{.cn-nav{display:none}}
-</style>"""
+FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif'
 
 
-def nav_html(depth, crumbs, prev=None, next_=None, pdf=None):
-    """depth: 사이트 루트에서 몇 단계 아래인지. crumbs: [(이름, 루트 기준 경로)]"""
-    up = "../" * depth
-    parts = [f'<a class="cn-home" href="{up or "./"}">{SITE_NAME}</a>']
-    for name, path in crumbs:
-        parts.append('<span class="cn-sep">/</span>')
-        parts.append(f'<a href="{up}{path}">{html.escape(name)}</a>')
-    if pdf:
-        parts.append('<span class="cn-sep">·</span>')
-        parts.append(f'<a href="{html.escape(pdf)}">PDF</a>')
-    step = []
-    for label, item in (("‹ 이전 날", prev), ("다음 날 ›", next_)):
-        if item:
-            step.append(f'<a href="{up}{item[1]}">{label} · {html.escape(item[0])}</a>')
-        else:
-            step.append(f'<span class="cn-off">{label}</span>')
-    if prev is not None or next_ is not None:
-        parts.append(f'<span class="cn-step">{"".join(step)}</span>')
-    return f'{NAV_CSS}<nav class="cn-nav" aria-label="사이트 메뉴">{"".join(parts)}</nav>'
+# ── 자료 읽기 ────────────────────────────────────────────────────────────
+def read_days():
+    days = []
+    with CURRICULUM.open(encoding="utf-8") as f:
+        for n, row in enumerate(csv.DictReader(f), 1):
+            key, short = SUBJECTS[row["folder"]]
+            ymd = row["date"].replace("-", "")
+            src = PAGES / key / ymd
+            days.append({
+                "n": n, "date": row["date"], "ymd": ymd, "key": key, "short": short,
+                "subject": row["subject"], "folder": row["folder"],
+                "topic": row["am_0900_1300"].split(",")[0].strip(),
+                "src": src if (src / "index.html").exists() else None,
+            })
+    return days
 
 
-LOCAL_LINK = re.compile(
-    r'<a\s[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
+def page_h1(src):
+    text = (src / "index.html").read_text(encoding="utf-8")
+    m = re.search(r"<h1[^>]*>(.*?)</h1>", text, re.S)
+    return html.unescape(re.sub(r"<[^>]+>", "", m.group(1)).strip()) if m else src.name
 
 
-def pdf_of(src_dir):
-    """페이지 폴더의 요약 PDF 이름 (없으면 None)"""
-    pdfs = sorted(p.name for p in src_dir.glob("*.pdf"))
+def pdf_of(src):
+    pdfs = sorted(p.name for p in src.glob("*.pdf"))
     return pdfs[0] if pdfs else None
 
 
-def copy_page(src_dir, dest, nav):
-    src = src_dir / "index.html"
-    text = src.read_text(encoding="utf-8")
+def md(date):
+    return f"{int(date[5:7])}/{int(date[8:10])}"
+
+
+# ── 내용 페이지 위쪽 메뉴 ────────────────────────────────────────────────
+NAV_CSS = f"""<style>
+.cn-nav{{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 {FONT}}}
+.cn-nav a{{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}}
+.cn-nav a:hover,.cn-nav a:focus-visible{{background:rgba(255,255,255,.16);outline:none}}
+.cn-nav .cn-here{{opacity:.7}}
+.cn-nav .cn-right{{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}}
+@media print{{.cn-nav{{display:none}}}}
+</style>"""
+
+
+def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None):
+    """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)"""
+    up = "../" * depth
+    left = [f'<a href="{up or "./"}">← 학습 노트</a>']
+    left += [f'<a href="{up}{path}">{html.escape(name)}</a>' for name, path in crumbs]
+    if here:
+        left.append(f'<span class="cn-here">{html.escape(here)}</span>')
+    right = []
+    if pdf:
+        right.append(f'<a href="{html.escape(pdf)}">PDF</a>')
+    if prev:
+        right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
+    if next_:
+        right.append(f'<a href="{up}{next_[1]}">{html.escape(next_[0])} ›</a>')
+    side = f'<span class="cn-right">{"".join(right)}</span>' if right else ""
+    return f'{NAV_CSS}<nav class="cn-nav" aria-label="사이트 메뉴">{"".join(left)}{side}</nav>'
+
+
+LOCAL_LINK = re.compile(r'<a\s[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
+
+
+def copy_page(src, dest, nav):
+    text = (src / "index.html").read_text(encoding="utf-8")
     text, n_links = LOCAL_LINK.subn(r"<span>\1</span>", text)
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
-    out = PUBLIC / dest / "index.html"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(text, encoding="utf-8")
-    pdf = pdf_of(src_dir)
-    if pdf:
-        shutil.copy2(src_dir / pdf, out.parent / pdf)
-    note = f" (사이트에 없는 링크 {n_links}개를 글자로 바꿈)" if n_links else ""
-    print(f"  /{dest}/ ← {src_dir.relative_to(HERE)}{note}")
+    out = PUBLIC / dest
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "index.html").write_text(text, encoding="utf-8")
+    for name in (pdf_of(src), "thumb.jpg"):
+        if name and (src / name).exists():
+            shutil.copy2(src / name, out / name)
+    note = f" (사이트에 없는 링크 {n_links}개를 글자로)" if n_links else ""
+    print(f"  /{dest}/ ← {src.relative_to(HERE)}{note}")
 
 
-# ── 목록 페이지 (홈, 과목) ──────────────────────────────────────────────
-PAGE_CSS = """
-:root{--color-primary:#142849;--color-heading:#1C2B40;--color-text:#222F44;--color-muted:#52667E;
-  --color-canvas:#F9FBFE;--color-surface:#FFFFFF;--color-soft:#F0F6FD;--color-border:#D8E4F2;
-  --color-accent:#4B74A6;--radius-card:1rem;--radius-badge:9999px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--color-canvas);color:var(--color-text);
-  font:400 1rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
-  word-break:keep-all;overflow-wrap:break-word}
-main{max-width:64rem;margin:0 auto;padding:2rem 1rem 4rem}
-h1,h2,h3{color:var(--color-heading);margin:0;line-height:1.35}
-h1{font-size:clamp(1.625rem,3vw,2.125rem);letter-spacing:-.02em}
-h2{font-size:1.25rem;margin:2.5rem 0 1rem}
-h3{font-size:1.0625rem}
-.lede{color:var(--color-muted);margin:.5rem 0 0}
-.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(18rem,1fr))}
-.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);
-  padding:1.25rem}
-.card .meta{color:var(--color-muted);font-size:.875rem;margin:.25rem 0 .75rem}
-a{color:var(--color-accent)}
-.main-link{display:inline-block;font-weight:700;text-decoration:none;color:var(--color-primary);
-  background:var(--color-soft);border-radius:var(--radius-badge);padding:.25rem .875rem;margin-bottom:.75rem}
-.main-link:hover,.main-link:focus-visible{background:var(--color-border)}
-ul.days{list-style:none;margin:0;padding:0;display:grid;gap:.375rem}
-ul.days li{display:grid;grid-template-columns:3.5rem 1fr auto;gap:.5rem;align-items:baseline}
-.day{font-weight:700;color:var(--color-heading);font-size:.875rem}
-.todo{color:var(--color-muted)}
-.badge{font-size:.75rem;border:1px solid var(--color-border);border-radius:var(--radius-badge);
-  padding:0 .5rem;margin-left:.25rem;color:var(--color-muted);white-space:nowrap}
-.empty{background:var(--color-soft);border:1px dashed var(--color-border)}
+# ── 목록 페이지 (홈, 과목) ───────────────────────────────────────────────
+PAGE_CSS = f"""
+:root{{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
+  --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
+  --on-primary:#FFFFFF;--focus:#4B74A6}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--border:#2A3B5C;
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--cell-past:#33476B;
+  --cell-future:#1C2943;--on-primary:#0E1626;--focus:#A9C3EC;color-scheme:dark}}}}
+*{{box-sizing:border-box}}
+body{{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 {FONT};word-break:keep-all;overflow-wrap:break-word}}
+main{{max-width:1120px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:56px}}
+h1,h2,h3{{color:var(--heading);margin:0;line-height:1.35;text-wrap:balance}}
+h1{{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}}
+h2{{font-size:20px}}
+h3{{font-size:16px;line-height:1.45;font-weight:600}}
+a{{color:inherit;text-decoration:none}}
+a:focus-visible{{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}}
+p{{margin:0}}
+.top{{display:grid;gap:20px}}
+.row{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}}
+.links{{display:flex;flex-wrap:wrap;gap:8px}}
+.links a{{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
+  border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}}
+.links a:hover{{border-color:var(--primary)}}
+.quiet-list{{display:grid;gap:12px}}
+.quiet h2{{font-size:17px;color:var(--muted);font-weight:600}}
+.soon{{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}}
+.count{{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}}
+.count b{{color:var(--heading)}}
+.timeline{{display:flex;flex-wrap:wrap;gap:14px 24px;padding:20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:16px}}
+.tl{{display:grid;gap:6px;min-width:0}}
+.tl-name{{font-size:13px;font-weight:600;color:var(--heading)}}
+.tl-cells{{display:flex;flex-wrap:wrap;gap:3px}}
+.cell{{width:14px;height:14px;border-radius:3px;display:inline-block;background:var(--cell-future)}}
+.cell.past{{background:var(--cell-past)}}
+.cell.has{{background:var(--primary)}}
+a.cell:hover{{transform:scale(1.25)}}
+.cell.today{{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}}
+.subject{{display:grid;gap:16px}}
+.subject-head{{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}}
+.subject-head a:hover h2{{text-decoration:underline}}
+.subject-head span{{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}}
+.grid{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}}
+.card{{display:grid;gap:8px;align-content:start;min-width:0}}
+.thumb{{display:block;aspect-ratio:16/10;max-width:100%;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);background:var(--soft)}}
+.thumb img{{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .18s}}
+.card:hover .thumb img{{transform:scale(1.03)}}
+.card:hover h3{{text-decoration:underline}}
+.meta{{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}}
+.meta b{{color:var(--heading)}}
+.pdf{{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px;justify-self:start}}
+.feature{{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:center;
+  padding:20px;background:var(--soft);border-radius:16px}}
+.feature .body{{display:grid;gap:10px;justify-items:start}}
+.feature h3{{font-size:22px;font-weight:700}}
+.label{{font-size:13px;font-weight:600;color:var(--muted)}}
+.btn{{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
+  background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
+.sheets{{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
+@media (max-width:640px){{.feature{{grid-template-columns:1fr}}.sheets{{grid-template-columns:1fr 1fr}}}}
+@media (prefers-reduced-motion:reduce){{*{{transition:none!important}}a.cell:hover{{transform:none}}}}
 """
 
 
-def list_page(title, body, nav):
+def list_page(title, body, nav=""):
     return f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -194,115 +215,138 @@ def list_page(title, body, nav):
 """
 
 
-def day_items(subject, up):
-    rows = []
-    for num, date, topic in subject["days"]:
-        label = f"Day{num}"
-        shown = f"{date[4:6]}/{date[6:]}"
-        if day_src(subject["key"], date):
-            href = f'{up}{subject["key"]}/{date}/'
-            rows.append(f'<li><span class="day">{label}</span>'
-                        f'<a href="{href}">{html.escape(topic)}</a>'
-                        f'<span class="badge">{shown}</span></li>')
+def thumb_img(src, href):
+    if src and (src / "thumb.jpg").exists():
+        return f'<span class="thumb"><img src="{href}thumb.jpg" alt=""></span>'
+    return '<span class="thumb"></span>'
+
+
+def day_card(d, up):
+    href = f'{up}{d["key"]}/{d["ymd"]}/'
+    pdf = pdf_of(d["src"])
+    pdf_link = f'<a class="pdf" href="{href}{html.escape(pdf)}">PDF</a>' if pdf else ""
+    return (f'<div class="card"><a href="{href}">{thumb_img(d["src"], href)}'
+            f'<p class="meta"><b>Day{d["n"]}</b><span>{md(d["date"])}</span></p>'
+            f'<h3>{html.escape(page_h1(d["src"]))}</h3></a>{pdf_link}</div>')
+
+
+def feature_card(key, up):
+    src = PAGES / key / "all"
+    href = f"{up}{key}/"
+    pdf = pdf_of(src)
+    pdf_link = f'<a class="pdf" href="{href}{html.escape(pdf)}">PDF</a>' if pdf else ""
+    return (f'<div class="feature"><a href="{href}" tabindex="-1" aria-hidden="true">{thumb_img(src, href)}</a>'
+            f'<div class="body"><p class="label">4일 종합</p><h3>{html.escape(page_h1(src))}</h3>'
+            f'<a class="btn" href="{href}">열기</a>{pdf_link}</div></div>')
+
+
+def subject_block(key, ds, up, link_head=True):
+    made = [d for d in ds if d["src"]]
+    has_all = (PAGES / key / "all" / "index.html").exists()
+    if not made and not has_all:
+        return (f'<section class="subject quiet"><div class="subject-head"><h2>{html.escape(ds[0]["subject"])}</h2>'
+                f'<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span><span class="soon">준비 중</span></div></section>')
+    head = f'<h2>{html.escape(ds[0]["subject"])}</h2>'
+    if link_head:
+        head = f'<a href="{up}{key}/">{head}</a>'
+    parts = [f'<div class="subject-head">{head}<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span></div>']
+    if has_all:
+        parts.append(feature_card(key, up))
+    if made:
+        parts.append(f'<div class="grid">{"".join(day_card(d, up) for d in made)}</div>')
+    return f'<section class="subject">{"".join(parts)}</section>'
+
+
+def timeline(days, today):
+    groups, current = [], None
+    for d in days:
+        if d["folder"] != current:
+            groups.append((d["short"], []))
+            current = d["folder"]
+        state = "has" if d["src"] else ("past" if d["date"] <= today else "")
+        if d["date"] == today:
+            state += " today"
+        tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["topic"]}')
+        if d["src"]:
+            groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" title="{tip}" aria-label="{tip}"></a>')
         else:
-            rows.append(f'<li class="todo"><span class="day">{label}</span>'
-                        f'<span>{html.escape(topic)}</span><span class="badge">준비 중</span></li>')
-    return '<ul class="days">' + "".join(rows) + "</ul>"
+            groups[-1][1].append(f'<span class="cell {state}" title="{tip}"></span>')
+    return "".join(f'<div class="tl"><span class="tl-name">{name}</span><span class="tl-cells">{"".join(c)}</span></div>'
+                   for name, c in groups)
 
 
-def subject_card(subject, up):
-    key = subject["key"]
-    if summary_src(key):
-        top = f'<a class="main-link" href="{up}{key}/">4일 종합 요약 →</a>'
-    else:
-        top = f'<a class="main-link" href="{up}{key}/">날짜별 목록 →</a>'
-    return (f'<section class="card"><h3>{html.escape(subject["name"])}</h3>'
-            f'<p class="meta">{subject["period"]}</p>{top}{day_items(subject, up)}</section>')
-
-
-def home_page():
-    if OVERVIEW:
-        overview = ('<section class="card"><h3>전체 과목 연결 요약</h3>'
-                    '<p class="meta">과목 사이에 무엇이 이어지는지 한 장으로 봅니다.</p>'
-                    '<a class="main-link" href="overview/">전체 연결 요약 →</a></section>')
-    else:
-        overview = ('<section class="card empty"><h3>전체 과목 연결 요약 <small class="badge">준비 중</small></h3>'
-                    '<p class="meta">과목 사이에 무엇이 이어지는지 한 장으로 정리할 예정입니다.</p></section>')
-    subjects = "".join(subject_card(s, "") for s in SUBJECTS)
+def home_page(days, subjects, today):
+    done = sum(d["date"] <= today for d in days)
+    made = sum(bool(d["src"]) for d in days)
+    ordered = list(reversed(subjects))
+    full = [subject_block(k, ds, "") for k, ds in ordered if "quiet" not in subject_block(k, ds, "")]
+    quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
+    blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
     sheets = "".join(
-        f'<section class="card"><h3>{html.escape(name)}</h3><p class="meta">{html.escape(desc)}</p>'
-        f'<a class="main-link" href="cheatsheet/{key}/">치트시트 →</a></section>'
-        for key, (name, desc) in CHEATSHEETS.items())
-    body = f"""<header>
+        f'<div class="card"><a href="cheatsheet/{k}/">{thumb_img(PAGES / "cheatsheet" / k, f"cheatsheet/{k}/")}'
+        f'<h3>{name}</h3></a></div>' for k, name in CHEATSHEETS.items())
+    practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{name} ↗</a>'
+                       for name, url in PRACTICE)
+    body = f"""<header class="top">
 <h1>{SITE_NAME}</h1>
-<p class="lede">과목별 4일 종합 요약과 매일 요약, 라이브러리 치트시트를 모았습니다.</p>
+<div class="row"><p class="count">수업 <b>{done}</b> / {len(days)}일 · 요약 <b>{made}</b>일</p>
+<nav class="links" aria-label="문제 풀이">{practice}</nav></div>
+<div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
 </header>
-<h2>전체 과목</h2>
-{overview}
-<h2>과목별 요약</h2>
-<div class="grid">{subjects}</div>
-<h2 id="cheatsheet">라이브러리 치트시트</h2>
-<div class="grid">{sheets}</div>"""
-    return list_page(SITE_NAME, body, nav_html(0, []))
+{blocks}
+<section class="subject" id="cheatsheet"><div class="subject-head"><h2>치트시트</h2></div>
+<div class="grid sheets">{sheets}</div></section>"""
+    return list_page(SITE_NAME, body)
 
 
-def subject_list_page(subject):
-    body = f"""<header>
-<h1>{html.escape(subject["name"])}</h1>
-<p class="lede">{subject["period"]} · 4일 종합 요약은 준비 중입니다. 날짜별 요약을 먼저 볼 수 있습니다.</p>
-</header>
-<h2>날짜별 요약</h2>
-<section class="card">{day_items(subject, "../")}</section>"""
-    nav = nav_html(1, [(subject["short"], f'{subject["key"]}/')])
-    return list_page(f'{subject["short"]} · {subject["name"]}', body, nav)
+def subject_page(key, ds):
+    nav = nav_html(1, [], here=ds[0]["short"])
+    return list_page(f'{ds[0]["short"]} · {SITE_NAME}', subject_block(key, ds, "../", link_head=False), nav)
 
 
 # ── 만들기 ──────────────────────────────────────────────────────────────
 def main():
+    days = read_days()
+    today = datetime.date.today().isoformat()
     if PUBLIC.exists():
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir()
 
-    # 날짜 순서 (이전·다음 날 메뉴용)
-    order = []
-    for s in SUBJECTS:
-        for num, date, _ in s["days"]:
-            if day_src(s["key"], date):
-                order.append((num, s, f'{s["key"]}/{date}/', day_src(s["key"], date)))
+    # 과목별로 묶기: 수업이 시작된 과목은 홈에 모두 보이고, 과목 페이지는 요약이 있는 과목만 만든다
+    started, subjects = [], []
+    for folder, (key, _) in SUBJECTS.items():
+        ds = [d for d in days if d["folder"] == folder]
+        if ds[0]["date"] <= today:
+            started.append((key, ds))
+        if any(d["src"] for d in ds) or (PAGES / key / "all" / "index.html").exists():
+            subjects.append((key, ds))
 
     print("매일 요약")
-    for i, (num, s, path, src) in enumerate(order):
-        prev = (f"Day{order[i-1][0]}", order[i-1][2]) if i > 0 else None
-        nxt = (f"Day{order[i+1][0]}", order[i+1][2]) if i + 1 < len(order) else None
-        nav = nav_html(2, [(s["short"], f'{s["key"]}/'), (f"Day{num}", path)], prev, nxt, pdf_of(src))
-        copy_page(src, path.rstrip("/"), nav)
+    made = [d for d in days if d["src"]]
+    for i, d in enumerate(made):
+        prev = (f'Day{made[i-1]["n"]}', f'{made[i-1]["key"]}/{made[i-1]["ymd"]}/') if i > 0 else None
+        nxt = (f'Day{made[i+1]["n"]}', f'{made[i+1]["key"]}/{made[i+1]["ymd"]}/') if i + 1 < len(made) else None
+        nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
+                       pdf=pdf_of(d["src"]), prev=prev, next_=nxt)
+        copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav)
 
-    print("과목별 요약")
-    for s in SUBJECTS:
-        key = s["key"]
-        if summary_src(key):
-            src = summary_src(key)
-            copy_page(src, key, nav_html(1, [(s["short"], f"{key}/")], pdf=pdf_of(src)))
+    print("과목")
+    for key, ds in subjects:
+        src = PAGES / key / "all"
+        if (src / "index.html").exists():
+            copy_page(src, key, nav_html(1, [], here=f'{ds[0]["short"]} 4일 종합', pdf=pdf_of(src)))
         else:
-            out = PUBLIC / key / "index.html"
-            out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(subject_list_page(s), encoding="utf-8")
-            print(f"  /{key}/ ← 날짜 목록 (pages/{key}/all/index.html 없음)")
-
-    print("전체 연결 요약")
-    if OVERVIEW:
-        copy_page(OVERVIEW, "overview", nav_html(1, [("전체 연결", "overview/")]))
-    else:
-        print("  없음 (홈에 준비 중으로 표시)")
+            (PUBLIC / key).mkdir(parents=True, exist_ok=True)
+            (PUBLIC / key / "index.html").write_text(subject_page(key, ds), encoding="utf-8")
+            print(f"  /{key}/ ← 날짜 카드 목록")
 
     print("치트시트")
-    for key, (name, _) in CHEATSHEETS.items():
-        src = PAGES / "cheatsheet" / key
-        nav = nav_html(2, [("치트시트", "#cheatsheet"), (name, f"cheatsheet/{key}/")], pdf=pdf_of(src))
-        copy_page(src, f"cheatsheet/{key}", nav)
+    for k, name in CHEATSHEETS.items():
+        src = PAGES / "cheatsheet" / k
+        copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name, pdf=pdf_of(src)))
 
-    (PUBLIC / "index.html").write_text(home_page(), encoding="utf-8")
-    print("홈 ← 목록 페이지")
+    (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
+    print(f"홈 · 기준일 {today}")
 
 
 if __name__ == "__main__":
