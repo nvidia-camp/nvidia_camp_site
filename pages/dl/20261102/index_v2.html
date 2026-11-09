@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day11 개념 사슬 (ver2) | CNN은 왜 이런 모양이 되었나</title>
+<style>
+:root {
+  /* PDF 원본 · 새싹 공통 팔레트 */
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-code-bg: #1B2435;
+  --color-code-text: #FFFFFF;
+  /* PDF 원본 · Day11 p.3 전체 지도 (5겹) */
+  --color-accent: #4B74A6;
+  --layer-1: #F0F6FD;
+  --layer-2: #E9F5EC;
+  --layer-3: #FBF2DF;
+  --layer-4: #F0ECF8;
+  --layer-5: #1C2B40;
+
+  --action-bg: var(--color-primary);
+  --action-fg: var(--color-surface);
+  --secondary-bg: var(--color-soft);
+  --secondary-hover: var(--color-border);
+  --focus-ring: var(--color-primary);
+
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "Malgun Gothic", monospace;
+  --text-title: clamp(1.75rem, 3vw, 2.5rem);
+  --text-small: 0.875rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-badge: 9999px;
+  --content-width: 70rem;
+  --map-width: 90rem;
+  --reading-width: 45rem;
+}
+
+* { box-sizing: border-box; min-width: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--space-6); }
+body {
+  margin: 0; background: var(--color-canvas); color: var(--color-text);
+  font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: anywhere;
+}
+.skip { position: absolute; left: var(--space-4); top: -4rem; padding: var(--space-2) var(--space-4); background: var(--action-bg); color: var(--action-fg); border-radius: var(--radius-control); z-index: 10; }
+.skip:focus { top: var(--space-4); }
+.wrap { max-width: var(--content-width); margin-inline: auto; padding-inline: var(--space-8); }
+.wrap-wide { max-width: var(--map-width); margin-inline: auto; padding-inline: var(--space-8); }
+h1, h2, h3, h4 { color: var(--color-heading); font-weight: 700; margin: 0; }
+h1 { font-size: var(--text-title); line-height: 1.3; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; line-height: 1.4; }
+h3 { font-size: 1.125rem; line-height: 1.45; }
+h4 { font-size: 1rem; line-height: 1.45; }
+p { margin: 0; }
+a { color: var(--color-primary); text-underline-offset: 0.2em; }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+code, pre { font-family: var(--font-code); }
+code { font-size: 0.92em; }
+.small { font-size: var(--text-small); line-height: 1.6; }
+.muted { color: var(--color-muted); }
+.eyebrow { color: var(--color-accent); font-weight: 700; font-size: var(--text-small); letter-spacing: 0.02em; }
+b { color: var(--color-heading); }
+
+/* ── 머리말 ───────────────────────── */
+header.top { padding-block: var(--space-12) var(--space-8); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.badge { display: inline-block; padding: var(--space-1) var(--space-3); background: var(--color-soft); color: var(--color-primary); border-radius: var(--radius-badge); font-size: var(--text-small); font-weight: 600; line-height: 1.5; }
+.lede { margin-top: var(--space-4); max-width: var(--reading-width); font-size: 1.125rem; }
+.toc { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); padding: 0; list-style: none; }
+.toc a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: var(--space-2) var(--space-4); border-radius: var(--radius-control); background: var(--secondary-bg); color: var(--color-primary); font-weight: 600; text-decoration: none; }
+.toc a:hover { background: var(--secondary-hover); }
+.toc a.primary { background: var(--action-bg); color: var(--action-fg); }
+
+section.block { padding-block: var(--space-12); border-top: 1px solid var(--color-border); }
+.block-head { margin-bottom: var(--space-6); }
+.block-head p { margin-top: var(--space-2); max-width: var(--reading-width); }
+
+/* 단계 색 = 지도 위치 */
+.s1 { --stage: var(--layer-5); --stage-fg: #FFFFFF; }
+.s2 { --stage: var(--layer-4); --stage-fg: var(--color-heading); }
+.s3 { --stage: var(--layer-2); --stage-fg: var(--color-heading); }
+.s4 { --stage: var(--layer-3); --stage-fg: var(--color-heading); }
+.s5 { --stage: var(--layer-1); --stage-fg: var(--color-heading); }
+
+/* ── 한 장 요약 (사슬) ─────────────── */
+.chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-6); }
+.link { position: relative; display: flex; flex-direction: column; border-radius: var(--radius-card); border: 1px solid var(--color-border); background: var(--color-surface); overflow: visible; }
+.link:not(:last-child)::after { content: "→"; position: absolute; right: calc(-1 * var(--space-6) / 2); top: 4.5rem; transform: translateX(50%); color: var(--color-accent); font-weight: 700; font-size: 1.375rem; }
+.link .head { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--stage); color: var(--stage-fg); border-radius: var(--radius-card) var(--radius-card) 0 0; font-weight: 700; }
+.link .head .num { display: inline-flex; align-items: center; justify-content: center; width: 1.625rem; height: 1.625rem; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: var(--text-small); flex: none; }
+.s1 .head .num { background: #fff; color: var(--layer-5); }
+.link .body { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); flex: 1; }
+.tag { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; }
+.tag.pr { color: #8A4B2A; }
+.tag.so { color: var(--color-accent); }
+.link .prob { font-size: 0.9375rem; line-height: 1.55; }
+.link .down { text-align: center; color: var(--color-accent); font-weight: 700; line-height: 1; }
+.link .sol { font-size: 0.9375rem; line-height: 1.55; font-weight: 600; color: var(--color-heading); }
+.link .terms { font-size: 0.8125rem; color: var(--color-muted); padding-top: var(--space-2); border-top: 1px dashed var(--color-border); margin-top: auto; }
+.qs { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.q { display: inline-block; padding: 0 var(--space-2); border-radius: 6px; background: var(--color-soft); color: var(--color-primary); font-size: 0.75rem; font-weight: 700; text-decoration: none; }
+.chain-note { margin-top: var(--space-4); font-size: var(--text-small); color: var(--color-muted); }
+
+/* ── 단계 본문 ───────────────────── */
+.stage-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); }
+.stage-head .big { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: var(--radius-control); background: var(--stage); color: var(--stage-fg); font-size: 1.375rem; font-weight: 700; border: 1px solid var(--color-border); flex: none; }
+.stage-head .where-line { flex-basis: 100%; font-size: var(--text-small); color: var(--color-muted); }
+
+.problem { padding: var(--space-6); border-radius: var(--radius-card); background: var(--color-surface); border: 1px solid var(--color-border); border-left: 6px solid #C98A5E; }
+.problem .tag { display: block; margin-bottom: var(--space-2); }
+.problem .ask { font-size: 1.25rem; font-weight: 700; color: var(--color-heading); line-height: 1.5; }
+.problem .ask .qn { color: #8A4B2A; margin-right: var(--space-2); }
+.problem .ask code { font-size: 0.85em; background: var(--color-soft); padding: 0 var(--space-1); border-radius: 4px; }
+.problem .why { margin-top: var(--space-3); }
+.problem ul { margin: var(--space-3) 0 0; padding-left: 1.2rem; display: grid; gap: var(--space-2); }
+
+.flow-down { text-align: center; color: var(--color-accent); font-weight: 700; margin-block: var(--space-3); font-size: var(--text-small); }
+.flow-down::before { content: "▼ "; }
+
+.solve { padding: var(--space-6); border-radius: var(--radius-card); background: var(--stage); border: 1px solid var(--color-border); }
+.s1 .solve { background: var(--layer-5); }
+.solve > .tag { display: block; margin-bottom: var(--space-3); }
+.s1 .solve > .tag, .s1 .solve > h3 { color: var(--layer-3); }
+.solve > h3 { margin-bottom: var(--space-4); font-size: 1.25rem; }
+.concepts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.concepts.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.concept { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-control); background: var(--color-surface); border: 1px solid var(--color-border); }
+.concept.wide { grid-column: 1 / -1; }
+.concept h4 small { font-weight: 400; color: var(--color-muted); font-size: 0.8125rem; margin-left: var(--space-1); }
+.concept p, .concept li { font-size: 0.9375rem; line-height: 1.65; }
+.concept ul { margin: 0; padding-left: 1.2rem; display: grid; gap: var(--space-1); }
+.concept .src { font-size: 0.8125rem; color: var(--color-muted); margin-top: auto; padding-top: var(--space-1); }
+.ans { padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); background: var(--color-soft); border-left: 4px solid var(--color-accent); font-size: 0.9375rem; line-height: 1.6; }
+.ans .qn { font-weight: 700; color: var(--color-accent); margin-right: var(--space-1); }
+.outside { display: inline-block; font-size: 0.75rem; font-weight: 700; color: #8A4B2A; background: #FBEFE6; border-radius: 4px; padding: 0 var(--space-1); margin-left: var(--space-1); }
+
+.review { display: flex; gap: var(--space-3); align-items: flex-start; margin-top: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); background: var(--color-surface); border: 1px dashed var(--color-accent); font-size: 0.9375rem; line-height: 1.6; }
+.review .lab { flex: none; font-size: 0.75rem; font-weight: 700; color: var(--action-fg); background: var(--color-accent); border-radius: 4px; padding: 0 var(--space-2); margin-top: 3px; }
+
+.codeline { margin-top: var(--space-4); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-4); align-items: start; padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-surface); border: 1px solid var(--color-border); }
+.codeline .tag { display: block; margin-bottom: var(--space-2); color: var(--color-primary); }
+.codeline pre { margin: 0; padding: var(--space-4); border-radius: var(--radius-control); background: var(--color-code-bg); color: var(--color-code-text); font-size: var(--text-small); line-height: 1.7; overflow-x: auto; }
+.codeline pre .c { color: #A9C1DE; }
+.codeline dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-3); font-size: var(--text-small); line-height: 1.55; }
+.codeline dt { font-family: var(--font-code); font-weight: 700; color: var(--color-primary); }
+.codeline dd { margin: 0; }
+.kind { display: inline-block; font-size: 0.6875rem; font-weight: 700; border-radius: 4px; padding: 0 var(--space-1); margin-right: var(--space-1); vertical-align: 1px; }
+.k1 { background: #E9F5EC; color: #1F5A33; }
+.k2 { background: #F0F6FD; color: var(--color-primary); }
+.k3 { background: #FBF2DF; color: #6B4A12; }
+.k4 { background: #F0ECF8; color: #4A3A78; }
+.kinds { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: var(--text-small); margin-top: var(--space-3); }
+
+.next { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-4); padding: var(--space-4) var(--space-6); border-radius: var(--radius-card); background: var(--color-primary); color: var(--action-fg); }
+.next .tag { color: var(--layer-3); }
+.next p { color: var(--action-fg); font-weight: 600; }
+.next a { margin-left: auto; color: var(--action-fg); font-weight: 700; }
+.basis { margin-top: var(--space-3); font-size: 0.8125rem; color: var(--color-muted); }
+
+/* 그림 */
+.fig { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-block: var(--space-2); }
+.fig figure { margin: 0; display: grid; gap: var(--space-1); justify-items: center; }
+.fig figcaption { font-size: 0.75rem; color: var(--color-muted); }
+.fig .op { font-size: 1.25rem; font-weight: 700; color: var(--color-accent); }
+.g { display: grid; gap: 3px; }
+.px { width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: var(--color-soft); border: 1px solid var(--color-border); color: var(--color-muted); font-family: var(--font-code); font-size: 0.8125rem; }
+.px.hl { background: var(--layer-3); border-color: #E6CF9F; color: var(--color-heading); font-weight: 700; }
+.px.one { color: var(--color-primary); font-weight: 700; }
+.px.on { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.px.z { background: #fff; border-style: dashed; }
+.px.sm { width: 1.125rem; height: 1.125rem; font-size: 0.625rem; }
+svg.diagram { width: 100%; max-width: 26rem; height: auto; display: block; }
+.compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.compare > div { padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); border: 1px solid var(--color-border); background: var(--color-surface); font-size: 0.9375rem; line-height: 1.6; }
+.compare .good { border: 2px solid var(--color-primary); }
+.compare .num { display: block; font-family: var(--font-code); font-size: 1.125rem; font-weight: 700; color: var(--color-primary); }
+.mini-spine { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); font-size: var(--text-small); }
+.shape { display: inline-block; font-family: var(--font-code); font-size: 0.8125rem; font-weight: 600; padding: 0 var(--space-2); border-radius: var(--radius-badge); background: var(--color-soft); color: var(--color-primary); white-space: nowrap; border: 1px solid var(--color-border); }
+.mini-spine .op { color: var(--color-muted); }
+.tl { display: grid; grid-template-columns: minmax(8rem, 1.2fr) repeat(3, minmax(0, 1fr)); gap: 3px; font-size: 0.8125rem; text-align: center; }
+.tl > span { padding: var(--space-1) var(--space-2); border-radius: 6px; }
+.tl .h { font-weight: 700; color: var(--color-heading); }
+.tl .r { text-align: left; font-weight: 700; color: var(--color-heading); background: var(--color-soft); }
+.tl .fz { background: repeating-linear-gradient(135deg, #EEF2F7 0 5px, #E2E8F0 5px 10px); color: var(--color-muted); }
+.tl .tr { background: var(--color-primary); color: #fff; font-weight: 700; }
+.tl .ts { background: var(--color-accent); color: #fff; font-weight: 700; }
+
+/* ── 정리 지도 ───────────────────── */
+.recap { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--space-4); }
+.recap > div { padding: var(--space-6); border-radius: var(--radius-card); border: 1px solid var(--color-border); }
+.recap .ra { background: var(--layer-2); }
+.recap .rb { background: var(--layer-1); }
+.recap h3 { margin-bottom: var(--space-3); }
+.rflow { display: grid; gap: var(--space-2); }
+.rrow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); background: var(--color-surface); border: 1px solid var(--color-border); font-size: 0.9375rem; }
+.rrow .st { display: inline-flex; align-items: center; justify-content: center; min-width: 1.5rem; height: 1.5rem; padding: 0 var(--space-1); border-radius: 6px; background: var(--stage); color: var(--stage-fg); font-size: 0.75rem; font-weight: 700; border: 1px solid var(--color-border); }
+.rrow b { margin-right: auto; }
+.rrow .d { font-size: 0.8125rem; color: var(--color-muted); }
+
+/* ── 코드 ─────────────────────────── */
+pre.full { margin: 0; overflow-x: auto; padding: var(--space-6); border-radius: var(--radius-control); background: var(--color-code-bg); color: var(--color-code-text); font-size: var(--text-small); line-height: 1.65; word-break: normal; overflow-wrap: normal; }
+pre.full .c { color: #A9C1DE; }
+pre.full .h { color: #FBF2DF; font-weight: 700; }
+
+footer { padding-block: var(--space-8) var(--space-12); color: var(--color-muted); font-size: var(--text-small); }
+
+/* ── 반응형 ───────────────────────── */
+@media (max-width: 85rem) {
+  .chain { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .link:nth-child(3)::after { display: none; }
+}
+@media (max-width: 60rem) {
+  .concepts, .concepts.three, .codeline, .compare, .recap { grid-template-columns: 1fr; }
+  .chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .link:nth-child(3)::after { display: block; }
+  .link:nth-child(2n)::after { display: none; }
+}
+@media (max-width: 45rem) {
+  .wrap, .wrap-wide { padding-inline: var(--space-4); }
+  .chain { grid-template-columns: 1fr; gap: var(--space-6); }
+  .link:not(:last-child)::after { content: "↓"; display: block !important; right: auto; left: 50%; top: auto; bottom: calc(-1 * var(--space-6) / 2); transform: translate(-50%, 50%); }
+  .problem, .solve { padding: var(--space-4); }
+  .problem .ask { font-size: 1.125rem; }
+  .px { width: 1.5rem; height: 1.5rem; font-size: 0.75rem; }
+  .next a { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  .skip, .toc { display: none !important; }
+  body { background: #fff; }
+  .link, .concept, .problem, .codeline, .next { break-inside: avoid; }
+  pre { white-space: pre-wrap; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#chain">한 장 요약으로 바로 가기</a>
+
+<header class="top">
+  <div class="wrap">
+    <div class="meta">
+      <span class="badge">새싹 학습 노트</span>
+      <span class="badge">2026.11.02 · Day11 · CNN·이미지 분류·전이학습</span>
+      <span class="badge">수강생용 · ver2</span>
+    </div>
+    <h1>CNN은 왜 이런 모양이 되었나</h1>
+    <p class="lede">오늘 배우는 개념을 <b>“문제 → 해결 → 새 문제”</b>의 사슬 하나로 엮었습니다. 각 개념은 앞 단계의 문제를 풀기 위해 등장합니다. 질문이 왜 생기는지부터 따라가세요.</p>
+    <ul class="toc" aria-label="이 문서의 구역">
+      <li><a class="primary" href="#chain">한 장 요약</a></li>
+      <li><a href="#step1">1 합성곱</a></li>
+      <li><a href="#step2">2 Conv 블록</a></li>
+      <li><a href="#step3">3 점수로 모으기</a></li>
+      <li><a href="#step4">4 깊게 쌓기</a></li>
+      <li><a href="#step5">5 데이터가 적을 때</a></li>
+      <li><a href="#recap">정리 · 어디에 있나</a></li>
+      <li><a href="#code">코드로 보기</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════ 한 장 요약 ═══════════ -->
+<section class="block" id="chain" aria-labelledby="chain-title">
+  <div class="wrap-wide">
+    <div class="block-head">
+      <span class="eyebrow">ONE-PAGE SUMMARY</span>
+      <h2 id="chain-title">한 장 요약 · 문제가 다음 개념을 부른다</h2>
+      <p>왼쪽에서 오른쪽으로, 앞 단계의 해결책이 다음 문제를 만듭니다. 오늘 질문 12개(Q1~Q12)는 모두 이 사슬 위에 있습니다.</p>
+    </div>
+    <ol class="chain">
+      <li class="link s1">
+        <div class="head"><span class="num">1</span>합성곱</div>
+        <div class="body">
+          <span class="tag pr">문제</span>
+          <p class="prob">이미지를 MLP로 분류하면 파라미터가 폭발하고, “가까움”을 모르고, 위치마다 다시 배워야 함</p>
+          <span class="down" aria-hidden="true">↓</span>
+          <span class="tag so">해결</span>
+          <p class="sol">작은 창(Kernel)을 모든 위치에 똑같이 적용 = 합성곱</p>
+          <p class="terms">Kernel · Feature Map · 채널 · 가중치 공유</p>
+          <div class="qs"><a class="q" href="#q1">Q1</a></div>
+        </div>
+      </li>
+      <li class="link s2">
+        <div class="head"><span class="num">2</span>Conv 블록</div>
+        <div class="body">
+          <span class="tag pr">문제</span>
+          <p class="prob">작은 창은 좁은 범위밖에 못 봄</p>
+          <span class="down" aria-hidden="true">↓</span>
+          <span class="tag so">해결</span>
+          <p class="sol">쌓고(Padding), 줄이고(Pooling), 채널을 늘리고, 사이에 ReLU = Conv 블록</p>
+          <p class="terms">수용영역 · Padding · Stride · Pooling · ReLU</p>
+          <div class="qs"><a class="q" href="#q2">Q2</a><a class="q" href="#q3">Q3</a><a class="q" href="#q5">Q5</a><a class="q" href="#q4">Q4</a><a class="q" href="#q7">Q7</a></div>
+        </div>
+      </li>
+      <li class="link s3">
+        <div class="head"><span class="num">3</span>점수로 모으기</div>
+        <div class="body">
+          <span class="tag pr">문제</span>
+          <p class="prob">블록의 결과는 아직 지도 <code>[N,C,h,w]</code>. 클래스 점수가 필요</p>
+          <span class="down" aria-hidden="true">↓</span>
+          <span class="tag so">해결</span>
+          <p class="sol">채널마다 평균(Global Pool) → Head → 점수 → CrossEntropy</p>
+          <p class="terms">Global Avg Pool · Head · logit · Softmax</p>
+          <div class="qs"><a class="q" href="#q6">Q6</a><a class="q" href="#q12">Q12</a></div>
+        </div>
+      </li>
+      <li class="link s4">
+        <div class="head"><span class="num">4</span>깊게 쌓기</div>
+        <div class="body">
+          <span class="tag pr">문제</span>
+          <p class="prob">성능을 위해 더 깊게 쌓으면 오히려 학습이 안 됨</p>
+          <span class="down" aria-hidden="true">↓</span>
+          <span class="tag so">해결</span>
+          <p class="sol">입력을 더해 주는 지름길(Residual) + 값 크기 맞추기(BatchNorm) = ResNet</p>
+          <p class="terms">Residual · BatchNorm · ResNet18</p>
+          <div class="qs"><a class="q" href="#q8">Q8</a><a class="q" href="#q9">Q9</a></div>
+        </div>
+      </li>
+      <li class="link s5">
+        <div class="head"><span class="num">5</span>데이터가 적을 때</div>
+        <div class="body">
+          <span class="tag pr">문제</span>
+          <p class="prob">깊은 모델은 파라미터가 수백만 개, 우리 데이터는 적음 → 과적합</p>
+          <span class="down" aria-hidden="true">↓</span>
+          <span class="tag so">해결</span>
+          <p class="sol">무시할 변화를 데이터로 가르치기(증강) + 남이 배운 표현 빌리기(전이학습)</p>
+          <p class="terms">Augmentation · Backbone · Head · Freeze · Fine-tuning</p>
+          <div class="qs"><a class="q" href="#q10">Q10</a><a class="q" href="#q11">Q11</a></div>
+        </div>
+      </li>
+    </ol>
+    <p class="chain-note">단계의 색은 개념이 놓인 자리입니다. 진남색 = Kernel 연산, 연보라 = Conv 블록, 연두 = CNN 모델 전체, 미색 = 특징 추출부(Backbone), 하늘색 = 모델 밖(데이터·학습). 강의 PDF p.3의 다섯 겹 상자 색과 같습니다.</p>
+  </div>
+</section>
+
+<!-- ═══════════ 1단계 ═══════════ -->
+<section class="block s1" id="step1" aria-labelledby="s1-title">
+  <div class="wrap">
+    <div class="stage-head">
+      <span class="big" aria-hidden="true">1</span>
+      <h2 id="s1-title">1단계 · 작은 창을 모든 위치에 — 합성곱</h2>
+      <p class="where-line">1·2교시 · 위치: Kernel 연산 · UDL 10장 도입 · 10.1 · 10.2 · 10.3</p>
+    </div>
+
+    <div class="problem" id="q1">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q1</span>이미지는 왜 MLP가 아니라 CNN으로 다룰까?</p>
+      <p class="why">MLP는 이미지를 한 줄로 펴서 모든 픽셀을 모든 뉴런에 연결합니다. 이미지에는 세 가지 성질이 있는데, MLP는 이 셋 모두에서 손해를 봅니다 (UDL 10장 도입).</p>
+      <ul>
+        <li><b>차원이 크다</b> → 64×64×3 사진을 뉴런 128개에 연결하면 첫 층만 약 <b>157만 개</b>의 가중치가 필요합니다 (PDF p.18).</li>
+        <li><b>가까운 픽셀끼리 관련이 있다</b> → 펴는 순간 “옆 픽셀”이라는 정보가 사라집니다. 픽셀 순서를 똑같이 섞어도 MLP는 똑같이 학습합니다.</li>
+        <li><b>조금 옮겨도 같은 사진이다</b> → 몇 픽셀만 옮겨도 입력 전체가 바뀝니다. MLP는 같은 패턴을 위치마다 따로 배워야 합니다.</li>
+      </ul>
+    </div>
+    <p class="flow-down">그래서 필요한 것: 가까운 것만 보고, 모든 위치에서 같은 방식으로</p>
+
+    <div class="solve">
+      <span class="tag so">해결</span>
+      <h3>합성곱: 작은 창 하나를 이미지 전체에 옮겨 가며 적용</h3>
+      <div class="concepts">
+        <div class="concept wide">
+          <h4>합성곱과 Kernel<small>convolution · kernel</small></h4>
+          <div class="fig" role="img" aria-label="5×5 입력의 왼쪽 위 3×3 영역에 세로선 Kernel을 곱해 더하면 3이 되고, 이것이 출력 첫 칸이 된다">
+            <figure>
+              <div class="g" style="grid-template-columns:repeat(5,auto)" aria-hidden="true">
+                <span class="px hl">0</span><span class="px hl one">1</span><span class="px hl">0</span><span class="px">0</span><span class="px">0</span>
+                <span class="px hl">0</span><span class="px hl one">1</span><span class="px hl">0</span><span class="px">0</span><span class="px">0</span>
+                <span class="px hl">0</span><span class="px hl one">1</span><span class="px hl">0</span><span class="px">0</span><span class="px">0</span>
+                <span class="px">0</span><span class="px one">1</span><span class="px">0</span><span class="px">0</span><span class="px">0</span>
+                <span class="px">0</span><span class="px one">1</span><span class="px">0</span><span class="px">0</span><span class="px">0</span>
+              </div>
+              <figcaption>입력 5×5 (세로선 하나)</figcaption>
+            </figure>
+            <span class="op" aria-hidden="true">×</span>
+            <figure>
+              <div class="g" style="grid-template-columns:repeat(3,auto)" aria-hidden="true">
+                <span class="px">0</span><span class="px on">1</span><span class="px">0</span>
+                <span class="px">0</span><span class="px on">1</span><span class="px">0</span>
+                <span class="px">0</span><span class="px on">1</span><span class="px">0</span>
+              </div>
+              <figcaption>Kernel 3×3</figcaption>
+            </figure>
+            <span class="op" aria-hidden="true">=</span>
+            <figure>
+              <div class="g" style="grid-template-columns:repeat(3,auto)" aria-hidden="true">
+                <span class="px hl">3</span><span class="px">0</span><span class="px">0</span>
+                <span class="px one">3</span><span class="px">0</span><span class="px">0</span>
+                <span class="px one">3</span><span class="px">0</span><span class="px">0</span>
+              </div>
+              <figcaption>Feature Map 3×3</figcaption>
+            </figure>
+          </div>
+          <p>칠한 3×3 영역의 값과 Kernel의 가중치를 곱해 모두 더하면 <b>1+1+1 = 3</b> → 출력 첫 칸이 됩니다. 창을 한 칸씩 옮기며 반복합니다. 이 Kernel은 “세로선”에 반응하는 패턴 검출기입니다. <b>Kernel 안의 숫자는 사람이 정하지 않고 학습으로 정해집니다.</b></p>
+          <p class="src">UDL 10.2.1 · 10.3 (식 10.6) · PDF p.6. 엄밀히는 교차상관이지만 관례상 합성곱이라 부름</p>
+        </div>
+        <div class="concept">
+          <h4>Feature Map<small>feature map</small></h4>
+          <p>Kernel 하나가 이미지 전체를 훑어 만든 결과 지도. “이 패턴이 <b>어디에</b> 있나”를 담습니다. “특징 추출부”의 특징이 바로 이것입니다.</p>
+          <p class="src">UDL 10.2.5</p>
+        </div>
+        <div class="concept">
+          <h4>채널<small>channel</small></h4>
+          <p>Kernel을 여러 개 쓰면 Feature Map도 여러 장 → 한 장이 채널 하나. <b>출력 채널 수 = Kernel 개수.</b> RGB 입력이면 Kernel 하나가 3채널을 모두 봅니다. 가중치 수 = C<sub>in</sub>×C<sub>out</sub>×K×K + bias C<sub>out</sub>.</p>
+          <p class="src">UDL 10.2.5 · 10.3 · PDF p.27</p>
+        </div>
+      </div>
+      <div class="review"><span class="lab">복습</span><p><b>뉴런 = 가중합 + bias.</b> 합성곱도 같은 계산입니다. 다른 점은 둘뿐입니다. ① 가까운 입력에만 연결되고 ② 모든 위치가 같은 가중치를 씁니다. 그래서 합성곱은 “가중치 대부분이 0이고 나머지는 같은 값인 MLP”라고 볼 수 있습니다 (UDL 10.2.4).</p></div>
+
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q1 답</span><b>가정을 구조에 넣었기 때문입니다.</b> 합성곱은 “가까운 것끼리, 위치와 무관하게”라는 가정을 구조로 강제합니다(귀납적 편향). 그 결과 ① 파라미터가 크게 줄고(Conv 3→16, 3×3은 448개 vs MLP 157만 개), ② 사진을 옮기면 Feature Map도 같이 옮겨져(등변) 같은 패턴을 어디서든 알아봅니다. UDL의 실험에서 MLP는 표현력이 더 크지만 test 오류는 약 40%, CNN은 약 17%였습니다. <span class="muted small">UDL 10.1 · 10.2.7</span></div>
+    </div>
+
+    <div class="codeline">
+      <div>
+        <span class="tag">코드에서</span>
+<pre><code>nn.Conv2d(3, 16, kernel_size=3)
+<span class="c"># 입력 [N,3,64,64] → 출력 [N,16,62,62]</span></code></pre>
+        <div class="kinds"><span><span class="kind k1">맞춤</span>앞뒤가 정함</span><span><span class="kind k2">관례</span>이유 있는 표준값</span><span><span class="kind k3">실험</span>비교해서 고름</span><span><span class="kind k4">사전학습</span>남의 조건을 따름</span></div>
+      </div>
+      <dl>
+        <dt>3</dt><dd><span class="kind k1">맞춤</span>입력 채널. RGB라서 3. 틀리면 에러</dd>
+        <dt>16</dt><dd><span class="kind k3">실험</span>Kernel 개수 = 찾을 패턴 수 = 출력 채널</dd>
+        <dt>kernel_size=3</dt><dd><span class="kind k2">관례</span>창 크기. 왜 3인지는 2단계 Q2</dd>
+        <dt>62</dt><dd>3×3 창이 가장자리를 넘지 못해 2칸 줄어듦 → 2단계 Q3</dd>
+      </dl>
+    </div>
+
+    <div class="next"><span class="tag">다음 문제</span><p>3×3 창 하나는 3×3 범위밖에 못 봅니다. 사진 속 고양이 얼굴 전체는 어떻게 알아보나?</p><a href="#step2">2단계로 →</a></div>
+  </div>
+</section>
+
+<!-- ═══════════ 2단계 ═══════════ -->
+<section class="block s2" id="step2" aria-labelledby="s2-title">
+  <div class="wrap">
+    <div class="stage-head">
+      <span class="big" aria-hidden="true">2</span>
+      <h2 id="s2-title">2단계 · 쌓고, 줄이고, 늘리기 — Conv 블록</h2>
+      <p class="where-line">2·3교시 · 위치: Conv 블록 · UDL 10.2.2~10.2.6 · 10.4 · 10.6</p>
+    </div>
+
+    <div class="problem" id="q2">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q2</span>넓게 보려면 큰 창을 쓰면 될 텐데, 왜 <code>kernel_size=3</code>처럼 작은 창을 여러 번 쌓을까?</p>
+    </div>
+    <p class="flow-down">해결: 층을 쌓으면 보는 범위가 넓어진다</p>
+
+    <div class="solve">
+      <span class="tag so">해결</span>
+      <h3>쌓으면 넓어지고, 줄이면 더 빨리 넓어진다</h3>
+      <div class="concepts">
+        <div class="concept">
+          <h4>수용영역<small>receptive field</small></h4>
+          <svg class="diagram" viewBox="0 0 300 150" role="img" aria-labelledby="rf-t">
+            <title id="rf-t">3×3 Conv를 두 번 쌓으면 출력 한 칸이 입력 5칸을 본다</title>
+            <g font-family="sans-serif" font-size="11" fill="#52667E">
+              <text x="0" y="22">2층</text><text x="0" y="77">1층</text><text x="0" y="132">입력</text>
+            </g>
+            <g fill="#F0F6FD" stroke="#D8E4F2">
+              <rect x="40" y="115" width="26" height="26"/><rect x="72" y="115" width="26" height="26" fill="#FBF2DF"/><rect x="104" y="115" width="26" height="26" fill="#FBF2DF"/><rect x="136" y="115" width="26" height="26" fill="#FBF2DF"/><rect x="168" y="115" width="26" height="26" fill="#FBF2DF"/><rect x="200" y="115" width="26" height="26" fill="#FBF2DF"/><rect x="232" y="115" width="26" height="26"/>
+              <rect x="104" y="60" width="26" height="26" fill="#F0ECF8"/><rect x="136" y="60" width="26" height="26" fill="#F0ECF8"/><rect x="168" y="60" width="26" height="26" fill="#F0ECF8"/>
+              <rect x="136" y="5" width="26" height="26" fill="#142849" stroke="#142849"/>
+            </g>
+            <g stroke="#4B74A6" stroke-width="1.5">
+              <line x1="149" y1="31" x2="117" y2="60"/><line x1="149" y1="31" x2="149" y2="60"/><line x1="149" y1="31" x2="181" y2="60"/>
+              <line x1="117" y1="86" x2="85" y2="115"/><line x1="181" y1="86" x2="213" y2="115"/>
+            </g>
+            <text x="298" y="132" font-size="11" fill="#1C2B40" font-family="sans-serif" text-anchor="end">5칸</text>
+          </svg>
+          <p>출력 한 칸이 원본에서 보는 범위. 3×3을 한 번 쌓을 때마다 2칸씩 넓어집니다: <b>3 → 5 → 7 …</b> 층이 깊을수록 작은 패턴(선)이 모여 큰 패턴(눈, 얼굴)이 됩니다.</p>
+          <p class="src">UDL 10.2.6 (그림 10.6)</p>
+        </div>
+        <div class="concept">
+          <h4>그럼 왜 큰 창 하나가 아닌가</h4>
+          <div class="compare">
+            <div><b>5×5 한 번</b><span class="num">25·C²</span>비선형 1번</div>
+            <div class="good"><b>3×3 두 번</b><span class="num">18·C²</span>같은 5칸을 보고 비선형 2번</div>
+          </div>
+          <p>같은 범위를 보면서 가중치는 약 28% 적고, 사이에 ReLU가 한 번 더 들어가 더 복잡한 패턴을 표현합니다 (C = 채널 수).</p>
+          <p class="src">VGG 논문 (Simonyan &amp; Zisserman, 2014) <span class="outside">UDL 본문 밖</span> · UDL 10.5.1</p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q2 답</span>작은 창을 쌓으면 <b>같은 범위를 더 적은 가중치로, 더 많은 비선형과 함께</b> 볼 수 있습니다. 그래서 3×3이 표준이 되었습니다. 홀수인 이유는 가운데 칸이 있어야 출력 위치와 입력 위치가 맞기 때문입니다 (UDL 10.2.3).</div>
+    </div>
+
+    <div class="problem" id="q3" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q3</span>쌓을 때마다 출력이 2칸씩 줄어든다(64 → 62 → 60 …). 왜 <code>padding=1</code>을 넣을까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept">
+          <h4>Padding<small>padding</small></h4>
+          <div class="fig" aria-hidden="true">
+            <div class="g" style="grid-template-columns:repeat(6,auto)">
+              <span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span>
+              <span class="px sm z">0</span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm z">0</span>
+              <span class="px sm z">0</span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm z">0</span>
+              <span class="px sm z">0</span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm z">0</span>
+              <span class="px sm z">0</span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm"></span><span class="px sm z">0</span>
+              <span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span><span class="px sm z">0</span>
+            </div>
+            <span class="small muted">4×4 둘레에 0을 한 겹(P=1)<br>→ 3×3 창을 써도 출력 4×4</span>
+          </div>
+          <p>가장자리 바깥에 0을 덧대서 창이 가장자리에도 걸치게 합니다. 3×3에 P=1이면 <b>크기가 그대로</b>입니다.</p>
+          <p class="src">UDL 10.2.2 · 출력 크기 공식 PDF p.26</p>
+        </div>
+        <div class="concept">
+          <h4>얻는 것과 치르는 것</h4>
+          <ul>
+            <li><b>얻는 것</b>: 크기를 줄이는 일을 Pooling에만 맡길 수 있어 Shape 계산이 단순해집니다. 가장자리 픽셀도 충분히 계산에 쓰입니다.</li>
+            <li><b>치르는 것</b>: 바깥이 0이라고 가정합니다. 덧대지 않는 방식(valid)은 가짜 정보를 넣지 않는 대신 크기가 줄어듭니다.</li>
+          </ul>
+          <p class="src">UDL 10.2.2</p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q3 답</span>층을 여러 번 쌓아도 <b>크기가 줄지 않게 해서, 크기 조절을 Pooling 한 곳에 몰아주기</b> 위해서입니다. 대신 바깥을 0으로 가정하는 비용이 있습니다.</div>
+    </div>
+
+    <div class="problem" id="q5" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q5</span>3×3만 쌓아서 64×64 전체를 보려면 약 32층이 필요하다. 더 빨리 넓히려면? 그리고 왜 <code>MaxPool2d(2)</code>일까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept">
+          <h4>Pooling · Stride<small>downsampling</small></h4>
+          <div class="fig" aria-hidden="true">
+            <div class="g" style="grid-template-columns:repeat(2,auto)"><span class="px">1</span><span class="px on">4</span><span class="px">2</span><span class="px">3</span></div>
+            <span class="op">→</span>
+            <div class="g"><span class="px on">4</span></div>
+            <span class="small muted">2×2 MaxPool<br>(PDF p.5)</span>
+          </div>
+          <p>2×2 영역을 값 하나로 줄여 공간을 ½로 만듭니다. 그러면 다음 Conv의 한 칸이 원본의 <b>2배 넓은</b> 범위를 대표합니다. SmallCNN의 수용영역: 3 → 4 → 8 → 10. <b>Stride 2 Conv</b>도 계산하면서 동시에 줄이는 같은 역할을 합니다(ResNet이 사용).</p>
+          <p class="src">UDL 10.4.1 · 10.2.3</p>
+        </div>
+        <div class="concept">
+          <h4>왜 Max인가</h4>
+          <p>최댓값은 영역 안에서 패턴이 조금 움직여도 대부분 그대로입니다. 그래서 <b>작은 이동에 덜 민감</b>해집니다(부분 불변). 1단계의 합성곱은 “옮기면 같이 옮겨짐”(등변)이고, Pooling은 “조금 옮겨도 같음”(불변)을 더합니다. 평균(Average)보다 Max가 나았다는 비교 실험도 있습니다.</p>
+          <p class="src">UDL 10.1 · 10.4.1 · 10장 Notes (Scherer et al., 2010)</p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q5 답</span>공간을 줄이면 <b>적은 층으로 넓게 보고</b>, 계산도 줄고, <b>작은 이동에도 덜 흔들립니다.</b> 대가는 세부 위치 정보를 잃는 것입니다(PDF p.5).</div>
+    </div>
+
+    <div class="problem" id="q4" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q4</span>공간을 ½로 줄이면 정보가 줄어든다. 그래서 채널을 <code>16 → 32</code>로 늘리는데, 왜 하필 2배일까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept">
+          <h4>“어디에”를 “무엇이”로 바꾸기</h4>
+          <p>공간 칸 수는 ¼로 줄지만, 채널이 늘면 한 칸에 담는 <b>패턴 종류</b>가 많아집니다. 뒤로 갈수록 “어디에 있나”보다 “무엇이 있나”가 중요해지므로 이 교환이 맞습니다. UDL도 전형적인 CNN을 “공간은 ½씩, 채널은 2배씩”으로 정리합니다.</p>
+          <p class="src">UDL 10.6 · 10.5.1 (VGG)</p>
+        </div>
+        <div class="concept">
+          <h4>왜 정확히 2배인가 · 연산량 계산</h4>
+          <p>Conv 한 층의 계산량 ∝ <b>H × W × C<sub>in</sub> × C<sub>out</sub> × K²</b></p>
+          <p>H·W가 각각 ½ → ×¼, C<sub>in</sub>·C<sub>out</sub>이 각각 2배 → ×4. <b>곱하면 1</b>, 층마다 계산량이 비슷하게 유지됩니다. 특정 층만 병목이 되지 않게 하려는 설계 규칙입니다.</p>
+          <p class="src">ResNet 논문 (He et al., 2016) <span class="outside">UDL 본문 밖</span></p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q4 답</span>줄어든 위치 정보를 <b>패턴 종류로 바꿔 담고</b>, 층마다 <b>계산량을 고르게</b> 하려는 규칙입니다. 다만 2배는 설계 관례이고, SmallCNN의 16·32는 실험으로 정하는 값입니다.</div>
+    </div>
+
+    <div class="problem" id="q7" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q7</span>Conv 사이에 왜 꼭 <code>nn.ReLU()</code>가 있을까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="review" style="margin-top:0"><span class="lab">복습</span><p><b>ReLU = 음수는 0, 양수는 그대로.</b> 합성곱은 가중합이라 선형입니다. 선형을 두 번 하면 다시 선형 하나(더 큰 Kernel 하나)와 같아서, ReLU 없이 Conv를 10번 쌓아도 Conv 1번과 표현력이 같습니다. 사이에 비선형이 있어야 층을 쌓는 의미가 생깁니다 (UDL 3·4장).</p></div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q7 답</span>ReLU가 없으면 <b>쌓은 층이 하나로 합쳐져</b> 2단계의 “쌓아서 복잡한 패턴 만들기”가 성립하지 않습니다.</div>
+    </div>
+
+    <div class="solve" style="margin-top:var(--space-6)">
+      <span class="tag so">2단계 결과</span>
+      <h3>이렇게 Conv 블록이 완성된다</h3>
+      <div class="mini-spine">
+        <span class="shape">[8,3,64,64]</span><span class="op">→ Conv2d(3,16,3,padding=1) 패턴 찾기 →</span>
+        <span class="shape">[8,16,64,64]</span><span class="op">→ ReLU 비선형 →</span>
+        <span class="shape">[8,16,64,64]</span><span class="op">→ MaxPool2d(2) 공간 ½ →</span>
+        <span class="shape">[8,16,32,32]</span>
+      </div>
+      <p class="small" style="margin-top:var(--space-3)">이 블록을 반복한 것이 “특징 추출부”입니다. 블록마다 공간은 ½, 채널은 늘고, 보는 범위는 넓어집니다 (PDF p.5 · p.39).</p>
+    </div>
+
+    <div class="next"><span class="tag">다음 문제</span><p>블록을 두 번 지나도 결과는 아직 <code>[N,32,16,16]</code> 크기의 “지도”입니다. 클래스 점수 몇 개로 어떻게 바꾸나?</p><a href="#step3">3단계로 →</a></div>
+  </div>
+</section>
+
+<!-- ═══════════ 3단계 ═══════════ -->
+<section class="block s3" id="step3" aria-labelledby="s3-title">
+  <div class="wrap">
+    <div class="stage-head">
+      <span class="big" aria-hidden="true">3</span>
+      <h2 id="s3-title">3단계 · 전체를 모아 점수로 — Global Pool과 Head</h2>
+      <p class="where-line">3·5교시 · 위치: CNN 모델 끝 · UDL 10.5.1 · 10.6 · 5.2 · 5.5</p>
+    </div>
+
+    <div class="problem" id="q6">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q6</span><code>[N,32,16,16]</code>을 그냥 펴서(Flatten) Linear에 넣으면 되지 않나? 왜 <code>AdaptiveAvgPool2d(1)</code>을 먼저 쓸까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept wide">
+          <h4>두 방법 비교 (K = 2 클래스)</h4>
+          <div class="compare">
+            <div><b>Flatten → Linear</b><span class="num">16,386개</span>32×16×16 = 8,192개를 펴서 연결. 사진 크기가 바뀌면 <code>in_features</code>가 틀려 에러. AlexNet은 파라미터 약 6천만 개 중 대부분이 이 FC 층에 있었음</div>
+            <div class="good"><b>Global Avg Pool → Linear</b><span class="num">66개</span>채널마다 평균 하나 → <code>[N,32]</code>. 사진 크기와 무관하고, 위치 정보를 버려 “무엇이 있나”만 남김</div>
+          </div>
+          <p class="src">UDL 10.5.1 · 10.6 · PDF p.40·43 · Global Average Pooling은 Lin et al. (2014) <span class="outside">UDL 본문 밖</span></p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q6 답</span>파라미터를 <b>수백 배 줄이고</b>(과적합 위험↓), 입력 크기에 <b>묶이지 않게</b> 하고, 1·2단계에서 쌓은 <b>위치 무관성</b>을 끝까지 완성합니다. ResNet18도 같은 방식으로 끝납니다.</div>
+    </div>
+
+    <div class="problem" id="q12" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q12</span>Head가 낸 점수 <code>[N,K]</code>는 얼마나 맞았나? 왜 손실은 <code>CrossEntropyLoss</code>이고, 모델 끝에 Softmax를 넣지 않을까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts three">
+        <div class="concept">
+          <h4>① 점수 = logit</h4>
+          <p>Head의 출력은 아무 범위의 실수. 아직 확률이 아닙니다.</p>
+        </div>
+        <div class="concept">
+          <h4>② Softmax → 확률</h4>
+          <p>지수를 취해 모두 양수로 만들고, 합이 1이 되게 나눕니다. 클래스 K개의 확률 분포가 됩니다.</p>
+        </div>
+        <div class="concept">
+          <h4>③ 손실 = −log(정답 확률)</h4>
+          <p>정답 확률이 1에 가까우면 손실 ≈ 0, 낮을수록 손실이 커집니다.</p>
+        </div>
+      </div>
+      <div class="review"><span class="lab">이론</span><p>UDL의 손실 함수 만들기 공식: ① 출력에 맞는 확률 분포를 고르고(분류 → 범주 분포), ② 모델이 그 분포의 값을 예측하게 하고(Softmax), ③ <b>정답이 나올 확률을 최대화</b>합니다(최대우도). ③을 음의 로그로 바꾸면 그대로 CrossEntropy가 됩니다. 즉 CrossEntropy는 임의로 고른 손실이 아니라 “정답 확률을 높여라”의 수식입니다 (UDL 5.2 · 5.5 · 5.7).</p></div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q12 답</span>분류에서 <b>정답 확률을 최대화하는 것이 곧 CrossEntropy를 최소화하는 것</b>이기 때문입니다. PyTorch의 <code>CrossEntropyLoss</code>는 Softmax를 안에 포함하므로 모델은 logit만 내보냅니다(PDF p.61). 예측 클래스는 <code>logits.argmax(dim=1)</code>.</div>
+    </div>
+
+    <div class="solve" style="margin-top:var(--space-6)">
+      <span class="tag so">3단계 결과</span>
+      <h3>SmallCNN 완성 · 사진 한 장이 점수가 되기까지</h3>
+      <div class="mini-spine">
+        <span class="shape">[N,3,64,64]</span><span class="op">→ Conv 블록 ×2 →</span>
+        <span class="shape">[N,32,16,16]</span><span class="op">→ Global Avg Pool →</span>
+        <span class="shape">[N,32,1,1]</span><span class="op">→ flatten(x,1) →</span>
+        <span class="shape">[N,32]</span><span class="op">→ Linear →</span>
+        <span class="shape">[N,K]</span><span class="op">→ CrossEntropy</span>
+      </div>
+      <p class="small" style="margin-top:var(--space-3)">파라미터 합계 5,154개(K=2). 1단계의 MLP 첫 층(약 157만 개)과 비교해 보세요 (PDF p.41).</p>
+    </div>
+
+    <div class="next"><span class="tag">다음 문제</span><p>AlexNet(8층)보다 VGG(19층)가 더 좋았습니다. 그럼 100층으로 쌓으면 더 좋아질까?</p><a href="#step4">4단계로 →</a></div>
+  </div>
+</section>
+
+<!-- ═══════════ 4단계 ═══════════ -->
+<section class="block s4" id="step4" aria-labelledby="s4-title">
+  <div class="wrap">
+    <div class="stage-head">
+      <span class="big" aria-hidden="true">4</span>
+      <h2 id="s4-title">4단계 · 깊게 쌓아도 학습되게 — Residual과 BatchNorm</h2>
+      <p class="where-line">3·6교시 · 위치: 특징 추출부(Backbone) · UDL 11.1~11.5</p>
+    </div>
+
+    <div class="problem" id="q8">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q8</span>층을 더 쌓으면 오히려 성능이 떨어진다. 그런데 train 성능도 같이 떨어진다. 왜일까?</p>
+      <p class="why">train까지 나빠진다는 것은 과적합(일반화 문제)이 아니라 <b>학습 자체가 안 되는 문제</b>라는 뜻입니다. 깊은 망에서는 앞쪽 층의 파라미터를 조금만 바꿔도 기울기가 예측할 수 없게 바뀝니다. 손실 지형이 매끈한 언덕이 아니라 “작은 산이 무수히 많은” 모양이 되어 내려가기 어려워집니다 (UDL 11.1).</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept">
+          <h4>Residual 연결<small>residual · skip connection</small></h4>
+          <svg class="diagram" viewBox="0 0 320 120" role="img" aria-labelledby="res-t">
+            <title id="res-t">입력 x가 f를 거친 결과와 더해져 출력이 된다. 위쪽 지름길로 x가 그대로 전달된다</title>
+            <g font-family="sans-serif" font-size="13" fill="#1C2B40">
+              <text x="8" y="84">x</text><text x="296" y="84">출력</text>
+            </g>
+            <line x1="22" y1="80" x2="110" y2="80" stroke="#142849" stroke-width="2"/>
+            <rect x="110" y="62" width="90" height="36" rx="8" fill="#F0ECF8" stroke="#142849"/>
+            <text x="155" y="85" text-anchor="middle" font-size="13" font-family="sans-serif" fill="#1C2B40">f(x)</text>
+            <line x1="200" y1="80" x2="244" y2="80" stroke="#142849" stroke-width="2"/>
+            <circle cx="256" cy="80" r="12" fill="#fff" stroke="#142849" stroke-width="2"/>
+            <text x="256" y="85" text-anchor="middle" font-size="16" font-family="sans-serif" fill="#142849">+</text>
+            <line x1="268" y1="80" x2="292" y2="80" stroke="#142849" stroke-width="2"/>
+            <path d="M40,80 C40,20 256,20 256,68" fill="none" stroke="#4B74A6" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="148" y="26" text-anchor="middle" font-size="12" font-family="sans-serif" fill="#4B74A6">지름길: x를 그대로 전달</text>
+          </svg>
+          <p>출력 = <b>x + f(x)</b>. 각 블록은 입력을 통째로 바꾸지 않고 <b>바꿀 양만</b> 배웁니다. 입력이 그대로 지나가는 길이 있어 정보와 기울기가 깊은 망을 통과합니다.</p>
+          <p class="src">UDL 11.2</p>
+        </div>
+        <div class="concept" id="q9">
+          <h4>그런데 새 문제 → BatchNorm</h4>
+          <p>x에 f(x)를 계속 더하면 값의 크기(분산)가 블록마다 커져, 깊어질수록 폭발합니다 (UDL 11.3).</p>
+          <p><b>BatchNorm</b>: 채널마다 batch와 위치 전체의 평균·표준편차로 값을 정규화한 뒤, 배울 수 있는 배율 γ·이동 δ를 적용합니다.</p>
+          <p class="src">UDL 11.3 · 11.4</p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q8 답</span>깊은 망은 <b>손실 지형이 거칠어 학습이 막힙니다.</b> Residual은 “입력 + 바꿀 양” 구조로 지름길을 만들어 이를 풉니다. 그 결과 1000층도 학습할 수 있게 되었습니다 (UDL 11.6).</div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q9 답 · BatchNorm이 있으면 왜 잘 되나</span>UDL은 세 가지를 듭니다. ① 값의 크기가 층마다 안정됩니다. ② 손실 지형이 매끄러워져 <b>큰 학습률</b>을 써도 됩니다. ③ batch마다 통계가 조금씩 달라 생기는 잡음이 약한 정규화가 됩니다. 평가 때는 batch 통계 대신 <b>학습 중 저장해 둔 통계</b>를 씁니다. 그래서 <code>model.train()</code>과 <code>model.eval()</code>의 동작이 다릅니다 (UDL 11.4.1).</div>
+    </div>
+
+    <div class="solve" style="margin-top:var(--space-6)">
+      <span class="tag so">4단계 결과</span>
+      <h3>ResNet18 = 지금까지의 모든 것</h3>
+      <div class="mini-spine">
+        <span class="shape">7×7 Conv · MaxPool</span><span class="op">→</span>
+        <span class="shape">layer1 64ch</span><span class="op">→</span>
+        <span class="shape">layer2 128ch</span><span class="op">→</span>
+        <span class="shape">layer3 256ch</span><span class="op">→</span>
+        <span class="shape">layer4 512ch</span><span class="op">→ Global Avg Pool → fc</span>
+      </div>
+      <p class="small" style="margin-top:var(--space-3)">각 layer = Residual 블록 2개(Conv–BatchNorm–ReLU + 지름길). layer가 넘어갈 때마다 <b>공간 ½ · 채널 2배</b>(2단계 Q4), 끝은 <b>Global Avg Pool + Linear 하나</b>(3단계 Q6). 파라미터 약 1,170만 개. 참고: UDL 그림은 BN→ReLU→Conv 순서(v2), torchvision ResNet18은 Conv→BN→ReLU 순서(v1)입니다.</p>
+    </div>
+
+    <div class="next"><span class="tag">다음 문제</span><p>ResNet18의 파라미터는 약 1,170만 개입니다. 우리 데이터는 수백~수천 장뿐인데, 처음부터 학습하면 어떻게 될까?</p><a href="#step5">5단계로 →</a></div>
+  </div>
+</section>
+
+<!-- ═══════════ 5단계 ═══════════ -->
+<section class="block s5" id="step5" aria-labelledby="s5-title">
+  <div class="wrap">
+    <div class="stage-head">
+      <span class="big" aria-hidden="true">5</span>
+      <h2 id="s5-title">5단계 · 데이터가 적을 때 — 증강과 전이학습</h2>
+      <p class="where-line">4·6교시 · 위치: 모델 밖(데이터 준비·모델 선택) · UDL 9.3.6 · 9.3.8</p>
+    </div>
+
+    <div class="problem">
+      <span class="tag pr">문제</span>
+      <p class="ask">파라미터는 많고 데이터는 적다 → 과적합</p>
+      <div class="review" style="margin-top:var(--space-3)"><span class="lab">복습</span><p><b>과적합</b> = train은 잘 맞히는데 새 데이터(valid)에는 약한 상태. UDL은 일반화를 높이는 방법을 네 갈래로 정리합니다: 함수를 부드럽게 · <b>데이터를 늘리기</b> · 모델 합치기 · 넓은 최소점 찾기. 오늘의 두 방법은 “데이터 늘리기”(증강)와 “좋은 출발점”(전이학습)입니다 (UDL 9.4, 그림 9.14).</p></div>
+    </div>
+
+    <div class="problem" id="q10" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q10</span><code>RandomHorizontalFlip</code> 같은 증강은 왜 효과가 있고, 왜 train에만 쓸까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept">
+          <h4>증강 = 불변성을 데이터로 가르치기<small>augmentation</small></h4>
+          <p>라벨이 바뀌지 않는 변환(뒤집기·회전·색 변화)으로 같은 사진의 변형을 만들어, “<b>이런 변화는 무시해라</b>”를 가르칩니다.</p>
+          <p>1·2단계에서 합성곱과 Pooling은 <b>이동</b>에 대한 둔감함을 <b>구조로</b> 넣었습니다. 뒤집기·회전·밝기처럼 구조로 넣기 어려운 둔감함은 <b>데이터로</b> 넣습니다. 둘은 같은 목표의 두 방법입니다.</p>
+          <p class="src">UDL 9.3.8 · 10.1</p>
+        </div>
+        <div class="concept">
+          <h4>주의 · 라벨을 바꾸는 변환</h4>
+          <p>오늘 실습 데이터는 <b>가로 줄무늬와 세로 줄무늬</b>입니다(PDF p.2). 90° 회전하면 가로가 세로가 되어 <b>라벨이 바뀝니다.</b> 좌우 뒤집기는 줄무늬 방향을 바꾸지 않으므로 안전합니다. 증강은 항상 “이 변환 후에도 같은 클래스인가?”를 먼저 묻습니다.</p>
+          <p class="src">UDL 9.3.8 (“라벨이 유지되는 변환”)</p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q10 답</span>증강은 <b>무시해야 할 변화를 데이터로 알려 줘서</b> 데이터를 늘린 효과를 냅니다. valid/test는 모델을 <b>고르고 확인하는 자</b>라서, 할 때마다 결과가 달라지면 안 되므로 무작위 변환을 빼고 결정적 변환만 씁니다(PDF p.54).</div>
+    </div>
+
+    <div class="problem" id="q11" style="margin-top:var(--space-6)">
+      <span class="tag pr">문제</span>
+      <p class="ask"><span class="qn">Q11</span>남의 데이터(ImageNet)로 배운 ResNet18이 왜 우리 줄무늬 분류에 도움이 되고, 사전학습 층은 왜 <code>lr=1e-4</code>처럼 작게 학습할까?</p>
+    </div>
+    <div class="solve" style="margin-top:var(--space-3)">
+      <span class="tag so">해결</span>
+      <div class="concepts">
+        <div class="concept">
+          <h4>전이학습 = 좋은 출발점에서 시작<small>transfer learning</small></h4>
+          <p>데이터가 많은 관련 작업(ImageNet: 128만 장, 1,000 클래스)으로 먼저 학습한 뒤, <b>마지막 층(Head)을 떼고 새 층을 붙입니다.</b> 본체(Backbone)는 고정하거나 미세조정합니다. UDL은 이를 “파라미터 대부분을 좋은 해가 있을 법한 곳에서 시작하게 하는 <b>초기화</b>”로 봅니다.</p>
+          <p>앞쪽 층은 색·질감·선처럼 <b>어떤 사진에나 쓰이는</b> 특징을, 뒤쪽 층은 물체 종류와 관련된 특징을 배웁니다. 그래서 앞쪽은 그대로 빌리고 뒤쪽부터 엽니다.</p>
+          <p class="src">UDL 9.3.6 · 10.5.1 · 10장 Notes (Bau et al., 2017)</p>
+        </div>
+        <div class="concept">
+          <h4>어디까지 고정하나 · 왜 작은 lr인가</h4>
+          <div class="tl" aria-label="학습 범위 비교">
+            <span class="h"></span><span class="h">앞쪽 층</span><span class="h">layer4</span><span class="h">Head</span>
+            <span class="r">Head-only</span><span class="fz">고정</span><span class="fz">고정</span><span class="tr">1e-3</span>
+            <span class="r">Partial</span><span class="fz">고정</span><span class="ts">1e-4</span><span class="tr">1e-3</span>
+            <span class="r">전체 미세조정</span><span class="ts">작은 lr</span><span class="ts">작은 lr</span><span class="tr">학습</span>
+          </div>
+          <p>사전학습 층은 이미 좋은 출발점에 있습니다. 큰 lr로 크게 움직이면 그 출발점을 벗어나 빌려 온 특징이 망가집니다. 새 Head는 무작위에서 시작하므로 큰 lr로 빨리 맞춥니다. 고정한 층의 BatchNorm은 4단계의 저장 통계를 유지하도록 <code>eval()</code>로 둡니다.</p>
+          <p class="src">PDF p.75~77 · UDL 9.3.6 · 11.4</p>
+        </div>
+      </div>
+      <div class="ans" style="margin-top:var(--space-3)"><span class="qn">Q11 답</span>사진의 기초 특징은 데이터가 달라도 공통이라 <b>빌려 쓰면 적은 데이터로도 출발점이 좋습니다.</b> 작은 lr은 그 출발점을 <b>지키면서 조금만 맞추기</b> 위해서입니다. 사전학습 때와 같은 입력 조건(<code>weights.transforms()</code>의 크기·Normalize)을 맞추는 것도 같은 이유입니다(PDF p.74).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 정리 ═══════════ -->
+<section class="block" id="recap" aria-labelledby="recap-title">
+  <div class="wrap-wide">
+    <div class="block-head">
+      <span class="eyebrow">RECAP</span>
+      <h2 id="recap-title">정리 · 사슬로 배운 개념은 어디에 있나</h2>
+      <p>왼쪽은 모델 안(사진이 점수가 되는 순서), 오른쪽은 모델 밖(작업 순서)입니다. 숫자는 그 개념이 등장한 단계입니다.</p>
+    </div>
+    <div class="recap">
+      <div class="ra">
+        <h3>모델 안 · 사진 → 점수</h3>
+        <div class="rflow">
+          <p class="rrow"><span class="st s5">5</span><b>사진 (증강·Normalize 후)</b><span class="d"><code>[N,3,H,W]</code></span></p>
+          <p class="rrow"><span class="st s1">1</span><b>Conv2d · Kernel · 채널</b><span class="d">패턴 찾기, 가중치 공유</span></p>
+          <p class="rrow"><span class="st s2">2</span><b>Padding · ReLU · MaxPool</b><span class="d">크기 유지, 비선형, 공간 ½</span></p>
+          <p class="rrow"><span class="st s4">4</span><b>BatchNorm · Residual</b><span class="d">깊게 쌓아도 학습되게 (ResNet18)</span></p>
+          <p class="rrow"><span class="st s2">2</span><b>블록 반복 = 특징 추출부(Backbone)</b><span class="d">공간↓ 채널↑ 수용영역↑</span></p>
+          <p class="rrow"><span class="st s3">3</span><b>Global Avg Pool → flatten → Head</b><span class="d"><code>[N,K]</code> logit</span></p>
+        </div>
+      </div>
+      <div class="rb">
+        <h3>모델 밖 · 작업 순서</h3>
+        <div class="rflow">
+          <p class="rrow"><span class="st s5">5</span><b>데이터 준비</b><span class="d">train만 증강, valid는 결정적</span></p>
+          <p class="rrow"><span class="st s5">5</span><b>모델 후보</b><span class="d">SmallCNN · Head-only · Partial</span></p>
+          <p class="rrow"><span class="st s3">3</span><b>학습</b><span class="d">CrossEntropy = 정답 확률 최대화</span></p>
+          <p class="rrow"><span class="st s4">4</span><b>평가 · 저장</b><span class="d">eval()이면 BN은 저장 통계</span></p>
+          <p class="rrow"><span class="st">·</span><b>장치 비교 · 성능표</b><span class="d">같은 조건으로 측정 (PDF p.84)</span></p>
+        </div>
+      </div>
+    </div>
+    <p class="basis">자세한 위치 지도: <a href="index.html#mapA">ver1 개념 지도 A·B</a></p>
+  </div>
+</section>
+
+<!-- ═══════════ 코드로 보기 ═══════════ -->
+<section class="block" id="code" aria-labelledby="code-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">THE CHAIN, IN CODE</span>
+      <h2 id="code-title">코드로 보기 · 줄마다 몇 단계의 답인가</h2>
+      <p>SmallCNN과 전이학습 코드의 각 줄에 그 줄이 답하는 단계와 질문을 붙였습니다.</p>
+    </div>
+<pre class="full"><code><span class="h"># 5단계 · 데이터: 증강은 train에만 (Q10)</span>
+train_tf = transforms.Compose([transforms.Resize((64, 64)),
+                               transforms.RandomHorizontalFlip(),   <span class="c"># 줄무늬 방향은 그대로</span>
+                               transforms.ToTensor()])
+valid_tf = transforms.Compose([transforms.Resize((64, 64)), transforms.ToTensor()])
+
+class SmallCNN(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 16, 3, padding=1),   <span class="c"># 1단계 합성곱(Q1) · 3×3(Q2) · padding(Q3)</span>
+            nn.ReLU(),                        <span class="c"># 2단계 비선형(Q7)</span>
+            nn.MaxPool2d(2),                  <span class="c"># 2단계 공간 ½(Q5)</span>
+            nn.Conv2d(16, 32, 3, padding=1),  <span class="c"># 2단계 채널 16 → 32(Q4)</span>
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+        self.pool = nn.AdaptiveAvgPool2d(1)   <span class="c"># 3단계 전체를 모으기(Q6)</span>
+        self.fc = nn.Linear(32, num_classes)  <span class="c"># 3단계 Head → logit</span>
+
+    def forward(self, x):
+        x = self.features(x)
+        x = torch.flatten(self.pool(x), 1)
+        return self.fc(x)                     <span class="c"># Softmax 없음(Q12)</span>
+
+loss_fn = nn.CrossEntropyLoss()               <span class="c"># 3단계 정답 확률 최대화(Q12)</span>
+
+<span class="h"># 4·5단계 · 전이학습: ResNet18 = Residual + BatchNorm (Q8·Q9 · Q11)</span>
+weights = ResNet18_Weights.DEFAULT
+model = resnet18(weights=weights)              <span class="c"># 좋은 출발점</span>
+for p in model.parameters():
+    p.requires_grad = False                    <span class="c"># Backbone 고정</span>
+model.fc = nn.Linear(model.fc.in_features, num_classes)   <span class="c"># Head 교체</span>
+for p in model.layer4.parameters():
+    p.requires_grad = True                     <span class="c"># Partial: 뒤쪽부터 연다</span>
+optimizer = torch.optim.AdamW([
+    {"params": model.layer4.parameters(), "lr": 1e-4},   <span class="c"># 출발점을 지키는 작은 lr</span>
+    {"params": model.fc.parameters(), "lr": 1e-3},       <span class="c"># 새 Head는 빠르게</span>
+])
+<span class="c"># 입력 전처리는 weights.transforms()로 사전학습 조건에 맞춘다(Q11)</span></code></pre>
+    <p class="basis">설명용 골격입니다(실습 원문 아님, PDF p.41·54·75·77 기반). Partial에서 고정 층의 BatchNorm을 eval()로 두는 코드는 PDF p.77을 참고하세요.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">새싹 NVIDIA AI 코어 엔지니어 2기 · Day11 학습 노트 ver2 · 2026.11.02 · 개념 기준: Prince, <i>Understanding Deep Learning</i> (MIT Press, 2023). UDL 본문 밖 근거: Simonyan &amp; Zisserman (2014, VGG), He et al. (2016, ResNet), Lin et al. (2014, Network in Network)</div>
+</footer>
+</body>
+</html>

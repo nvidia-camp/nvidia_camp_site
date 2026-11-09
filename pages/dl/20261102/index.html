@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day11 개념 지도 | 모델 안과 모델 밖</title>
+<style>
+:root {
+  /* PDF 원본 · 새싹 공통 팔레트 */
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-code-bg: #1B2435;
+  --color-code-text: #FFFFFF;
+  /* PDF 원본 · Day11 p.3 전체 지도 (5겹) */
+  --color-accent: #4B74A6;
+  --layer-1: #F0F6FD;
+  --layer-2: #E9F5EC;
+  --layer-3: #FBF2DF;
+  --layer-4: #F0ECF8;
+  --layer-5: #1C2B40;
+
+  --action-bg: var(--color-primary);
+  --action-hover: var(--color-code-bg);
+  --action-fg: var(--color-surface);
+  --secondary-bg: var(--color-soft);
+  --secondary-hover: var(--color-border);
+  --secondary-fg: var(--color-primary);
+  --focus-ring: var(--color-primary);
+
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "Malgun Gothic", monospace;
+  --text-title: clamp(1.75rem, 3vw, 2.5rem);
+  --text-section: 1.5rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --leading-body: 1.7;
+  --leading-title: 1.3;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-badge: 9999px;
+  --content-width: 70rem;
+  --map-width: 90rem;
+  --reading-width: 45rem;
+  --motion-fast: 150ms;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--space-6); }
+body {
+  margin: 0; background: var(--color-canvas); color: var(--color-text);
+  font: 400 var(--text-body)/var(--leading-body) var(--font-body);
+  word-break: keep-all; overflow-wrap: anywhere;
+}
+.skip {
+  position: absolute; left: var(--space-4); top: -4rem; padding: var(--space-2) var(--space-4);
+  background: var(--action-bg); color: var(--action-fg); border-radius: var(--radius-control); z-index: 10;
+}
+.skip:focus { top: var(--space-4); }
+.wrap { max-width: var(--content-width); margin-inline: auto; padding-inline: var(--space-8); }
+.wrap-wide { max-width: var(--map-width); margin-inline: auto; padding-inline: var(--space-8); }
+h1, h2, h3 { color: var(--color-heading); font-weight: 700; margin: 0; }
+h1 { font-size: var(--text-title); line-height: var(--leading-title); letter-spacing: -0.02em; }
+h2 { font-size: var(--text-section); line-height: 1.4; }
+h3 { font-size: 1.25rem; line-height: 1.45; }
+p { margin: 0; }
+a { color: var(--color-primary); text-underline-offset: 0.2em; }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+code, pre { font-family: var(--font-code); }
+code { font-size: 0.92em; }
+.muted { color: var(--color-muted); }
+.small { font-size: var(--text-small); line-height: 1.6; }
+.eyebrow { color: var(--color-accent); font-weight: 700; font-size: var(--text-small); letter-spacing: 0.02em; }
+* { min-width: 0; }
+
+/* ── 머리말 ───────────────────────── */
+header.top { padding-block: var(--space-12) var(--space-8); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.badge {
+  display: inline-block; padding: var(--space-1) var(--space-3); background: var(--color-soft); color: var(--color-primary);
+  border-radius: var(--radius-badge); font-size: var(--text-small); font-weight: 600; line-height: 1.5;
+}
+.lede { margin-top: var(--space-4); max-width: var(--reading-width); font-size: 1.125rem; }
+.two-maps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-6); max-width: 52rem; }
+.two-maps a {
+  display: block; padding: var(--space-4) var(--space-6); border-radius: var(--radius-card); text-decoration: none;
+  border: 1px solid var(--color-border); color: var(--color-text);
+}
+.two-maps a:hover { border-color: var(--color-primary); }
+.two-maps .a { background: var(--layer-2); }
+.two-maps .b { background: var(--layer-1); }
+.two-maps b { display: block; color: var(--color-heading); font-size: 1.0625rem; }
+.two-maps span { font-size: var(--text-small); }
+.toc { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); padding: 0; list-style: none; }
+.toc a {
+  display: inline-flex; align-items: center; min-height: 2.75rem; padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-control); background: var(--secondary-bg); color: var(--secondary-fg); font-weight: 600; text-decoration: none;
+}
+.toc a:hover { background: var(--secondary-hover); }
+
+/* ── 구역 공통 ─────────────────────── */
+section.block { padding-block: var(--space-12); border-top: 1px solid var(--color-border); }
+.block-head { margin-bottom: var(--space-4); }
+.block-head p { margin-top: var(--space-2); max-width: var(--reading-width); }
+.how {
+  display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); align-items: center;
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-control);
+  background: var(--color-surface); border: 2px solid var(--color-primary); margin-bottom: var(--space-4);
+}
+.how .k { font-weight: 700; color: var(--color-primary); }
+.how span b { color: var(--color-heading); }
+.basis { margin-top: var(--space-4); font-size: var(--text-small); color: var(--color-muted); }
+
+/* 필터 */
+.filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.filter .label { font-weight: 600; margin-right: var(--space-2); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-primary);
+  font: inherit; font-weight: 600; line-height: 1.4; cursor: pointer;
+}
+.btn:hover { background: var(--secondary-hover); }
+.btn[aria-pressed="true"] { background: var(--action-bg); color: var(--action-fg); border-color: var(--action-bg); }
+.btn-secondary { background: var(--secondary-bg); border-color: transparent; }
+.status { min-height: 1.6em; font-size: var(--text-small); color: var(--color-muted); margin-bottom: var(--space-3); }
+
+/* 패널 (확대 단계) */
+.panel { border-radius: var(--radius-card); padding: var(--space-6); border: 1px solid var(--color-border); }
+.panel.p1 { background: var(--layer-2); }
+.panel.p2 { background: var(--layer-4); }
+.panel.p3 { background: var(--layer-5); border-color: var(--layer-5); color: var(--action-fg); }
+.panel.pb { background: var(--layer-1); }
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-3); margin-bottom: var(--space-4); }
+.panel-head .lv {
+  align-self: center; display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem;
+  border-radius: 50%; background: var(--color-primary); color: var(--action-fg); font-weight: 700; font-size: var(--text-small);
+}
+.panel-head p { color: var(--color-text); }
+.p3 .panel-head h3, .p3 .panel-head p { color: var(--action-fg); }
+.p3 .panel-head .lv { background: var(--action-fg); color: var(--layer-5); }
+.zoom { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-3) 0 var(--space-3) var(--space-8); color: var(--color-muted); font-size: var(--text-small); font-weight: 600; }
+.zoom::before { content: "▼"; color: var(--color-accent); font-size: 1.25rem; }
+
+/* 공통 상자 (칩) */
+.chip {
+  display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); border-radius: var(--radius-control);
+  background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); line-height: 1.45;
+  transition: opacity var(--motion-fast);
+}
+.chip .name { font-weight: 700; color: var(--color-heading); }
+.chip .use { font-size: var(--text-small); color: var(--color-muted); }
+.chip .shape { margin-top: var(--space-1); align-self: flex-start; }
+.chip.key { border: 2px solid var(--color-primary); }
+.shape {
+  display: inline-block; font-family: var(--font-code); font-size: 0.8125rem; font-weight: 600; padding: 0 var(--space-2);
+  border-radius: var(--radius-badge); background: var(--color-soft); color: var(--color-primary); white-space: nowrap;
+}
+.mapA[data-filter]:not([data-filter="all"]) .chip { opacity: 0.3; }
+.mapA[data-filter="1"] .chip[data-period~="1"],
+.mapA[data-filter="2"] .chip[data-period~="2"],
+.mapA[data-filter="3"] .chip[data-period~="3"],
+.mapA[data-filter="6"] .chip[data-period~="6"] { opacity: 1; outline: 3px solid var(--color-accent); outline-offset: 1px; }
+
+/* 관계 문장 */
+.rels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+.rels.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rel {
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.7);
+  border-left: 4px solid var(--color-accent); font-size: 0.9375rem; line-height: 1.6;
+}
+.rel b { color: var(--color-heading); }
+.rel .src { display: block; font-size: 0.8125rem; color: var(--color-muted); margin-top: 2px; }
+.p3 .rel { background: rgba(255, 255, 255, 0.08); color: var(--action-fg); border-left-color: var(--layer-3); }
+.p3 .rel b { color: var(--layer-3); }
+.p3 .rel .src { color: #BFD0E6; }
+
+/* ① 한 줄 흐름 */
+.spine {
+  display: grid; align-items: stretch; row-gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1.6fr) 2rem minmax(0, 1fr) 2rem minmax(0, 1fr) 2rem minmax(0, 1fr);
+}
+.spine .arr { display: flex; align-items: center; justify-content: center; color: var(--color-accent); font-weight: 700; font-size: 1.25rem; }
+.spine .arr::before { content: "→"; }
+.spine .chip.fe { background: var(--layer-3); border: 2px solid var(--color-primary); }
+.spine .chip .more { font-size: 0.8125rem; color: var(--color-accent); font-weight: 700; margin-top: var(--space-1); }
+.bracket {
+  grid-row: 2; text-align: center; font-size: var(--text-small); color: var(--color-heading); font-weight: 600;
+  border-top: 2px solid var(--color-primary); padding-top: var(--space-1); position: relative; line-height: 1.4;
+}
+.bracket span { font-weight: 400; color: var(--color-muted); }
+.bracket::before, .bracket::after { content: ""; position: absolute; top: -2px; width: 2px; height: 0.6rem; background: var(--color-primary); transform: translateY(-100%); }
+.bracket::before { left: 0; }
+.bracket::after { right: 0; }
+.bracket.bb { grid-column: 3 / 8; }
+.bracket.bh { grid-column: 9 / 10; border-top-color: var(--color-accent); }
+.bracket.bh::before, .bracket.bh::after { background: var(--color-accent); }
+
+/* ② Conv 블록 */
+.cb { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-6); }
+.cb > .chip { position: relative; }
+.cb > .chip:not(:last-child)::after {
+  content: "→"; position: absolute; right: calc(-1 * var(--space-6) / 2); top: 50%;
+  transform: translate(50%, -50%); color: var(--color-accent); font-weight: 700; font-size: 1.25rem;
+}
+.chip .note { font-size: 0.8125rem; color: var(--color-accent); font-weight: 600; margin-top: var(--space-1); }
+
+/* ③ Kernel 연산 */
+.k-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+.kdemo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.kdemo figure { margin: 0; display: grid; gap: var(--space-1); justify-items: center; }
+.kdemo figcaption { font-size: 0.8125rem; color: #E3EBF5; }
+.kdemo .op { font-size: 1.5rem; font-weight: 700; color: var(--layer-3); }
+.g { display: grid; gap: 3px; }
+.g.n5 { grid-template-columns: repeat(5, 2rem); }
+.g.n3 { grid-template-columns: repeat(3, 2rem); }
+.px {
+  width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; border-radius: 4px;
+  background: #33435A; color: #E3EBF5; font-family: var(--font-code); font-size: 0.875rem;
+}
+.px.hl { background: var(--layer-3); color: var(--color-heading); font-weight: 700; }
+.px.one { color: var(--action-fg); font-weight: 700; }
+.px.hl.one { color: var(--color-primary); }
+.kcap { font-size: var(--text-small); color: #E3EBF5; margin-top: var(--space-3); line-height: 1.6; }
+.kcap b { color: var(--layer-3); }
+.knobs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.formula { margin-top: var(--space-3); padding: var(--space-3); border-radius: var(--radius-control); border: 1px solid rgba(255, 255, 255, 0.35); font-size: var(--text-small); color: #E3EBF5; line-height: 1.6; }
+.formula .f { font-family: var(--font-code); color: var(--action-fg); font-size: 0.875rem; }
+
+/* ── 지도 B ───────────────────────── */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-6); }
+.stepb { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-card); background: var(--color-surface); border: 1px solid var(--color-border); }
+.stepb:not(:last-child)::after {
+  content: "→"; position: absolute; right: calc(-1 * var(--space-6) / 2); top: var(--space-6);
+  transform: translateX(50%); color: var(--color-accent); font-weight: 700; font-size: 1.25rem;
+}
+.stepb.key { border: 2px solid var(--color-primary); }
+.stepb .top { display: flex; align-items: center; gap: var(--space-2); }
+.stepb .n { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 1.625rem; height: 1.625rem; border-radius: 50%; background: var(--color-primary); color: var(--action-fg); font-size: var(--text-small); font-weight: 700; }
+.stepb h3 { font-size: 1.0625rem; }
+.stepb .period { align-self: flex-start; font-size: 0.8125rem; font-weight: 700; color: var(--color-accent); }
+.stepb ul { margin: 0; padding-left: 1.1rem; display: grid; gap: var(--space-1); font-size: var(--text-small); line-height: 1.55; }
+.stepb li b { color: var(--color-heading); }
+.stepb .toA { margin-top: auto; padding-top: var(--space-2); border-top: 1px dashed var(--color-border); font-size: 0.8125rem; color: var(--color-heading); }
+.stepb .toA::before { content: "지도 A "; font-weight: 700; padding: 0 var(--space-1); border-radius: 4px; background: var(--layer-2); margin-right: var(--space-1); }
+
+/* 전이학습 확대 */
+.tl-table { display: grid; grid-template-columns: minmax(11rem, 1.3fr) repeat(6, minmax(0, 1fr)); gap: var(--space-1); }
+.tl-table .colh { font-size: var(--text-small); font-weight: 700; color: var(--color-heading); text-align: center; padding: var(--space-1); line-height: 1.35; }
+.tl-table .colh small { display: block; font-weight: 400; color: var(--color-muted); font-family: var(--font-code); font-size: 0.75rem; }
+.tl-table .rowh { padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); background: var(--color-surface); border: 1px solid var(--color-border); }
+.tl-table .rowh b { display: block; color: var(--color-heading); line-height: 1.35; }
+.tl-table .rowh span { font-size: 0.8125rem; color: var(--color-muted); }
+.cell { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: var(--radius-control); font-size: var(--text-small); font-weight: 700; padding: var(--space-2) var(--space-1); line-height: 1.3; }
+.cell small { font-weight: 400; font-size: 0.75rem; font-family: var(--font-code); }
+.cell.fz { background: repeating-linear-gradient(135deg, #EEF2F7 0 6px, #E2E8F0 6px 12px); color: var(--color-muted); border: 1px solid var(--color-border); }
+.cell.tr { background: var(--color-primary); color: var(--action-fg); }
+.cell.tr-s { background: var(--color-accent); color: var(--action-fg); }
+.cell.rnd { background: var(--color-surface); color: var(--color-primary); border: 2px solid var(--color-primary); }
+.tl-key { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); font-size: var(--text-small); color: var(--color-muted); }
+.tl-key i { display: inline-block; width: 1.25rem; height: 0.875rem; border-radius: 4px; vertical-align: -0.1em; margin-right: var(--space-1); }
+
+/* ── 기초 개념 ───────────────────── */
+.basics-group { margin-top: var(--space-6); }
+.basics-group > h3 { font-size: 1.125rem; margin-bottom: var(--space-1); }
+.basics-group > p { font-size: var(--text-small); color: var(--color-muted); margin-bottom: var(--space-3); }
+.terms { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-3); }
+.term {
+  display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4);
+  border-radius: var(--radius-card); background: var(--color-surface); border: 1px solid var(--color-border);
+}
+.term.new { border-top: 4px solid var(--color-accent); }
+.term .tn { font-weight: 700; color: var(--color-heading); line-height: 1.4; }
+.term .tn small { font-weight: 400; color: var(--color-muted); font-size: 0.8125rem; margin-left: var(--space-1); }
+.term .td { margin: 0; font-size: 0.9375rem; line-height: 1.6; }
+.term .foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); margin-top: auto; padding-top: var(--space-2); font-size: 0.8125rem; color: var(--color-muted); }
+.mini { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-block: var(--space-2); font-size: 0.75rem; color: var(--color-muted); }
+.mg { display: grid; gap: 2px; }
+.mg span { width: 1.125rem; height: 1.125rem; border-radius: 3px; background: var(--color-soft); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 0.6875rem; color: var(--color-heading); }
+.mg span.on { background: var(--color-primary); border-color: var(--color-primary); color: var(--action-fg); }
+.mg span.z { background: var(--color-surface); border-style: dashed; color: var(--color-muted); }
+.mg span.big { width: 1.5rem; height: 1.5rem; font-size: 0.8125rem; }
+.mini .lab { display: block; margin-bottom: 2px; }
+
+/* ── 코드 ─────────────────────────── */
+.code-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); }
+pre {
+  margin: 0; max-width: 100%; overflow-x: auto; padding: var(--space-6); border-radius: var(--radius-control);
+  background: var(--color-code-bg); color: var(--color-code-text); font-size: var(--text-small); line-height: 1.65; word-break: normal; overflow-wrap: normal;
+}
+pre .c { color: #A9C1DE; }
+pre .h { color: #FBF2DF; font-weight: 700; }
+
+/* ── 증상 표 ─────────────────────── */
+.table-scroll { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); }
+table { width: 100%; border-collapse: collapse; min-width: 52rem; }
+th, td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: top; border-bottom: 1px solid var(--color-border); }
+thead th { background: var(--color-soft); color: var(--color-heading); font-size: var(--text-small); }
+tbody tr:last-child td { border-bottom: 0; }
+td b { color: var(--color-heading); }
+td code { font-size: 0.8125rem; }
+.where { display: inline-block; padding: 0 var(--space-2); border-radius: 6px; font-size: var(--text-small); font-weight: 600; margin: 1px 2px 1px 0; color: var(--color-heading); border: 1px solid var(--color-border); white-space: nowrap; }
+.where.a1 { background: var(--layer-2); }
+.where.a2 { background: var(--layer-4); }
+.where.a3 { background: var(--layer-5); color: var(--action-fg); border-color: var(--layer-5); }
+.where.b { background: var(--layer-1); }
+.scroll-hint { display: none; font-size: var(--text-small); color: var(--color-muted); margin-bottom: var(--space-2); }
+
+footer { padding-block: var(--space-8) var(--space-12); color: var(--color-muted); font-size: var(--text-small); }
+
+/* ── 반응형 ───────────────────────── */
+@media (max-width: 85rem) {
+  .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stepb:nth-child(3)::after { display: none; }
+  .k-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 70rem) {
+  .spine { grid-template-columns: 1fr; }
+  .spine .arr { min-height: 1.5rem; }
+  .spine .arr::before { content: "↓"; }
+  .bracket { display: none; }
+  .cb { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cb > .chip:nth-child(2)::after { display: none; }
+  .rels.three { grid-template-columns: 1fr; }
+}
+@media (max-width: 60rem) {
+  .rels, .two-maps { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; gap: var(--space-4); }
+  .stepb:not(:last-child)::after { content: "↓"; display: block; right: auto; left: var(--space-6); top: auto; bottom: calc(-1 * var(--space-4) / 2); transform: translateY(50%); }
+  .scroll-hint { display: block; }
+  .tl-scroll { overflow-x: auto; }
+  .tl-table { min-width: 46rem; }
+}
+@media (max-width: 45rem) {
+  .wrap, .wrap-wide { padding-inline: var(--space-4); }
+  .panel { padding: var(--space-4) var(--space-3); }
+  .zoom { margin-left: var(--space-2); }
+  .cb, .knobs { grid-template-columns: 1fr; gap: var(--space-4); }
+  .cb > .chip:not(:last-child)::after { content: "↓"; display: block; right: auto; left: var(--space-4); top: auto; bottom: calc(-1 * var(--space-4) / 2); transform: translateY(50%); }
+  .g.n5 { grid-template-columns: repeat(5, 1.75rem); }
+  .g.n3 { grid-template-columns: repeat(3, 1.75rem); }
+  .px { width: 1.75rem; height: 1.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .chip { transition: none; }
+}
+@media print {
+  .skip, .toc, .filter, .status, .code-bar button { display: none !important; }
+  body { background: #fff; }
+  .panel, .stepb { break-inside: avoid; }
+  pre { background: var(--color-soft); color: var(--color-text); white-space: pre-wrap; }
+  pre .c, pre .h { color: var(--color-text); }
+  .mapA .chip { opacity: 1 !important; outline: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#mapA">지도 A로 바로 가기</a>
+
+<header class="top">
+  <div class="wrap">
+    <div class="meta">
+      <span class="badge">새싹 학습 노트</span>
+      <span class="badge">2026.11.02 · Day11 · CNN·이미지 분류·전이학습</span>
+      <span class="badge">수강생용 개념 지도</span>
+    </div>
+    <h1>CNN 개념 지도 · 모델 안과 모델 밖</h1>
+    <p class="lede">오늘 배우는 개념은 두 장의 지도로 나뉩니다. 배우는 범위는 강의 PDF, 개념의 정의와 관계는 <b>UDL</b>(Understanding Deep Learning)을 따랐습니다.</p>
+    <div class="two-maps">
+      <a class="a" href="#mapA"><b>지도 A · 모델 안</b><span>사진 한 장이 점수가 되기까지. 한 칸씩 확대해 Kernel까지</span></a>
+      <a class="b" href="#mapB"><b>지도 B · 모델 밖</b><span>데이터 준비부터 성능표까지, 모델을 만들고 고르는 작업 순서</span></a>
+    </div>
+    <ul class="toc" aria-label="그 밖의 구역">
+      <li><a href="#basics">지도를 읽기 전에 · 기초 개념</a></li>
+      <li><a href="#code">코드로 보기</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════ 기초 개념 ═══════════ -->
+<section class="block" id="basics" aria-labelledby="basics-title">
+  <div class="wrap-wide">
+    <div class="block-head">
+      <span class="eyebrow">BEFORE THE MAPS</span>
+      <h2 id="basics-title">지도를 읽기 전에 · 기초 개념</h2>
+      <p>지도에 설명 없이 나오는 말들입니다. 배지는 그 말이 나오는 지도 위치입니다.</p>
+    </div>
+    <div class="basics-group">
+      <h3>이미 배운 것</h3>
+      <p>Day10까지의 내용. 지도에 그대로 다시 나옵니다.</p>
+      <div class="terms">
+          <div class="term">
+            <p class="tn">Tensor와 Shape<small>Tensor · Shape</small></p>
+            <p class="td">숫자를 담은 다차원 상자. 이미지 batch는 <code>[N, C, H, W]</code> = 이미지 수 · 채널 · 높이 · 너비.</p>
+            <div class="foot"><span class="where a1">A-①</span><span>UDL 부록 B.3</span></div>
+          </div>
+          <div class="term">
+            <p class="tn">뉴런 = 가중합 + bias<small>hidden unit</small></p>
+            <p class="td">입력마다 가중치를 곱해 더하고 bias를 더함. Linear도, Conv도 이 계산을 합니다.</p>
+            <div class="foot"><span class="where a1">A-① Head</span> <span class="where a3">A-③</span><span>UDL 3.1 · 10.2.4</span></div>
+          </div>
+          <div class="term">
+            <p class="tn">활성화 함수 ReLU<small>activation</small></p>
+            <p class="td">음수는 0, 양수는 그대로. 이런 비선형이 있어야 층을 쌓는 의미가 생깁니다.</p>
+            <div class="foot"><span class="where a2">A-②</span><span>UDL 3.1</span></div>
+          </div>
+          <div class="term">
+            <p class="tn">파라미터 vs 하이퍼파라미터<small>parameter · hyperparameter</small></p>
+            <p class="td"><b>파라미터</b>는 학습으로 정해지는 값(Kernel 안의 숫자). <b>하이퍼파라미터</b>는 사람이 정하는 값(Kernel 크기, Stride, lr).</p>
+            <div class="foot"><span class="where a3">A-③</span> <span class="where b">B-2</span><span>UDL 8.5</span></div>
+          </div>
+          <div class="term">
+            <p class="tn">Logit → Softmax → 손실<small>logit · softmax · cross-entropy</small></p>
+            <p class="td">Head가 낸 점수(logit)를 확률로 바꾸고, 정답 확률이 낮을수록 손실이 큼. 학습은 이 손실을 줄이도록 가중치를 고치는 일(Day10).</p>
+            <div class="foot"><span class="where a1">A-① Head</span> <span class="where b">B-3</span><span>UDL 5.5 · 6장</span></div>
+          </div>
+          <div class="term">
+            <p class="tn">train / valid / test와 과적합<small>overfitting</small></p>
+            <p class="td">배우기 · 고르기 · 최종 확인용 데이터. train만 잘 맞히고 새 데이터에 약하면 과적합. 증강·전이학습은 이를 줄이는 방법.</p>
+            <div class="foot"><span class="where b">B-1 · B-4 · B-6</span><span>UDL 8장 · 9.3</span></div>
+          </div>
+      </div>
+    </div>
+    <div class="basics-group">
+      <h3>오늘 새로 나오는 것</h3>
+      <p>Day11의 핵심 용어. 위쪽 파란 선으로 구분했습니다.</p>
+      <div class="terms">
+          <div class="term new">
+            <p class="tn">합성곱<small>convolution</small></p>
+            <p class="td">작은 창을 옮겨 가며, 창 안의 값을 가중합하는 연산. 모든 위치에서 같은 가중치를 씁니다.</p>
+            <div class="foot"><span class="where a3">A-③</span><span>UDL 10.2.1</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Kernel (필터)<small>kernel · filter</small></p>
+            <p class="td">합성곱 창 안의 가중치 묶음. 3×3이면 9개 숫자이고, 학습으로 정해지는 <b>파라미터</b>입니다.</p>
+            <div class="foot"><span class="where a3">A-③</span><span>UDL 10.2.1</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Feature Map<small>feature map</small></p>
+            <p class="td">Kernel 하나가 이미지 전체를 훑어 만든 결과 지도. “특징 추출부”의 특징이 바로 이것입니다.</p>
+            <div class="foot"><span class="where a2">A-② Conv2d</span><span>UDL 10.2.5</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">채널<small>channel</small></p>
+            <p class="td">Feature Map 한 장 = 채널 하나. 입력 RGB는 3채널, 출력 채널 수 = Kernel 개수.</p>
+            <div class="foot"><span class="where a3">A-③</span><span>UDL 10.2.5 · 10.3</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Stride<small>stride</small></p>
+            <p class="td">창이 한 번에 건너뛰는 칸 수. 클수록 출력이 작아짐.</p>
+            <div class="mini" aria-hidden="true">
+              <div><span class="lab">stride 1</span><div class="mg" style="grid-template-columns:repeat(7,1.125rem)"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div></div>
+              <div><span class="lab">stride 2</span><div class="mg" style="grid-template-columns:repeat(7,1.125rem)"><span class="on"></span><span></span><span class="on"></span><span></span><span class="on"></span><span></span><span></span></div></div>
+            </div>
+            <p class="small muted">칠한 칸 = 창(3칸)이 시작하는 위치. stride 2면 출력이 약 절반</p>
+            <div class="foot"><span class="where a3">A-③</span><span>UDL 10.2.3</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Padding<small>padding</small></p>
+            <p class="td">가장자리 바깥에 값(보통 0)을 덧대기. 덧대지 않으면(valid) 출력이 줄어듦.</p>
+            <div class="mini" aria-hidden="true"><div class="mg" style="grid-template-columns:repeat(6,1.125rem)"><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span></span><span></span><span></span><span></span><span class="z">0</span><span class="z">0</span><span></span><span></span><span></span><span></span><span class="z">0</span><span class="z">0</span><span></span><span></span><span></span><span></span><span class="z">0</span><span class="z">0</span><span></span><span></span><span></span><span></span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="z">0</span></div><span>4×4 입력 둘레에 0을 한 겹(P=1)<br>→ 3×3 창을 써도 출력이 4×4로 유지</span></div>
+            <div class="foot"><span class="where a3">A-③</span><span>UDL 10.2.2</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Pooling<small>pooling · downsampling</small></p>
+            <p class="td">작은 영역을 대표값 하나로 줄이기. 채널마다 따로 하므로 채널 수는 그대로.</p>
+            <div class="mini" aria-hidden="true"><div class="mg" style="grid-template-columns:repeat(2,1.5rem)"><span class="big">1</span><span class="big on">4</span><span class="big">2</span><span class="big">3</span></div><span style="font-size:1rem">→</span><div class="mg"><span class="big on">4</span></div><span>2×2 MaxPool: 가장 큰 값 하나 (PDF p.5)</span></div>
+            <div class="foot"><span class="where a2">A-② MaxPool</span><span>UDL 10.4.1</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">수용영역<small>receptive field</small></p>
+            <p class="td">출력 한 칸이 원본 이미지에서 보는 범위. 층을 쌓고 Pooling을 거칠수록 넓어짐.</p>
+            <div class="foot"><span class="where a2">A-②</span> <span class="where a1">A-①</span><span>UDL 10.2.6</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Backbone과 Head<small>backbone · head</small></p>
+            <p class="td"><b>Backbone</b>은 특징을 만드는 앞부분(특징 추출부), <b>Head</b>는 특징으로 클래스 점수를 내는 마지막 층.</p>
+            <div class="foot"><span class="where a1">A-①</span><span>PDF p.4 · UDL 9.3.6</span></div>
+          </div>
+          <div class="term new">
+            <p class="tn">Freeze와 Fine-tuning<small>freeze · fine-tuning</small></p>
+            <p class="td"><b>Freeze</b>는 사전학습 값을 고정해 학습하지 않음. <b>Fine-tuning</b>은 일부 또는 전체를 작은 lr로 다시 학습.</p>
+            <div class="foot"><span class="where b">B-2</span><span>UDL 9.3.6</span></div>
+          </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 지도 A ═══════════ -->
+<section class="block" id="mapA" aria-labelledby="a-title" tabindex="-1">
+  <div class="wrap-wide">
+    <div class="block-head">
+      <span class="eyebrow">MAP A · INSIDE THE MODEL</span>
+      <h2 id="a-title">지도 A · 모델 안 — 사진 한 장이 점수가 되기까지</h2>
+    </div>
+    <p class="how"><span class="k">읽는 법</span><span><b>→ 오른쪽</b>으로 갈수록 사진이 점수로 바뀝니다</span><span><b>▼ 아래</b>로 갈수록 한 칸을 확대해 봅니다</span></p>
+
+    <div class="filter" role="group" aria-label="교시별로 강조">
+      <span class="label">교시별로 보기</span>
+      <button type="button" class="btn" data-filter="all" aria-pressed="true">전체</button>
+      <button type="button" class="btn" data-filter="1" aria-pressed="false">1교시 Tensor</button>
+      <button type="button" class="btn" data-filter="2" aria-pressed="false">2교시 합성곱</button>
+      <button type="button" class="btn" data-filter="3" aria-pressed="false">3교시 Pooling·구조</button>
+      <button type="button" class="btn" data-filter="6" aria-pressed="false">6교시 전이학습</button>
+    </div>
+    <p class="status" id="filter-status" role="status" aria-live="polite"></p>
+
+    <div class="mapA" id="mapA-body" data-filter="all">
+
+      <!-- ① 한 줄 흐름 -->
+      <div class="panel p1">
+        <div class="panel-head">
+          <span class="lv" aria-hidden="true">1</span>
+          <h3>CNN 모델 전체 · 한 줄 흐름</h3>
+          <p>SmallCNN(PDF p.41)에 64×64 사진을 넣은 경우</p>
+        </div>
+        <div class="spine">
+          <div class="chip" data-period="1">
+            <span class="name">사진 (이미지 Tensor)</span>
+            <span class="use">N장 · RGB 3채널 · 64×64</span>
+            <span class="shape">[N,3,64,64]</span>
+          </div>
+          <span class="arr" aria-hidden="true"></span>
+          <div class="chip fe" data-period="3 6">
+            <span class="name">특징 추출부 = Conv 블록 × 2</span>
+            <span class="use">블록마다 공간은 ½, 채널은 늘어남</span>
+            <span class="shape">[N,32,16,16]</span>
+            <span class="more">▼ ②에서 블록 하나를 확대</span>
+          </div>
+          <span class="arr" aria-hidden="true"></span>
+          <div class="chip" data-period="3">
+            <span class="name">Global Avg Pool</span>
+            <span class="use">채널마다 평균 하나. 위치 정보를 버림</span>
+            <span class="shape">[N,32,1,1]</span>
+          </div>
+          <span class="arr" aria-hidden="true"></span>
+          <div class="chip" data-period="3">
+            <span class="name">flatten(x, 1)</span>
+            <span class="use">벡터로 펴기. N축은 남김</span>
+            <span class="shape">[N,32]</span>
+          </div>
+          <span class="arr" aria-hidden="true"></span>
+          <div class="chip key" data-period="3 6">
+            <span class="name">Head (Linear 32→K)</span>
+            <span class="use">클래스별 점수(logit)</span>
+            <span class="shape">[N,K]</span>
+          </div>
+          <span class="bracket bb">Backbone <span>· 전이학습에서는 사전학습 값을 재사용</span></span>
+          <span class="bracket bh">Head <span>· K에 맞게 교체</span></span>
+        </div>
+        <div class="rels">
+          <p class="rel"><b>공간 64 → 16 → 1, 채널 3 → 32.</b> “어디에 있나”를 점점 버리고 “무엇이 있나”로 바꾸는 과정입니다. 큰 모델(VGG·ResNet)도 같은 모양입니다.<span class="src">UDL 10.5.1 · 10.6</span></p>
+          <p class="rel"><b>Conv는 사진을 옮기면 결과도 같이 옮겨지고(등변), Pool은 작은 이동을 흡수합니다(불변).</b> 그래서 물체가 사진의 어디에 있어도 비슷한 점수가 나옵니다.<span class="src">UDL 10.1 · 10.4.1</span></p>
+        </div>
+      </div>
+
+      <p class="zoom">특징 추출부 안의 Conv 블록 하나를 확대</p>
+
+      <!-- ② Conv 블록 -->
+      <div class="panel p2">
+        <div class="panel-head">
+          <span class="lv" aria-hidden="true">2</span>
+          <h3>Conv 블록 하나</h3>
+          <p>예: 첫 블록, 입력 <span class="shape">[8,3,64,64]</span> (PDF p.5)</p>
+        </div>
+        <div class="cb">
+          <div class="chip key" data-period="2">
+            <span class="name">Conv2d</span>
+            <span class="use">작은 창으로 패턴을 찾아 Feature Map을 만듦</span>
+            <span class="shape">[8,16,64,64]</span>
+            <span class="note">▼ ③에서 확대</span>
+          </div>
+          <div class="chip" data-period="3 6">
+            <span class="name">BatchNorm2d</span>
+            <span class="use">채널마다 값의 평균·크기를 맞춤. train/eval 동작이 다름</span>
+            <span class="shape">Shape 그대로</span>
+            <span class="note">SmallCNN엔 없고 ResNet18엔 있음</span>
+          </div>
+          <div class="chip" data-period="3">
+            <span class="name">ReLU</span>
+            <span class="use">음수를 0으로 바꾸는 비선형</span>
+            <span class="shape">[8,16,64,64]</span>
+          </div>
+          <div class="chip key" data-period="3">
+            <span class="name">MaxPool2d(2)</span>
+            <span class="use">2×2에서 최댓값 하나. 채널 수는 그대로</span>
+            <span class="shape">[8,16,32,32]</span>
+          </div>
+        </div>
+        <div class="rels three">
+          <p class="rel"><b>MaxPool로 공간을 ½ → 다음 Conv의 한 칸이 원본의 더 넓은 범위를 봅니다.</b> 한 칸이 보는 범위(수용영역): 3 → 4 → 8 → 10 → Global Pool에서 전체.<span class="src">UDL 10.2.6</span></p>
+          <p class="rel"><b>ReLU가 없으면 층을 아무리 쌓아도 선형 하나와 같습니다.</b> 블록을 반복하는 의미를 만드는 부분입니다.<span class="src">UDL 3장 · 4장</span></p>
+          <p class="rel"><b>BatchNorm은 깊은 망의 값이 층마다 커지는 것을 막아</b> 큰 학습률에도 학습이 안정됩니다. 평가 때는 저장된 통계를 씁니다.<span class="src">UDL 11.4</span></p>
+        </div>
+
+        <p class="zoom">Conv2d 안의 Kernel 연산을 확대</p>
+
+        <!-- ③ Kernel 연산 -->
+        <div class="panel p3">
+          <div class="panel-head">
+            <span class="lv" aria-hidden="true">3</span>
+            <h3>Kernel 연산</h3>
+            <p>작은 창의 값과 가중치를 곱해 합산 → Feature Map의 한 칸</p>
+          </div>
+          <div class="k-grid">
+            <div>
+              <div class="kdemo" role="img" aria-label="5×5 입력의 왼쪽 위 3×3 영역과 세로선 Kernel을 곱해 더하면 3이 되어 출력 첫 칸이 된다">
+                <figure>
+                  <div class="g n5" aria-hidden="true">
+                    <span class="px hl">0</span><span class="px hl one">1</span><span class="px hl">0</span><span class="px">0</span><span class="px">0</span>
+                    <span class="px hl">0</span><span class="px hl one">1</span><span class="px hl">0</span><span class="px">0</span><span class="px">0</span>
+                    <span class="px hl">0</span><span class="px hl one">1</span><span class="px hl">0</span><span class="px">0</span><span class="px">0</span>
+                    <span class="px">0</span><span class="px one">1</span><span class="px">0</span><span class="px">0</span><span class="px">0</span>
+                    <span class="px">0</span><span class="px one">1</span><span class="px">0</span><span class="px">0</span><span class="px">0</span>
+                  </div>
+                  <figcaption>입력 5×5</figcaption>
+                </figure>
+                <span class="op" aria-hidden="true">×</span>
+                <figure>
+                  <div class="g n3" aria-hidden="true">
+                    <span class="px">0</span><span class="px one">1</span><span class="px">0</span>
+                    <span class="px">0</span><span class="px one">1</span><span class="px">0</span>
+                    <span class="px">0</span><span class="px one">1</span><span class="px">0</span>
+                  </div>
+                  <figcaption>Kernel 3×3</figcaption>
+                </figure>
+                <span class="op" aria-hidden="true">=</span>
+                <figure>
+                  <div class="g n3" aria-hidden="true">
+                    <span class="px hl">3</span><span class="px">0</span><span class="px">0</span>
+                    <span class="px one">3</span><span class="px">0</span><span class="px">0</span>
+                    <span class="px one">3</span><span class="px">0</span><span class="px">0</span>
+                  </div>
+                  <figcaption>Feature Map 3×3</figcaption>
+                </figure>
+              </div>
+              <p class="kcap">강조한 영역 × Kernel = <b>1 + 1 + 1 = 3</b> → 출력 첫 칸. 창을 한 칸씩 옮기며 반복합니다. 이 Kernel은 세로선에 반응합니다. 실제 Kernel 값은 학습으로 정해집니다. (PDF p.6 · stride 1, padding 0, bias 0)</p>
+              <p class="formula">한 칸의 계산 <span class="f">h<sub>ij</sub> = a[β + ΣΣ ω<sub>mn</sub>·x<sub>i+m−2, j+n−2</sub>]</span> (UDL 식 10.6)<br>출력 크기 <span class="f">H<sub>out</sub> = ⌊(H + 2P − D(K−1) − 1) / S⌋ + 1</span> (PDF p.26)</p>
+            </div>
+            <div>
+              <div class="knobs">
+                <div class="chip" data-period="2">
+                  <span class="name">Kernel 크기 K</span>
+                  <span class="use">창의 크기. 가운데를 두려고 보통 홀수</span>
+                </div>
+                <div class="chip" data-period="2">
+                  <span class="name">Stride S</span>
+                  <span class="use">창이 건너뛰는 칸 수. 2면 출력이 약 ½</span>
+                </div>
+                <div class="chip" data-period="2">
+                  <span class="name">Padding P</span>
+                  <span class="use">가장자리에 0을 덧댐. 3×3에 P=1이면 크기 유지</span>
+                </div>
+                <div class="chip key" data-period="2">
+                  <span class="name">채널 C<sub>in</sub> → C<sub>out</sub></span>
+                  <span class="use">Kernel 하나가 출력 채널 하나. RGB면 Kernel 하나가 3채널을 모두 봄</span>
+                </div>
+              </div>
+              <div class="rels" style="grid-template-columns:1fr">
+                <p class="rel"><b>같은 Kernel을 모든 위치에 씁니다(가중치 공유).</b> Conv 3→16(3×3)은 3·16·3·3 + 16 = 448개입니다. 같은 사진을 펼쳐 뉴런 128개에 연결하면 첫 층만 약 157만 개입니다. 파라미터 수는 사진 크기와 무관합니다.<span class="src">UDL 10.2.4 · 10.3 · PDF p.18</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="basis">근거: UDL 10.1 등변·불변 · 10.2 합성곱(Kernel·Stride·Padding·채널·수용영역) · 10.3 2D 합성곱 · 10.4 Downsampling · 10.6 요약 · 11.4 BatchNorm / 강의 PDF p.4~6 · 26 · 39 · 41</p>
+  </div>
+</section>
+
+<!-- ═══════════ 지도 B ═══════════ -->
+<section class="block" id="mapB" aria-labelledby="b-title">
+  <div class="wrap-wide">
+    <div class="block-head">
+      <span class="eyebrow">MAP B · AROUND THE MODEL</span>
+      <h2 id="b-title">지도 B · 모델 밖 — 모델을 만들고 고르는 작업 순서</h2>
+    </div>
+    <p class="how"><span class="k">읽는 법</span><span><b>→ 오른쪽</b>으로 갈수록 작업 순서입니다</span><span>단계마다 <b>배우는 교시</b>와 <b>지도 A와 만나는 곳</b>을 적었습니다</span></p>
+
+    <div class="panel pb">
+      <ol class="steps">
+        <li class="stepb">
+          <div class="top"><span class="n">1</span><h3>데이터 준비</h3></div>
+          <span class="period">4교시</span>
+          <ul>
+            <li><b>ImageFolder</b>: 폴더 이름이 곧 라벨</li>
+            <li><b>Transforms</b>: 크기 맞추기·Normalize</li>
+            <li><b>증강은 train만</b>: 뒤집기·회전처럼 라벨이 안 바뀌는 변환으로 데이터를 늘림 (UDL 9.3.8)</li>
+            <li><b>DataLoader</b>: batch로 묶기</li>
+          </ul>
+          <p class="toA">① 입력 <code>[N,3,H,W]</code>을 만듦</p>
+        </li>
+        <li class="stepb key">
+          <div class="top"><span class="n">2</span><h3>모델 후보 정하기</h3></div>
+          <span class="period">3·6교시</span>
+          <ul>
+            <li><b>SmallCNN</b>: 처음부터 학습</li>
+            <li><b>ResNet18 Head-only</b>: Head만 학습</li>
+            <li><b>ResNet18 Partial</b>: layer4 + Head 학습</li>
+          </ul>
+          <p class="toA">Backbone·Head 중 어디를 학습할지 ▼ 아래 표</p>
+        </li>
+        <li class="stepb">
+          <div class="top"><span class="n">3</span><h3>학습</h3></div>
+          <span class="period">5교시</span>
+          <ul>
+            <li><b>CrossEntropyLoss</b>: 점수 → Softmax 확률 → 정답 확률의 −log (UDL 5.5)</li>
+            <li><b>학습 루프</b>: Day10과 같음. forward → loss → backward → step</li>
+          </ul>
+          <p class="toA">① 끝의 점수 <code>[N,K]</code>를 받음</p>
+        </li>
+        <li class="stepb">
+          <div class="top"><span class="n">4</span><h3>평가 · 저장</h3></div>
+          <span class="period">5교시</span>
+          <ul>
+            <li><b>eval() + inference_mode</b>로 valid 평가</li>
+            <li><b>Best model</b>: valid 기준 저장, 클래스 순서·Normalize도 함께</li>
+            <li><b>오류 분석</b>: Confusion Matrix·클래스별 Recall</li>
+          </ul>
+          <p class="toA">② BatchNorm이 저장된 통계로 바뀜</p>
+        </li>
+        <li class="stepb">
+          <div class="top"><span class="n">5</span><h3>장치 비교</h3></div>
+          <span class="period">7교시</span>
+          <ul>
+            <li><b>같은 조건</b>: 데이터·batch·모델·epoch</li>
+            <li><b>시간</b>: warm-up 후 synchronize 전후로</li>
+            <li><b>images/s · Peak VRAM</b> 기록</li>
+            <li>GPU가 없으면 N/A와 사유</li>
+          </ul>
+          <p class="toA">모델은 그대로, 계산 장소만 바꿈</p>
+        </li>
+        <li class="stepb">
+          <div class="top"><span class="n">6</span><h3>성능표 · 설명</h3></div>
+          <span class="period">8교시</span>
+          <ul>
+            <li><b>성능표</b>: 모델·학습 범위·valid 지표·시간·VRAM</li>
+            <li><b>README</b>: 어떤 모델을 왜 골랐나</li>
+            <li><b>test</b>는 모든 선택이 끝난 뒤 한 번</li>
+          </ul>
+          <p class="toA">어떤 모델(①의 구성)을 골랐는지 기록</p>
+        </li>
+      </ol>
+    </div>
+
+    <p class="zoom">2 · 모델 후보를 확대 — 전이학습: 어디까지 얼리고 어디부터 배우나</p>
+
+    <div class="panel" style="background:var(--color-surface)">
+      <p class="rel" style="margin-bottom:var(--space-4)"><b>전이학습</b>: 데이터가 많은 관련 작업으로 미리 학습한 모델에서 마지막 층을 떼고 새 층을 붙입니다. 본체를 고정하고 새 층만 학습하거나, 전체를 미세조정합니다. 파라미터 대부분을 <b>좋은 출발점에서 시작</b>하게 하는 방법으로도 볼 수 있습니다.<span class="src">UDL 9.3.6</span></p>
+      <p class="scroll-hint">표를 옆으로 밀어 나머지 열을 볼 수 있어요.</p>
+      <div class="tl-scroll" tabindex="0" role="region" aria-label="ResNet18 구간별 학습 범위 비교">
+        <div class="tl-table">
+          <span class="colh">ResNet18 구간 →<small>224×224 입력 기준</small></span>
+          <span class="colh">conv1 + pool<small>64ch · 56×56</small></span>
+          <span class="colh">layer1<small>64ch · 56×56</small></span>
+          <span class="colh">layer2<small>128ch · 28×28</small></span>
+          <span class="colh">layer3<small>256ch · 14×14</small></span>
+          <span class="colh">layer4<small>512ch · 7×7</small></span>
+          <span class="colh">fc (Head)<small>512 → K</small></span>
+
+          <div class="rowh"><b>처음부터 학습</b><span>예: SmallCNN</span></div>
+          <span class="cell rnd">무작위</span><span class="cell rnd">무작위</span><span class="cell rnd">무작위</span><span class="cell rnd">무작위</span><span class="cell rnd">무작위</span><span class="cell rnd">무작위</span>
+
+          <div class="rowh"><b>Head-only</b><span>PDF p.75</span></div>
+          <span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell tr">학습<small>lr 1e-3</small></span>
+
+          <div class="rowh"><b>부분 미세조정</b><span>Partial · PDF p.77</span></div>
+          <span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell fz">고정</span><span class="cell tr-s">학습<small>lr 1e-4</small></span><span class="cell tr">학습<small>lr 1e-3</small></span>
+
+          <div class="rowh"><b>전체 미세조정</b><span>UDL 9.3.6 · 성능표 비교 밖</span></div>
+          <span class="cell tr-s">학습<small>작은 lr</small></span><span class="cell tr-s">학습</span><span class="cell tr-s">학습</span><span class="cell tr-s">학습</span><span class="cell tr-s">학습</span><span class="cell tr">학습</span>
+        </div>
+      </div>
+      <div class="tl-key" aria-label="표 범례">
+        <span><i style="background:repeating-linear-gradient(135deg,#EEF2F7 0 4px,#E2E8F0 4px 8px);border:1px solid #D8E4F2"></i>고정 (사전학습 값 유지)</span>
+        <span><i style="background:#4B74A6"></i>학습 · 작은 lr</span>
+        <span><i style="background:#142849"></i>학습 · 큰 lr (새 Head)</span>
+        <span><i style="background:#fff;border:2px solid #142849"></i>무작위 초기값에서 학습</span>
+      </div>
+      <div class="rels three">
+        <p class="rel"><b>뒤쪽부터 엽니다.</b> 앞쪽 층은 색·질감처럼 일반적인 특징, 뒤쪽 층은 물체 종류와 더 관련됩니다.<span class="src">UDL 10장 Notes (Bau et al., 2017)</span></p>
+        <p class="rel"><b>고정한 층의 BatchNorm은 eval()로 둡니다.</b> <code>model.train()</code>을 다시 부르면 저장된 통계가 바뀝니다.<span class="src">PDF p.75·77 · UDL 11.4</span></p>
+        <p class="rel"><b>사전학습 때와 같은 입력 조건</b>(<code>weights.transforms()</code>)을 쓰고, fc는 클래스 수 K에 맞게 교체합니다.<span class="src">PDF p.74·79</span></p>
+      </div>
+    </div>
+    <p class="basis">근거: UDL 5.5 다중 분류 손실 · 9.3.6 전이학습 · 9.3.8 증강 / 강의 PDF p.7~11 · 54 · 61 · 65~67 · 75~77 · 84 · 89. ImageFolder와 CPU·GPU 측정은 UDL에서 다루지 않아 강의 PDF 기준입니다.</p>
+  </div>
+</section>
+
+<!-- ═══════════ 코드로 보기 ═══════════ -->
+<section class="block" id="code" aria-labelledby="code-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">SAME MAPS, IN CODE</span>
+      <h2 id="code-title">같은 지도를 코드로 보기</h2>
+      <p>주석의 A·B가 지도 위치입니다. 지도 A는 모델 클래스 안, 지도 B는 클래스 밖입니다.</p>
+    </div>
+    <div class="code-bar">
+      <span class="small muted">Python · 설명용 골격 (실습 원문 아님, PDF p.41·75 기반)</span>
+      <button type="button" class="btn btn-secondary" id="copy-btn">코드 복사</button>
+    </div>
+    <p class="status" id="copy-status" role="status" aria-live="polite"></p>
+<pre id="code-block"><code><span class="h"># B-1 데이터 준비 ─────────────────────────────────────</span>
+train_ds = ImageFolder("data/train", transform=train_tf)   <span class="c"># 증강은 train에만</span>
+valid_ds = ImageFolder("data/valid", transform=valid_tf)
+train_loader = DataLoader(train_ds, batch_size=32, shuffle=True)
+
+<span class="h"># 지도 A · 모델 안 ────────────────────────────────────</span>
+class SmallCNN(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.features = nn.Sequential(       <span class="c"># A-① 특징 추출부</span>
+            nn.Conv2d(3, 16, 3, padding=1),  <span class="c"># A-② Conv 블록 (A-③ Kernel은 이 안)</span>
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(16, 32, 3, padding=1), <span class="c"># A-② Conv 블록 두 번째</span>
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+        self.pool = nn.AdaptiveAvgPool2d(1)  <span class="c"># A-① Global Avg Pool</span>
+        self.fc = nn.Linear(32, num_classes) <span class="c"># A-① Head</span>
+
+    def forward(self, x):                    <span class="c"># [N,3,H,W]</span>
+        x = self.features(x)                 <span class="c"># [N,32,H/4,W/4]</span>
+        x = torch.flatten(self.pool(x), 1)   <span class="c"># [N,32]</span>
+        return self.fc(x)                    <span class="c"># [N,K] 점수</span>
+
+<span class="h"># B-2 모델 후보 · 전이학습 ────────────────────────────</span>
+model = resnet18(weights=ResNet18_Weights.DEFAULT)
+for p in model.parameters():
+    p.requires_grad = False                  <span class="c"># Backbone 고정</span>
+model.fc = nn.Linear(model.fc.in_features, num_classes)  <span class="c"># Head 교체</span>
+
+<span class="h"># B-3 학습 ~ B-6 성능표 ───────────────────────────────</span>
+loss_fn = nn.CrossEntropyLoss()              <span class="c"># Softmax 포함</span>
+<span class="c"># 학습 루프 · best model 저장 = Day10과 같음</span></code></pre>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">새싹 NVIDIA AI 코어 엔지니어 2기 · Day11 학습 노트 · 2026.11.02 · 개념 기준: Prince, <i>Understanding Deep Learning</i> (MIT Press, 2023)</div>
+</footer>
+
+<script>
+(function () {
+  var map = document.getElementById('mapA-body');
+  var status = document.getElementById('filter-status');
+  var buttons = document.querySelectorAll('.filter .btn');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var f = btn.getAttribute('data-filter');
+      map.setAttribute('data-filter', f);
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+      if (f === 'all') { status.textContent = '모든 상자를 같은 밝기로 보여 줘요.'; return; }
+      var n = map.querySelectorAll('.chip[data-period~="' + f + '"]').length;
+      status.textContent = f + '교시 개념 ' + n + '개를 강조했어요. ①②③ 중 어디에 있는지 보세요.';
+    });
+  });
+
+  var copyBtn = document.getElementById('copy-btn');
+  var copyStatus = document.getElementById('copy-status');
+  copyBtn.addEventListener('click', function () {
+    var text = document.getElementById('code-block').innerText;
+    if (!navigator.clipboard) { copyStatus.textContent = '코드를 복사하지 못했어요. 코드를 선택해 직접 복사해 주세요.'; return; }
+    navigator.clipboard.writeText(text).then(function () {
+      copyStatus.textContent = '코드를 복사했어요.';
+    }, function () {
+      copyStatus.textContent = '코드를 복사하지 못했어요. 코드를 선택해 직접 복사해 주세요.';
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day10 개념 지도 | 학습을 안정시키는 도구들의 위치</title>
+<style>
+:root {
+  /* PDF 원본 · Day7 공통 팔레트 */
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-code-bg: #1B2435;
+  --color-code-text: #FFFFFF;
+  /* PDF 원본 · Day10 p.3 전체 지도 */
+  --color-accent: #4B74A6;
+  --layer-1: #F0F6FD;
+  --layer-2: #E9F5EC;
+  --layer-3: #FBF2DF;
+  --layer-4: #1C2B40;
+
+  --action-bg: var(--color-primary);
+  --action-hover: var(--color-code-bg);
+  --action-active: var(--color-heading);
+  --action-fg: var(--color-surface);
+  --secondary-bg: var(--color-soft);
+  --secondary-hover: var(--color-border);
+  --secondary-fg: var(--color-primary);
+  --control-border: var(--color-muted);
+  --focus-ring: var(--color-primary);
+
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "Malgun Gothic", monospace;
+  --text-title: clamp(1.75rem, 3vw, 2.5rem);
+  --text-section: 1.5rem;
+  --text-subheading: 1.25rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --leading-body: 1.7;
+  --leading-title: 1.3;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-badge: 9999px;
+  --content-width: 70rem;
+  --map-width: 90rem;
+  --reading-width: 45rem;
+  --motion-fast: 150ms;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--space-6); }
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font: 400 var(--text-body)/var(--leading-body) var(--font-body);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.skip {
+  position: absolute; left: var(--space-4); top: -4rem;
+  padding: var(--space-2) var(--space-4);
+  background: var(--action-bg); color: var(--action-fg);
+  border-radius: var(--radius-control); z-index: 10;
+}
+.skip:focus { top: var(--space-4); }
+.wrap { max-width: var(--content-width); margin-inline: auto; padding-inline: var(--space-8); }
+.wrap-wide { max-width: var(--map-width); margin-inline: auto; padding-inline: var(--space-8); }
+h1, h2, h3, h4 { color: var(--color-heading); font-weight: 700; margin: 0; }
+h1 { font-size: var(--text-title); line-height: var(--leading-title); letter-spacing: -0.02em; }
+h2 { font-size: var(--text-section); line-height: 1.4; }
+h3 { font-size: var(--text-subheading); line-height: 1.5; }
+h4 { font-size: var(--text-body); line-height: 1.5; }
+p { margin: 0; }
+a { color: var(--color-primary); text-underline-offset: 0.2em; }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+code, pre { font-family: var(--font-code); }
+code { font-size: 0.92em; }
+.muted { color: var(--color-muted); }
+.small { font-size: var(--text-small); line-height: 1.6; }
+.eyebrow { color: var(--color-accent); font-weight: 700; font-size: var(--text-small); letter-spacing: 0.02em; }
+
+/* ── 머리말 ───────────────────────── */
+header.top { padding-block: var(--space-12) var(--space-8); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.badge {
+  display: inline-block; padding: var(--space-1) var(--space-3);
+  background: var(--color-soft); color: var(--color-primary);
+  border-radius: var(--radius-badge); font-size: var(--text-small); font-weight: 600; line-height: 1.5;
+}
+.lede { margin-top: var(--space-4); max-width: var(--reading-width); font-size: 1.125rem; }
+.toc { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); padding: 0; list-style: none; }
+.toc a {
+  display: inline-flex; align-items: center; min-height: 2.75rem;
+  padding: var(--space-2) var(--space-4); border-radius: var(--radius-control);
+  background: var(--secondary-bg); color: var(--secondary-fg); font-weight: 600; text-decoration: none;
+}
+.toc a:hover { background: var(--secondary-hover); }
+.toc a.primary { background: var(--action-bg); color: var(--action-fg); }
+.toc a.primary:hover { background: var(--action-hover); }
+
+/* 수업 흐름 */
+.course { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: var(--space-3); margin-top: var(--space-8); }
+.course > div {
+  padding: var(--space-4) var(--space-6); border-radius: var(--radius-card);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+}
+.course .now { background: var(--color-primary); border-color: var(--color-primary); color: var(--action-fg); }
+.course .now .eyebrow, .course .now h3 { color: var(--action-fg); }
+.course h3 { font-size: 1.0625rem; margin-top: var(--space-1); }
+.course p { font-size: var(--text-small); line-height: 1.6; margin-top: var(--space-1); }
+
+/* ── 구역 공통 ─────────────────────── */
+section.block { padding-block: var(--space-12); border-top: 1px solid var(--color-border); }
+.block-head { margin-bottom: var(--space-6); }
+.block-head p { margin-top: var(--space-2); max-width: var(--reading-width); }
+
+/* 핵심 문장 */
+.thesis {
+  padding: var(--space-6) var(--space-8); border-radius: var(--radius-card);
+  background: var(--color-soft); font-size: 1.1875rem; line-height: 1.7; color: var(--color-heading);
+}
+.thesis strong { color: var(--color-primary); }
+.questions { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-top: var(--space-6); }
+.q {
+  padding: var(--space-4) var(--space-6); border-radius: var(--radius-card);
+  background: var(--color-surface); border: 1px solid var(--color-border);
+}
+.q .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--color-primary); color: var(--action-fg); font-weight: 700;
+}
+.q h3 { font-size: 1.0625rem; margin-top: var(--space-2); }
+.q .goal-name { color: var(--color-accent); font-weight: 700; font-size: var(--text-small); }
+.q p { font-size: var(--text-small); line-height: 1.6; margin-top: var(--space-2); }
+
+/* ── 개념 지도 ─────────────────────── */
+.filter { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); }
+.filter .label { font-weight: 600; margin-right: var(--space-2); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: 2.75rem; padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border); border-radius: var(--radius-control);
+  background: var(--color-surface); color: var(--color-primary);
+  font: inherit; font-weight: 600; line-height: 1.5; cursor: pointer;
+}
+.btn:hover { background: var(--secondary-hover); }
+.btn[aria-pressed="true"] { background: var(--action-bg); color: var(--action-fg); border-color: var(--action-bg); }
+.btn-secondary { background: var(--secondary-bg); border-color: transparent; }
+.status { min-height: 1.6em; font-size: var(--text-small); color: var(--color-muted); margin-bottom: var(--space-3); }
+
+.map { display: block; }
+.layer { border-radius: var(--radius-card); border: 1px solid var(--color-border); padding: var(--space-6); }
+.layer.l1 { background: var(--layer-1); }
+.layer.l2 { background: var(--layer-2); margin-block: var(--space-4); }
+.layer.l3 { background: var(--layer-3); margin-bottom: var(--space-4); }
+.layer-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-4); }
+.layer-head h3 { font-size: 1.375rem; }
+.layer-head .repeat {
+  font-family: var(--font-code); font-size: var(--text-small); font-weight: 600;
+  padding: 0 var(--space-2); border-radius: var(--radius-badge);
+  background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-border);
+}
+.layer-head .changes { flex-basis: 100%; color: var(--color-text); }
+.layer-head .changes b { color: var(--color-primary); }
+
+.phase { display: grid; gap: var(--space-3); }
+.phase-title { font-weight: 700; color: var(--color-accent); font-size: var(--text-small); margin-bottom: var(--space-2); }
+.row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+
+/* 단계 흐름 */
+.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); counter-reset: step; }
+.flow.batch { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.flow.batch .step.forward { grid-column: span 3; order: 3; }
+.flow.batch .step:nth-child(4) { order: 4; }
+.flow.batch .step:nth-child(5) { order: 5; }
+.flow.batch .step.update { order: 6; }
+.flow.batch .step.forward::after, .flow.batch .step:nth-child(2)::after { display: none; }
+.flow.epoch { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.flow.finish { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.step {
+  position: relative; display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3); border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.55);
+}
+.step-head { display: flex; align-items: center; gap: var(--space-2); }
+.step-head .n {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.625rem; height: 1.625rem; border-radius: 50%;
+  background: var(--color-primary); color: var(--action-fg); font-size: var(--text-small); font-weight: 700;
+}
+.step-head .t { font-weight: 700; color: var(--color-heading); line-height: 1.35; }
+.step > code { font-size: 0.8125rem; color: var(--color-muted); overflow-wrap: anywhere; }
+.step, .layer, .chip, .model, .phase, .row > *, .flow > * { min-width: 0; }
+.flow > .step:not(:last-child)::after {
+  content: "→"; position: absolute; right: calc(-1 * var(--space-3)); top: var(--space-3);
+  transform: translateX(50%); color: var(--color-accent); font-weight: 700;
+}
+
+/* 모델 내부 */
+.model {
+  background: var(--layer-4); color: var(--action-fg);
+  border-radius: var(--radius-control); padding: var(--space-3);
+}
+.model .model-title { font-size: var(--text-small); font-weight: 700; margin-bottom: var(--space-2); }
+.model-path { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.model-path .node {
+  display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3);
+  border: 1px solid rgba(255, 255, 255, 0.55); border-radius: var(--radius-control);
+  font-family: var(--font-code); font-size: var(--text-small);
+}
+.model-path .arrow { align-self: center; color: #BFD0E6; }
+.model-path .chip { flex: 1 1 9rem; }
+.model .mode { font-size: var(--text-small); line-height: 1.55; margin-top: var(--space-2); color: #E3EBF5; }
+
+/* 개념 칩 */
+.chip {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface); color: var(--color-text);
+  border: 1px solid var(--color-border); border-radius: var(--radius-control);
+  text-decoration: none; line-height: 1.45;
+  transition: opacity var(--motion-fast), border-color var(--motion-fast);
+}
+.chip .name { font-weight: 700; color: var(--color-heading); }
+.chip .use { font-size: var(--text-small); color: var(--color-muted); }
+.chip .goal { font-size: var(--text-small); font-weight: 700; color: var(--color-accent); }
+.chip.key { border-width: 2px; border-color: var(--color-primary); }
+.map[data-filter]:not([data-filter="all"]) .chip { opacity: 0.32; }
+.map[data-filter="loss"] .chip[data-goal~="loss"],
+.map[data-filter="opt"] .chip[data-goal~="opt"],
+.map[data-filter="gen"] .chip[data-goal~="gen"],
+.map[data-filter="eval"] .chip[data-goal~="eval"] { opacity: 1; outline: 3px solid var(--color-primary); outline-offset: 1px; }
+.chip:target { outline: 3px solid var(--color-accent); outline-offset: 2px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin-top: var(--space-4); font-size: var(--text-small); color: var(--color-muted); }
+.legend span::before { content: ""; display: inline-block; width: 0.9em; height: 0.9em; border-radius: 3px; margin-right: var(--space-2); vertical-align: -0.1em; border: 1px solid var(--color-border); }
+.legend .lg1::before { background: var(--layer-1); }
+.legend .lg2::before { background: var(--layer-2); }
+.legend .lg3::before { background: var(--layer-3); }
+.legend .lg4::before { background: var(--layer-4); }
+
+/* ── 코드 ─────────────────────────── */
+.code-wrap { position: relative; }
+.code-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); }
+pre {
+  margin: 0; max-width: 100%; overflow-x: auto; padding: var(--space-6);
+  border-radius: var(--radius-control); background: var(--color-code-bg); color: var(--color-code-text);
+  font-size: var(--text-small); line-height: 1.65; word-break: normal; overflow-wrap: normal;
+}
+pre .c { color: #A9C1DE; }
+pre .h { color: #FBF2DF; font-weight: 700; }
+
+/* ── 두 목표 ─────────────────────── */
+.goals { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: var(--space-3); }
+.goal-col { padding: var(--space-6); border-radius: var(--radius-card); background: var(--color-surface); border: 1px solid var(--color-border); }
+.goal-col.both { background: var(--color-soft); border-color: var(--color-soft); }
+.goal-col h3 { font-size: 1.125rem; }
+.goal-col .aim { font-size: var(--text-small); color: var(--color-muted); margin-top: var(--space-1); }
+.goal-col ul { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: grid; gap: var(--space-3); }
+.goal-col li { padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.goal-col li b { color: var(--color-heading); }
+.goal-col li span { display: block; font-size: var(--text-small); line-height: 1.6; color: var(--color-text); }
+.judge {
+  margin-top: var(--space-3); padding: var(--space-4) var(--space-6); border-radius: var(--radius-card);
+  background: var(--color-primary); color: var(--action-fg);
+}
+.judge b { color: var(--action-fg); }
+.landscape { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--space-8); align-items: center; margin-top: var(--space-8); }
+.landscape figure { margin: 0; padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); }
+.landscape figcaption { font-size: var(--text-small); color: var(--color-muted); margin-top: var(--space-2); }
+.landscape svg { width: 100%; height: auto; display: block; }
+.landscape ol { margin: var(--space-3) 0 0; padding-left: 1.25rem; display: grid; gap: var(--space-2); }
+
+/* ── 증상 지도 ───────────────────── */
+.table-scroll { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); }
+table { width: 100%; border-collapse: collapse; min-width: 52rem; }
+caption { text-align: left; padding: var(--space-4) var(--space-6) 0; font-size: var(--text-small); color: var(--color-muted); }
+th, td { padding: var(--space-3) var(--space-4); text-align: left; vertical-align: top; border-bottom: 1px solid var(--color-border); }
+thead th { background: var(--color-soft); color: var(--color-heading); font-size: var(--text-small); }
+tbody tr:last-child td { border-bottom: 0; }
+td .spark { width: 7.5rem; height: 3.75rem; display: block; }
+td b { color: var(--color-heading); }
+.where { display: inline-block; padding: 0 var(--space-2); border-radius: 6px; font-size: var(--text-small); font-weight: 600; margin: 1px 2px 1px 0; color: var(--color-heading); border: 1px solid var(--color-border); }
+.where.w1 { background: var(--layer-1); }
+.where.w2 { background: var(--layer-2); }
+.where.w3 { background: var(--layer-3); }
+.where.w4 { background: var(--layer-4); color: var(--action-fg); border-color: var(--layer-4); }
+.scroll-hint { display: none; font-size: var(--text-small); color: var(--color-muted); margin-bottom: var(--space-2); }
+
+/* ── 개념 카드 ───────────────────── */
+.card-group { margin-top: var(--space-8); }
+.card-group > h3 { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+.card-group > h3 .sw { width: 1.25rem; height: 1.25rem; border-radius: 4px; border: 1px solid var(--color-border); }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.card {
+  padding: var(--space-6); background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: var(--radius-card);
+}
+.card:target { border: 2px solid var(--color-primary); }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.card h4 { font-size: 1.125rem; }
+.card h4 small { font-weight: 400; color: var(--color-muted); font-size: var(--text-small); margin-left: var(--space-1); }
+.card dl { display: grid; grid-template-columns: 5.5rem 1fr; gap: var(--space-2) var(--space-3); margin: var(--space-4) 0 0; }
+.card dt { font-weight: 700; font-size: var(--text-small); color: var(--color-accent); padding-top: 2px; }
+.card dd { margin: 0; }
+.card .back { font-size: var(--text-small); }
+details { margin-top: var(--space-4); border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+summary { cursor: pointer; font-weight: 600; color: var(--color-primary); min-height: 2.75rem; display: flex; align-items: center; gap: var(--space-2); list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--color-soft); font-weight: 700; }
+details[open] > summary::before { content: "−"; }
+summary:hover { text-decoration: underline; }
+details .more { display: grid; gap: var(--space-2); font-size: 0.9375rem; }
+.formula { font-family: var(--font-code); font-size: var(--text-small); background: var(--color-soft); padding: var(--space-2) var(--space-3); border-radius: 8px; overflow-x: auto; white-space: nowrap; }
+.src { font-size: var(--text-small); color: var(--color-muted); margin-top: var(--space-3); }
+
+.flowline { font-size: var(--text-body); color: var(--color-muted); margin-bottom: var(--space-2); }
+.flowline b { color: var(--color-heading); }
+.q h3 .goal-name { display: block; }
+.why { margin-top: var(--space-3); }
+.card-foot { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); margin-top: var(--space-3); }
+.card-foot .src { margin: 0; }
+.cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)) !important; }
+details { margin-top: var(--space-3); padding-top: var(--space-2); }
+/* ── 출처 ─────────────────────────── */
+.sources ul { margin: var(--space-3) 0 0; padding-left: 1.25rem; display: grid; gap: var(--space-2); }
+footer { padding-block: var(--space-8) var(--space-12); color: var(--color-muted); font-size: var(--text-small); }
+
+/* ── 반응형 ───────────────────────── */
+@media (max-width: 85rem) {
+  .flow.epoch { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .flow.epoch .step:nth-child(3)::after { display: none; }
+  .questions { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 60rem) {
+  .goals, .landscape, .course { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 1fr 1fr; }
+  .scroll-hint { display: block; }
+}
+@media (max-width: 45rem) {
+  .wrap, .wrap-wide { padding-inline: var(--space-4); }
+  .layer { padding: var(--space-3); }
+  .flow.batch, .flow.epoch, .flow.finish, .row, .questions { grid-template-columns: 1fr; }
+  .flow.batch .step.forward { grid-column: auto; }
+  .model-path .chip { flex-basis: 100%; }
+  .model-path .arrow { display: none; }
+  .flow > .step:not(:last-child)::after { content: "↓"; right: auto; left: var(--space-4); top: auto; bottom: calc(-1 * var(--space-3)); transform: translateY(50%); display: block !important; }
+  .thesis { padding: var(--space-4); font-size: 1.0625rem; }
+  .card dl { grid-template-columns: 1fr; gap: 0; }
+  .card dd { margin-bottom: var(--space-2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .chip { transition: none; }
+}
+@media print {
+  .skip, .toc, .filter, .status, .code-bar button, .back { display: none !important; }
+  body { background: #fff; }
+  section.block { break-inside: auto; }
+  .layer, .card, .q, .goal-col { break-inside: avoid; }
+  pre { background: var(--color-soft); color: var(--color-text); white-space: pre-wrap; }
+  pre .c, pre .h { color: var(--color-text); }
+  .map .chip { opacity: 1 !important; outline: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#map">개념 지도로 바로 가기</a>
+
+<header class="top">
+  <div class="wrap">
+    <div class="meta">
+      <span class="badge">새싹 학습 노트</span>
+      <span class="badge">2026.10.30 · Day10 · Optimizer와 Regularization</span>
+      <span class="badge">수강생용 개념 지도</span>
+    </div>
+    <h1>학습을 안정시키는 도구들은 어디에 있을까</h1>
+    <p class="lede">개념을 외우기 전에, <b>학습 코드의 어느 자리에서 무엇을 바꾸는 도구인지</b> 지도로 먼저 보세요.</p>
+    <ul class="toc" aria-label="이 문서의 구역">
+      <li><a class="primary" href="#map">개념 지도 보기</a></li>
+      <li><a href="#code">코드로 보기</a></li>
+      <li><a href="#goals">좋은 해</a></li>
+      <li><a href="#diagnose">증상에서 도구로</a></li>
+    </ul>
+
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════ 개념 지도 ═══════════ -->
+<section class="block" id="map-section" aria-labelledby="map-title">
+  <div class="wrap-wide">
+    <div class="block-head">
+      <span class="eyebrow">CONCEPT MAP</span>
+      <h2 id="map-title">개념 지도 · 학습 한 번의 안쪽으로</h2>
+      <p>강의 PDF p.3의 겹친 상자를 학습 코드 구조로 펼쳤습니다. 바깥 상자일수록 드물게, 안쪽 상자일수록 자주 실행됩니다. 각 칩은 <b>그 자리에서 무엇을 하는지</b>와 <b>어떤 질문(①~④)에 답하는지</b>를 보여 줍니다.</p>
+    </div>
+
+    <div class="filter" role="group" aria-label="목적별로 칩 강조">
+      <span class="label">목적별로 보기</span>
+      <button type="button" class="btn" data-filter="all" aria-pressed="true">전체</button>
+      <button type="button" class="btn" data-filter="loss" aria-pressed="false">① 손실</button>
+      <button type="button" class="btn" data-filter="opt" aria-pressed="false">② 최적화</button>
+      <button type="button" class="btn" data-filter="gen" aria-pressed="false">③ 일반화</button>
+      <button type="button" class="btn" data-filter="eval" aria-pressed="false">④ 측정·선택</button>
+    </div>
+    <p class="status" id="filter-status" role="status" aria-live="polite"></p>
+
+    <div class="map" id="map" data-filter="all" tabindex="-1">
+
+      <!-- L1 실험 한 번 -->
+      <div class="layer l1">
+        <div class="layer-head">
+          <h3>실험 한 번</h3>
+          <span class="repeat">조건 하나마다 × 1</span>
+          <p class="changes">여기서 바꾸는 것: <b>어떤 데이터로 배우고 고를지</b>, <b>무엇을 비교할지</b></p>
+        </div>
+
+        <div class="phase">
+          <p class="phase-title">시작 전 · 준비</p>
+          <div class="row">
+            <div class="chip key" id="n-split" data-goal="eval">
+              <span class="name">train / valid / test 분리</span>
+              <span class="use">train은 배우기, valid는 고르기, test는 끝까지 보관</span>
+              <span class="goal">④ 측정·선택</span>
+            </div>
+            <div class="chip" id="n-seed" data-goal="eval">
+              <span class="name">Seed · 재현 조건</span>
+              <span class="use"><code>torch.manual_seed()</code> · 버전·device·설정 기록</span>
+              <span class="goal">④ 측정·선택</span>
+            </div>
+            <div class="chip" id="n-table" data-goal="eval">
+              <span class="name">바꿀 조건 하나 정하기</span>
+              <span class="use">기준선 대비 한 가지만 바꿔야 원인을 말할 수 있음</span>
+              <span class="goal">④ 측정·선택</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- L2 Epoch 반복 -->
+        <div class="layer l2">
+          <div class="layer-head">
+            <h3>Epoch 반복</h3>
+            <span class="repeat">× epochs</span>
+            <p class="changes">여기서 바꾸는 것: <b>얼마나 오래 배울지</b>, <b>학습률을 언제 줄일지</b>, <b>언제 멈출지</b></p>
+          </div>
+
+          <!-- L3 Batch 한 번 -->
+          <div class="layer l3">
+            <div class="layer-head">
+              <h3>Batch 한 번 = Iteration 1회</h3>
+              <span class="repeat">× ⌈train 개수 ÷ batch size⌉</span>
+              <p class="changes">여기서 바꾸는 것: <b>기울기를 몇 개 샘플로 추정할지</b>, <b>어떤 규칙으로</b>, <b>얼마나 크게</b> 가중치를 바꿀지</p>
+            </div>
+            <ol class="flow batch" aria-label="Batch 한 번의 실행 순서">
+              <li class="step">
+                <div class="step-head"><span class="n">1</span><span class="t">Batch 꺼내기</span></div>
+                <code>for x, y in loader</code>
+                <div class="chip" id="n-batch" data-goal="opt gen">
+                  <span class="name">Batch size</span>
+                  <span class="use">작을수록 기울기 잡음↑ 메모리↓</span>
+                  <span class="goal">②③ 최적화·일반화</span>
+                </div>
+                <div class="chip" id="n-shuffle" data-goal="opt">
+                  <span class="name">shuffle · drop_last</span>
+                  <span class="use">순서 섞기 · 마지막 작은 batch 처리</span>
+                  <span class="goal">② 최적화</span>
+                </div>
+              </li>
+              <li class="step">
+                <div class="step-head"><span class="n">2</span><span class="t">기울기 비우기</span></div>
+                <code>zero_grad()</code>
+                <div class="chip" id="n-zero" data-goal="opt">
+                  <span class="name">zero_grad</span>
+                  <span class="use">이전 batch의 기울기 제거</span>
+                  <span class="goal">② 최적화</span>
+                </div>
+              </li>
+              <li class="step forward">
+                <div class="step-head"><span class="n">3</span><span class="t">예측 (forward)</span></div>
+                <code>pred = model(x)</code>
+                <div class="model" aria-label="모델 내부">
+                  <p class="model-title">모델 내부 · 층마다 반복</p>
+                  <div class="model-path">
+                    <span class="node">Linear</span><span class="arrow" aria-hidden="true">→</span>
+                    <div class="chip" id="n-bn" data-goal="opt gen">
+                      <span class="name">BatchNorm</span>
+                      <span class="use">중간값을 batch 통계로 표준화</span>
+                      <span class="goal">②③ 최적화·일반화</span>
+                    </div>
+                    <span class="arrow" aria-hidden="true">→</span><span class="node">ReLU</span><span class="arrow" aria-hidden="true">→</span>
+                    <div class="chip" id="n-dropout" data-goal="gen">
+                      <span class="name">Dropout</span>
+                      <span class="use">일부 중간값을 무작위로 0</span>
+                      <span class="goal">③ 일반화</span>
+                    </div>
+                  </div>
+                  <p class="mode">train 모드: Dropout 켜짐 · BatchNorm은 현재 batch 통계<br>eval 모드: Dropout 꺼짐 · BatchNorm은 저장된 running 통계</p>
+                </div>
+              </li>
+              <li class="step">
+                <div class="step-head"><span class="n">4</span><span class="t">오차 계산</span></div>
+                <code>loss_fn(pred, y)</code>
+                <div class="chip" id="n-loss" data-goal="loss">
+                  <span class="name">Loss</span>
+                  <span class="use">줄일 대상 숫자 하나</span>
+                  <span class="goal">① 손실</span>
+                </div>
+              </li>
+              <li class="step">
+                <div class="step-head"><span class="n">5</span><span class="t">기울기 계산</span></div>
+                <code>loss.backward()</code>
+                <div class="chip" id="n-grad" data-goal="opt">
+                  <span class="name">Gradient</span>
+                  <span class="use">loss가 커지는 방향</span>
+                  <span class="goal">② 최적화</span>
+                </div>
+              </li>
+              <li class="step update">
+                <div class="step-head"><span class="n">6</span><span class="t">가중치 갱신</span></div>
+                <code>optimizer.step()</code>
+                <div class="chip key" id="n-optimizer" data-goal="opt">
+                  <span class="name">Optimizer</span>
+                  <span class="use">어떤 규칙으로? SGD · Momentum · AdamW</span>
+                  <span class="goal">② 최적화</span>
+                </div>
+                <div class="chip key" id="n-lr" data-goal="opt gen">
+                  <span class="name">Learning rate</span>
+                  <span class="use">얼마나 크게? 갱신 한 번의 보폭</span>
+                  <span class="goal">②③ 최적화·일반화</span>
+                </div>
+                <div class="chip" id="n-wd" data-goal="gen">
+                  <span class="name">Weight Decay</span>
+                  <span class="use">갱신 때 가중치를 조금씩 줄임</span>
+                  <span class="goal">③ 일반화</span>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <p class="phase-title">Epoch 끝 · train 전체를 한 바퀴 돈 뒤</p>
+          <ol class="flow epoch" aria-label="Epoch 끝의 실행 순서">
+            <li class="step">
+              <div class="step-head"><span class="n">1</span><span class="t">평가 모드로</span></div>
+              <code>model.eval()</code> <code>no_grad()</code>
+              <div class="chip" id="n-mode" data-goal="eval">
+                <span class="name">train() / eval() 모드</span>
+                <span class="use">Dropout·BatchNorm 동작 전환</span>
+                <span class="goal">④ 측정·선택</span>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-head"><span class="n">2</span><span class="t">valid 평가 · 기록</span></div>
+              <code>history.append(...)</code>
+              <div class="chip key" id="n-curve" data-goal="eval">
+                <span class="name">학습곡선</span>
+                <span class="use">train·valid loss를 epoch마다 기록</span>
+                <span class="goal">④ 측정·선택</span>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-head"><span class="n">3</span><span class="t">학습률 조정</span></div>
+              <code>scheduler.step(valid_loss)</code>
+              <div class="chip" id="n-sched" data-goal="opt gen">
+                <span class="name">Scheduler</span>
+                <span class="use">valid가 정체되면 lr 감소</span>
+                <span class="goal">②③ 최적화·일반화</span>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-head"><span class="n">4</span><span class="t">멈출지 판단</span></div>
+              <code>patience · min_delta</code>
+              <div class="chip key" id="n-es" data-goal="gen eval">
+                <span class="name">Early Stopping</span>
+                <span class="use">best 갱신 시 저장, 개선 없으면 중단</span>
+                <span class="goal">③④ 일반화·선택</span>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-head"><span class="n">5</span><span class="t">다음 epoch로</span></div>
+              <code>model.train()</code>
+              <div class="chip" id="n-epoch" data-goal="opt gen">
+                <span class="name">Epoch 수</span>
+                <span class="use">길수록 더 맞추지만 과적합 위험</span>
+                <span class="goal">②③ 최적화·일반화</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="phase">
+          <p class="phase-title">학습이 끝난 뒤 · 정리</p>
+          <ol class="flow finish" aria-label="학습이 끝난 뒤의 순서">
+            <li class="step">
+              <div class="step-head"><span class="n">1</span><span class="t">best 상태 복원</span></div>
+              <code>load_state_dict(best_state)</code>
+              <div class="chip" data-goal="eval">
+                <span class="name">best ≠ 마지막</span>
+                <span class="use">멈춘 시점이 아니라 valid가 가장 좋았던 시점</span>
+                <span class="goal">④ 측정·선택</span>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-head"><span class="n">2</span><span class="t">실험표에 기록</span></div>
+              <code>history CSV · 비교표</code>
+              <div class="chip" id="n-table2" data-goal="eval">
+                <span class="name">실험표</span>
+                <span class="use">바꾼 조건 · best epoch · best valid loss · 근거</span>
+                <span class="goal">④ 측정·선택</span>
+              </div>
+            </li>
+            <li class="step">
+              <div class="step-head"><span class="n">3</span><span class="t">test는 마지막에 한 번</span></div>
+              <code>모든 선택이 끝난 뒤</code>
+              <div class="chip" data-goal="eval">
+                <span class="name">최종 평가</span>
+                <span class="use">test로 고르면 test도 선택에 쓰인 셈</span>
+                <span class="goal">④ 측정·선택</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend" aria-label="지도 범례">
+      <span class="lg1">실험 한 번 (조건마다 1회)</span>
+      <span class="lg2">Epoch 반복</span>
+      <span class="lg3">Batch 한 번 (가장 자주 실행)</span>
+      <span class="lg4">모델 내부 (forward 안)</span>
+      <span>굵은 테두리 칩: 실험표의 핵심 손잡이와 판단 근거</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 코드로 보기 ═══════════ -->
+<section class="block" id="code" aria-labelledby="code-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">SAME MAP, IN CODE</span>
+      <h2 id="code-title">같은 지도를 코드로 보기</h2>
+      <p>지도의 상자 하나 = 코드의 반복문 하나. 들여쓰기가 깊을수록 안쪽 상자이고 더 자주 실행됩니다.</p>
+    </div>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <span class="small muted">Python · 설명용 골격 (실습 원문 아님)</span>
+        <button type="button" class="btn btn-secondary" id="copy-btn">코드 복사</button>
+      </div>
+      <p class="status" id="copy-status" role="status" aria-live="polite"></p>
+<pre id="code-block"><code><span class="h"># ── 실험 한 번 ── 조건 하나마다 1회 ──────────────────────</span>
+torch.manual_seed(42)
+train_loader = DataLoader(train_ds, batch_size=32, shuffle=True)
+valid_loader = DataLoader(valid_ds, batch_size=256, shuffle=False)
+model = ANN()
+loss_fn = nn.CrossEntropyLoss()
+optimizer = torch.optim.AdamW(model.parameters(),
+                              lr=1e-3, weight_decay=0.01)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer, mode="min", factor=0.5, patience=2)
+best_loss, best_state, wait, patience = float("inf"), None, 0, 5
+
+<span class="h"># ── Epoch 반복 ── epochs번 ───────────────────────────────</span>
+for epoch in range(epochs):
+    model.train()
+
+    <span class="h"># ── Batch 한 번 ── ⌈N ÷ batch_size⌉번 ─────────────────</span>
+    for x, y in train_loader:
+        optimizer.zero_grad()
+        pred = model(x)
+        loss = loss_fn(pred, y)
+        loss.backward()
+        optimizer.step()
+
+    <span class="h"># ── Epoch 끝 ─────────────────────────────────────────</span>
+    model.eval()
+    with torch.no_grad():
+        valid_loss = evaluate(model, valid_loader)
+    scheduler.step(valid_loss)
+    if valid_loss &lt; best_loss:
+        best_loss, wait = valid_loss, 0
+        best_state = copy.deepcopy(model.state_dict())
+    else:
+        wait += 1
+        if wait &gt;= patience:
+            break
+
+<span class="h"># ── 학습이 끝난 뒤 ───────────────────────────────────────</span>
+model.load_state_dict(best_state)
+<span class="c"># 실험표에 기록 → 모든 선택이 끝난 뒤 test로 한 번 평가</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 좋은 해 ═══════════ -->
+<section class="block" id="goals" aria-labelledby="goals-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">GOOD SOLUTION</span>
+      <h2 id="goals-title">③ 어느 해에 도착하나 · 뾰족한 해와 평평한 해</h2>
+    </div>
+    <div class="landscape">
+      <figure>
+        <svg viewBox="0 0 600 270" role="img" aria-labelledby="ls-title ls-desc">
+          <title id="ls-title">뾰족한 최소점과 평평한 최소점</title>
+          <desc id="ls-desc">train loss 곡선에는 깊이가 같은 두 골짜기가 있다. 왼쪽은 좁고 뾰족하며, valid loss 곡선이 조금만 어긋나도 valid loss가 크게 높다. 오른쪽은 넓고 평평해서 valid loss도 거의 같다.</desc>
+          <line x1="20" y1="232" x2="590" y2="232" stroke="#D8E4F2" stroke-width="2"/>
+          <text x="590" y="256" text-anchor="end" font-size="14" fill="#52667E">파라미터 →</text>
+          <text x="22" y="22" font-size="14" fill="#52667E">loss ↑</text>
+          <path d="M20,60 C80,60 120,70 135,140 C142,180 146,205 150,205 C154,205 158,180 165,140 C180,80 220,70 260,80 C300,90 330,150 360,188 C390,210 450,210 480,188 C510,150 540,90 580,70" fill="none" stroke="#142849" stroke-width="3"/>
+          <path d="M36,60 C96,60 136,70 151,140 C158,180 162,205 166,205 C170,205 174,180 181,140 C196,80 236,70 276,80 C316,90 346,150 376,188 C406,210 466,210 496,188 C526,150 556,90 596,70" fill="none" stroke="#4B74A6" stroke-width="3" stroke-dasharray="8 6"/>
+          <circle cx="150" cy="205" r="6" fill="#142849"/>
+          <line x1="150" y1="205" x2="150" y2="136" stroke="#142849" stroke-width="1.5"/>
+          <line x1="154" y1="132" x2="176" y2="62" stroke="#52667E" stroke-width="1"/>
+          <circle cx="150" cy="136" r="5" fill="#fff" stroke="#4B74A6" stroke-width="2.5"/>
+          <text x="180" y="38" font-size="15" fill="#1C2B40" font-weight="700">뾰족한 해</text>
+          <text x="180" y="57" font-size="14" fill="#52667E">valid가 크게 오름</text>
+          <circle cx="420" cy="204" r="6" fill="#142849"/>
+          <circle cx="420" cy="203" r="5" fill="#fff" stroke="#4B74A6" stroke-width="2.5"/>
+          <text x="420" y="118" text-anchor="middle" font-size="15" fill="#1C2B40" font-weight="700">평평한 해</text>
+          <text x="420" y="137" text-anchor="middle" font-size="14" fill="#52667E">조금 어긋나도 거의 같음</text>
+          <line x1="300" y1="248" x2="330" y2="248" stroke="#142849" stroke-width="3"/>
+          <text x="336" y="253" font-size="13" fill="#222F44">train loss</text>
+          <line x1="420" y1="248" x2="450" y2="248" stroke="#4B74A6" stroke-width="3" stroke-dasharray="8 6"/>
+          <text x="456" y="253" font-size="13" fill="#222F44">valid loss</text>
+        </svg>
+        <figcaption>개념 그림 (측정값 아님) · UDL 그림 20.11을 단순화</figcaption>
+      </figure>
+      <div>
+        <ol>
+          <li>train loss만 보면 두 골짜기의 깊이는 같습니다.</li>
+          <li>valid의 손실 곡선은 train과 <b>조금 어긋나</b> 있어서, 뾰족한 골짜기에서는 valid loss가 크게 오릅니다.</li>
+          <li>지도에서 ③이 붙은 도구들은 <b>평평한 쪽</b>으로 기울게 만드는 장치로 볼 수 있습니다.</li>
+        </ol>
+        <p class="small muted" style="margin-top: var(--space-3)">대표적인 해석이며, 일반화를 완전히 설명하는 이론은 아직 없습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 증상에서 도구로 ═══════════ -->
+<section class="block" id="diagnose" aria-labelledby="diag-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">DIAGNOSIS</span>
+      <h2 id="diag-title">증상에서 도구로 · 학습곡선을 보고 지도에서 찾기</h2>
+      <p>학습곡선의 모양이 “어느 목표가 문제인지”를 알려 주고, 지도가 “어느 상자에서 고칠지”를 알려 줍니다. 처방은 강의 PDF p.82 기준입니다.</p>
+    </div>
+    <p class="scroll-hint">표를 옆으로 밀어 나머지 열을 볼 수 있어요.</p>
+    <div class="table-scroll" tabindex="0" role="region" aria-labelledby="diag-title">
+      <table>
+        <caption>실선은 train loss, 점선은 valid loss의 모양 예시 (측정값 아님)</caption>
+        <thead>
+          <tr><th scope="col">곡선 모양</th><th scope="col">관찰</th><th scope="col">어느 목표의 문제</th><th scope="col">지도에서 고칠 곳</th><th scope="col">먼저 바꿀 것</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><svg class="spark" viewBox="0 0 120 60" aria-hidden="true"><path d="M5,10 C40,16 80,18 115,20" fill="none" stroke="#142849" stroke-width="2.5"/><path d="M5,8 C40,12 80,14 115,15" fill="none" stroke="#4B74A6" stroke-width="2.5" stroke-dasharray="5 4"/><line x1="5" y1="56" x2="115" y2="56" stroke="#D8E4F2"/></svg></td>
+            <td><b>train·valid 둘 다 나쁨</b></td>
+            <td>② 최적화 부족 또는 모델 용량 부족 (Underfitting)</td>
+            <td><span class="where w3">갱신: lr</span> <span class="where w2">Epoch 수</span> <span class="where w4">모델 용량</span></td>
+            <td>lr·epoch·모델 용량 늘리기. 데이터·loss·기울기 확인</td>
+          </tr>
+          <tr>
+            <td><svg class="spark" viewBox="0 0 120 60" aria-hidden="true"><path d="M5,10 C30,35 70,50 115,54" fill="none" stroke="#142849" stroke-width="2.5"/><path d="M5,12 C30,34 50,38 65,37 S100,26 115,20" fill="none" stroke="#4B74A6" stroke-width="2.5" stroke-dasharray="5 4"/><line x1="5" y1="56" x2="115" y2="56" stroke="#D8E4F2"/></svg></td>
+            <td><b>train 좋아짐 · valid 나빠짐</b></td>
+            <td>③ 일반화 (Overfitting)</td>
+            <td><span class="where w2">Early Stopping</span> <span class="where w4">Dropout</span> <span class="where w3">Weight Decay</span></td>
+            <td>Early Stopping · Dropout · Weight Decay. 데이터 양·라벨 잡음 확인</td>
+          </tr>
+          <tr>
+            <td><svg class="spark" viewBox="0 0 120 60" aria-hidden="true"><path d="M5,10 L15,28 L25,16 L35,38 L45,20 L55,42 L65,24 L75,44 L85,28 L95,46 L105,30 L115,44" fill="none" stroke="#142849" stroke-width="2.5"/><line x1="5" y1="56" x2="115" y2="56" stroke="#D8E4F2"/></svg></td>
+            <td><b>loss가 크게 진동</b></td>
+            <td>② 최적화 불안정 (보폭 과대 · 기울기 잡음 과대)</td>
+            <td><span class="where w3">갱신: lr</span> <span class="where w3">Batch size</span></td>
+            <td>lr 줄이기 · batch 늘리기. 입력 정규화 확인</td>
+          </tr>
+          <tr>
+            <td><svg class="spark" viewBox="0 0 120 60" aria-hidden="true"><path d="M5,8 C20,30 35,36 50,37 L115,38" fill="none" stroke="#142849" stroke-width="2.5"/><path d="M5,10 C20,30 35,34 50,35 L115,35" fill="none" stroke="#4B74A6" stroke-width="2.5" stroke-dasharray="5 4"/><line x1="5" y1="56" x2="115" y2="56" stroke="#D8E4F2"/></svg></td>
+            <td><b>초반 개선 후 정체</b></td>
+            <td>② 최적화 (plateau)</td>
+            <td><span class="where w2">Scheduler</span> <span class="where w3">Optimizer</span></td>
+            <td>Scheduler 적용 · Optimizer 후보 비교. 기울기 크기·활성화 확인</td>
+          </tr>
+          <tr>
+            <td><svg class="spark" viewBox="0 0 120 60" aria-hidden="true"><path d="M5,30 L50,34 L68,30 L78,4" fill="none" stroke="#142849" stroke-width="2.5"/><text x="84" y="18" font-size="13" fill="#1C2B40" font-weight="700">NaN</text><line x1="5" y1="56" x2="115" y2="56" stroke="#D8E4F2"/></svg></td>
+            <td><b>loss가 NaN/Inf</b></td>
+            <td>② 수치 불안정</td>
+            <td><span class="where w3">갱신: lr</span> <span class="where w3">Loss · 입력</span></td>
+            <td>lr 줄이기 · 입력·loss 검사. 필요하면 gradient clipping·dtype</td>
+          </tr>
+          <tr>
+            <td><svg class="spark" viewBox="0 0 120 60" aria-hidden="true"><path d="M5,12 C30,40 50,44 65,43 S100,32 115,26" fill="none" stroke="#4B74A6" stroke-width="2.5" stroke-dasharray="5 4"/><text x="72" y="56" font-size="11" fill="#52667E">acc는 그대로</text></svg></td>
+            <td><b>valid acc는 그대로인데 valid loss만 오름</b></td>
+            <td>① 손실의 성질: 틀린 예측을 점점 더 확신</td>
+            <td><span class="where w2">Early Stopping 감시 지표</span></td>
+            <td>무엇을 기준으로 best를 고를지 정하기 (UDL §8.1 보충)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted" style="margin-top: var(--space-3)">곡선을 보고 먼저 할 질문 (PDF p.86): train과 valid 중 어느 쪽이 문제인가? 초반부터인가, 후반부터인가? loss와 accuracy가 같은 결론인가? 한 설정만 바꾸었나?</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">새싹 NVIDIA AI 코어 엔지니어 2기 · Day10 학습 노트 · 2026.10.30</div>
+</footer>
+
+<script>
+(function () {
+  var map = document.getElementById('map');
+  var status = document.getElementById('filter-status');
+  var buttons = document.querySelectorAll('.filter .btn');
+  var names = { loss: '① 손실', opt: '② 최적화', gen: '③ 일반화', eval: '④ 측정·선택' };
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var f = btn.getAttribute('data-filter');
+      map.setAttribute('data-filter', f);
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+      if (f === 'all') { status.textContent = '모든 개념을 같은 밝기로 보여 줘요.'; return; }
+      var n = map.querySelectorAll('.chip[data-goal~="' + f + '"]').length;
+      status.textContent = names[f] + ' 관련 칩 ' + n + '개를 강조했어요. 어느 상자에 모여 있는지 보세요.';
+    });
+  });
+
+  var copyBtn = document.getElementById('copy-btn');
+  var copyStatus = document.getElementById('copy-status');
+  copyBtn.addEventListener('click', function () {
+    var text = document.getElementById('code-block').innerText;
+    if (!navigator.clipboard) { copyStatus.textContent = '코드를 복사하지 못했어요. 코드를 선택해 직접 복사해 주세요.'; return; }
+    navigator.clipboard.writeText(text).then(function () {
+      copyStatus.textContent = '코드를 복사했어요.';
+    }, function () {
+      copyStatus.textContent = '코드를 복사하지 못했어요. 코드를 선택해 직접 복사해 주세요.';
+    });
+  });
+
+  window.addEventListener('beforeprint', function () {
+    document.querySelectorAll('details').forEach(function (d) { d.setAttribute('open', ''); });
+  });
+})();
+</script>
+</body>
+</html>
