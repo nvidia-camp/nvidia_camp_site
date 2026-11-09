@@ -1,0 +1,608 @@
+[
+ {
+  "day": "1",
+  "date": "2026-10-19",
+  "subject": "AI 교육과정 오리엔테이션",
+  "link": "https://nvidiaai2.slack.com/archives/C0C918MMHNE/p1792389282021579"
+ },
+ {
+  "day": "2",
+  "date": "2026-10-20",
+  "subject": "AI 개발을 위한 Python 데이터 처리 기초",
+  "link": null
+ },
+ {
+  "day": "3",
+  "date": "2026-10-21",
+  "subject": "AI 개발을 위한 Python 데이터 처리 기초",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792574474301669"
+ },
+ {
+  "day": "4",
+  "date": "2026-10-22",
+  "subject": "AI 개발을 위한 Python 데이터 처리 기초",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792636285612769"
+ },
+ {
+  "day": "5",
+  "date": "2026-10-23",
+  "subject": "머신러닝 모델링 및 성능평가",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792715139274279"
+ },
+ {
+  "day": "6",
+  "date": "2026-10-26",
+  "subject": "머신러닝 모델링 및 성능평가",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792980731605349"
+ },
+ {
+  "day": "7",
+  "date": "2026-10-27",
+  "subject": "머신러닝 모델링 및 성능평가",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793092592447099"
+ },
+ {
+  "day": "8",
+  "date": "2026-10-28",
+  "subject": "머신러닝 모델링 및 성능평가",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793146759759379"
+ },
+ {
+  "day": "9",
+  "date": "2026-10-29",
+  "subject": "딥러닝 핵심 아키텍처 및 학습",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793233531297299"
+ },
+ {
+  "day": "10",
+  "date": "2026-10-30",
+  "subject": "딥러닝 핵심 아키텍처 및 학습",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793319419618279"
+ },
+ {
+  "day": "11-1",
+  "date": "2026-11-02",
+  "subject": "딥러닝 핵심 아키텍처 및 학습",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793578427089629"
+ },
+ {
+  "day": "11-2",
+  "date": "2026-11-02",
+  "subject": "딥러닝 핵심 아키텍처 및 학습",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339"
+ },
+ {
+  "day": "12",
+  "date": "2026-11-03",
+  "subject": "직업기초능력평가",
+  "link": null
+ },
+ {
+  "day": "13",
+  "date": "2026-11-04",
+  "subject": "Vision·멀티모달 AI 응용",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793757541306749"
+ },
+ {
+  "day": "14",
+  "date": "2026-11-05",
+  "subject": "Vision·멀티모달 AI 응용",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793836816879079"
+ },
+ {
+  "day": "15",
+  "date": "2026-11-06",
+  "subject": "Vision·멀티모달 AI 응용",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793923611583639"
+ },
+ {
+  "day": "16",
+  "date": "2026-11-09",
+  "subject": "Vision·멀티모달 AI 응용",
+  "link": "https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1794182803885299"
+ },
+ {
+  "day": "17",
+  "date": "2026-11-10",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "18",
+  "date": "2026-11-11",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "19",
+  "date": "2026-11-12",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "20",
+  "date": "2026-11-13",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "21",
+  "date": "2026-11-16",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "22",
+  "date": "2026-11-17",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "23",
+  "date": "2026-11-18",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "24",
+  "date": "2026-11-19",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "25",
+  "date": "2026-11-20",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "26",
+  "date": "2026-11-23",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "27",
+  "date": "2026-11-24",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "28",
+  "date": "2026-11-25",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "29",
+  "date": "2026-11-26",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "30",
+  "date": "2026-11-27",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "31",
+  "date": "2026-11-30",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "32",
+  "date": "2026-12-01",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "33",
+  "date": "2026-12-02",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "34",
+  "date": "2026-12-03",
+  "subject": "생성형 AI·LLM 및 RAG 엔지니어링",
+  "link": null
+ },
+ {
+  "day": "35",
+  "date": "2026-12-04",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "36",
+  "date": "2026-12-07",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "37",
+  "date": "2026-12-08",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "38",
+  "date": "2026-12-09",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "39",
+  "date": "2026-12-10",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "40",
+  "date": "2026-12-11",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "41",
+  "date": "2026-12-14",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "42",
+  "date": "2026-12-15",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "43",
+  "date": "2026-12-16",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "44",
+  "date": "2026-12-17",
+  "subject": "LLM·RAG 실전 프로젝트",
+  "link": null
+ },
+ {
+  "day": "45",
+  "date": "2026-12-18",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "46",
+  "date": "2026-12-21",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "47",
+  "date": "2026-12-22",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "48",
+  "date": "2026-12-23",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "49",
+  "date": "2026-12-24",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "50",
+  "date": "2026-12-28",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "51",
+  "date": "2026-12-29",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "52",
+  "date": "2026-12-30",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "53",
+  "date": "2026-12-31",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "54",
+  "date": "2027-01-04",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "55",
+  "date": "2027-01-05",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "56",
+  "date": "2027-01-06",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "57",
+  "date": "2027-01-07",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "58",
+  "date": "2027-01-08",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "59",
+  "date": "2027-01-11",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "60",
+  "date": "2027-01-12",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "61",
+  "date": "2027-01-13",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "62",
+  "date": "2027-01-14",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "63",
+  "date": "2027-01-15",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "64",
+  "date": "2027-01-18",
+  "subject": "AI Agent 엔지니어링 및 서비스 개발",
+  "link": null
+ },
+ {
+  "day": "65",
+  "date": "2027-01-19",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "66",
+  "date": "2027-01-20",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "67",
+  "date": "2027-01-21",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "68",
+  "date": "2027-01-22",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "69",
+  "date": "2027-01-25",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "70",
+  "date": "2027-01-26",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "71",
+  "date": "2027-01-27",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "72",
+  "date": "2027-01-28",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "73",
+  "date": "2027-01-29",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "74",
+  "date": "2027-02-01",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "75",
+  "date": "2027-02-02",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "76",
+  "date": "2027-02-03",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "77",
+  "date": "2027-02-04",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "78",
+  "date": "2027-02-05",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "79",
+  "date": "2027-02-10",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "80",
+  "date": "2027-02-11",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "81",
+  "date": "2027-02-12",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "82",
+  "date": "2027-02-15",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "83",
+  "date": "2027-02-16",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "84",
+  "date": "2027-02-17",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "85",
+  "date": "2027-02-18",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "86",
+  "date": "2027-02-19",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "87",
+  "date": "2027-02-22",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "88",
+  "date": "2027-02-23",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "89",
+  "date": "2027-02-24",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "90",
+  "date": "2027-02-25",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "91",
+  "date": "2027-02-26",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "92",
+  "date": "2027-03-02",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "93",
+  "date": "2027-03-03",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "94",
+  "date": "2027-03-04",
+  "subject": "AI Agent End-to-End 종합 프로젝트",
+  "link": null
+ },
+ {
+  "day": "95",
+  "date": "2027-03-05",
+  "subject": "NCA-GenL 자격 대비",
+  "link": null
+ },
+ {
+  "day": "96",
+  "date": "2027-03-08",
+  "subject": "NCA-GenL 자격 대비",
+  "link": null
+ },
+ {
+  "day": "97",
+  "date": "2027-03-09",
+  "subject": "NCA-GenL 자격 대비",
+  "link": null
+ },
+ {
+  "day": "98",
+  "date": "2027-03-10",
+  "subject": "NCA-GenL 자격 대비",
+  "link": null
+ },
+ {
+  "day": "99",
+  "date": "2027-03-11",
+  "subject": "NCA-GenL 자격 대비",
+  "link": null
+ },
+ {
+  "day": "100",
+  "date": "2027-03-12",
+  "subject": "최종발표회 및 수료식",
+  "link": null
+ }
+]
