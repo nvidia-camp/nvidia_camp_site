@@ -4,13 +4,13 @@
 # ///
 """pages/의 요약을 모아 배포용 사이트(public/)를 만든다.
 
-사용: uv run make_thumbs.py && uv run build_site.py   (site 폴더에서)
+사용: uv run build_site.py   (site 폴더에서)
 
 - 원본은 pages/ 아래에 둔다. 폴더 이름만 맞추면 자동으로 사이트에 들어간다.
     pages/<과목>/<YYYYMMDD>/   매일 요약     → /<과목>/<YYYYMMDD>/
     pages/<과목>/all/          과목 4일 종합 → /<과목>/  (없으면 날짜 카드 목록)
     pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 보이는 이름 등록)
-- 각 폴더의 index.html, 요약 PDF, thumb.jpg(make_thumbs.py가 만듦)를 public/에 복사한다.
+- 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - 날짜와 Day 번호, 과정 전체 일정은 nvidia_camp의 커리큘럼 CSV에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
@@ -41,8 +41,8 @@ SUBJECTS = {
 }
 # 문제 풀이 사이트 (홈 위쪽 링크)
 PRACTICE = [
-    ("SWEA 솔빙클럽", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
-    ("프로그래머스 Python", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
+    ("SWEA", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
+    ("프로그래머스", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
 ]
 # 치트시트: pages/cheatsheet/<이름> → 보이는 이름
 CHEATSHEETS = {"sklearn": "scikit-learn", "pytorch": "PyTorch", "opencv": "OpenCV"}
@@ -123,9 +123,9 @@ def copy_page(src, dest, nav):
     out = PUBLIC / dest
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(text, encoding="utf-8")
-    for name in (pdf_of(src), "thumb.jpg"):
-        if name and (src / name).exists():
-            shutil.copy2(src / name, out / name)
+    pdf = pdf_of(src)
+    if pdf:
+        shutil.copy2(src / pdf, out / pdf)
     note = f" (사이트에 없는 링크 {n_links}개를 글자로)" if n_links else ""
     print(f"  /{dest}/ ← {src.relative_to(HERE)}{note}")
 
@@ -174,26 +174,24 @@ a.cell:hover{{transform:scale(1.25)}}
 .subject-head a:hover h2{{text-decoration:underline}}
 .subject-head span{{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}}
 .grid{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}}
-.card{{display:grid;gap:8px;align-content:start;min-width:0}}
-.thumb{{display:block;aspect-ratio:16/10;max-width:100%;border-radius:10px;overflow:hidden;
-  border:1px solid var(--border);background:var(--soft)}}
-.thumb img{{display:block;width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .18s}}
-.card:hover .thumb img{{transform:scale(1.03)}}
+.card{{display:grid;gap:6px;align-content:start;min-width:0;padding:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:14px}}
+.card:hover{{border-color:var(--primary)}}
 .card:hover h3{{text-decoration:underline}}
 .meta{{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}}
 .meta b{{color:var(--heading)}}
 .pdf{{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px;justify-self:start}}
-.feature{{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:center;
-  padding:20px;background:var(--soft);border-radius:16px}}
-.feature .body{{display:grid;gap:10px;justify-items:start}}
+.feature{{display:grid;gap:6px;padding:20px;background:var(--soft);border:1px solid var(--border);border-radius:16px}}
+.feature:hover{{border-color:var(--primary)}}
+.feature:hover h3{{text-decoration:underline}}
 .feature h3{{font-size:22px;font-weight:700}}
 .label{{font-size:13px;font-weight:600;color:var(--muted)}}
 .btn{{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
   background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
 .sheets{{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
-@media (max-width:640px){{.feature{{grid-template-columns:1fr}}.sheets{{grid-template-columns:1fr 1fr}}}}
-@media (prefers-reduced-motion:reduce){{*{{transition:none!important}}a.cell:hover{{transform:none}}}}
+@media (max-width:640px){{.sheets{{grid-template-columns:1fr 1fr}}}}
+@media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
 """
 
 
@@ -215,17 +213,11 @@ def list_page(title, body, nav=""):
 """
 
 
-def thumb_img(src, href):
-    if src and (src / "thumb.jpg").exists():
-        return f'<span class="thumb"><img src="{href}thumb.jpg" alt=""></span>'
-    return '<span class="thumb"></span>'
-
-
 def day_card(d, up):
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     pdf = pdf_of(d["src"])
     pdf_link = f'<a class="pdf" href="{href}{html.escape(pdf)}">PDF</a>' if pdf else ""
-    return (f'<div class="card"><a href="{href}">{thumb_img(d["src"], href)}'
+    return (f'<div class="card"><a href="{href}">'
             f'<p class="meta"><b>Day{d["n"]}</b><span>{md(d["date"])}</span></p>'
             f'<h3>{html.escape(page_h1(d["src"]))}</h3></a>{pdf_link}</div>')
 
@@ -235,9 +227,8 @@ def feature_card(key, up):
     href = f"{up}{key}/"
     pdf = pdf_of(src)
     pdf_link = f'<a class="pdf" href="{href}{html.escape(pdf)}">PDF</a>' if pdf else ""
-    return (f'<div class="feature"><a href="{href}" tabindex="-1" aria-hidden="true">{thumb_img(src, href)}</a>'
-            f'<div class="body"><p class="label">4일 종합</p><h3>{html.escape(page_h1(src))}</h3>'
-            f'<a class="btn" href="{href}">열기</a>{pdf_link}</div></div>')
+    return (f'<div class="feature"><a href="{href}"><p class="label">4일 종합</p>'
+            f'<h3>{html.escape(page_h1(src))}</h3></a>{pdf_link}</div>')
 
 
 def subject_block(key, ds, up, link_head=True):
@@ -283,8 +274,7 @@ def home_page(days, subjects, today):
     quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
     blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
     sheets = "".join(
-        f'<div class="card"><a href="cheatsheet/{k}/">{thumb_img(PAGES / "cheatsheet" / k, f"cheatsheet/{k}/")}'
-        f'<h3>{name}</h3></a></div>' for k, name in CHEATSHEETS.items())
+        f'<div class="card"><a href="cheatsheet/{k}/"><h3>{name}</h3></a></div>' for k, name in CHEATSHEETS.items())
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{name} ↗</a>'
                        for name, url in PRACTICE)
     body = f"""<header class="top">
