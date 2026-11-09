@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Day7 PDF와 실습자료로 정리한 pandas·scikit-learn 머신러닝 7단계 핵심 함수와 코드 치트시트"><meta name="color-scheme" content="light"><title>머신러닝 7단계 | Day7 핵심 치트시트</title>
+<style>
+:root{--color-primary:#142849;--color-heading:#1C2B40;--color-text:#222F44;--color-muted:#52667E;--color-canvas:#F9FBFE;--color-surface:#FFFFFF;--color-soft:#F0F6FD;--color-border:#D8E4F2;--color-code-bg:#1B2435;--color-code-text:#FFFFFF;--paper:var(--color-canvas);--surface:var(--color-surface);--ink:var(--color-text);--muted:var(--color-muted);--line:var(--color-border);--accent:var(--color-primary);--tint:var(--color-soft);--focus:var(--color-primary);--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;--small:14px;--body:16px;--sub:20px;--heading:24px;--hero:40px;--radius:16px;--control:12px;--max:1120px;--reading:720px;--tap:44px;--sans:"Segoe UI","Malgun Gothic",sans-serif;--mono:Consolas,"Malgun Gothic",monospace}
+*{box-sizing:border-box}html{scroll-padding-top:var(--s5)}body{margin:0;background:var(--paper);color:var(--ink);font:var(--body)/1.7 var(--sans);word-break:keep-all;overflow-wrap:anywhere}a{color:var(--accent);text-underline-offset:var(--s1)}button,a,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button{font:600 var(--small)/1.6 var(--sans);cursor:pointer;border:1px solid var(--line);border-radius:var(--control);background:var(--surface);color:var(--accent);padding:var(--s2) var(--s4);min-height:var(--tap)}button:hover{background:var(--tint)}button:active,.actions a:active{transform:scale(.98)}button:disabled{cursor:default;color:var(--muted)}button:focus-visible,a:focus-visible,summary:focus-visible,pre:focus-visible{outline:3px solid var(--focus);outline-offset:var(--s1);box-shadow:0 0 0 var(--s1) var(--surface)}
+.wrap{max-width:var(--max);margin:auto;padding:var(--s5) clamp(16px,4vw,48px) var(--s7)}.mast{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);font-size:var(--small);color:var(--muted);padding-bottom:var(--s4);border-bottom:1px solid var(--line)}.brand{font-size:var(--body);font-weight:700;color:var(--accent)}.hero{padding:var(--s6) 0 var(--s5)}.eyebrow{font-size:var(--small);font-weight:600;color:var(--muted);margin:0 0 var(--s2)}h1{font-size:var(--hero);line-height:1.3;letter-spacing:-.035em;color:var(--color-heading);margin:0 0 var(--s3);text-wrap:balance}h2{font-size:var(--heading);line-height:1.4;letter-spacing:-.025em;margin:0;color:var(--color-heading)}h3{font-size:var(--sub);margin:var(--s5) 0 var(--s2)}p{margin:var(--s2) 0;text-wrap:pretty}.intro{max-width:var(--reading);color:var(--muted)}.intro strong{font-weight:600;color:var(--ink)}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);margin-top:var(--s5)}.actions a{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);padding:var(--s2) var(--s4);border:1px solid var(--line);border-radius:var(--control);background:var(--surface);text-decoration:none;font-size:var(--small);font-weight:600}.actions a:hover{background:var(--tint)}.actions a.primary{background:var(--accent);color:var(--surface);border-color:var(--accent)}.actions a.primary:hover{background:var(--color-heading)}.actions #print{margin-left:auto}
+.route{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--s2);margin:var(--s2) 0 var(--s5)}.route a{min-width:0;display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4) var(--s3);border:1px solid var(--line);border-radius:var(--control);background:var(--surface);text-decoration:none;color:var(--ink);font-size:var(--small)}.route a:hover,.route a[aria-current="step"]{background:var(--tint);border-color:var(--accent)}.route-number{flex-shrink:0;white-space:nowrap;font:600 var(--sub)/1.3 var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}.route-label{font-weight:600;line-height:1.55}.route-label small{display:block;margin-top:var(--s1);font:var(--small)/1.5 var(--mono);color:var(--muted)}
+.scope{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s5);background:var(--tint);border-radius:var(--radius);padding:var(--s5);margin-bottom:var(--s4)}.scope b{display:block;color:var(--accent);font-size:var(--body);font-weight:600}.scope span{display:block;font-size:var(--small);color:var(--muted);margin-top:var(--s1)}.callout{font-size:var(--small);color:var(--muted);margin:var(--s3) 0 var(--s5);max-width:var(--reading)}.sectionhead{display:flex;gap:var(--s4);align-items:center;justify-content:space-between;margin:var(--s7) 0 var(--s4)}.sectionhead p{font-size:var(--small);color:var(--muted)}
+.tablewrap{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:var(--s4);border-bottom:1px solid var(--line)}thead th{color:var(--muted);font-size:var(--small);font-weight:600;background:var(--tint)}tbody th{font-weight:600}tr:last-child>*{border-bottom:0}.overview{font-size:var(--body)}.overview th:first-child{width:24%;font-size:var(--small)}.overview td:nth-child(2){width:33%}.overview a{font-weight:600}.overview tr:hover{background:var(--paper)}code{font:var(--small)/1.65 var(--mono);overflow-wrap:anywhere}.overview td code{color:var(--accent)}
+.terms{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s5);margin-top:var(--s5);padding:var(--s5);background:var(--surface);border-radius:var(--radius);border:1px solid var(--line)}.terms p{margin:0;font-size:var(--small);color:var(--muted)}.terms b{display:block;color:var(--accent);font-size:var(--body);font-weight:600;margin-bottom:var(--s1)}.mini{font-size:var(--small);color:var(--muted);max-width:var(--reading)}
+.steps{display:grid;gap:var(--s3);margin-top:var(--s5)}.step{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);scroll-margin-top:var(--s5);overflow:hidden}summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--s4);align-items:start;padding:var(--s5);min-width:0}summary::-webkit-details-marker{display:none}summary:hover{background:var(--paper)}details[open]>summary{background:var(--tint)}.num{display:flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;border-radius:var(--control);background:var(--tint);font:600 var(--sub)/1.4 var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}.step-title{font-size:var(--sub);font-weight:600;color:var(--color-heading)}.en{font:var(--small)/1.7 var(--mono);color:var(--muted);margin-left:var(--s3)}.rule{display:block;font-size:var(--body);line-height:1.7;color:var(--muted);margin-top:var(--s1);font-weight:400}.plus{display:flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;border-radius:var(--control);font-size:var(--heading);line-height:1;color:var(--accent)}details[open]>summary .plus{transform:rotate(45deg)}.stepbody{padding:var(--s5)}.functions{font-size:var(--body)}.functions th{width:32%}.functions td:last-child{color:var(--muted);font-size:var(--small);width:30%}
+.codebox{margin-top:var(--s5);border-radius:var(--control);overflow:hidden;background:var(--color-code-bg);color:var(--color-code-text)}.codehead{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:var(--s2) var(--s4);border-bottom:1px solid var(--color-muted);font:var(--small)/1.7 var(--mono);color:var(--color-code-text)}.code-language{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap}.scroll-hint{font:var(--small)/1.6 var(--sans);opacity:.85}.copy{font:600 var(--small)/1.6 var(--sans);padding:var(--s2) var(--s3);flex-shrink:0}pre{margin:0;padding:var(--s5);max-width:100%;overflow-x:auto;white-space:pre;font:var(--small)/1.65 var(--mono);word-break:normal;tab-size:4;color:inherit}pre code{overflow-wrap:normal}
+.note{margin:var(--s4) 0 0;padding:var(--s4);background:var(--tint);border-radius:var(--control);font-size:var(--small)}.source{font-size:var(--small);color:var(--muted);margin:var(--s4) 0 0}.full{margin-top:var(--s7)}.full>summary{background:var(--tint);border:1px solid var(--line);border-radius:var(--radius)}.full .stepbody{padding:var(--s4) 0 0}.sources{margin-top:var(--s7);padding-top:var(--s5);border-top:1px solid var(--line);font-size:var(--small);color:var(--muted)}.sources h2{font-size:var(--sub);color:var(--ink)}.sources ul{padding-left:var(--s5)}.sources li{margin-bottom:var(--s3)}footer{margin-top:var(--s6);font-size:var(--small);color:var(--muted);display:flex;justify-content:space-between;gap:var(--s4)}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}.skip{position:absolute;left:var(--s4);top:-100px;z-index:2;background:var(--surface);padding:var(--s3)}.skip:focus{top:var(--s4)}
+@media(max-width:1000px){.route{grid-template-columns:repeat(4,minmax(0,1fr))}.route a{flex-direction:row;align-items:start;gap:var(--s3)}.scope{gap:var(--s4)}}
+@media(max-width:760px){.sectionhead{align-items:start;flex-wrap:wrap;gap:var(--s2)}.sectionhead p{width:100%;margin:0}.overview thead{display:none}.overview,.overview tbody,.overview tr,.overview th,.overview td{display:block;width:100%!important}.overview tr{padding:var(--s4) var(--s5);border-bottom:1px solid var(--line)}.overview tr:last-child{border:0}.overview th,.overview td{border:0;padding:var(--s1) 0}.overview th:first-child{font-size:var(--body)}.overview td:nth-child(2){color:var(--accent);margin:var(--s1) 0}.terms{grid-template-columns:1fr;gap:var(--s4)}.mast{align-items:start}.functions th,.functions td{padding:var(--s3);width:auto!important}.functions td:last-child{max-width:140px}.actions #print{margin-left:0}.scope{grid-template-columns:1fr;gap:var(--s3)}.scope>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:var(--s1) var(--s3)}.scope span{margin:0}}
+@media(max-width:520px){:root{--hero:30px}.wrap{padding-top:var(--s4)}.mast{flex-direction:column;gap:var(--s1)}.hero{padding-top:var(--s5)}.route{grid-template-columns:repeat(2,minmax(0,1fr))}.route a{padding:var(--s3)}.route-number{font-size:var(--body)}.scope{padding:var(--s4)}.sectionhead{margin-top:var(--s6)}summary{padding:var(--s4);gap:var(--s3)}.num{min-width:32px;min-height:32px;font-size:var(--body)}.en{display:block;margin-left:0}.stepbody{padding:var(--s4)}.rule{font-size:var(--small)}.functions thead{display:none}.functions,.functions tbody,.functions tr,.functions th,.functions td{display:block;width:100%!important;max-width:none!important}.functions tr{padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}.functions tr:last-child{border:0}.functions th,.functions td{border:0;padding:var(--s1) 0}.codehead{padding:var(--s2) var(--s3)}pre{padding:var(--s4)}footer{flex-direction:column;gap:var(--s2)}.actions{gap:var(--s2)}.actions a,.actions button{padding:var(--s2) var(--s3)}}
+@media(prefers-reduced-motion:no-preference){button,.actions a,.plus{transition:transform 140ms ease}}
+@media print{body{background:var(--surface);font-size:11pt}.wrap{max-width:none;padding:0}.actions,.route,.copy,.plus,.skip,.scroll-hint{display:none}.hero{padding:var(--s4) 0}h1{font-size:26pt}.scope{margin-bottom:var(--s4)}summary{padding:var(--s3);background:var(--tint)}.stepbody{padding:var(--s3)}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}.codebox{background:var(--tint);color:var(--ink);border:1px solid var(--line)}.codehead{color:var(--ink);border-color:var(--line)}.codebox,.tablewrap,.step{break-inside:auto}.sectionhead{break-after:avoid}.sources{margin-top:var(--s5)}a{color:var(--ink)}.num{min-width:auto;min-height:auto}.terms{grid-template-columns:repeat(3,1fr)}}
+</style></head><body><style>
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .75rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;
+  font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .25rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-home{font-weight:700}
+.cn-nav .cn-sep{opacity:.5}
+.cn-nav .cn-step{margin-left:auto;display:flex;gap:.5rem}
+.cn-nav .cn-off{opacity:.4;padding:.125rem .25rem}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a class="cn-home" href="../../">AI 코어 엔지니어 학습 노트</a><span class="cn-sep">/</span><a href="../../#cheatsheet">치트시트</a><span class="cn-sep">/</span><a href="../../cheatsheet/sklearn/">scikit-learn</a></nav>
+<a class="skip" href="#overview">본문으로 이동</a>
+<main class="wrap">
+<header class="mast"><span class="brand">새싹 학습 노트</span><span>2026.10.27 · Day7 · pandas + scikit-learn</span></header>
+<div class="hero"><p class="eyebrow">처음 실습할 때 익힐 함수·설정</p><h1>머신러닝 핵심 흐름</h1><p class="intro">데이터를 읽고, 학습 절차를 만들고, 비교해서 저장하기까지.<br><strong>직접 자주 쓰는 함수와 판단 기준</strong>만 먼저 익히세요.</p>
+<div class="actions"><a class="primary" href="#overview">핵심 흐름 보기</a><a href="#functions">함수·코드 보기</a><a href="#full-code">전체 예제 보기</a><button type="button" id="print">인쇄 / PDF 저장</button></div></div>
+<nav class="route" aria-label="머신러닝 일곱 단계"><a href="#step-1"><span class="route-number">01</span><span class="route-label">데이터 불러오기<small>Load</small></span></a><a href="#step-2"><span class="route-number">02</span><span class="route-label">전처리<small>Preprocess</small></span></a><a href="#step-3"><span class="route-number">03</span><span class="route-label">모델<small>Model</small></span></a><a href="#step-4"><span class="route-number">04</span><span class="route-label">하이퍼파라미터 조정<small>Tune</small></span></a><a href="#step-5"><span class="route-number">05</span><span class="route-label">최종 모델 선택<small>Select</small></span></a><a href="#step-6"><span class="route-number">06</span><span class="route-label">평가<small>Evaluate</small></span></a><a href="#step-7"><span class="route-number">07</span><span class="route-label">저장<small>Save</small></span></a></nav>
+<div class="scope" aria-label="Day7 데이터 역할"><div><b>train → 학습·CV·탐색</b><span>fold마다 전처리까지 새로 학습</span></div><div><b>valid → 진단</b><span>오류·이전 결과를 별도로 확인</span></div><div><b>test → 보관</b><span>선택 정책 확정 후 최종 평가</span></div></div>
+<p class="callout"><strong>선별 기준:</strong> 여러 단계에서 반복 사용하고, 기본 흐름을 직접 실행하는 데 필요한 함수부터 남겼습니다. 설정값은 의미를, 모델 종류는 역할을 익히면 됩니다. CV의 핵심은 train 안에서 반복 평가하는 것. 기본필수는 3-fold이며 3·5라는 숫자 자체는 암기 대상이 아닙니다.</p>
+<section id="overview" aria-labelledby="overview-title"><div class="sectionhead"><h2 id="overview-title">먼저, 이 일곱 줄</h2><p>함수 이름·설정값·판단 기준을 구분</p></div>
+<div class="tablewrap"><table class="overview"><caption class="sr">초급자용 머신러닝 일곱 단계</caption><thead><tr><th scope="col">단계</th><th scope="col">먼저 익힐 함수·설정</th><th scope="col">반드시 기억</th></tr></thead><tbody><tr><th scope="row"><a href="#step-1">1. 데이터 불러오기</a></th><td><code>pd.read_csv() · df.head() · df.info()</code></td><td>먼저 표의 모양을 확인하고 X와 y를 나누기</td></tr><tr><th scope="row"><a href="#step-2">2. 전처리</a></th><td><code>train_test_split() · .fit_transform() · .transform()</code></td><td>분할 먼저, 전처리는 train에서만 배우고 같은 규칙을 적용</td></tr><tr><th scope="row"><a href="#step-3">3. 모델</a></th><td><code>DecisionTreeClassifier() · .fit() · .predict()</code></td><td>모델 이름보다 fit은 학습, predict는 예측이라는 공통 흐름 기억</td></tr><tr><th scope="row"><a href="#step-4">4. 하이퍼파라미터 조정</a></th><td><code>max_depth · n_estimators</code></td><td>설정을 하나씩 바꾸되, 비교하는 데이터와 지표는 동일하게</td></tr><tr><th scope="row"><a href="#step-5">5. 최종 모델 선택</a></th><td><code>cross_val_score() · scores.mean()</code></td><td>미리 정한 기준으로 비교하고, 선택한 모델을 전체 train에 다시 학습</td></tr><tr><th scope="row"><a href="#step-6">6. 평가</a></th><td><code>f1_score() · confusion_matrix()</code></td><td>점수와 오답을 함께 확인. Day7에서는 test를 보관</td></tr><tr><th scope="row"><a href="#step-7">7. 저장</a></th><td><code>joblib.dump() · joblib.load() · .to_csv()</code></td><td>모델 파일과 결과표는 다름. 전처리가 있으면 모델과 함께 저장</td></tr></tbody></table></div>
+<div class="terms"><p><b>fit → 배우기</b>전처리는 통계·범주를, 모델은 예측 규칙을 학습</p><p><b>transform → 바꾸기</b>이미 배운 전처리 규칙으로 입력을 변환</p><p><b>predict → 예측하기</b>Pipeline에서는 변환을 거쳐 모델의 예측값 반환</p></div></section>
+<section id="functions" aria-labelledby="functions-title"><div class="sectionhead"><h2 id="functions-title">필요한 단계만 펼쳐 보기</h2><button type="button" id="expand" aria-expanded="false">단계 모두 펼치기</button></div>
+<p class="mini">아래 코드는 역할을 보여 주는 조각입니다. 단계별 변수는 앞 단계에서 이어지며, 실제로 연결해 실행할 코드는 마지막 예제에 모았습니다.</p>
+<div class="steps"><details class="step" id="step-1"><summary><span class="num">01</span><span><span class="step-title">데이터 불러오기</span><span class="en">Load</span><span class="rule">먼저 표의 모양을 확인하고 X와 y를 나누기</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>pd.read_csv()</code></th><td>CSV 파일을 표로 읽기</td><td>pandas · 직접 사용</td></tr><tr><th scope="row"><code>df.head() / df.info()</code></th><td>앞부분 / 자료형·결측 개수 확인</td><td>pandas · 직접 사용</td></tr><tr><th scope="row"><code>df[["입력열"]] / df["정답열"]</code></th><td>X는 2차원 표, y는 정답 한 열</td><td>열 선택 문법 · 함수 아님</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-1" aria-label="code-1 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-1">import pandas as pd
+raw = pd.read_csv("../01_basic/requests.csv")
+print(raw.head())
+raw.info()
+X = raw[["input_chars"]]
+y = raw["failed"]</code></pre></div><p class="note">request_id는 식별용. 분류 정답 failed와 실행 후 알게 되는 elapsed_ms는 분류 입력에서 제외.</p><p class="source">근거: PDF p.7 · 기본필수 README·07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-2"><summary><span class="num">02</span><span><span class="step-title">전처리</span><span class="en">Preprocess</span><span class="rule">분할 먼저, 전처리는 train에서만 배우고 같은 규칙을 적용</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>train_test_split()</code></th><td>학습·검증·보관 데이터를 나누기</td><td>sklearn.model_selection · 직접 사용</td></tr><tr><th scope="row"><code>df.isna().sum()</code></th><td>열별 결측 개수 확인</td><td>pandas · 점검</td></tr><tr><th scope="row"><code>SimpleImputer()</code></th><td>결측을 채우는 도구. median은 중앙값</td><td>sklearn.impute · 대표 도구</td></tr><tr><th scope="row"><code>.fit_transform() / .transform()</code></th><td>학습하며 변환 / 배운 규칙으로만 변환</td><td>전처리 공통 동작 · 구분 필수</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-2" aria-label="code-2 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-2">from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+
+train, valid = train_test_split(
+    raw, test_size=0.2, stratify=raw["failed"], random_state=42
+)
+X_train, y_train = train[["input_chars"]], train["failed"]
+X_valid, y_valid = valid[["input_chars"]], valid["failed"]
+print(X_train.isna().sum())
+fill = SimpleImputer(strategy="median")
+train_values = fill.fit_transform(X_train)
+valid_values = fill.transform(X_valid)  # 여기서 다시 fit하지 않음</code></pre></div><p class="note">이 조각은 분할·변환의 역할 설명용. 아래 전체 예제는 수업처럼 test도 따로 보관하고, CV 때마다 전처리를 새로 학습하도록 묶음. 정상 20건에는 결측이 없어 대체해도 값은 바뀌지 않음. 범주 인코딩·표준화는 입력·모델에 따라 필요하지만, 이번 핵심 코드의 암기 범위에서는 제외.</p><p class="source">근거: PDF p.17, 54–55 · 기본필수 07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-3"><summary><span class="num">03</span><span><span class="step-title">모델</span><span class="en">Model</span><span class="rule">모델 이름보다 fit은 학습, predict는 예측이라는 공통 흐름 기억</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>DecisionTreeClassifier()</code></th><td>조건 분기로 분류하는 대표 모델</td><td>sklearn.tree · 우선 실습</td></tr><tr><th scope="row"><code>RandomForestClassifier()</code></th><td>여러 트리를 결합하는 비교 후보</td><td>sklearn.ensemble · 이름·역할 이해</td></tr><tr><th scope="row"><code>.fit(X_train, y_train)</code></th><td>입력과 정답으로 예측 규칙 학습</td><td>모델 공통 메서드 · 직접 사용</td></tr><tr><th scope="row"><code>.predict(X_valid)</code></th><td>새 입력의 예측값 반환</td><td>모델 공통 메서드 · 직접 사용</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-3" aria-label="code-3 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-3">from sklearn.tree import DecisionTreeClassifier
+
+model = DecisionTreeClassifier(max_depth=3, random_state=42)
+model.fit(train_values, y_train)
+prediction = model.predict(valid_values)</code></pre></div><p class="note">모델을 생성한 것만으로 학습된 것은 아님. 다른 모델로 바꾸어도 fit·predict의 큰 흐름은 동일. XGBoost는 예측을 순차 보정하는 모델이라는 역할까지만 기억. 개별 규제 설정이나 모델 내부 속성은 이 기초 치트시트에서 제외.</p><p class="source">근거: PDF p.12, 24–27 · 기본필수 01_tree.py·03_forest.py · <span>실습 원문</span></p></div></details><details class="step" id="step-4"><summary><span class="num">04</span><span><span class="step-title">하이퍼파라미터 조정</span><span class="en">Tune</span><span class="rule">설정을 하나씩 바꾸되, 비교하는 데이터와 지표는 동일하게</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>max_depth</code></th><td>트리의 최대 깊이</td><td>Tree·Forest · 설정값</td></tr><tr><th scope="row"><code>n_estimators</code></th><td>Forest에 포함하는 트리 수</td><td>RandomForest · 설정값</td></tr><tr><th scope="row"><code>random_state</code></th><td>난수를 사용하는 과정의 재현성 설정</td><td>비교 실험에서 고정</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-4" aria-label="code-4 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-4"># 함수 암기보다, 어떤 설정을 바꿨는지 이해하기
+shallow = DecisionTreeClassifier(max_depth=1, random_state=42)
+deeper = DecisionTreeClassifier(max_depth=3, random_state=42)
+# 두 모델을 같은 데이터 분할·같은 지표로 비교</code></pre></div><p class="note">하이퍼파라미터는 모델이 학습하는 값이 아니라 사람이 정하는 설정. 깊거나 트리가 많다고 항상 좋은 것은 아님. 우선 깊이 1·3 비교부터 시작. 자동 탐색과 복잡한 파라미터 조합은 제외.</p><p class="source">근거: PDF p.19, 26 · 기본필수 02_depth.py · <span>실습 원문</span></p></div></details><details class="step" id="step-5"><summary><span class="num">05</span><span><span class="step-title">최종 모델 선택</span><span class="en">Select</span><span class="rule">미리 정한 기준으로 비교하고, 선택한 모델을 전체 train에 다시 학습</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>cross_val_score()</code></th><td>train 내부에서 반복 평가한 점수 반환</td><td>sklearn.model_selection · 호출 형태 이해</td></tr><tr><th scope="row"><code>scores.mean()</code></th><td>여러 평가 점수의 평균 비교</td><td>반환된 점수 배열의 메서드</td></tr><tr><th scope="row"><code>scores.std()</code></th><td>반복 평가 점수가 얼마나 달라지는지 확인</td><td>평균 옆에 참고 · 세부 통계 암기 제외</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-5" aria-label="code-5 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-5">from sklearn.model_selection import cross_val_score
+
+scores = cross_val_score(
+    model, X_train, y_train, cv=3, scoring="f1"
+)
+print("평균:", scores.mean(), "편차:", scores.std())
+# 같은 조건의 후보와 비교한 뒤
+# 선택한 모델은 전체 train으로 다시 fit</code></pre></div><p class="note">선택 전용 함수를 외우기보다 같은 기준으로 점수를 비교하는 과정이 핵심. 이 조각의 model은 전처리가 필요 없는 깨끗한 숫자 입력용. 전처리가 필요하면 전체 예제처럼 전처리와 모델을 묶어 CV에 전달. CV 점수는 선택에 사용한 점수이며 최종 성능 보증이 아님.</p><p class="source">근거: PDF p.53–56, 62–67 · 기본필수 06_cv.py·07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-6"><summary><span class="num">06</span><span><span class="step-title">평가</span><span class="en">Evaluate</span><span class="rule">점수와 오답을 함께 확인. Day7에서는 test를 보관</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>f1_score(y_true, y_pred)</code></th><td>실패 발견의 정밀도·재현율을 함께 보는 점수</td><td>sklearn.metrics · 분류 주 지표</td></tr><tr><th scope="row"><code>confusion_matrix()</code></th><td>맞힌 경우와 틀린 경우의 개수 확인</td><td>sklearn.metrics · 오류 읽기</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-6" aria-label="code-6 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-6">from sklearn.metrics import f1_score, confusion_matrix
+
+print(f1_score(y_valid, prediction, zero_division=0))
+print(confusion_matrix(y_valid, prediction, labels=[0, 1]))</code></pre></div><p class="note">labels=[0,1]일 때 행은 실제값, 열은 예측값. 오른쪽 위는 잘못된 실패 경보, 왼쪽 아래는 놓친 실패. F1=0도 올바른 계산 결과일 수 있음. 회귀를 할 때는 F1 대신 RMSE 같은 회귀 지표를 사용. Day7의 valid는 진단용, 독립 test는 선택 정책 확정 후 최종 평가용.</p><p class="source">근거: PDF p.8, 63–67, 79 · 기본필수 07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-7"><summary><span class="num">07</span><span><span class="step-title">저장</span><span class="en">Save</span><span class="rule">모델 파일과 결과표는 다름. 전처리가 있으면 모델과 함께 저장</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>joblib.dump() / joblib.load()</code></th><td>학습 결과 저장 / 다시 불러오기</td><td>joblib · 저장할 때 찾아 쓰기</td></tr><tr><th scope="row"><code>df.to_csv()</code></th><td>예측값·비교표를 CSV로 저장</td><td>pandas · 직접 사용</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-7" aria-label="code-7 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-7">import joblib
+joblib.dump(model, "model.joblib")
+restored = joblib.load("model.joblib")
+pd.DataFrame({"actual": y_valid, "prediction": prediction}).to_csv(
+    "predictions.csv", index=False, encoding="utf-8-sig"
+)</code></pre></div><p class="note">위 조각의 model은 변환된 숫자를 받으므로 같은 전처리도 함께 보관해야 함. 전체 예제는 전처리와 모델을 묶어 한 파일로 저장. 본인이 만든 신뢰하는 파일을 같은 환경에서 복원하고 예측이 같은지 확인.</p><p class="source">근거: PDF p.70, 73 · 기본필수 결과 CSV·심화 저장 실습 · <span>실습 원문</span></p></div></details></div></section>
+<details class="full" id="full-code"><summary><span class="num">↳</span><span><span class="step-title">기본 함수로 연결하는 전체 흐름</span><span class="rule">읽기 → 분할 → 간단한 후보 비교 → valid 진단 → 저장</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><p class="note"><strong>기본 흐름을 위한 축소 예제.</strong> 기본필수 정상 20건에서 글자 수 한 열만 사용합니다. 원본 통합 실습의 작업 종류 인코딩은 생략했으므로 원본 결과와 직접 비교하지 않습니다. test는 보관합니다. 작은 자료에서는 후보가 모두 동점이거나 F1=0일 수 있으며, 이때 성능 우위를 단정하지 않고 정해 둔 순서로 잠정 선택합니다.</p><p class="mini">직접 익힐 부분은 데이터 선택·fit·predict·점수 비교. <code>Pipeline</code>은 “전처리와 모델을 묶어 누수를 막는 틀”로 이해하고 제공 코드를 사용하면 됩니다. 복잡한 조합 문법은 암기 대상이 아닙니다.</p><p class="mini">실행 위치: 이 HTML이 있는 폴더. 기존 수업 가상환경 사용. 생성물은 <code>outputs/basic_flow_*</code>에 저장.</p><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="connected-code" aria-label="connected-code 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="connected-code"># 이 HTML이 있는 폴더에서 실행. 기본필수 정상 20건 사용.
+from pathlib import Path
+import pandas as pd
+import joblib
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import f1_score, confusion_matrix
+
+# 1. 불러오기: 글자 수로 실패 여부를 예측
+raw = pd.read_csv("../01_basic/requests.csv")
+print(raw.head())
+
+# 2. 분할: train 12 / valid 4 / test 4. test는 보관만.
+develop, test = train_test_split(
+    raw, test_size=0.2, stratify=raw["failed"], random_state=42
+)
+train, valid = train_test_split(
+    develop, test_size=0.25, stratify=develop["failed"], random_state=42
+)
+X_train, y_train = train[["input_chars"]], train["failed"]
+X_valid, y_valid = valid[["input_chars"]], valid["failed"]
+
+# 3~4. 모델과 설정 후보: 깊이만 바꾼 Tree 두 개 + Forest
+candidates = [
+    ("Tree 깊이1", DecisionTreeClassifier(max_depth=1, random_state=42)),
+    ("Tree 깊이3", DecisionTreeClassifier(max_depth=3, random_state=42)),
+    ("Forest", RandomForestClassifier(
+        n_estimators=20, max_depth=3, random_state=42
+    )),
+]
+
+# 5. 같은 3-fold로 비교. 동점이면 먼저 적은 후보를 유지.
+best_cv = -1
+for name, estimator in candidates:
+    # 제공 틀: CV의 각 학습 부분에서 전처리까지 새로 학습.
+    # 정상 20건에는 결측이 없어 median 대체로 값이 바뀌지 않음.
+    model = Pipeline([
+        ("fill", SimpleImputer(strategy="median")),
+        ("model", estimator),
+    ])
+    scores = cross_val_score(model, X_train, y_train, cv=3, scoring="f1")
+    print(name, "CV 평균:", scores.mean(), "편차:", scores.std())
+    if scores.mean() &gt; best_cv:
+        best_cv, best_name, best = scores.mean(), name, model
+
+best.fit(X_train, y_train)  # CV 후에는 전체 train으로 다시 학습
+print("선택:", best_name)
+
+# 6. valid 진단. test로 예측하거나 평가하지 않음.
+prediction = best.predict(X_valid)
+print("valid F1:", f1_score(y_valid, prediction, zero_division=0))
+print(confusion_matrix(y_valid, prediction, labels=[0, 1]))
+
+# 7. 학습한 전처리와 모델을 함께 저장
+out = Path("outputs")
+out.mkdir(exist_ok=True)
+joblib.dump(best, out / "basic_flow_pipeline.joblib")
+restored = joblib.load(out / "basic_flow_pipeline.joblib")
+print("복원 예측 동일:", (prediction == restored.predict(X_valid)).all())
+pd.DataFrame({"actual": y_valid, "prediction": prediction}).to_csv(
+    out / "basic_flow_predictions.csv", index=False, encoding="utf-8-sig"
+)</code></pre></div></div></details>
+<section class="sources" aria-labelledby="sources-title"><h2 id="sources-title">자료 기준과 더 찾아볼 문서</h2><ul>
+<li><span>Day7 원본 PDF</span> — 입력·평가 정책 p.7–8, 전처리 p.17, 설정 p.19·26·46, CV p.53–59, 선택 p.62–67, 저장 p.70, 최종 평가 경계 p.79</li>
+<li><span>최신 실습 README</span> — 기본필수의 데이터·분할·CV 변경 사항 우선 반영. <span>기본필수</span> · <span>응용</span></li>
+<li>기본필수 README의 실제 수행 수준을 우선했습니다. 자동 탐색·모델 내부 속성·열별 전처리 조합은 핵심 범위에서 제외. 점검 함수 head·info와 전처리 공통 동작은 기본 흐름을 위한 보충입니다.</li>
+<li>공식 문서: <a href="https://pandas.pydata.org/pandas-docs/version/2.2.3/reference/index.html">pandas 2.2.3 API</a> · <a href="https://scikit-learn.org/1.8/modules/compose.html">Pipeline</a> · <a href="https://scikit-learn.org/1.8/common_pitfalls.html">데이터 누수</a> · <a href="https://scikit-learn.org/1.8/model_persistence.html">모델 저장</a></li>
+</ul><p>이 문서는 학습 흐름을 위한 핵심 발췌입니다. 수업의 모든 실습·해설을 대체하지 않으며, 예제의 후보 설정은 최적값을 의미하지 않습니다.</p></section>
+<footer><span>SeSAC · 보조강사 학습 참고</span><span>분할 먼저 / train에서 학습 / test는 마지막</span></footer>
+<div class="sr" role="status" aria-live="polite" id="status"></div>
+</main>
+<script>
+const stageDetails=[...document.querySelectorAll(".step")];
+const expandButton=document.getElementById("expand");
+function syncExpand(){const all=stageDetails.every(d=>d.open);expandButton.textContent=all?"단계 모두 접기":"단계 모두 펼치기";expandButton.setAttribute("aria-expanded",String(all))}
+expandButton.addEventListener("click",()=>{const open=!stageDetails.every(d=>d.open);stageDetails.forEach(d=>{d.open=open});syncExpand()});
+stageDetails.forEach(d=>d.addEventListener("toggle",syncExpand));
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener("click",()=>{const d=document.getElementById(a.hash.slice(1));if(d?.tagName==="DETAILS")d.open=true}));
+document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",async()=>{const content=document.getElementById(b.dataset.copy).textContent;try{if(!navigator.clipboard)throw new Error("no clipboard");await navigator.clipboard.writeText(content);b.textContent="복사됨";document.getElementById("status").textContent="코드가 복사되었습니다";setTimeout(()=>{b.textContent="코드 복사"},1600)}catch{const code=document.getElementById(b.dataset.copy);const range=document.createRange();range.selectNodeContents(code);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);document.getElementById("status").textContent="자동 복사가 지원되지 않아 코드를 선택했습니다. Ctrl+C로 복사하세요";b.textContent="선택됨 · Ctrl+C"}}));
+let printState=[];
+window.addEventListener("beforeprint",()=>{printState=[...document.querySelectorAll("details")].map(d=>({d,open:d.open}));printState.forEach(x=>{x.d.open=true})});
+window.addEventListener("afterprint",()=>{printState.forEach(x=>{x.d.open=x.open});syncExpand()});
+document.getElementById("print").addEventListener("click",()=>window.print());
+function syncRoute(){document.querySelectorAll('.route a').forEach(a=>{if(a.hash===location.hash)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current')})}
+window.addEventListener('hashchange',syncRoute);syncRoute();
+if(location.hash){const target=document.getElementById(location.hash.slice(1));if(target?.tagName==="DETAILS")target.open=true}
+</script></body></html>
+
+
