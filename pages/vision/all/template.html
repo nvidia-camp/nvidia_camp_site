@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vision 4일 종합 · 전처리에서 분류·탐지·OCR까지</title>
+<style>
+:root {
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-accent: #4B74A6;
+  --color-code-bg: #1B2435;
+  --zone-frame: #F0F6FD;
+  /* 날짜 색: 강의 PDF p.3 구역 면 색(Day13~15 준비·학습평가·설명정리, Day16 OCR)을 날짜 구분에 재사용 */
+  --d13: #E9F5EC; --d14: #FBF2DF; --d15: #F0ECF8; --d16: #E9F3FC;
+  /* 날짜 글자·배지 색: 위 면 색을 어둡게 만든 파생값 (흰 글자 대비 4.5:1 이상, build.py에서 검사) */
+  --ink13: #2E6B45; --ink14: #7A4F0E; --ink15: #5B4A8E; --ink16: #245C9C;
+  --problem: #8A4B2A;
+  --good: #2E6B45;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SF Mono", Menlo, "Malgun Gothic", monospace;
+  --text-small: 0.875rem;
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-6: 1.5rem; --space-8: 2rem;
+  --radius-control: 0.75rem; --radius-card: 1rem; --radius-badge: 9999px;
+  --map-width: 90rem;
+  --lab: 9.5rem;
+}
+* { box-sizing: border-box; min-width: 0; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.6 var(--font-body); word-break: keep-all; overflow-wrap: anywhere; }
+.wrap { max-width: var(--map-width); margin-inline: auto; padding-inline: var(--space-8); }
+h1, h2, h3 { color: var(--color-heading); font-weight: 700; margin: 0; }
+h1 { font-size: clamp(1.75rem, 3vw, 2.375rem); line-height: 1.3; letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; line-height: 1.4; }
+h3 { font-size: 1.0625rem; line-height: 1.4; }
+p { margin: 0; }
+b { color: var(--color-heading); }
+code { font-family: var(--font-code); font-size: 0.9em; }
+figure { margin: 0; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--font-body); }
+ul { margin: 0; padding: 0; list-style: none; }
+
+.badge { display: inline-block; padding: var(--space-1) var(--space-3); background: var(--color-soft); color: var(--color-primary); border-radius: var(--radius-badge); font-size: var(--text-small); font-weight: 600; line-height: 1.5; }
+.cap { font-size: 0.75rem; color: var(--color-muted); line-height: 1.45; }
+.note { font-size: 0.8125rem; color: var(--color-muted); }
+.after { color: var(--problem); font-weight: 700; }
+.good { color: var(--good); font-weight: 700; }
+
+/* 머리말 */
+header.top { padding-block: var(--space-8) var(--space-6); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-3); }
+.lede { margin-top: var(--space-3); font-size: 1.125rem; max-width: 76rem; }
+.lede .ask { display: inline-block; margin-right: var(--space-2); padding: 0 var(--space-3); border-radius: var(--radius-badge); background: var(--color-primary); color: #fff; font-weight: 700; font-size: 1rem; }
+.routine { margin-top: var(--space-3); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 0.875rem; }
+.routine .lead { font-weight: 700; color: var(--color-heading); margin-right: var(--space-2); }
+.routine span.s { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-badge); padding: 0 0.65rem; line-height: 1.75; }
+.routine .to { color: var(--color-accent); font-weight: 700; }
+
+/* 구역 틀 */
+main { display: flex; flex-direction: column; gap: var(--space-6); padding-bottom: var(--space-8); }
+.frame { background: var(--zone-frame); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+.sec-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+.sec-head .num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--color-primary); color: #fff; font-weight: 700; font-size: 0.9375rem; align-self: center; }
+.sec-head .sub { color: var(--color-muted); font-size: 0.9375rem; }
+
+/* 공통 격자: 행 이름 1칸 + 날짜 4칸(각 2개 반칸). 전날과 달라진 점 카드는 이웃 날짜의 반칸씩 걸친다 */
+.grid { display: grid; grid-template-columns: var(--lab) repeat(8, minmax(0, 1fr)); gap: var(--space-3); align-items: stretch; }
+.lab { grid-column: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding-right: var(--space-2); }
+.lab b { font-size: 0.9375rem; line-height: 1.35; }
+.lab span { font-size: 0.75rem; color: var(--color-muted); line-height: 1.4; }
+.c13 { grid-column: 2 / span 2; } .c14 { grid-column: 4 / span 2; } .c15 { grid-column: 6 / span 2; } .c16 { grid-column: 8 / span 2; }
+.t1 { grid-column: 3 / span 2; } .t2 { grid-column: 5 / span 2; } .t3 { grid-column: 7 / span 2; }
+.full { grid-column: 2 / -1; }
+.cell { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+.dtag { display: none; }
+.c13 { --face: var(--d13); --ink: var(--ink13); }
+.c14 { --face: var(--d14); --ink: var(--ink14); }
+.c15 { --face: var(--d15); --ink: var(--ink15); }
+.c16 { --face: var(--d16); --ink: var(--ink16); }
+
+/* ① 4일 흐름 */
+.stairs { align-items: end; }
+.head { display: flex; flex-direction: column; gap: var(--space-2); }
+.stair { height: var(--h); background: var(--ink); border-radius: 6px 6px 0 0; opacity: 0.9; }
+.head .card { background: var(--face); border-radius: 0 0 var(--radius-control) var(--radius-control); padding: var(--space-3); margin-top: calc(-1 * var(--space-2)); display: flex; flex-direction: column; gap: 2px; }
+.day { display: inline-block; align-self: flex-start; padding: 0 0.55rem; border-radius: var(--radius-badge); background: var(--ink); color: #fff; font-size: 0.75rem; font-weight: 700; line-height: 1.7; white-space: nowrap; }
+.head h3 { font-size: 1.125rem; }
+.head .lib { font-size: 0.75rem; color: var(--ink); font-weight: 600; }
+.ask-q { font-size: 1.0625rem; line-height: 1.45; color: var(--color-heading); justify-content: center; }
+.ask-q b { color: var(--ink); }
+.shot { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+.shot .pic { aspect-ratio: 4 / 3; background: #fff; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+.shot .pic svg { width: 100%; height: 100%; }
+.answer { font: 400 0.75rem/1.5 var(--font-code); background: var(--color-code-bg); color: #E8EEF7; border-radius: 8px; padding: 6px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer .k { color: #9CC8FF; }
+.answer .n { color: #B8E3C6; }
+.answer .s { color: #F2C98F; }
+.answer .c { color: #9FB3CC; }
+.shift { background: var(--color-surface); border: 1.5px solid var(--color-accent); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: 4px; position: relative; }
+.shift .h { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.shift .h .pair { font-size: 0.75rem; font-weight: 700; color: var(--color-accent); white-space: nowrap; }
+.shift .h b { font-size: 1rem; color: var(--color-primary); }
+.shift p { font-size: 0.8125rem; line-height: 1.5; }
+.shift .src { font-size: 0.6875rem; color: var(--color-muted); }
+
+/* ② 날짜별 비교 */
+.rowhead { grid-column: 1 / -1; display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.rowhead:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.rowhead h3 { font-size: 1.0625rem; }
+.rowhead span { font-size: 0.8125rem; color: var(--color-muted); }
+.rowhead .key { font-size: 0.875rem; color: var(--color-primary); font-weight: 700; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-badge); padding: 0 0.7rem; }
+
+/* 내부 구조: 블록 사슬 */
+.chain { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 3px; font-size: 0.8125rem; line-height: 1.35; }
+.chain .b { background: var(--color-canvas); border: 1px solid var(--color-border); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+.chain .b.new { background: var(--face); border-color: var(--ink); color: var(--ink); font-weight: 700; }
+.chain .to { color: var(--color-muted); font-size: 0.75rem; }
+.path { display: flex; flex-direction: column; gap: 4px; }
+.path .pl { font-size: 0.6875rem; font-weight: 700; color: var(--ink); }
+.cell .foot { margin-top: auto; font-size: 0.75rem; color: var(--color-muted); border-top: 1px dashed var(--color-border); padding-top: 4px; }
+
+/* 메소드 */
+.libname { background: var(--face); border: 0; padding: var(--space-2) var(--space-3); flex-direction: row; align-items: center; gap: var(--space-2); }
+.libname b { color: var(--ink); font-size: 0.9375rem; }
+.fns { display: flex; flex-wrap: wrap; gap: 4px; }
+.fns code { background: var(--color-soft); color: var(--color-heading); border-radius: 6px; padding: 1px 6px; font-size: 0.78rem; line-height: 1.6; }
+.fns code.one { background: var(--face); color: var(--ink); font-weight: 700; }
+.fns .hint { font-size: 0.6875rem; color: var(--color-muted); align-self: center; }
+.lab.stage b { font-size: 0.875rem; }
+.cell.m { padding: var(--space-2) var(--space-3); justify-content: center; }
+
+/* 파라미터 카드 */
+.pcard { gap: var(--space-2); }
+.pcard .t { font-weight: 700; color: var(--ink); font-size: 0.9375rem; line-height: 1.4; background: var(--face); border-radius: 8px; padding: 4px 10px; }
+.plist { display: flex; flex-direction: column; gap: 5px; }
+.plist li { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr); gap: 6px; font-size: 0.8125rem; line-height: 1.45; align-items: baseline; }
+.plist code { color: var(--color-primary); font-weight: 700; font-size: 0.78rem; }
+
+/* 평가 기준 */
+.crit { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.crit span.k { background: var(--face); color: var(--ink); border: 1px solid var(--ink); border-radius: 6px; padding: 1px 7px; font-size: 0.8125rem; font-weight: 700; line-height: 1.5; }
+.crit .op { color: var(--color-muted); font-weight: 700; font-size: 0.8125rem; }
+.crit .then { font-size: 0.8125rem; color: var(--color-heading); }
+.cell .q2 { font-size: 0.8125rem; color: var(--color-muted); }
+.sumline { font-size: 0.875rem; color: var(--color-heading); background: var(--color-surface); border-left: 4px solid var(--color-accent); border-radius: 0 8px 8px 0; padding: 6px 12px; }
+
+footer { padding-block: var(--space-2) var(--space-8); font-size: 0.8125rem; color: var(--color-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 4px; }
+footer h2 { font-size: 0.875rem; color: var(--color-heading); }
+
+/* 중간 폭: 행 이름 칸을 줄인다 */
+@media (max-width: 75rem) {
+  :root { --lab: 7rem; }
+  .wrap { padding-inline: var(--space-4); }
+  .frame { padding: var(--space-4); }
+  .plist li { grid-template-columns: 1fr; gap: 0; }
+}
+/* 좁은 화면: 한 줄로 쌓고, 칸마다 날짜 표시 */
+@media (max-width: 64rem) {
+  .grid { grid-template-columns: 1fr; }
+  .grid > * { grid-column: auto !important; grid-row: auto !important; }
+  .lab { padding: var(--space-3) 0 0; }
+  .lab:empty { display: none; }
+  .dtag { display: inline-block; align-self: flex-start; padding: 0 0.5rem; border-radius: var(--radius-badge); background: var(--ink); color: #fff; font-size: 0.6875rem; font-weight: 700; line-height: 1.7; }
+  .stair { display: none; }
+  .head .card { border-radius: var(--radius-control); margin-top: 0; }
+  .head .card .day { display: inline-block; }
+  .shot .pic { max-width: 28rem; }
+  .libname { display: none; }
+}
+@media print { body { background: #fff; } }
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <div class="meta">
+    <span class="badge">새싹 학습 노트</span>
+    <span class="badge">Day13~16 · 2026.11.04~11.09 · Vision·멀티모달 AI 응용 1~4/4</span>
+    <span class="badge">4일 종합</span>
+  </div>
+  <h1>이미지 전처리에서 분류·객체 탐지·OCR까지</h1>
+  <p class="lede"><span class="ask">4일 요약</span>Day13에서 이미지를 숫자 배열로 다루는 법을 배우고, 이를 바탕으로 Day14 <b>이미지 분류</b>, Day15 <b>객체 탐지·추적</b>, Day16 <b>텍스트 인식(OCR)·VLM</b>으로 넘어갔습니다. 날이 갈수록 모델 구조에 단계가 추가되고, 사람이 정하는 파라미터도 전처리 값에서 학습 설정, 결과 필터링 기준으로 바뀝니다.</p>
+  <p class="routine"><span class="lead">매일 수업 순서</span><span class="s">데이터 준비</span><span class="to">→</span><span class="s">모델·처리</span><span class="to">→</span><span class="s">평가</span><span class="to">→</span><span class="s">틀린 사례 분석</span><span class="to">→</span><span class="s">통합·재실행 (7·8교시)</span></p>
+</header>
+
+<main class="wrap">
+
+<!-- ① 4일 흐름 -->
+<section class="frame" aria-labelledby="s1">
+  <div class="sec-head"><span class="num">1</span><h2 id="s1">4일 흐름</h2><span class="sub">날짜별 주제, 질문, 실행 결과</span></div>
+
+  <div class="grid stairs">
+    <div class="lab"></div>
+    <div class="head c13"><div class="stair" style="--h:0.75rem"></div><div class="card"><span class="day">Day13 · 11/04</span><h3>이미지 다루기 (전처리)</h3><span class="lib">OpenCV</span></div></div>
+    <div class="head c14"><div class="stair" style="--h:1.75rem"></div><div class="card"><span class="day">Day14 · 11/05</span><h3>이미지 분류</h3><span class="lib">PyTorch · torchvision</span></div></div>
+    <div class="head c15"><div class="stair" style="--h:2.75rem"></div><div class="card"><span class="day">Day15 · 11/06</span><h3>객체 탐지·추적</h3><span class="lib">Ultralytics YOLO</span></div></div>
+    <div class="head c16"><div class="stair" style="--h:3.75rem"></div><div class="card"><span class="day">Day16 · 11/09</span><h3>텍스트 인식 (OCR)·VLM</h3><span class="lib">Tesseract · Transformers</span></div></div>
+  </div>
+
+  <div class="grid">
+    <div class="lab"><b>질문</b></div>
+    <p class="cell ask-q c13"><span class="dtag">Day13</span><span>이미지는 컴퓨터에서 <b>어떻게 표현</b>되나?</span></p>
+    <p class="cell ask-q c14"><span class="dtag">Day14</span><span>이 이미지는 <b>어떤 클래스</b>인가?</span></p>
+    <p class="cell ask-q c15"><span class="dtag">Day15</span><span><b>어떤 객체가 어디에</b> 있나?</span></p>
+    <p class="cell ask-q c16"><span class="dtag">Day16</span><span>이미지에 <b>어떤 글자</b>가 있나?</span></p>
+
+    <div class="lab"><b>결과 예시</b><span>각 날 실습 데이터로 실행한 결과</span></div>
+    <figure class="shot c13"><span class="dtag">Day13</span>
+      <div class="pic">{{FIG13}}</div>
+      <div class="answer"><span class="k">img</span>.shape   <span class="c"># (높이, 너비, 채널)</span>
+<span class="n">(240, 320, 3)</span>
+<span class="k">img</span>[52, 64]  <span class="c"># 픽셀 1개 = B, G, R</span>
+<span class="n">{{PX13}}</span></div>
+      <figcaption class="cap">이미지는 숫자 배열이고 픽셀마다 0~255 값 (Day13 합성 제품 사진)</figcaption>
+    </figure>
+    <figure class="shot c14"><span class="dtag">Day14</span>
+      <div class="pic">{{FIG14}}</div>
+      <div class="answer"><span class="c"># 클래스 점수 3개 중 가장 큰 것</span>
+<span class="s">"triangle"</span>
+<span class="c"># circle · square · triangle</span></div>
+      <figcaption class="cap">이미지 한 장에 클래스 하나 (Day14 기본 데이터)</figcaption>
+    </figure>
+    <figure class="shot c15"><span class="dtag">Day15</span>
+      <div class="pic">{{FIG15}}</div>
+      <div class="answer"><span class="c"># 객체마다 클래스 · 점수 · Box</span>
+{{ANS15}}</div>
+      <figcaption class="cap">객체마다 클래스·점수·Box (Day15 응용 val, conf 0.5)</figcaption>
+    </figure>
+    <figure class="shot c16"><span class="dtag">Day16</span>
+      <div class="pic">{{FIG16}}</div>
+      <div class="answer">{{ANS16}}</div>
+      <figcaption class="cap">단어의 글자·위치를 JSON 필드로 정리 (Day16 청구서, PSM 6)</figcaption>
+    </figure>
+
+    <div class="lab"><b>전날과<br>달라진 점</b></div>
+    <div class="shift t1">
+      <div class="h"><span class="pair">13 → 14</span><b>필터 값을 모델이 학습</b></div>
+      <p>Day13의 Blur Kernel과 CNN의 합성곱은 같은 계산입니다. Day13에서는 Kernel 값을 사람이 정했고, Day14에서는 Backbone(특징 추출기)이 데이터로 학습합니다. 사전학습된 Backbone을 가져와 Head(분류기)만 새로 학습하는 방식이 전이학습입니다.</p>
+      <span class="src">Day13 개념지도 · Day14 p.5</span>
+    </div>
+    <div class="shift t2">
+      <div class="h"><span class="pair">14 → 15</span><b>클래스에 위치(Box) 추가</b></div>
+      <p>Head가 클래스와 함께 <b>Box와 Confidence</b>를 출력합니다. 후보가 수백 개 나오기 때문에 <b>conf와 NMS</b>로 걸러 내고, 영상에서는 <b>Tracker</b>가 Frame 사이의 같은 객체에 같은 ID를 붙입니다.</p>
+      <span class="src">Day15 p.4·9</span>
+    </div>
+    <div class="shift t3">
+      <div class="h"><span class="pair">15 → 16</span><b>Box 안의 글자 인식</b></div>
+      <p>글자 영역을 Box로 찾고(Day15와 같은 형식) 그 안의 문자를 인식해 문자열을 얻은 뒤, 필요한 값을 JSON 필드로 정리합니다. VLM은 언어모델이 답을 문장으로 만듭니다. 문서에 없는 값을 만들어 낼 수 있어 OCR 원문과 비교해 확인합니다.</p>
+      <span class="src">Day15 p.104 · Day16 p.4·7</span>
+    </div>
+  </div>
+</section>
+
+<!-- ② 날짜별 비교 -->
+<section class="frame" aria-labelledby="s2">
+  <div class="sec-head"><span class="num">2</span><h2 id="s2">날짜별 비교</h2><span class="sub">열은 위와 같은 날짜입니다. 그날 새로 추가된 부분은 날짜 색으로 표시했습니다</span></div>
+
+  <div class="grid">
+    <!-- 내부 구조 -->
+    <div class="rowhead"><h3>내부 구조</h3><span>입력에서 결과까지의 처리 순서</span></div>
+    <div class="lab"><b>처리 순서</b></div>
+    <div class="cell c13"><span class="dtag">Day13</span>
+      <div class="chain"><span class="b">이미지</span><span class="to">→</span><span class="b">Gray</span><span class="to">→</span><span class="b">Resize</span><span class="to">→</span><span class="b">Blur</span><span class="to">→</span><span class="b">Threshold</span><span class="to">→</span><span class="b">Morphology</span><span class="to">→</span><span class="b new">규칙 기반 판단</span></div>
+      <p class="foot">모델 없음. 파라미터는 사람이 지정</p>
+    </div>
+    <div class="cell c14"><span class="dtag">Day14</span>
+      <div class="chain"><span class="b">이미지</span><span class="to">→</span><span class="b">입력 변환</span><span class="to">→</span><span class="b new">Backbone (빌려 옴)</span><span class="to">→</span><span class="b new">Head (새로 학습)</span><span class="to">→</span><span class="b">클래스 점수</span></div>
+      <p class="foot">학습하는 모델이 처음 등장</p>
+    </div>
+    <div class="cell c15"><span class="dtag">Day15</span>
+      <div class="chain"><span class="b">이미지</span><span class="to">→</span><span class="b">Backbone</span><span class="to">→</span><span class="b new">Neck</span><span class="to">→</span><span class="b">Head (클래스·<span style="font-weight:700">Box</span>·점수)</span><span class="to">→</span><span class="b new">conf → NMS</span><span class="to">→</span><span class="b new">Tracker</span></div>
+      <p class="foot">객체마다 결과 1개</p>
+    </div>
+    <div class="cell c16"><span class="dtag">Day16</span>
+      <div class="path"><span class="pl">OCR</span><div class="chain"><span class="b">전처리</span><span class="to">→</span><span class="b">글자 영역 탐지</span><span class="to">→</span><span class="b new">문자 인식</span><span class="to">→</span><span class="b new">필드 JSON</span></div></div>
+      <div class="path"><span class="pl">VLM</span><div class="chain"><span class="b">이미지 + 질문</span><span class="to">→</span><span class="b">Vision Encoder</span><span class="to">→</span><span class="b new">언어모델</span><span class="to">→</span><span class="b">답</span></div></div>
+      <p class="foot">여러 모델과 단계를 연결</p>
+    </div>
+
+    <!-- 메소드 -->
+    <div class="rowhead"><h3>메소드</h3><span>단계별 대표 메소드</span><span class="key">Day15부터 학습·추론은 함수 한 줄(model.train, pipeline)이고, 결과를 확인하는 코드가 늘어난다</span></div>
+    <div class="lab"></div>
+    <div class="cell libname c13"><b>OpenCV</b></div>
+    <div class="cell libname c14"><b>PyTorch · torchvision</b></div>
+    <div class="cell libname c15"><b>Ultralytics · torchvision.ops</b></div>
+    <div class="cell libname c16"><b>Tesseract · Transformers</b></div>
+
+    <div class="lab stage"><b>준비</b></div>
+    <div class="cell m c13"><span class="dtag">Day13</span><div class="fns"><code>cv2.imread</code><code>cvtColor</code><code>resize</code></div></div>
+    <div class="cell m c14"><span class="dtag">Day14</span><div class="fns"><code>ImageFolder</code><code>transforms.Normalize</code></div></div>
+    <div class="cell m c15"><span class="dtag">Day15</span><div class="fns"><code>box_convert</code><span class="hint">라벨 좌표 변환</span></div></div>
+    <div class="cell m c16"><span class="dtag">Day16</span><div class="fns"><code>adaptiveThreshold</code><code>warpPerspective</code></div></div>
+
+    <div class="lab stage"><b>처리·모델</b></div>
+    <div class="cell m c13"><span class="dtag">Day13</span><div class="fns"><code>GaussianBlur</code><code>Canny</code><code>threshold</code><code>morphologyEx</code></div></div>
+    <div class="cell m c14"><span class="dtag">Day14</span><div class="fns"><code>requires_grad_(False)</code><code>nn.Linear</code><code>CrossEntropyLoss</code><code>optimizer.step</code></div></div>
+    <div class="cell m c15"><span class="dtag">Day15</span><div class="fns"><code>YOLO()</code><code class="one">model.train</code><code>model.predict</code><code>model.track</code></div></div>
+    <div class="cell m c16"><span class="dtag">Day16</span><div class="fns"><code>image_to_data</code><code class="one">pipeline("image-text-to-text")</code></div></div>
+
+    <div class="lab stage"><b>결과 확인</b></div>
+    <div class="cell m c13"><span class="dtag">Day13</span><div class="fns"><code>imwrite</code><code>VideoWriter</code></div></div>
+    <div class="cell m c14"><span class="dtag">Day14</span><div class="fns"><code>argmax</code><code>f1_score</code><code>confusion_matrix</code></div></div>
+    <div class="cell m c15"><span class="dtag">Day15</span><div class="fns"><code>result.boxes</code><code>box_iou</code><code>model.val</code></div></div>
+    <div class="cell m c16"><span class="dtag">Day16</span><div class="fns"><code>re.search</code><code>jiwer.cer</code><code>json.dump</code></div></div>
+
+    <!-- 파라미터 -->
+    <div class="rowhead"><h3>파라미터</h3><span>날짜별로 사람이 정하는 주요 값</span></div>
+    <div class="lab"><b>주요 파라미터</b></div>
+    <div class="cell pcard c13"><span class="dtag">Day13</span>
+      <p class="t">전처리 설정</p>
+      <ul class="plist">
+        <li><code>ksize</code><span>Blur에서 평균을 낼 주변 영역 크기</span></li>
+        <li><code>thresh</code><span>흰색(물체)으로 나눌 밝기 기준값</span></li>
+        <li><code>interpolation</code><span>Resize할 때 새 픽셀 값을 계산하는 방법</span></li>
+        <li><code>fps</code><span>저장할 영상의 초당 프레임 수</span></li>
+      </ul>
+    </div>
+    <div class="cell pcard c14"><span class="dtag">Day14</span>
+      <p class="t">학습 설정</p>
+      <ul class="plist">
+        <li><code>requires_grad</code><span>학습할 층 선택 (Head-only · Partial · Full)</span></li>
+        <li><code>lr</code><span>한 번 업데이트할 때 가중치를 바꾸는 크기</span></li>
+        <li><code>epochs</code><span>학습 데이터 전체를 반복하는 횟수</span></li>
+        <li><code>weight</code><span>클래스 불균형을 보정하는 클래스별 가중치</span></li>
+      </ul>
+    </div>
+    <div class="cell pcard c15"><span class="dtag">Day15</span>
+      <p class="t">결과 필터링·평가 기준</p>
+      <ul class="plist">
+        <li><code>conf</code><span>결과로 남길 최소 점수</span></li>
+        <li><span><code>iou</code> (NMS)</span><span>중복 Box로 보고 제거할 겹침 기준</span></li>
+        <li><code>평가 IoU</code><span>정답으로 인정할 겹침 기준 (0.5 / 0.5~0.95)</span></li>
+        <li><code>imgsz</code><span>모델 입력 이미지 크기</span></li>
+      </ul>
+    </div>
+    <div class="cell pcard c16"><span class="dtag">Day16</span>
+      <p class="t">OCR 입력 조건 · VLM 생성 설정</p>
+      <ul class="plist">
+        <li><span><code>blockSize</code>·<code>C</code></span><span>Adaptive Threshold의 주변 영역 크기와 보정값</span></li>
+        <li><code>--psm</code><span>Tesseract의 페이지 구조 가정 (6 텍스트 블록, 7 한 줄, 8 한 단어)</span></li>
+        <li><code>max_new_tokens</code><span>VLM이 생성할 최대 토큰 수</span></li>
+        <li><code>do_sample</code><span>샘플링 여부 (False면 같은 입력에 같은 답)</span></li>
+      </ul>
+    </div>
+
+    <!-- 평가 기준 -->
+    <div class="rowhead"><h3>평가 기준</h3><span>결과를 무엇과 비교해 평가하나</span><span class="key">출력이 복잡해질수록 따로 확인할 지표가 늘어난다</span></div>
+    <div class="lab"><b>지표</b></div>
+    <div class="cell c13"><span class="dtag">Day13</span>
+      <p class="q2">처리 결과의 형식 확인</p>
+      <div class="crit"><span class="k">shape·dtype</span><span class="k">재읽기</span></div>
+    </div>
+    <div class="cell c14"><span class="dtag">Day14</span>
+      <p class="q2">전체 성능과 클래스별 성능 확인</p>
+      <div class="crit"><span class="k">Accuracy</span><span class="op">≠</span><span class="k">Macro F1</span><span class="then">· Confusion matrix</span></div>
+    </div>
+    <div class="cell c15"><span class="dtag">Day15</span>
+      <p class="q2">클래스·위치·중복을 함께 확인</p>
+      <div class="crit"><span class="k">클래스</span><span class="op">+</span><span class="k">위치 IoU</span><span class="op">+</span><span class="k">중복 아님</span><span class="then">→ mAP50·mAP50-95</span></div>
+    </div>
+    <div class="cell c16"><span class="dtag">Day16</span>
+      <p class="q2">글자·필드·근거를 따로 확인</p>
+      <div class="crit"><span class="k">CER</span><span class="op">≠</span><span class="k">필드 정답</span><span class="op">≠</span><span class="k">근거 일치</span></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <h2>출처</h2>
+  <p>강의: Vision·멀티모달 AI 응용 Day13~16 강의 PDF (쪽 표기는 각 날 <code>DayNN_강의구조_핵심설명.md</code> 기준).</p>
+  <p>그림: Day13 개념지도(<code>make_images.py</code>, OpenCV)와 Day14~16 oneday 요약(<code>facts.json</code>)의 실제 실행 결과를 다시 썼습니다. Day14는 PyTorch, Day15는 Ultralytics YOLO26n, Day16은 Tesseract 5.5.2입니다. 실행 환경은 각 날 <code>DESIGN.md</code>에 있습니다.</p>
+  <p>메소드는 각 날 oneday 요약의 핵심 코드(Day13은 강의 p.85 핵심 함수 체크리스트와 개념지도)에서 단계마다 대표만 골랐습니다.</p>
+</footer>
+
+</body>
+</html>

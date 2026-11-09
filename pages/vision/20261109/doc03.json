@@ -1,0 +1,18 @@
+{
+  "document_id": "doc03",
+  "cer": 0.00819672131147541,
+  "total_amount": {
+    "raw": "33000",
+    "value": 33000,
+    "conf": 95.499481,
+    "box": [
+      146,
+      369,
+      89,
+      21
+    ]
+  },
+  "review_reasons": [],
+  "vlm_answer": "33000",
+  "final": 33000
+}

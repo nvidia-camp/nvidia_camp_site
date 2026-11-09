@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day14 oneday 요약 · 전이학습 기반 이미지 분류</title>
+<style>
+:root {
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-accent: #4B74A6;
+  --color-code-bg: #1B2435;
+  /* Day14 강의 PDF p.3 전체 구조 그림의 색 */
+  --zone-frame: #F0F6FD;
+  --zone-prep: #E9F5EC;
+  --zone-learn: #FBF2DF;
+  --zone-explain: #F0ECF8;
+  /* 구역 글자색: 위 면 위에서 대비 4.5:1 이상이 되도록 어둡게 만든 파생값 */
+  --ink-prep: #2E6B45;
+  --ink-learn: #7A4F0E;
+  --ink-explain: #54458A;
+  --problem: #8A4B2A;
+  --problem-line: #C98A5E;
+  --problem-bg: #FDF6EF;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SF Mono", Menlo, "Malgun Gothic", monospace;
+  --text-small: 0.875rem;
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+  --radius-control: 0.75rem; --radius-card: 1rem; --radius-badge: 9999px;
+  --map-width: 90rem;
+}
+* { box-sizing: border-box; min-width: 0; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.6 var(--font-body); word-break: keep-all; overflow-wrap: anywhere; }
+.wrap { max-width: var(--map-width); margin-inline: auto; padding-inline: var(--space-8); }
+h1, h2, h3, h4 { color: var(--color-heading); font-weight: 700; margin: 0; }
+h1 { font-size: clamp(1.75rem, 3vw, 2.375rem); line-height: 1.3; letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; line-height: 1.4; }
+h3 { font-size: 1.0625rem; line-height: 1.4; }
+p { margin: 0; }
+b { color: var(--color-heading); }
+code { font-family: var(--font-code); font-size: 0.9em; }
+img { display: block; max-width: 100%; }
+.px { image-rendering: pixelated; }
+figure { margin: 0; }
+:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+
+/* ── 공통 부품 ── */
+.badge { display: inline-block; padding: var(--space-1) var(--space-3); background: var(--color-soft); color: var(--color-primary); border-radius: var(--radius-badge); font-size: var(--text-small); font-weight: 600; line-height: 1.5; }
+.chip { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 6px; background: var(--color-surface); border: 1px solid var(--color-border); font-size: 0.8125rem; line-height: 1.5; color: var(--color-heading); }
+.chip code { font-size: 0.75rem; }
+.fn { display: inline-block; font-family: var(--font-code); font-size: 0.75rem; color: var(--color-heading); background: var(--color-soft); border-radius: 6px; padding: 0.1rem 0.4rem; line-height: 1.45; }
+.period { display: inline-flex; align-items: center; justify-content: center; min-width: 2.6rem; padding: 0 0.45rem; border-radius: var(--radius-badge); font-size: 0.75rem; font-weight: 700; line-height: 1.6; white-space: nowrap; background: var(--color-primary); color: #fff; }
+.period.prep { background: var(--ink-prep); }
+.period.learn { background: var(--ink-learn); }
+.period.explain { background: var(--ink-explain); }
+.cap { font-size: 0.75rem; color: var(--color-muted); line-height: 1.4; }
+.note { font-size: 0.8125rem; color: var(--color-muted); }
+.arrow { color: var(--color-accent); font-weight: 700; }
+.after { color: var(--problem); font-weight: 700; }
+.good { color: var(--ink-prep); font-weight: 700; }
+
+/* ── 머리말 ── */
+header.top { padding-block: var(--space-8) var(--space-6); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-3); }
+.lede { margin-top: var(--space-3); font-size: 1.125rem; max-width: 64rem; }
+.lede .ask { display: inline-block; margin-right: var(--space-2); padding: 0 var(--space-3); border-radius: var(--radius-badge); background: var(--color-primary); color: #fff; font-weight: 700; font-size: 1rem; }
+
+/* ── 구역 틀 ── */
+main { display: flex; flex-direction: column; gap: var(--space-6); padding-bottom: var(--space-8); }
+.frame { background: var(--zone-frame); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+.sec-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+.sec-head .num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--color-primary); color: #fff; font-weight: 700; font-size: 0.9375rem; align-self: center; }
+.sec-head .sub { color: var(--color-muted); font-size: 0.9375rem; }
+.panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-4) var(--space-6); }
+.sub-head { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-3); }
+.sub-head h3 { font-size: 1.0625rem; }
+.sub-head .note { font-size: 0.8125rem; }
+
+/* ① 한 장 그림 */
+.pipe { display: grid; grid-template-columns: auto auto 1.4fr auto auto auto 1.3fr auto auto auto auto; align-items: center; gap: var(--space-3); }
+.pipe .box { border-radius: var(--radius-card); padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); }
+.pipe .img-in { display: flex; gap: 4px; }
+.pipe .img-in img { width: 3.25rem; border-radius: 6px; border: 1px solid var(--color-border); }
+.pipe .bb { background: var(--zone-prep); }
+.pipe .hd { background: var(--zone-explain); }
+.pipe .box h3 { display: flex; align-items: center; gap: var(--space-2); font-size: 1.0625rem; }
+.pipe .box h3 .tag { font-size: 0.75rem; font-weight: 700; padding: 0 0.5rem; border-radius: var(--radius-badge); background: var(--color-surface); }
+.pipe .bb h3 .tag { color: var(--ink-prep); }
+.pipe .hd h3 .tag { color: var(--ink-explain); }
+.pipe .box .role { font-weight: 700; color: var(--color-heading); margin-top: 2px; }
+.pipe .box .how { font-size: 0.8125rem; color: var(--color-muted); line-height: 1.45; margin-top: 2px; }
+.feat { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--color-muted); }
+.feat .bar { display: grid; grid-template-columns: repeat(16, 6px); gap: 1px; }
+.feat .bar i { height: 18px; border-radius: 1px; background: var(--color-accent); }
+.scores { display: flex; flex-direction: column; gap: 3px; font-size: 0.75rem; }
+.scores div { display: grid; grid-template-columns: 3.6rem 4.5rem; align-items: center; gap: 6px; }
+.scores span.b { height: 10px; border-radius: 3px; background: var(--color-border); }
+.scores .top span.b { background: var(--color-primary); }
+.scores .top { font-weight: 700; color: var(--color-heading); }
+.pred { padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); background: var(--color-primary); color: #fff; font-weight: 700; text-align: center; line-height: 1.3; }
+.pred small { display: block; font-weight: 400; font-size: 0.6875rem; opacity: 0.85; }
+.promises { display: grid; grid-template-columns: auto repeat(3, 1fr); gap: var(--space-3); align-items: stretch; }
+.promises .lead { align-self: center; font-weight: 700; color: var(--color-heading); font-size: 0.9375rem; padding-right: var(--space-2); }
+.promise { display: flex; gap: var(--space-3); align-items: flex-start; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); font-size: 0.9375rem; line-height: 1.5; }
+.promise .n { flex: none; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--color-soft); color: var(--color-primary); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.8125rem; }
+
+/* ② 하루 전체 지도 */
+.day { display: grid; grid-template-columns: 3fr auto 2fr auto 3fr; gap: var(--space-3); align-items: stretch; }
+.zone { border-radius: var(--radius-card); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
+.zone.prep { background: var(--zone-prep); }
+.zone.learn { background: var(--zone-learn); }
+.zone.explain { background: var(--zone-explain); }
+.zone-name { font-weight: 700; font-size: 0.9375rem; }
+.zone.prep .zone-name { color: var(--ink-prep); }
+.zone.learn .zone-name { color: var(--ink-learn); }
+.zone.explain .zone-name { color: var(--ink-explain); }
+.zone-name small { font-weight: 400; color: var(--color-muted); margin-left: var(--space-2); }
+.zone .cards { display: grid; gap: var(--space-2); flex: 1; }
+.zone.prep .cards, .zone.explain .cards { grid-template-columns: repeat(3, 1fr); }
+.zone.learn .cards { grid-template-columns: repeat(2, 1fr); }
+.pcard { background: var(--color-surface); border-radius: var(--radius-control); padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); }
+.pcard h3 { font-size: 0.9375rem; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.pcard .q { font-size: 0.875rem; line-height: 1.45; color: var(--color-text); }
+.pcard .q::before { content: "“"; color: var(--color-muted); }
+.pcard .q::after { content: "”"; color: var(--color-muted); }
+.pcard .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; }
+.pcard .tags span { font-size: 0.6875rem; padding: 0 0.4rem; border-radius: 5px; background: var(--color-soft); color: var(--color-primary); line-height: 1.6; }
+.day .go { align-self: center; color: var(--color-accent); font-size: 1.25rem; font-weight: 700; }
+.loop { display: flex; justify-content: flex-end; align-items: center; gap: var(--space-2); font-size: 0.875rem; color: var(--color-muted); }
+.loop b { color: var(--ink-explain); }
+
+/* ③ 교시별 핵심: 난이도 계단 */
+.levels-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: center; font-size: 0.8125rem; color: var(--color-muted); }
+.lv { display: inline-block; padding: 0 0.5rem; border-radius: 5px; font-size: 0.75rem; font-weight: 700; line-height: 1.6; }
+.lv.l1 { background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-accent); }
+.lv.l2 { background: #DCE8F6; color: var(--color-primary); border: 1px solid #DCE8F6; }
+.lv.l3 { background: var(--color-primary); color: #fff; border: 1px solid var(--color-primary); }
+.steps { display: flex; flex-direction: column; gap: var(--space-2); }
+.step { display: grid; grid-template-columns: 17rem 1fr; gap: var(--space-4); align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); }
+.step .what { display: flex; flex-direction: column; gap: 3px; }
+.step .what .t { display: flex; align-items: center; gap: var(--space-2); font-weight: 700; color: var(--color-heading); }
+.step .what .c { font-size: 0.75rem; color: var(--color-muted); line-height: 1.4; }
+.stairs { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: var(--space-2); align-items: stretch; }
+.stairs > div { border-radius: 10px; padding: var(--space-2) var(--space-3); font-size: 0.875rem; line-height: 1.45; display: flex; gap: var(--space-2); align-items: flex-start; }
+.stairs .s1 { background: var(--color-surface); border: 1px solid var(--color-border); }
+.stairs .s2 { background: #EEF4FB; border: 1px solid #DCE8F6; }
+.stairs .s3 { background: #E3ECF7; border: 1px solid #C9D9EE; }
+.stairs .s3 b { color: var(--color-primary); }
+.stairs .to { align-self: center; color: var(--color-accent); font-weight: 700; padding: 0; background: none; border: 0; }
+.stairs .lv { flex: none; margin-top: 1px; }
+
+/* ④ 코드로 보는 하루 흐름 */
+.flow { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-2); counter-reset: f; }
+.flow > div { position: relative; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3); display: flex; flex-direction: column; gap: 4px; }
+.flow > div:not(:last-child)::after { content: "→"; position: absolute; right: -0.85rem; top: 50%; transform: translateY(-50%); color: var(--color-accent); font-weight: 700; z-index: 1; background: var(--zone-frame); line-height: 1; padding: 2px 0; }
+.flow .h { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+.flow .h b { font-size: 0.9375rem; }
+.flow .h .period { min-width: 0; font-size: 0.6875rem; }
+.flow p { font-size: 0.8125rem; line-height: 1.45; color: var(--color-muted); }
+.codemap { display: flex; flex-direction: column; gap: 0; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--color-code-bg); }
+.cseg { display: grid; grid-template-columns: minmax(0, 1fr) 21rem; }
+.cseg pre { margin: 0; padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6); background: var(--color-code-bg); color: #E8EEF7; font: 400 0.8125rem/1.65 var(--font-code); white-space: pre; overflow-x: auto; border-left: 6px solid var(--band, var(--color-accent)); }
+.cseg + .cseg pre { border-top: 1px solid #2B3850; }
+.cseg pre code { font-size: inherit; }
+.cseg pre .c { color: #9FB3CC; }
+.cseg pre .s { color: #F2C98F; }
+.cseg pre .k { color: #9CC8FF; }
+.cseg pre .n { color: #B8E3C6; }
+.cseg .ann { background: var(--color-surface); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+.cseg:last-child .ann { border-bottom: 0; }
+.cseg .ann .t { display: flex; align-items: center; gap: var(--space-2); font-weight: 700; color: var(--color-heading); font-size: 0.9375rem; }
+.cseg .ann p { font-size: 0.8125rem; line-height: 1.5; }
+.cseg.prep { --band: #6FB08A; }
+.cseg.learn { --band: #D9A44E; }
+.cseg.explain { --band: #9C8BD0; }
+.knobs { display: flex; flex-direction: column; gap: var(--space-2); }
+.khead, .krow { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 1.25rem minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+.khead { font-size: 0.8125rem; font-weight: 700; color: var(--color-muted); padding: 0 var(--space-4); }
+.khead .new-h { color: var(--color-primary); }
+.kgroup { margin-top: var(--space-2); font-weight: 700; color: var(--color-heading); font-size: 0.9375rem; display: flex; gap: var(--space-3); align-items: baseline; flex-wrap: wrap; }
+.kgroup span { font-weight: 400; font-size: 0.8125rem; color: var(--color-muted); }
+.krow { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-2) var(--space-4); row-gap: var(--space-2); }
+.krow .kname { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-weight: 700; color: var(--color-heading); font-size: 0.9375rem; }
+.krow pre { margin: 0; padding: var(--space-2) var(--space-3); border-radius: 8px; font: 400 0.78rem/1.55 var(--font-code); white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal; }
+.krow pre.old { background: var(--color-canvas); border: 1px solid var(--color-border); color: var(--color-muted); }
+.krow pre.new { background: var(--color-surface); border: 1.5px solid var(--color-accent); color: var(--color-heading); }
+.krow pre mark { background: #FBE6A0; color: var(--color-heading); border-radius: 3px; padding: 0 2px; font-weight: 700; }
+.krow .go { color: var(--color-accent); font-weight: 700; text-align: center; }
+.krow .res { display: flex; flex-direction: column; gap: 2px; }
+.krow .res p { font-size: 0.8125rem; line-height: 1.45; }
+.krow .delta { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.krow .delta .big { font-size: 1.125rem; font-weight: 700; color: var(--color-heading); line-height: 1.25; }
+.krow .delta .big.after { color: var(--problem); }
+.krow .delta .big.good { color: var(--ink-prep); }
+.krow .src { font-size: 0.6875rem !important; color: var(--color-muted); }
+.krow .lesson { grid-column: 2 / -1; display: flex; gap: var(--space-2); align-items: baseline; font-size: 0.875rem; line-height: 1.5; color: var(--color-heading); border-top: 1px dashed var(--color-border); padding-top: 6px; }
+.krow.key { border-color: #C9D9EE; background: #FBFDFF; }
+.keytag { flex: none; display: inline-block; padding: 0 0.5rem; border-radius: var(--radius-badge); background: var(--color-primary); color: #fff; font-size: 0.6875rem; font-weight: 700; line-height: 1.7; }
+.demand-top { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: var(--space-2); align-items: stretch; }
+.demand-top .lvcard { border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); display: flex; flex-direction: column; gap: 4px; }
+.demand-top .lvcard .q { font-size: 1.0625rem; font-weight: 700; }
+.demand-top .lvcard p { font-size: 0.875rem; line-height: 1.5; }
+.demand-top .lvcard .eye { font-size: 0.8125rem; color: var(--color-muted); }
+.demand-top .c1 { background: var(--color-surface); border: 1px solid var(--color-border); }
+.demand-top .c2 { background: #EEF4FB; border: 1px solid #DCE8F6; }
+.demand-top .c3 { background: var(--color-primary); color: #fff; }
+.demand-top .c3 .q, .demand-top .c3 b { color: #fff; }
+.demand-top .c3 .eye { color: #C9D6E8; }
+.demand-top .to { align-self: center; color: var(--color-accent); font-weight: 700; }
+.demand { display: grid; grid-template-columns: 7rem 1fr 1fr; gap: 6px var(--space-2); }
+.demand .hd { font-size: 0.8125rem; font-weight: 700; color: var(--color-muted); padding: 0 var(--space-3); }
+.demand .rowlab { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--color-heading); font-size: 0.875rem; }
+.demand .cell { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: var(--space-2) var(--space-3); font-size: 0.875rem; line-height: 1.5; }
+.demand .cell.deep { background: #EEF4FB; border-color: #DCE8F6; }
+.demand .cell .why { display: block; color: var(--color-muted); font-size: 0.8125rem; }
+
+/* ⑤ 전체 파라미터 지도 */
+.pgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+.pgroup { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-4) var(--space-6) var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); }
+.pgroup .gh { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+.pgroup .gh .L { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 8px; background: var(--color-soft); color: var(--color-primary); font-weight: 700; align-self: center; }
+.pgroup .gh h3 { font-size: 1.125rem; }
+.pgroup .gh .q { color: var(--color-muted); font-size: 0.9375rem; }
+.pgroup .viz { background: var(--color-canvas); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3) var(--space-4); }
+.viz-title { font-size: 0.8125rem; font-weight: 700; color: var(--color-heading); margin-bottom: var(--space-2); }
+.viz-row { display: flex; gap: var(--space-4); align-items: flex-start; flex-wrap: wrap; }
+.params { display: flex; flex-direction: column; }
+.prow { display: grid; grid-template-columns: 12.5rem 1fr; gap: var(--space-3); padding: var(--space-2) 0; border-top: 1px solid var(--color-border); align-items: baseline; }
+.prow:first-child { border-top: 0; }
+.prow .nm { font-weight: 700; color: var(--color-heading); font-size: 0.9375rem; }
+.prow .nm code { font-weight: 700; }
+.prow .val { display: inline-block; font-size: 0.75rem; padding: 0 0.45rem; border-radius: 5px; background: var(--color-soft); color: var(--color-primary); margin-right: var(--space-2); font-weight: 600; }
+.prow .mean { font-size: 0.875rem; }
+.samples { display: flex; gap: var(--space-3); }
+.samples figure { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.samples .imgs { display: flex; gap: 3px; }
+.samples img { width: 2.75rem; border-radius: 4px; border: 1px solid var(--color-border); }
+.samples figcaption { font-size: 0.75rem; color: var(--color-heading); font-weight: 600; }
+.split { display: flex; flex-direction: column; gap: 6px; font-size: 0.8125rem; }
+.split .r { display: flex; align-items: center; gap: 6px; }
+.split .g { display: inline-flex; gap: 2px; padding: 3px; border-radius: 6px; border: 1px dashed var(--color-accent); }
+.split .g i { width: 14px; height: 14px; border-radius: 3px; background: var(--color-accent); display: inline-block; }
+.split .g i.v { background: var(--problem-line); }
+.split .ok { color: var(--ink-prep); font-weight: 700; }
+.split .bad { color: var(--problem); font-weight: 700; }
+.switches { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-2); }
+.switch { border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); padding: var(--space-2) var(--space-3); font-size: 0.8125rem; line-height: 1.45; }
+.switch .sh { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--color-heading); }
+.switch .tg { width: 1.9rem; height: 1rem; border-radius: 9999px; background: var(--color-primary); position: relative; flex: none; }
+.switch .tg::after { content: ""; position: absolute; right: 2px; top: 2px; width: 0.75rem; height: 0.75rem; border-radius: 50%; background: #fff; }
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.vs > div { border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); padding: var(--space-2) var(--space-3); font-size: 0.8125rem; line-height: 1.45; }
+.vs .vh { font-weight: 700; color: var(--color-heading); display: flex; gap: 6px; align-items: center; }
+.dots { display: flex; gap: 3px; flex-wrap: wrap; margin: 4px 0; align-items: flex-end; }
+.dots i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dots i.c0 { background: #9DB3CF; } .dots i.c1 { background: #D9A44E; } .dots i.c2 { background: #9C8BD0; }
+.dots i.big { width: 18px; height: 18px; }
+.cams { display: flex; gap: var(--space-3); align-items: flex-start; }
+.cams figure { display: flex; flex-direction: column; gap: 4px; width: 8.5rem; }
+.cams img { width: 8.5rem; border-radius: 8px; border: 1px solid var(--color-border); }
+.cams figcaption { font-size: 0.75rem; line-height: 1.4; color: var(--color-text); }
+.cams figcaption b { display: block; font-size: 0.8125rem; }
+.cams .scale { display: flex; flex-direction: column; justify-content: space-between; height: 8.5rem; font-size: 0.6875rem; color: var(--color-muted); }
+.cams .scale .bar { width: 10px; flex: 1; border-radius: 3px; background: linear-gradient(to top, #FBE6A0, #F0AA50 35%, #D66E28 70%, #963214); margin: 2px 0; }
+.cams .scale-wrap { display: flex; gap: 4px; }
+svg text { font-family: var(--font-body); }
+
+footer { padding-block: var(--space-2) var(--space-8); font-size: 0.8125rem; color: var(--color-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 4px; }
+footer h2 { font-size: 0.875rem; color: var(--color-heading); }
+
+/* PDF(세로 한 장) 모드 */
+html.pdf { scroll-behavior: auto; }
+
+/* 좁은 화면 */
+@media (max-width: 75rem) {
+  .wrap { padding-inline: var(--space-4); }
+  .frame { padding: var(--space-4); }
+  .pipe { grid-template-columns: 1fr; justify-items: start; }
+  .pipe .arrow { transform: rotate(90deg); }
+  .promises { grid-template-columns: 1fr; }
+  .day { grid-template-columns: 1fr; }
+  .day .go { transform: rotate(90deg); justify-self: center; }
+  .step { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: repeat(2, 1fr); }
+  .flow > div::after { display: none; }
+  .cseg { grid-template-columns: 1fr; }
+  .khead { display: none; }
+  .krow { grid-template-columns: 1fr; }
+  .krow .go { transform: rotate(90deg); justify-self: start; }
+  .krow .lesson { grid-column: 1; }
+  .pgrid { grid-template-columns: 1fr; }
+  .demand-top { grid-template-columns: 1fr; }
+  .demand-top .to { transform: rotate(90deg); justify-self: center; }
+}
+@media (max-width: 40rem) {
+  .zone.prep .cards, .zone.explain .cards, .zone.learn .cards { grid-template-columns: 1fr; }
+  .stairs { grid-template-columns: 1fr; }
+  .stairs .to { transform: rotate(90deg); justify-self: center; }
+  .flow { grid-template-columns: 1fr; }
+  .demand { grid-template-columns: 1fr; }
+  .demand .hd { display: none; }
+  .prow { grid-template-columns: 1fr; gap: 2px; }
+  .switches, .vs { grid-template-columns: 1fr; }
+  .cams { flex-wrap: wrap; }
+}
+@media print { body { background: #fff; } }
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <div class="meta">
+    <span class="badge">새싹 학습 노트</span>
+    <span class="badge">Day14 · 2026.11.05 · Vision·멀티모달 AI 응용</span>
+    <span class="badge">oneday 요약</span>
+  </div>
+  <h1>전이학습 기반 이미지 분류</h1>
+  <p class="lede"><span class="ask">오늘 한 문장</span>이미 학습된 모델의 <b>Backbone(특징 추출기)</b>을 빌려 와서 우리 문제에 맞는 <b>Head(분류기)</b>만 새로 학습하고, 불균형한 데이터에서도 <b>클래스별로 공정하게</b> 평가하고, 틀린 이유를 <b>추정</b>하는 법을 배웁니다.</p>
+</header>
+
+<main class="wrap">
+
+<!-- ① 오늘을 한 문장으로 -->
+<section class="frame" aria-labelledby="s1">
+  <div class="sec-head"><span class="num">1</span><h2 id="s1">한 장으로 보는 전이학습</h2><span class="sub">특징 추출은 빌려 오고, 분류만 새로 배운다</span></div>
+  <div class="panel">
+    <div class="pipe">
+      <div class="img-in">{{PIPE_IMG}}</div>
+      <span class="arrow">→</span>
+      <div class="box bb">
+        <h3>Backbone <span class="tag">빌려 옴</span></h3>
+        <p class="role">특징 추출기</p>
+        <p class="how">이미지에서 윤곽·모서리 같은 특징을 뽑음. 다른 데이터로 이미 학습되어 얼려 쓰거나 살짝만 조정</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="feat"><div class="bar">{{FEAT_BAR}}</div><span>특징 256개</span></div>
+      <span class="arrow">→</span>
+      <div class="box hd">
+        <h3>Head <span class="tag">새로 학습</span></h3>
+        <p class="role">분류기</p>
+        <p class="how"><code>Linear(256, 3)</code>. 특징 256개를 circle·square·triangle 점수로 바꿈. 우리 문제에 맞게 새로 만듦</p>
+      </div>
+      <span class="arrow">→</span>
+      <div class="scores">
+        <div class="top"><span>circle</span><span class="b" style="width:4.5rem"></span></div>
+        <div><span>square</span><span class="b" style="width:1.4rem"></span></div>
+        <div><span>triangle</span><span class="b" style="width:0.8rem"></span></div>
+      </div>
+      <span class="arrow">→</span>
+      <div class="pred">circle<small>가장 큰 점수</small></div>
+    </div>
+  </div>
+  <div class="promises">
+    <p class="lead">하루 내내<br>지키는 약속</p>
+    <div class="promise"><span class="n">1</span><p><b>train</b>으로만 배우고, <b>valid</b>로만 고르고, <b>test</b>는 마지막 확인용으로 남긴다</p></div>
+    <div class="promise"><span class="n">2</span><p>비교할 때는 <b>한 번에 하나만</b> 바꾸고, 나머지 조건은 같게 둔다</p></div>
+    <div class="promise"><span class="n">3</span><p>오답이 없으면 "0건"이라고 쓰고, Grad-CAM은 <b>원인이 아니라 단서</b>로 쓴다</p></div>
+  </div>
+</section>
+
+<!-- ② 하루 전체 지도 -->
+<section class="frame" aria-labelledby="s2">
+  <div class="sec-head"><span class="num">2</span><h2 id="s2">하루 전체 지도</h2><span class="sub">8교시가 세 묶음으로 이어지고, 끝에서 다음 실험으로 돌아간다</span></div>
+  <div class="day">
+    <div class="zone prep">
+      <p class="zone-name">준비<small>데이터와 모델</small></p>
+      <div class="cards">
+        <div class="pcard"><h3><span class="period prep">1교시</span>데이터셋 설계</h3><p class="q">라벨과 분할을 믿을 수 있나?</p><div class="tags"><span>ImageFolder</span><span>라벨 계약</span><span>누수</span></div></div>
+        <div class="pcard"><h3><span class="period prep">2교시</span><span>Backbone·<wbr>Head</span></h3><p class="q">무엇을 가져오고, 무엇을 새로 만드나?</p><div class="tags"><span>requires_grad</span><span>BN 모드</span></div></div>
+        <div class="pcard"><h3><span class="period prep">3교시</span>Fine-tuning</h3><p class="q">어디까지 다시 학습시킬까?</p><div class="tags"><span>Head-only</span><span>Partial</span><span>Full</span><span>lr</span></div></div>
+      </div>
+    </div>
+    <span class="go">→</span>
+    <div class="zone learn">
+      <p class="zone-name">학습과 평가<small>공정하게</small></p>
+      <div class="cards">
+        <div class="pcard"><h3><span class="period learn">4교시</span>클래스 불균형</h3><p class="q">적은 클래스를 포기하지 않게 하려면?</p><div class="tags"><span>Macro F1</span><span>class weight</span><span>Sampler</span></div></div>
+        <div class="pcard"><h3><span class="period learn">5교시</span>평가·오류 분석</h3><p class="q">어디서 틀렸나? 왜 틀렸을까(가설)?</p><div class="tags"><span>Confusion matrix</span><span>Precision</span><span>Recall</span></div></div>
+      </div>
+    </div>
+    <span class="go">→</span>
+    <div class="zone explain">
+      <p class="zone-name">설명과 정리<small>믿을 수 있게</small></p>
+      <div class="cards">
+        <div class="pcard"><h3><span class="period explain">6교시</span>Grad-CAM</h3><p class="q">모델은 어디에 반응했나?</p><div class="tags"><span>target</span><span>설명의 한계</span></div></div>
+        <div class="pcard"><h3><span class="period explain">7교시</span>모델 비교·통합</h3><p class="q">여러 후보 중 무엇을, 어떤 규칙으로 고르나?</p><div class="tags"><span>best epoch</span><span>선택 규칙</span></div></div>
+        <div class="pcard"><h3><span class="period explain">8교시</span>재실행·회고</h3><p class="q">다른 사람도 같은 결과를 얻나?</p><div class="tags"><span>seed</span><span>재현</span><span>저장 항목</span></div></div>
+      </div>
+    </div>
+  </div>
+  <p class="loop">↺ 8교시가 끝나면 <b>다음 실험 가설</b>을 세우고 다시 1교시로 돌아갑니다</p>
+</section>
+
+<!-- ③ 교시별 핵심 -->
+<section class="frame" aria-labelledby="s3">
+  <div class="sec-head"><span class="num">3</span><h2 id="s3">교시별 핵심</h2><span class="sub">같은 개념이 난이도별로 어떻게 깊어지나</span></div>
+  <div class="levels-legend"><span class="lv l1">기본필수</span>동작을 확인한다 <span class="arrow">→</span> <span class="lv l2">응용</span>바꿔 보고 잰다 <span class="arrow">→</span> <span class="lv l3">심화</span>믿어도 되는지 확인한다</div>
+  <div class="steps">
+    <div class="step"><div class="what"><p class="t"><span class="period prep">1교시</span>라벨·분할을 믿을 수 있나?</p><p class="c">ImageFolder · 라벨 계약 · 누수</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>폴더 → 번호 매핑, 개수 확인</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span>클래스 <b>비율</b>, 중복 파일 검사</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span><b>그룹 단위</b> 분할</span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period prep">2교시</span>무엇을 가져오고 새로 만드나?</p><p class="c">Backbone/Head · requires_grad · BN 모드</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>Head 교체, 학습 파라미터 771개</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span>공식 <b>입력 변환</b>(Normalize)</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span><b>BN 통계</b> 정책 실험</span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period prep">3교시</span>어디까지 다시 학습할까?</p><p class="c">Head-only / Partial / Full · lr</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>두 전략 accuracy 비교</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span>파라미터 수 · best epoch · 시간</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span><b>단계적 해제</b>, 층별 lr</span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period learn">4교시</span>적은 클래스를 지키려면?</p><p class="c">Accuracy의 함정 · Macro F1 · class weight · Sampler</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>Macro F1 손계산</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span><b>Class weight</b> 적용</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span><b>Sampler</b>와 비교</span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period learn">5교시</span>어디서·왜 틀렸나?</p><p class="c">Confusion matrix · Precision/Recall · 오류 이미지</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>Confusion matrix 읽기</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span>오류 이미지 + 확신도 저장</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span>관찰 → <b>가설</b> → 확인</span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period explain">6교시</span>모델은 어디에 반응했나?</p><p class="c">Grad-CAM · target · 설명의 한계</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>정답·오답 1장씩</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span><b>target 바꿔</b> 비교</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span><b>Occlusion 실험</b></span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period explain">7교시</span>무엇을 어떻게 고르나?</p><p class="c">best epoch · 비교표 · 선택 규칙</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>결과 파일 저장</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span>후보 3개 비교표</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span><b>미리 정한 규칙</b>으로 자동 선택</span></div></div></div>
+    <div class="step"><div class="what"><p class="t"><span class="period explain">8교시</span>같은 결과가 다시 나오나?</p><p class="c">seed · 재현 · 저장 항목</p></div>
+      <div class="stairs"><div class="s1"><span class="lv l1">기본</span><span>내가 재실행</span></div><span class="to">→</span><div class="s2"><span class="lv l2">응용</span><span>짝이 재실행</span></div><span class="to">→</span><div class="s3"><span class="lv l3">심화</span><span>새 프로세스에서 <b>복원 검증</b></span></div></div></div>
+  </div>
+</section>
+
+<!-- ④ 코드로 보는 하루 흐름 -->
+<section class="frame" aria-labelledby="s4">
+  <div class="sec-head"><span class="num">4</span><h2 id="s4">코드로 보는 하루 흐름</h2><span class="sub">오늘 배우는 과정을 가장 대표적인 코드 몇 줄로 줄였습니다</span></div>
+
+  <div class="flow">
+    <div><p class="h"><b>① 데이터 읽기</b><span class="period prep">1</span></p><p><code>ImageFolder</code> → 폴더 이름이 라벨 번호가 됨</p></div>
+    <div><p class="h"><b>② 모델 만들기</b><span class="period prep">2</span></p><p>Backbone 불러오기 → 얼림 → 새 Head → <code>eval()</code></p></div>
+    <div><p class="h"><b>③ 학습 ×8</b><span class="period prep">3·4</span></p><p>zero_grad → loss → backward → step → valid loss</p></div>
+    <div><p class="h"><b>④ best 복원</b><span class="period explain">7</span></p><p>valid loss가 가장 낮았던 가중치로 되돌림</p></div>
+    <div><p class="h"><b>⑤ 평가</b><span class="period learn">4·5</span></p><p>argmax → Macro F1 · confusion matrix</p></div>
+    <div><p class="h"><b>⑥ 설명</b><span class="period explain">6</span></p><p>target 점수 → gradient → Grad-CAM 열지도</p></div>
+    <div><p class="h"><b>⑦ 저장</b><span class="period explain">7·8</span></p><p>가중치 + 설정 + seed + test 미사용 기록</p></div>
+  </div>
+
+  <div class="codemap" role="group" aria-label="핵심 코드와 단계 설명">
+{{CODE}}
+  </div>
+  <p class="note">import와 데이터를 텐서로 바꾸는 준비 코드는 생략했고, <code>load_pretrained_backbone</code>·<code>conv_layers</code> 같은 이름은 이해를 돕기 위해 단순화했습니다.</p>
+
+  <div class="panel">
+    <div class="sub-head"><h3>코드 속 파라미터 · 어디를 고치면 무엇이 달라지나</h3><span class="note">왼쪽은 위 핵심 코드 그대로, 가운데는 <mark style="background:#FBE6A0;border-radius:3px;padding:0 2px">표시한 부분</mark>만 고친 코드입니다. 고친 코드로 다시 실행한 결과를 오른쪽에 적었습니다. 위 코드와 실행 조건이 다르면 결과 칸 아래에 조건을 적었습니다. <b>꼭 기억</b> 표시가 붙은 7개는 오늘 반드시 가져갈 결과입니다.</span></div>
+    <div class="knobs">
+      <div class="khead"><span></span><span>위 코드 (핵심 코드 그대로)</span><span></span><span class="new-h">고친 코드 (이 부분만 바꿔 다시 실행)</span><span>결과</span></div>
+{{KNOBS}}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="sub-head"><h3>응용·심화는 무엇을 더 요구하나</h3><span class="note">세 난이도는 같은 코드 흐름을 쓰지만, 요구하는 수준이 다릅니다.</span></div>
+    <div class="demand-top">
+      <div class="lvcard c1"><span class="lv l1" style="align-self:flex-start">기본필수</span><p class="q">어떻게 동작하나?</p><p>흐름을 끝까지 돌리고, 각 줄의 의미를 안다</p><p class="eye">결과를 보는 눈 · 제대로 돌아가나</p></div>
+      <span class="to">→</span>
+      <div class="lvcard c2"><span class="lv l2" style="align-self:flex-start">응용</span><p class="q">무엇을 바꾸면 좋아지나?</p><p>값 하나를 바꿔 결과 차이를 <b>재고 설명</b>한다</p><p class="eye">결과를 보는 눈 · 숫자가 얼마나 달라지나</p></div>
+      <span class="to">→</span>
+      <div class="lvcard c3"><span class="lv l1" style="align-self:flex-start">심화</span><p class="q">그 결론을 믿어도 되나?</p><p>그 차이가 <b>우연·누수·설정 탓이 아님</b>을 보인다</p><p class="eye">결과를 보는 눈 · 조건을 바꿔도 같은 결론인가</p></div>
+    </div>
+    <div class="demand" style="margin-top: var(--space-4)">
+      <span></span><span class="hd">응용이 더 요구하는 것</span><span class="hd">심화가 더 요구하는 것</span>
+{{DEMAND}}
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ 전체 파라미터 지도 -->
+<section class="frame" aria-labelledby="s5">
+  <div class="sec-head"><span class="num">5</span><h2 id="s5">전체 파라미터 지도</h2><span class="sub">"무엇을 정하는 값인가"로 묶었습니다. 그림은 헷갈리기 쉬운 개념을 실제 실행 결과로 보여 줍니다</span></div>
+  <div class="pgrid">
+{{PGROUPS}}
+  </div>
+</section>
+
+
+</main>
+
+<footer class="wrap">
+  <h2>출처</h2>
+  <p>NVIDIA AI 코어 엔지니어 2기 · Day14 Vision·멀티모달 AI 응용 · 강의 PDF <code>Day14_20261105.pdf</code> 「전이학습 기반 Vision 모델 구성과 데이터셋 설계」(99쪽).</p>
+  <p>실습 코드: Day14 실습 자료 기본필수 01~07, 응용 01~07, 심화 <code>day14_vision</code>. 그림과 숫자는 실습 데이터로 직접 실행한 결과입니다(seed 14, CPU 1-thread). 실행 환경에 따라 소수점 아래가 조금 다를 수 있습니다.</p>
+  <p>오늘 실습의 사전학습 모델은 ImageNet ResNet18이 아니라 합성 도형으로 미리 학습한 작은 CNN입니다. 원리는 같고 크기만 작습니다. 강의 자료의 성능 숫자는 설명용 예시로, 이 문서의 실측 숫자와 맞추는 대상이 아닙니다.</p>
+</footer>
+
+</body>
+</html>
