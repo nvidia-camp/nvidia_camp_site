@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PyTorch 핵심 치트시트 — 전체 흐름과 파라미터</title>
+<style>
+:root{
+  --color-primary:#142849; --color-heading:#1C2B40; --color-text:#222F44; --color-muted:#52667E;
+  --color-canvas:#F9FBFE; --color-surface:#FFFFFF; --color-soft:#F0F6FD; --color-border:#D8E4F2;
+  --color-code-bg:#1B2435; --color-code-text:#FFFFFF; --color-code-comment:#A9B8CC;
+  --color-param:#0E4FA0;
+  --font-body:"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  --font-code:Consolas,Menlo,"D2Coding","Malgun Gothic","Apple SD Gothic Neo",monospace;
+  --fs-body:9pt; --fs-code:7.9pt; --fs-title:10pt;
+  --r-card:8px; --r-code:6px;
+}
+*{box-sizing:border-box}
+html{background:var(--color-canvas);color:var(--color-text);font-family:var(--font-body);
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;padding:24px 0}
+code,pre{font-family:var(--font-code)}
+.page{width:297mm;min-height:210mm;margin:0 auto;padding:5mm 7mm 4mm;background:var(--color-surface);
+  border:1px solid var(--color-border);font-size:var(--fs-body);line-height:1.42;word-break:keep-all;overflow-wrap:anywhere}
+
+header{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--color-primary);padding-bottom:4px;margin-bottom:6px}
+h1{margin:0;font-size:16pt;line-height:1.2;color:var(--color-primary)}
+header p{margin:0;color:var(--color-muted)}
+header .meta{margin-left:auto;font-size:7.6pt}
+header a{color:var(--color-primary)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:8px}
+.col{display:flex;flex-direction:column;gap:7px;min-width:0}
+
+/* 번호 배지 */
+.n{display:inline-flex;align-items:center;justify-content:center;min-width:1.6em;height:1.6em;padding:0 .3em;flex:none;
+  border-radius:1em;background:var(--color-primary);color:#fff;font:700 .85em/1 var(--font-body);margin-right:6px}
+
+h2{margin:0 0 4px;font-size:var(--fs-title);line-height:1.3;color:var(--color-heading);display:flex;align-items:center}
+h2 .mod{margin-left:auto;font:400 7.2pt var(--font-code);color:var(--color-muted);background:var(--color-soft);border-radius:4px;padding:1px 5px}
+
+/* 코드 */
+.code{position:relative}
+pre{margin:0;background:var(--color-code-bg);color:var(--color-code-text);border-radius:var(--r-code);
+  padding:5px 8px;font-size:var(--fs-code);line-height:1.27;white-space:pre;overflow-x:auto}
+pre .c{color:var(--color-code-comment)}
+pre .s{color:#F2C58A}
+pre .k{color:#9CC3F5}
+#flow-code .ln{display:block;position:relative;padding-right:2.4em}
+#flow-code .b{position:absolute;right:0;top:.12em;display:inline-block;min-width:1.6em;text-align:center;border-radius:1em;
+  background:var(--color-soft);color:var(--color-primary);font:700 .9em/1.4 var(--font-body)}
+
+/* 카드 */
+.card{border:1px solid var(--color-border);border-radius:var(--r-card);padding:6px 8px}
+.card ul{margin:0;padding:0;list-style:none}
+.card li{padding:2px 0;border-top:1px dotted var(--color-border)}
+.card li:first-child{border-top:0}
+.card pre{margin:4px 0}
+code{font-size:var(--fs-code);color:var(--color-heading);background:var(--color-canvas);border-radius:3px;padding:0 2px}
+pre code{background:none;color:inherit;padding:0}
+.p{color:var(--color-param);font-weight:700}
+.muted{color:var(--color-muted)}
+.key{margin:4px 0 0;background:var(--color-soft);border-radius:5px;padding:3px 6px;font-weight:600;color:var(--color-primary)}
+
+/* 흐름 표 */
+.flow{background:var(--color-soft);border-radius:var(--r-card);padding:6px 8px}
+.flow dl{margin:0;display:grid;grid-template-columns:max-content 1fr;column-gap:8px}
+.flow dt,.flow dd{margin:0;padding:2px 0;border-bottom:1px solid var(--color-border)}
+.flow dt{font:700 var(--fs-code) var(--font-code);color:var(--color-primary)}
+.flow dl > :nth-last-child(-n+2){border-bottom:0}
+.shape{font-family:var(--font-code);font-size:var(--fs-code);background:#fff;border:1px solid var(--color-border);border-radius:4px;padding:0 3px;white-space:nowrap}
+.flow .loop{margin:4px 0 0;font-weight:700;color:var(--color-primary)}
+
+/* dim 그림 */
+.dim{display:flex;gap:12px;align-items:center;margin:4px 0}
+.dim table{border-collapse:collapse;font:var(--fs-code) var(--font-code)}
+.dim td{border:1px solid var(--color-border);width:1.8em;text-align:center}
+.dim td.h{border:0;color:var(--color-muted);width:auto;padding:0 4px;font:7.6pt var(--font-body);white-space:nowrap}
+
+/* 파라미터 정리 */
+.params{background:var(--color-soft);border-radius:var(--r-card);padding:6px 8px}
+.params p{margin:0 0 4px}
+.params table{width:100%;border-collapse:collapse}
+.params th,.params td{text-align:left;vertical-align:top;padding:2px 4px;border-top:1px solid var(--color-border);white-space:nowrap}
+.params th{font:700 var(--fs-code) var(--font-code);color:var(--color-param);white-space:nowrap;padding-left:0}
+.params thead th{font:600 7.6pt var(--font-body);color:var(--color-muted);border-top:0}
+
+/* 자주 하는 실수 */
+.pit{border:1.5px solid var(--color-primary);border-radius:var(--r-card);padding:6px 8px}
+.pit h2{color:var(--color-primary)}
+.pit ol{margin:0;padding:0 0 0 1.3em}
+.pit li{padding:1.5px 0}
+.pit li::marker{font-weight:700;color:var(--color-primary)}
+
+/* 코드 복사 (화면 전용) */
+.copy{position:absolute;top:-25px;right:0;font:600 8pt var(--font-body);color:var(--color-primary);background:var(--color-soft);
+  border:1px solid var(--color-border);border-radius:6px;padding:3px 8px;cursor:pointer}
+.copy:hover{background:#fff}
+.copy:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;box-shadow:0 0 0 2px #fff}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@page{size:A4 landscape;margin:0}
+@media print{
+  html{background:#fff} body{padding:0}
+  .page{border:0;margin:0;height:209.5mm;overflow:hidden}
+  .copy{display:none}
+}
+@media screen and (min-width:1400px){ .page{zoom:1.2} }
+@media screen and (min-width:1700px){ .page{zoom:1.45} }
+/* 좁은 화면: 같은 순서로 한 줄씩 쌓기 */
+@media screen and (max-width:1160px){
+  body{padding:16px}
+  .page{width:auto;padding:16px;--fs-body:11pt;--fs-code:9.5pt;--fs-title:12.5pt}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  header{flex-wrap:wrap} header .meta{margin-left:0}
+  .copy{position:static;margin:0 0 6px;padding:8px 12px;font-size:10pt}
+  #flow-code .b{display:none} #flow-code .ln{padding-right:0}
+}
+</style>
+</head>
+<body>
+<main class="page">
+<header>
+  <h1>PyTorch 핵심 치트시트</h1>
+  <p>전체 흐름 코드의 줄 끝 번호 = 설명 카드 번호</p>
+  <p class="meta">기준 <a href="https://tutorials.pytorch.kr/beginner/basics/intro.html">PyTorch 한국어 튜토리얼 「파이토치 기본 익히기」</a> · PyTorch 2.14로 실행 확인 · 2026-11-02</p>
+</header>
+
+<div class="grid">
+<!-- 1열: 전체 흐름 -->
+<div class="col">
+  <section>
+    <h2 id="t-flow"><span class="n">0</span>전체 흐름: 데이터 → 예측 → 손실 → 기울기 → 갱신</h2>
+    <div class="code">
+      <button class="copy" type="button" data-target="flow-code">코드 복사</button>
+      <pre id="flow-code"><span class="ln"><span class="k">import</span> torch</span><span class="ln"><span class="k">from</span> torch <span class="k">import</span> nn, optim</span><span class="ln"><span class="k">from</span> torch.utils.data <span class="k">import</span> Dataset, DataLoader</span><span class="ln"><span class="k">from</span> torchvision <span class="k">import</span> datasets, transforms</span><span class="ln">device = (<span class="s">"cuda"</span> <span class="k">if</span> torch.cuda.is_available()<span class="b">1</span></span><span class="ln">  <span class="k">else</span> <span class="s">"mps"</span> <span class="k">if</span> torch.backends.mps.is_available()</span><span class="ln">  <span class="k">else</span> <span class="s">"cpu"</span>)</span><span class="ln">lr, batch_size, epochs = 1e-3, 64, 5  <span class="c"># 사람이 정함</span><span class="b">P</span></span><span class="ln">tf = transforms.ToTensor()<span class="b">2</span></span><span class="ln">train_ds = datasets.FashionMNIST(<span class="s">"data"</span>,</span><span class="ln">    train=<span class="k">True</span>, download=<span class="k">True</span>, transform=tf)</span><span class="ln">train_dl = DataLoader(train_ds, shuffle=<span class="k">True</span>,<span class="b">2</span></span><span class="ln">                      batch_size=batch_size)</span><span class="ln">model = Net().to(device)          <span class="c"># 3번 카드</span><span class="b">3</span></span><span class="ln">loss_fn = nn.CrossEntropyLoss()<span class="b">4</span></span><span class="ln">optimizer = optim.SGD(model.parameters(), lr=lr)<span class="b">5</span></span><span class="ln"><span class="k">for</span> epoch <span class="k">in</span> range(epochs):       <span class="c"># 에폭 반복</span></span><span class="ln">    model.train()                 <span class="c"># 학습 모드</span><span class="b">6</span></span><span class="ln">    <span class="k">for</span> X, y <span class="k">in</span> train_dl:         <span class="c"># 배치 반복</span><span class="b">2</span></span><span class="ln">        X, y = X.to(device), y.to(device)<span class="b">1</span></span><span class="ln">        pred = model(X)           <span class="c"># ① 예측</span><span class="b">3</span></span><span class="ln">        loss = loss_fn(pred, y)   <span class="c"># ② 손실</span><span class="b">4</span></span><span class="ln">        optimizer.zero_grad()     <span class="c"># ③ 초기화</span><span class="b">5</span></span><span class="ln">        loss.backward()           <span class="c"># ④ 기울기</span><span class="b">4</span></span><span class="ln">        optimizer.step()          <span class="c"># ⑤ 갱신</span><span class="b">5</span></span><span class="ln">    test(model)                   <span class="c"># 평가</span><span class="b">6</span></span><span class="ln">torch.save(model.state_dict(), <span class="s">"model.pth"</span>)<span class="b">7</span></span></pre>
+    </div>
+  </section>
+
+  <section class="flow" aria-labelledby="t-shape">
+    <h2 id="t-shape">한 배치에서 바뀌는 것 (batch_size=64)</h2>
+    <dl>
+      <dt>train_ds[i]</dt><dd>샘플 1개: x <span class="shape">(1, 28, 28)</span>, y 정수</dd>
+      <dt>DataLoader</dt><dd>X <span class="shape">(64, 1, 28, 28)</span>, y <span class="shape">(64,)</span></dd>
+      <dt>model(X)</dt><dd>로짓 <span class="shape">(64, 10)</span> (클래스 10개 점수)</dd>
+      <dt>loss_fn</dt><dd>배치 평균 손실, 스칼라 <span class="shape">()</span></dd>
+      <dt>backward()</dt><dd>가중치마다 기울기 <code>p.grad</code> 계산</dd>
+      <dt>step()</dt><dd>가중치를 기울기 반대 방향으로 조금 이동</dd>
+    </dl>
+    <p class="loop">↺ 1 에폭 = 60000 / 64 → 938번 step</p>
+  </section>
+
+  <section class="pit" aria-labelledby="t-pit">
+    <h2 id="t-pit">자주 하는 실수</h2>
+    <ol>
+      <li><code>zero_grad()</code> 빠짐 → 기울기가 계속 쌓임</li>
+      <li><code>CrossEntropyLoss</code>에 softmax 값을 넣음 → 로짓 그대로</li>
+      <li>모델과 데이터의 장치가 다름 → 둘 다 <code>.to(device)</code></li>
+      <li>평가 때 <code>eval()</code>·<code>no_grad()</code> 빠짐</li>
+    </ol>
+  </section>
+</div>
+
+<!-- 2열: 텐서·데이터·모델 -->
+<div class="col">
+  <section class="card">
+    <h2><span class="n">1</span>텐서 기본: shape 맞추기<span class="mod">torch</span></h2>
+    <ul>
+      <li><code>x.shape</code> 가장 먼저 확인 · <code>x.to(device)</code> 모델과 같은 장치로</li>
+      <li><code>x.reshape(64, <span class="p">-1</span>)</code> -1은 자동 계산 · <code>x.flatten(1)</code> <span class="muted">(N, 1, 28, 28) → (N, 784)</span></li>
+    </ul>
+    <div class="dim">
+      <table aria-label="x = [[1,2,3],[4,5,6]]">
+        <tr><td class="h"></td><td class="h" colspan="3">dim=1 →</td></tr>
+        <tr><td class="h" rowspan="2">dim=0 ↓</td><td>1</td><td>2</td><td>3</td></tr>
+        <tr><td>4</td><td>5</td><td>6</td></tr>
+      </table>
+      <div><code>x.sum(<span class="p">dim</span>=0)</code> → [5, 7, 9]<br><code>x.sum(<span class="p">dim</span>=1)</code> → [6, 15]</div>
+    </div>
+    <p class="key">dim에 적은 축이 사라진다 → 예측 클래스는 <code>pred.argmax(dim=1)</code></p>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">2</span>데이터: 미니배치로 나누기<span class="mod">torch.utils.data</span></h2>
+<pre><code><span class="k">class</span> MyDS(Dataset):
+    <span class="k">def</span> __init__(self, X, y):
+        self.X, self.y = X, y
+    <span class="k">def</span> __len__(self):          <span class="c"># 샘플 수</span>
+        <span class="k">return</span> len(self.X)
+    <span class="k">def</span> __getitem__(self, i):   <span class="c"># 샘플 1개</span>
+        <span class="k">return</span> self.X[i], self.y[i]</code></pre>
+    <ul>
+      <li><code>DataLoader(ds, <span class="p">batch_size</span>=64, <span class="p">shuffle</span>=True)</code> 64개씩 묶고, 에폭마다 섞음(학습 데이터만)</li>
+      <li><code>X, y = next(iter(train_dl))</code> 배치 하나 꺼내 shape 확인</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">3</span>모델: 예측 만들기<span class="mod">torch.nn</span></h2>
+<pre><code><span class="k">class</span> Net(nn.Module):
+    <span class="k">def</span> __init__(self):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(28*28, 512), nn.ReLU(),
+            nn.Linear(512, 10))
+    <span class="k">def</span> forward(self, x):    <span class="c"># model(x)</span>
+        <span class="k">return</span> self.layers(x)</code></pre>
+    <ul>
+      <li><code>nn.Linear(<span class="p">in_features</span>, <span class="p">out_features</span>)</code> (N, in) → (N, out). 앞 층의 out = 다음 층의 in</li>
+      <li><code>nn.ReLU()</code> 비선형. 없으면 Linear를 여러 층 쌓아도 Linear 하나와 같음</li>
+    </ul>
+  </section>
+</div>
+
+<!-- 3열: 학습·평가 -->
+<div class="col">
+  <section class="card">
+    <h2><span class="n">4</span>손실과 기울기<span class="mod">torch.nn</span></h2>
+    <ul>
+      <li><code>nn.CrossEntropyLoss()</code> 분류: 로짓 (N,C), 정답 (N,) long</li>
+      <li><code>nn.MSELoss()</code> 회귀: 예측과 정답의 제곱 오차</li>
+      <li><code>loss.backward()</code> 모든 가중치의 기울기를 <code>p.grad</code>에 <b>더함</b> → 매번 <code>zero_grad()</code></li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">5</span>최적화: 가중치 갱신<span class="mod">torch.optim</span></h2>
+    <ul>
+      <li><code>optim.SGD(model.parameters(), <span class="p">lr</span>=lr)</code> <b>p ← p − lr × p.grad</b></li>
+      <li><code>optim.Adam(model.parameters(), <span class="p">lr</span>=1e-3)</code> 가중치마다 보폭을 조절. 처음 시도하기 무난</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">6</span>평가와 과적합<span class="mod">torch</span></h2>
+<pre><code><span class="k">def</span> test(model):
+    model.eval(); correct = 0  <span class="c"># Dropout 끔</span>
+    <span class="k">with</span> torch.no_grad():      <span class="c"># 기울기 끔</span>
+        <span class="k">for</span> X, y <span class="k">in</span> test_dl:   <span class="c"># 안 본 데이터</span>
+            X, y = X.to(device), y.to(device)
+            hit = model(X).argmax(1) == y
+            correct += hit.sum().item()
+    <span class="k">return</span> correct / len(test_dl.dataset)</code></pre>
+    <p class="key">학습 손실은 내려가는데 평가 정확도가 떨어지면 과적합 → epochs 줄이기, <code>nn.Dropout(<span class="p">p</span>=0.5)</code> 추가</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">7</span>저장·불러오기<span class="mod">torch</span></h2>
+    <ul>
+      <li><code>torch.save(model.state_dict(), "model.pth")</code></li>
+      <li><code>model.load_state_dict(torch.load("model.pth"))</code></li>
+    </ul>
+  </section>
+
+  <section class="params" aria-labelledby="t-params">
+    <h2 id="t-params"><span class="n">P</span>파라미터 두 종류</h2>
+    <p><b>가중치</b> <code>model.parameters()</code>: 학습이 바꾸는 값<br><b>하이퍼파라미터</b>: 학습 전에 사람이 정하는 값</p>
+    <table>
+      <thead><tr><th>이름</th><th>키우면</th><th>줄이면</th></tr></thead>
+      <tbody>
+        <tr><th>lr</th><td>빠름, 발산 위험</td><td>안정, 느림</td></tr>
+        <tr><th>batch_size</th><td>step↓, 메모리↑</td><td>step↑, 들쭉날쭉</td></tr>
+        <tr><th>epochs</th><td>과적합 위험↑</td><td>덜 학습</td></tr>
+        <tr><th>은닉 크기(512)</th><td>표현력↑, 과적합↑</td><td>단순한 패턴만</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+</div>
+<p class="sr" aria-live="polite" id="status"></p>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const pre = document.getElementById(btn.dataset.target).cloneNode(true);
+    pre.querySelectorAll('.b').forEach(b => b.remove());
+    const text = [...pre.querySelectorAll('.ln')].map(l => l.textContent.replace(/\s+$/, '')).join('\n');
+    const status = document.getElementById('status');
+    try { await navigator.clipboard.writeText(text); btn.textContent = '복사됨'; status.textContent = '코드를 복사했습니다.'; }
+    catch { btn.textContent = '복사 실패: 직접 선택하세요'; status.textContent = '복사하지 못했습니다. 코드를 드래그해 직접 복사하세요.'; }
+    setTimeout(() => { btn.textContent = '코드 복사'; }, 2000);
+  });
+});
+</script>
+</body>
+</html>
