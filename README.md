@@ -7,11 +7,13 @@ AI 코어 엔지니어 과정의 요약 HTML(매일 요약, 과목별 4일 종�
 
 ```text
 pages/                     ← 원본 (구성안·템플릿·제작 스크립트·index.html·요약 PDF)
-├─ <과목>/<YYYYMMDD>/       매일 요약          → /<과목>/<YYYYMMDD>/
+├─ <과목>/<YYYYMMDD>/       매일 요약          → /<과목>/<YYYYMMDD>/ (같은 날 두 번째 회차는 -2)
 ├─ <과목>/all/              과목 4일 종합      → /<과목>/
 ├─ overview/                전체 과목 연결 요약 → /overview/
 └─ cheatsheet/<이름>/        라이브러리 치트시트 → /cheatsheet/<이름>/
 public/                    ← build_site.py가 만드는 배포본 (Vercel이 이 폴더만 배포)
+sync_lectures.py           ← 학습 자료 시트 → lectures.json (Day·날짜·과목·강의 자료 링크)
+lectures.json              ← 실제 일정. 사이트의 Day 번호와 날짜 기준
 build_site.py              ← pages/ → public/ (위쪽 메뉴, 홈·과목 목록)
 DESIGN.md                  ← 모든 페이지 공통 디자인 원칙
 ```
@@ -27,6 +29,7 @@ DESIGN.md                  ← 모든 페이지 공통 디자인 원칙
 
 ```bash
 cd ~/workspace/nvidia_camp/site
+uv run sync_lectures.py                # (시트가 바뀌었을 때) gws-work로 읽기만 함
 uv run build_site.py                   # pages/ → public/
 python3 -m http.server -d public 8000  # (선택) 내 컴퓨터에서 http://localhost:8000 으로 확인
 git add -A && git commit -m "..." && git push        # main → 미리보기

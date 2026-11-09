@@ -7,16 +7,16 @@
 사용: uv run build_site.py   (site 폴더에서)
 
 - 원본은 pages/ 아래에 둔다. 폴더 이름만 맞추면 자동으로 사이트에 들어간다.
-    pages/<과목>/<YYYYMMDD>/   매일 요약     → /<과목>/<YYYYMMDD>/
+    pages/<과목>/<YYYYMMDD>/   매일 요약     → /<과목>/<YYYYMMDD>/  (같은 날 두 번째 회차는 <YYYYMMDD>-2)
     pages/<과목>/all/          과목 4일 종합 → /<과목>/  (없으면 날짜 카드 목록)
     pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 보이는 이름 등록)
 - 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
-- 날짜와 Day 번호, 과정 전체 일정은 nvidia_camp의 커리큘럼 CSV에서 읽는다.
+- Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
 """
-import csv
 import datetime
+import json
 import html
 import re
 import shutil
@@ -25,19 +25,23 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 PAGES = HERE / "pages"
 PUBLIC = HERE / "public"
-CURRICULUM = HERE.parent / "Curriculum_Daily_20261014.csv"
+LECTURES = HERE / "lectures.json"
 SITE_NAME = "AI 코어 엔지니어 학습 노트"
 
-# 커리큘럼 폴더 → (사이트 경로, 짧은 이름)
+# 시트의 교과목 → (사이트 경로, 짧은 이름). 경로가 None이면 일정 띠에만 보인다.
 SUBJECTS = {
-    "01_python": ("python", "Python"),
-    "02_ML": ("ml", "ML"),
-    "03_DL": ("dl", "DL"),
-    "04_vision": ("vision", "Vision"),
-    "05_LLM_RAG": ("llm", "LLM·RAG"),
-    "06_LLM_RAG_project": ("llm-project", "LLM·RAG 프로젝트"),
-    "07_agent": ("agent", "Agent"),
-    "08_agent_project": ("agent-project", "Agent 프로젝트"),
+    "AI 교육과정 오리엔테이션": (None, "OT"),
+    "AI 개발을 위한 Python 데이터 처리 기초": ("python", "Python"),
+    "머신러닝 모델링 및 성능평가": ("ml", "ML"),
+    "딥러닝 핵심 아키텍처 및 학습": ("dl", "DL"),
+    "직업기초능력평가": (None, "평가"),
+    "Vision·멀티모달 AI 응용": ("vision", "Vision"),
+    "생성형 AI·LLM 및 RAG 엔지니어링": ("llm", "LLM·RAG"),
+    "LLM·RAG 실전 프로젝트": ("llm-project", "LLM·RAG 프로젝트"),
+    "NCA-GenL 자격 대비": (None, "NCA-GenL"),
+    "AI Agent 엔지니어링 및 서비스 개발": ("agent", "Agent"),
+    "AI Agent End-to-End 종합 프로젝트": ("agent-project", "Agent 프로젝트"),
+    "최종발표회 및 수료식": (None, "수료"),
 }
 # 문제 풀이 사이트 (홈 위쪽 링크)
 PRACTICE = [
@@ -53,17 +57,17 @@ FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgu
 # ── 자료 읽기 ────────────────────────────────────────────────────────────
 def read_days():
     days = []
-    with CURRICULUM.open(encoding="utf-8") as f:
-        for n, row in enumerate(csv.DictReader(f), 1):
-            key, short = SUBJECTS[row["folder"]]
-            ymd = row["date"].replace("-", "")
-            src = PAGES / key / ymd
-            days.append({
-                "n": n, "date": row["date"], "ymd": ymd, "key": key, "short": short,
-                "subject": row["subject"], "folder": row["folder"],
-                "topic": row["am_0900_1300"].split(",")[0].strip(),
-                "src": src if (src / "index.html").exists() else None,
-            })
+    for row in json.loads(LECTURES.read_text(encoding="utf-8")):
+        key, short = SUBJECTS.get(row["subject"], (None, row["subject"]))
+        ymd = row["date"].replace("-", "")
+        part = row["day"].split("-")[1] if "-" in row["day"] else "1"
+        folder = ymd if part == "1" else f"{ymd}-{part}"      # 같은 날 두 번째 회차: 20261102-2
+        src = PAGES / key / folder if key else None
+        days.append({
+            "n": row["day"], "date": row["date"], "ymd": folder, "key": key, "short": short,
+            "subject": row["subject"], "link": row["link"],
+            "src": src if src and (src / "index.html").exists() else None,
+        })
     return days
 
 
@@ -94,7 +98,7 @@ NAV_CSS = f"""<style>
 </style>"""
 
 
-def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None):
+def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None, lecture=None):
     """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)"""
     up = "../" * depth
     left = [f'<a href="{up or "./"}">← 학습 노트</a>']
@@ -102,6 +106,8 @@ def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None):
     if here:
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = []
+    if lecture:
+        right.append(f'<a href="{html.escape(lecture)}" target="_blank" rel="noopener">강의 자료 ↗</a>')
     if pdf:
         right.append(f'<a href="{html.escape(pdf)}">PDF</a>')
     if prev:
@@ -180,7 +186,9 @@ a.cell:hover{{transform:scale(1.25)}}
 .card:hover h3{{text-decoration:underline}}
 .meta{{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}}
 .meta b{{color:var(--heading)}}
-.pdf{{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px;justify-self:start}}
+.pdf,.links-row a{{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px}}
+.pdf{{justify-self:start}}
+.links-row{{display:flex;flex-wrap:wrap;gap:4px 14px}}
 .feature{{display:grid;gap:6px;padding:20px;background:var(--soft);border:1px solid var(--border);border-radius:16px}}
 .feature:hover{{border-color:var(--primary)}}
 .feature:hover h3{{text-decoration:underline}}
@@ -216,10 +224,15 @@ def list_page(title, body, nav=""):
 def day_card(d, up):
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     pdf = pdf_of(d["src"])
-    pdf_link = f'<a class="pdf" href="{href}{html.escape(pdf)}">PDF</a>' if pdf else ""
+    links = []
+    if pdf:
+        links.append(f'<a href="{href}{html.escape(pdf)}">PDF</a>')
+    if d["link"]:
+        links.append(f'<a href="{html.escape(d["link"])}" target="_blank" rel="noopener">강의 자료 ↗</a>')
+    row = f'<p class="links-row">{"".join(links)}</p>' if links else ""
     return (f'<div class="card"><a href="{href}">'
             f'<p class="meta"><b>Day{d["n"]}</b><span>{md(d["date"])}</span></p>'
-            f'<h3>{html.escape(page_h1(d["src"]))}</h3></a>{pdf_link}</div>')
+            f'<h3>{html.escape(page_h1(d["src"]))}</h3></a>{row}</div>')
 
 
 def feature_card(key, up):
@@ -251,15 +264,19 @@ def subject_block(key, ds, up, link_head=True):
 def timeline(days, today):
     groups, current = [], None
     for d in days:
-        if d["folder"] != current:
+        if d["subject"] != current:
             groups.append((d["short"], []))
-            current = d["folder"]
+            current = d["subject"]
         state = "has" if d["src"] else ("past" if d["date"] <= today else "")
         if d["date"] == today:
             state += " today"
-        tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["topic"]}')
+        tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["subject"]}')
         if d["src"]:
             groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" title="{tip}" aria-label="{tip}"></a>')
+        elif d["link"]:
+            tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료')
+            groups[-1][1].append(f'<a class="cell {state}" href="{html.escape(d["link"])}" target="_blank" rel="noopener" '
+                                 f'title="{tip}" aria-label="{tip}"></a>')
         else:
             groups[-1][1].append(f'<span class="cell {state}" title="{tip}"></span>')
     return "".join(f'<div class="tl"><span class="tl-name">{name}</span><span class="tl-cells">{"".join(c)}</span></div>'
@@ -267,7 +284,8 @@ def timeline(days, today):
 
 
 def home_page(days, subjects, today):
-    done = sum(d["date"] <= today for d in days)
+    dates = sorted({d["date"] for d in days})
+    done = sum(x <= today for x in dates)
     made = sum(bool(d["src"]) for d in days)
     ordered = list(reversed(subjects))
     full = [subject_block(k, ds, "") for k, ds in ordered if "quiet" not in subject_block(k, ds, "")]
@@ -279,7 +297,7 @@ def home_page(days, subjects, today):
                        for name, url in PRACTICE)
     body = f"""<header class="top">
 <h1>{SITE_NAME}</h1>
-<div class="row"><p class="count">수업 <b>{done}</b> / {len(days)}일 · 요약 <b>{made}</b>일</p>
+<div class="row"><p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{made}</b>일</p>
 <nav class="links" aria-label="문제 풀이">{practice}</nav></div>
 <div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
 </header>
@@ -304,8 +322,10 @@ def main():
 
     # 과목별로 묶기: 수업이 시작된 과목은 홈에 모두 보이고, 과목 페이지는 요약이 있는 과목만 만든다
     started, subjects = [], []
-    for folder, (key, _) in SUBJECTS.items():
-        ds = [d for d in days if d["folder"] == folder]
+    for name, (key, _) in SUBJECTS.items():
+        ds = [d for d in days if d["subject"] == name]
+        if not key or not ds:
+            continue
         if ds[0]["date"] <= today:
             started.append((key, ds))
         if any(d["src"] for d in ds) or (PAGES / key / "all" / "index.html").exists():
@@ -317,7 +337,7 @@ def main():
         prev = (f'Day{made[i-1]["n"]}', f'{made[i-1]["key"]}/{made[i-1]["ymd"]}/') if i > 0 else None
         nxt = (f'Day{made[i+1]["n"]}', f'{made[i+1]["key"]}/{made[i+1]["ymd"]}/') if i + 1 < len(made) else None
         nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
-                       pdf=pdf_of(d["src"]), prev=prev, next_=nxt)
+                       pdf=pdf_of(d["src"]), prev=prev, next_=nxt, lecture=d["link"])
         copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav)
 
     print("과목")
