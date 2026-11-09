@@ -5,3 +5,6 @@ __pycache__/
 _work/
 # 로컬 QA 기록 (내 컴퓨터 경로가 들어 있음)
 .qa/
+.playwright-cli/
+output/playwright/
+.omx/

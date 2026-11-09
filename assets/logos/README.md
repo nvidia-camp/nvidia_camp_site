@@ -1,0 +1,14 @@
+# 치트시트 라이브러리 로고
+
+홈의 치트시트 카드에서 해당 라이브러리를 식별하기 위한 공식 자산입니다.
+색과 비율을 변경하지 않으며, 다크 모드에서도 흰색 받침 위에 표시합니다.
+인접한 제목이 라이브러리 이름을 제공하므로 이미지의 대체 텍스트는 비웁니다.
+`build_site.py`가 data URL로 HTML에 포함하여 오프라인에서도 표시됩니다.
+
+| 파일 | 원본 | 브랜드 안내 |
+|---|---|---|
+| `sklearn.svg` | [scikit-learn 공식 저장소](https://github.com/scikit-learn/scikit-learn/blob/main/doc/logos/scikit-learn-logo-without-subtitle.svg) | [Branding & Logos](https://scikit-learn.org/stable/about.html#branding-logos) |
+| `pytorch.svg` | [PyTorch 공식 웹사이트 저장소](https://github.com/pytorch/pytorch.github.io/blob/site/assets/images/logo-icon.svg) | [Brand guidelines](https://pytorch.org/brand-guidelines/) |
+| `opencv.png` | [OpenCV 공식 저장소](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.png) | [로고 안내](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.md) |
+
+확인일: 2026-11-09. 각 로고의 권리는 원 권리자에게 있습니다.

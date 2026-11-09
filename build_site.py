@@ -15,6 +15,7 @@
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
 """
+import base64
 import datetime
 import json
 import html
@@ -48,8 +49,12 @@ PRACTICE = [
     ("SWEA", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
     ("Programmers", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
 ]
-# 치트시트: pages/cheatsheet/<이름> → 보이는 이름
-CHEATSHEETS = {"sklearn": "scikit-learn", "pytorch": "PyTorch", "opencv": "OpenCV"}
+# 치트시트: 경로 → (보이는 이름, 공식 로고 파일, 용도)
+CHEATSHEETS = {
+    "sklearn": ("scikit-learn", "sklearn.svg", "머신러닝 · 모델 평가"),
+    "pytorch": ("PyTorch", "pytorch.svg", "텐서 · 신경망 학습"),
+    "opencv": ("OpenCV", "opencv.png", "이미지 · 영상 처리"),
+}
 
 FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif'
 
@@ -155,6 +160,11 @@ a{{color:inherit;text-decoration:none}}
 a:focus-visible{{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}}
 p{{margin:0}}
 .top{{display:grid;gap:20px}}
+.bootcamp-brand{{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}}
+.bootcamp-logos{{display:flex;align-items:center;gap:24px;padding:12px 20px;
+  background:#FFFFFF;border:1px solid #D8E4F2;border-radius:12px}}
+.bootcamp-logos img{{display:block;width:auto;height:56px;max-width:104px;object-fit:contain}}
+.bootcamp-brand p{{color:var(--muted);font-size:14px;font-weight:600}}
 .row{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}}
 .links{{display:flex;flex-wrap:wrap;gap:8px}}
 .links a{{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
@@ -196,9 +206,16 @@ a.cell:hover{{transform:scale(1.25)}}
 .label{{font-size:13px;font-weight:600;color:var(--muted)}}
 .btn{{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
   background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
-.sheets{{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.grid.sheets{{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.sheet-card{{grid-template-columns:96px minmax(0,1fr);align-items:center;gap:16px;padding:20px}}
+.sheet-logo{{display:flex;align-items:center;justify-content:center;width:96px;height:72px;
+  padding:8px;background:#FFFFFF;border:1px solid #D8E4F2;border-radius:12px}}
+.sheet-logo img{{display:block;width:80px;height:56px;object-fit:contain}}
+.sheet-text{{display:grid;gap:4px}}
+.sheet-text p{{color:var(--muted);font-size:13px;line-height:1.6}}
+.sheet-text h3{{font-size:18px;line-height:1.45}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
-@media (max-width:640px){{.sheets{{grid-template-columns:1fr 1fr}}}}
+@media (max-width:900px){{.grid.sheets{{grid-template-columns:1fr}}}}
 @media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
 """
 
@@ -283,6 +300,19 @@ def timeline(days, today):
                    for name, c in groups)
 
 
+def image_data(image):
+    mime = "image/svg+xml" if image.suffix == ".svg" else "image/png"
+    data = base64.b64encode(image.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{data}"
+
+
+def cheatsheet_card(key, name, logo, description):
+    image = image_data(HERE / "assets" / "logos" / logo)
+    return (f'<a class="card sheet-card" href="cheatsheet/{key}/">'
+            f'<span class="sheet-logo"><img src="{image}" alt="" width="80" height="56"></span>'
+            f'<div class="sheet-text"><h3>{html.escape(name)}</h3><p>{html.escape(description)}</p></div></a>')
+
+
 def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
@@ -291,11 +321,16 @@ def home_page(days, subjects, today):
     full = [subject_block(k, ds, "") for k, ds in ordered if "quiet" not in subject_block(k, ds, "")]
     quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
     blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
-    sheets = "".join(
-        f'<div class="card"><a href="cheatsheet/{k}/"><h3>{name}</h3></a></div>' for k, name in CHEATSHEETS.items())
+    sheets = "".join(cheatsheet_card(k, *sheet) for k, sheet in CHEATSHEETS.items())
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{name} ↗</a>'
                        for name, url in PRACTICE)
+    sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
+    nvidia = image_data(HERE / "assets" / "branding" / "nvidia.svg")
     body = f"""<header class="top">
+<div class="bootcamp-brand">
+<div class="bootcamp-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="56"><img src="{nvidia}" alt="NVIDIA" height="56"></div>
+<p>새싹(SeSAC) 부트캠프</p>
+</div>
 <h1>{SITE_NAME}</h1>
 <div class="row"><p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{made}</b>일</p>
 <nav class="links" aria-label="문제 풀이">{practice}</nav></div>
@@ -351,7 +386,7 @@ def main():
             print(f"  /{key}/ ← 날짜 카드 목록")
 
     print("치트시트")
-    for k, name in CHEATSHEETS.items():
+    for k, (name, _, _) in CHEATSHEETS.items():
         src = PAGES / "cheatsheet" / k
         copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name, pdf=pdf_of(src)))
 
