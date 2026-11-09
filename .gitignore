@@ -1,1 +1,7 @@
 .DS_Store
+__pycache__/
+.venv/
+# 제작 중 임시 파일
+_work/
+# 로컬 QA 기록 (내 컴퓨터 경로가 들어 있음)
+.qa/
