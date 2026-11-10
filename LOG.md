@@ -30,3 +30,4 @@
 | 2026-11-10 | setup/postgresql · llm/20261111 · (홈) | 사용자 요청으로 배포: 설치 가이드 공개 전환, Day18 틀, 참고 칩, 짧은 과목 제목 | 배포 |
 | 2026-11-10 | setup/postgresql · setup/psql | 5단계를 사용자 사진 기준으로(두 줄 SQL, 마지막 결과만 보임 안내 + 결과 사진), 15분 문구 삭제. psql 접속 가이드 새 페이지(사진 3장), 두 페이지 서로 링크(data-site) | main만 |
 | 2026-11-10 | setup/psql · setup/postgresql | 사용자 요청으로 배포: psql 접속 가이드, 5단계 실제 화면 기준 수정 | 배포 |
+| 2026-11-10 | setup/postgresql | 1단계(설치 파일 내려받기)에 EDB 다운로드 표 사진 1장 (18.x 줄 × Windows x86-64 표시) | main만 |
