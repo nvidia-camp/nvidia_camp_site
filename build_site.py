@@ -63,7 +63,7 @@ CHEATSHEETS = {
 
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
-    "postgresql": ("PostgreSQL 설치 가이드", "postgresql.svg", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", False),
+    "postgresql": ("PostgreSQL 설치 가이드", "postgresql.svg", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", True),
 }
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
