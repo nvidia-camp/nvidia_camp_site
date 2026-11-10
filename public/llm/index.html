@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLM·RAG · AI 코어 엔지니어 학습 노트</title>
+<style>
+:root{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
+  --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
+  --on-primary:#FFFFFF;--focus:#4B74A6}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--border:#2A3B5C;
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--cell-past:#33476B;
+  --cell-future:#1C2943;--on-primary:#0E1626;--focus:#A9C3EC;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:break-word}
+main{max-width:1120px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:56px}
+h1,h2,h3{color:var(--heading);margin:0;line-height:1.35;text-wrap:balance}
+h1{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}
+h2{font-size:20px}
+h3{font-size:16px;line-height:1.45;font-weight:600}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}
+p{margin:0}
+.top{display:grid;gap:20px}
+.bootcamp-brand{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
+.bootcamp-logos{display:flex;align-items:center;gap:24px;padding:12px 20px;
+  background:#FFFFFF;border:1px solid #D8E4F2;border-radius:12px}
+.bootcamp-logos img{display:block;width:auto;height:56px;max-width:104px;object-fit:contain}
+.bootcamp-brand p{color:var(--muted);font-size:14px;font-weight:600}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
+  border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}
+.links a:hover{border-color:var(--primary)}
+.quiet-list{display:grid;gap:12px}
+.quiet h2{font-size:17px;color:var(--muted);font-weight:600}
+.soon{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}
+.count{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.timeline{display:flex;flex-wrap:wrap;gap:14px 24px;padding:20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:16px}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:13px;font-weight:600;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:14px;height:14px;border-radius:3px;display:inline-block;background:var(--cell-future)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.25)}
+.cell.today{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
+.subject{display:grid;gap:16px}
+.subject-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.subject-head a:hover h2{text-decoration:underline}
+.subject-head span{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}
+.card{display:grid;gap:6px;align-content:start;min-width:0;padding:16px;background:var(--surface);
+  border:1px solid var(--border);border-radius:14px}
+.card:hover{border-color:var(--primary)}
+.card:hover h3{text-decoration:underline}
+.meta{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta b{color:var(--heading)}
+.pdf,.links-row a{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px}
+.pdf{justify-self:start}
+.links-row{display:flex;flex-wrap:wrap;gap:4px 14px}
+.feature{display:grid;gap:6px;padding:20px;background:var(--soft);border:1px solid var(--border);border-radius:16px}
+.feature:hover{border-color:var(--primary)}
+.feature:hover h3{text-decoration:underline}
+.feature h3{font-size:22px;font-weight:700}
+.label{font-size:13px;font-weight:600;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
+  background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}
+.grid.sheets{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sheet-card{grid-template-columns:96px minmax(0,1fr);align-items:center;gap:16px;padding:20px}
+.sheet-logo{display:flex;align-items:center;justify-content:center;width:96px;height:72px;
+  padding:8px;background:#FFFFFF;border:1px solid #D8E4F2;border-radius:12px}
+.sheet-logo img{display:block;width:80px;height:56px;object-fit:contain}
+.sheet-text{display:grid;gap:4px}
+.sheet-text p{color:var(--muted);font-size:13px;line-height:1.6}
+.sheet-text h3{font-size:18px;line-height:1.45}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){.grid.sheets{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){a.cell:hover{transform:none}}
+</style>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body><style>
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 노트</a><span class="cn-here">LLM·RAG</span></nav>
+<main>
+<section class="subject"><div class="subject-head"><h2>생성형 AI·LLM 및 RAG 엔지니어링</h2><span>Day17–34</span></div><div class="grid"><div class="card"><a href="../llm/20261110/"><p class="meta"><b>Day17</b><span>11/10</span></p><h3>FastAPI 튜토리얼</h3></a></div></div></section>
+</main>
+</body>
+</html>
