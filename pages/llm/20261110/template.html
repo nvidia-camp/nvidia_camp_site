@@ -387,56 +387,56 @@ function renderStep(step) {
   </article>`;
 }
 
-let introShown = false;
-let observer = null;
+// 웹 기초 네 장은 단계 칸 하나("0 웹 기초")로 묶고, 한 화면에 세로로 이어서 보여 준다
+const FIRST_INTRO = STEPS.findIndex((s) => s.kind === "intro");
+const isIntro = (i) => STEPS[i].kind === "intro";
+const navIndex = (i) => (isIntro(i) ? FIRST_INTRO : i);
 
 function mark(i) {
-  document.querySelectorAll(".chip").forEach((el, k) => {
-    if (k === i) el.setAttribute("aria-current", "step");
+  const n = navIndex(i);
+  document.querySelectorAll(".chip").forEach((el) => {
+    if (Number(el.dataset.i) === n) el.setAttribute("aria-current", "step");
     else el.removeAttribute("aria-current");
   });
   history.replaceState(null, "", "#" + STEPS[i].id);
 }
 
-// 웹 기초는 한 화면에 세로로 이어서 보여 주고, 스크롤 위치에 맞춰 단계 표시를 바꾼다
 function render() {
   const step = STEPS[current];
   const box = document.getElementById("step");
-  if (observer) { observer.disconnect(); observer = null; }
-  if (step.kind === "intro") {
-    box.innerHTML = `<div class="intro-stack">${STEPS.map((s, i) => s.kind === "intro"
-      ? `<div class="intro-card" id="card-${s.id}" data-i="${i}">${renderIntro(s)}</div>` : "").join("")}</div>`;
-    introShown = true;
-    observer = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) { current = Number(en.target.dataset.i); mark(current); } });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    box.querySelectorAll(".intro-card").forEach((el) => observer.observe(el));
-  } else {
-    box.innerHTML = renderStep(step);
-    introShown = false;
-  }
+  box.innerHTML = step.kind === "intro"
+    ? `<div class="intro-stack">${STEPS.map((s) => s.kind === "intro"
+        ? `<div class="intro-card" id="card-${s.id}">${renderIntro(s)}</div>` : "").join("")}</div>`
+    : renderStep(step);
   mark(current);
 }
 
-function go(i, scroll = true) {
+function go(i) {
   if (i < 0 || i >= STEPS.length) return;
-  const wasIntro = introShown;
   current = i; variantOn = false; fullCode = false;
-  if (!(STEPS[i].kind === "intro" && wasIntro)) render();
-  mark(current);
-  if (scroll && STEPS[i].kind === "intro") {
-    const first = STEPS.findIndex((s) => s.kind === "intro");
-    const target = i === first ? document.getElementById("step") : document.getElementById("card-" + STEPS[i].id);
-    target.scrollIntoView({ behavior: wasIntro ? "smooth" : "auto", block: "start" });
-  }
+  render();
+  if (isIntro(i) && i !== FIRST_INTRO) document.getElementById("card-" + STEPS[i].id).scrollIntoView({ block: "start" });
+  else window.scrollTo(0, 0);
+}
+
+// 화살표 키: 웹 기초 묶음은 한 칸으로 센다
+function step(dir) {
+  let i = navIndex(current) + dir;
+  if (dir > 0) while (i < STEPS.length && isIntro(i)) i++;
+  if (i >= 0 && isIntro(i)) i = FIRST_INTRO;
+  go(i);
 }
 
 function buildNav() {
   const groups = [];
   STEPS.forEach((s, i) => {
-    let g = groups.find((x) => x.period === s.period);
-    if (!g) groups.push((g = { period: s.period, items: [] }));
-    g.items.push(`<button class="chip" type="button" data-i="${i}"><span class="n">${esc(s.no)}</span>${esc(s.title)}</button>`);
+    if (s.kind === "intro" && i !== FIRST_INTRO) return;
+    const label = s.kind === "intro" ? "시작" : s.period;
+    const no = s.kind === "intro" ? "0" : s.no;
+    const title = s.kind === "intro" ? s.period : s.title;
+    let g = groups.find((x) => x.period === label);
+    if (!g) groups.push((g = { period: label, items: [] }));
+    g.items.push(`<button class="chip" type="button" data-i="${i}"><span class="n">${esc(no)}</span>${esc(title)}</button>`);
   });
   document.getElementById("steps").innerHTML = groups.map((g) =>
     `<div class="group"><span class="group-label">${esc(g.period)}</span><div class="group-items">${g.items.join("")}</div></div>`).join("");
@@ -450,8 +450,8 @@ document.addEventListener("click", (e) => {
   if (act && act.dataset.act === "full") { fullCode = !fullCode; render(); }
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft") go(current - 1);
-  if (e.key === "ArrowRight") go(current + 1);
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
 });
 
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
