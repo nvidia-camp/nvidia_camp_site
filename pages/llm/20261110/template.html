@@ -128,6 +128,16 @@ pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.82rem
 .node b { display: block; font-size: 1.15rem; color: var(--color-heading); }
 .node span { font-size: 0.85rem; color: var(--color-muted); }
 .link { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--color-primary); line-height: 1.5; }
+.intro-stack { display: flex; flex-direction: column; gap: var(--space-6); }
+.intro-card { scroll-margin-top: var(--space-4); }
+.table-wrap { overflow-x: auto; margin-top: var(--space-6); }
+.rest { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.rest th { text-align: left; font-size: 0.8rem; color: var(--color-muted); padding: var(--space-2) var(--space-3); border-bottom: 2px solid var(--color-border); }
+.rest td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+.rest code { color: var(--color-primary); }
+.method { font-family: var(--font-code); color: var(--color-heading); }
+.cmp code + code { margin-top: var(--space-1); }
+.cmp.good { border-color: var(--color-primary); }
 .cmp-row, .msg-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-6); }
 .cmp, .msg { padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-soft); }
 .cmp b, .msg > b { display: block; font-size: 1.1rem; color: var(--color-heading); }
@@ -307,8 +317,16 @@ function introBody(step) {
     const pair = step.pair.map((p) => `<div class="msg"><b>${esc(p.name)}</b><dl>${p.rows.map(([k, v]) =>
       `<dt>${esc(k)}</dt><dd><code>${esc(v)}</code></dd>`).join("")}</dl></div>`).join("");
     return `<div class="flow">${node(a)}<div class="link">요청 →<br>← 응답</div>${node(b)}<div class="link">읽기 →<br>← 저장</div>${node(c)}</div>
-      <div class="msg-row">${pair}</div>
-      <div class="crud"><span>읽기<b>GET</b></span><span>만들기<b>POST</b></span><span>바꾸기<b>PUT</b></span><span>지우기<b>DELETE</b></span></div>`;
+      <div class="msg-row">${pair}</div>`;
+  }
+  if (step.section === "rest") {
+    const rows = step.table.map(([m, path, what, code]) =>
+      `<tr><td><b class="method">${esc(m)}</b></td><td><code>${esc(path)}</code></td><td>${esc(what)}</td><td><code>${esc(code)}</code></td></tr>`).join("");
+    const vs = step.versus.map(([name, list], i) => `<div class="cmp${i ? " good" : ""}"><b>${esc(name)}</b>
+      ${list.map((x) => `<code>${esc(x)}</code>`).join("")}</div>`).join("");
+    return `<div class="table-wrap"><table class="rest"><thead><tr><th>Method</th><th>주소</th><th>하는 일</th><th>성공</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+      <div class="cmp-row">${vs}</div>`;
   }
   const segs = step.segments.map(([part, name]) => `<span class="seg"><code>${esc(part)}</code><span>${esc(name)}</span></span>`).join("");
   const roles = step.roles.map(([r, c], i) => `${i ? '<span class="arrow">→</span>' : ""}<div><dt>${esc(r)}</dt><dd><code>${esc(c)}</code></dd></div>`).join("");
@@ -369,20 +387,48 @@ function renderStep(step) {
   </article>`;
 }
 
-function render() {
-  const step = STEPS[current];
-  document.getElementById("step").innerHTML = step.kind === "intro" ? renderIntro(step) : renderStep(step);
-  document.querySelectorAll(".chip").forEach((el, i) => {
-    if (i === current) el.setAttribute("aria-current", "step");
+let introShown = false;
+let observer = null;
+
+function mark(i) {
+  document.querySelectorAll(".chip").forEach((el, k) => {
+    if (k === i) el.setAttribute("aria-current", "step");
     else el.removeAttribute("aria-current");
   });
-  history.replaceState(null, "", "#" + step.id);
+  history.replaceState(null, "", "#" + STEPS[i].id);
 }
 
-function go(i) {
+// 웹 기초는 한 화면에 세로로 이어서 보여 주고, 스크롤 위치에 맞춰 단계 표시를 바꾼다
+function render() {
+  const step = STEPS[current];
+  const box = document.getElementById("step");
+  if (observer) { observer.disconnect(); observer = null; }
+  if (step.kind === "intro") {
+    box.innerHTML = `<div class="intro-stack">${STEPS.map((s, i) => s.kind === "intro"
+      ? `<div class="intro-card" id="card-${s.id}" data-i="${i}">${renderIntro(s)}</div>` : "").join("")}</div>`;
+    introShown = true;
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { current = Number(en.target.dataset.i); mark(current); } });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    box.querySelectorAll(".intro-card").forEach((el) => observer.observe(el));
+  } else {
+    box.innerHTML = renderStep(step);
+    introShown = false;
+  }
+  mark(current);
+}
+
+function go(i, scroll = true) {
   if (i < 0 || i >= STEPS.length) return;
+  const wasIntro = introShown;
   current = i; variantOn = false; fullCode = false;
-  render();
+  if (!(STEPS[i].kind === "intro" && wasIntro)) render();
+  mark(current);
+  if (scroll && STEPS[i].kind === "intro") {
+    const first = STEPS.findIndex((s) => s.kind === "intro");
+    const target = i === first ? document.getElementById("step") : document.getElementById("card-" + STEPS[i].id);
+    target.scrollIntoView({ behavior: wasIntro ? "smooth" : "auto", block: "start" });
+  }
 }
 
 function buildNav() {
@@ -408,6 +454,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") go(current + 1);
 });
 
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 buildNav();
 const start = STEPS.findIndex((s) => "#" + s.id === location.hash);
 go(start >= 0 ? start : 0);
