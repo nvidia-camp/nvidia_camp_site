@@ -123,13 +123,17 @@ def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None, lecture=
     return f'{NAV_CSS}<nav class="cn-nav" aria-label="사이트 메뉴">{"".join(left)}{side}</nav>'
 
 
+# Vercel Web Analytics: 모든 페이지에 넣는다 (Vercel 프로젝트에서 Analytics를 켜 둬야 동작)
+ANALYTICS = """<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>"""
+
 LOCAL_LINK = re.compile(r'<a\s[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
 
 
 def copy_page(src, dest, nav):
     text = (src / "index.html").read_text(encoding="utf-8")
     text, n_links = LOCAL_LINK.subn(r"<span>\1</span>", text)
-    text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav, text, count=1)
+    text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest
     out.mkdir(parents=True, exist_ok=True)
@@ -228,6 +232,7 @@ def list_page(title, body, nav=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title>
 <style>{PAGE_CSS}</style>
+{ANALYTICS}
 </head>
 <body>{nav}
 <main>
