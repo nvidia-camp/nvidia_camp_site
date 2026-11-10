@@ -130,9 +130,22 @@ ANALYTICS = """<script>window.va=window.va||function(){(window.vaq=window.vaq||[
 LOCAL_LINK = re.compile(r'<a\s[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
 
 
+SCRIPT_BLOCK = re.compile(r"(<script\b.*?</script>)", re.S | re.I)
+
+
+def strip_local_links(text):
+    """<script> 밖의 상대 링크만 글자로 바꾼다. 스크립트 안의 HTML 문자열은 그대로 둔다."""
+    parts = SCRIPT_BLOCK.split(text)
+    count = 0
+    for i in range(0, len(parts), 2):
+        parts[i], n = LOCAL_LINK.subn(r"<span>\1</span>", parts[i])
+        count += n
+    return "".join(parts), count
+
+
 def copy_page(src, dest, nav):
     text = (src / "index.html").read_text(encoding="utf-8")
-    text, n_links = LOCAL_LINK.subn(r"<span>\1</span>", text)
+    text, n_links = strip_local_links(text)
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest
