@@ -21,3 +21,4 @@
 | 2026-11-10 | llm/20261111 | Day18 설치 가이드에 비밀번호 정하기(영문+숫자 8자 이상, 특수문자 제외, 한/영 확인)와 나중에 바꾸기(ALTER USER) 추가 | main만 (배포 전) |
 | 2026-11-10 | (deploy) | Day18 설치 가이드가 deploy에 잘못 올라가 deploy를 8c1aaa8로 되돌림(강제 push). 공개 사이트는 가이드 추가 전 상태 | 완료 |
 | 2026-11-10 | setup/postgresql | 설치 가이드를 llm/20261111에서 새 섹션 setup/postgresql로 이동. 홈에 '설치 가이드' 섹션, SETUP 공개 여부·--release 빌드 추가. 다운로드 첫 화면·19 버전 안내 반영 | main만 (미공개) |
+| 2026-11-10 | setup/postgresql | Windows 실제 설치 사진(Slack 스레드) 기준 수정: 기존 설치 확인·psql 단계 제거(psql은 별도 페이지 예정), pgAdmin 접속·Query Tool에 사진 4장(비밀번호 칸 가림), Master Password·자동 설정은 확인만, Stack Builder 해제 강조, Locale DEFAULT, 확인 SQL 한 줄로 | main만 (미공개) |
