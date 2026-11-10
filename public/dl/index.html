@@ -69,10 +69,15 @@ a.cell:hover{transform:scale(1.25)}
 .label{font-size:13px;font-weight:600;color:var(--muted)}
 .btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
   background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}
-.refs{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;font-size:14px;color:var(--muted)}
-.refs .label{font-size:12px}
-.refs a{text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
-.refs a:hover{color:var(--heading);text-decoration-color:currentColor}
+.refs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.refs .label{font-size:13px;margin-right:2px}
+.ref{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:5px 14px 5px 6px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  font-size:14px;font-weight:600;color:var(--heading)}
+.ref:hover{border-color:var(--primary);text-decoration:underline;text-underline-offset:3px}
+.ref-logo{display:flex;align-items:center;justify-content:center;width:44px;height:32px;
+  background:#FFFFFF;border:1px solid #D8E4F2;border-radius:8px}
+.ref-logo img{display:block;width:32px;height:22px;object-fit:contain}
 @media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){a.cell:hover{transform:none}}
 </style>
@@ -89,7 +94,7 @@ a.cell:hover{transform:scale(1.25)}
 @media print{.cn-nav{display:none}}
 </style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 노트</a><span class="cn-here">DL</span></nav>
 <main>
-<section class="subject"><div class="subject-head"><h2>딥러닝 핵심 아키텍처 및 학습</h2><span>Day9–11-2</span></div><div class="grid"><div class="card"><a href="../dl/20261030/"><p class="meta"><b>Day10</b><span>10/30</span></p><h3>학습을 안정시키는 도구들은 어디에 있을까</h3></a><p class="links-row"><a href="../dl/20261030/Day10_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793319419618279" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102/"><p class="meta"><b>Day11-1</b><span>11/2</span></p><h3>CNN 개념 지도 · 모델 안과 모델 밖</h3></a><p class="links-row"><a href="../dl/20261102/Day11_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793578427089629" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102-2/"><p class="meta"><b>Day11-2</b><span>11/2</span></p><h3>순서 모델 한눈에 보기</h3></a><p class="links-row"><a href="../dl/20261102-2/Day12_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener">강의 자료 ↗</a></p></div></div><p class="refs"><span class="label">참고</span><a href="../cheatsheet/pytorch/" title="텐서 · 신경망 학습">PyTorch 치트시트</a></p></section>
+<section class="subject"><div class="subject-head"><h2>딥러닝 핵심 아키텍처 및 학습</h2><span>Day9–11-2</span></div><div class="grid"><div class="card"><a href="../dl/20261030/"><p class="meta"><b>Day10</b><span>10/30</span></p><h3>학습을 안정시키는 도구들은 어디에 있을까</h3></a><p class="links-row"><a href="../dl/20261030/Day10_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793319419618279" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102/"><p class="meta"><b>Day11-1</b><span>11/2</span></p><h3>CNN 개념 지도 · 모델 안과 모델 밖</h3></a><p class="links-row"><a href="../dl/20261102/Day11_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793578427089629" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102-2/"><p class="meta"><b>Day11-2</b><span>11/2</span></p><h3>순서 모델 한눈에 보기</h3></a><p class="links-row"><a href="../dl/20261102-2/Day12_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener">강의 자료 ↗</a></p></div></div><p class="refs"><span class="label">참고</span><a class="ref" href="../cheatsheet/pytorch/" title="텐서 · 신경망 학습"><span class="ref-logo"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwLjYgMTA2Ny45IDkwLjMgMTA5LjEiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMC42IDEwNjcuOSA5MC4zIDEwOS4xIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNFRTRDMkMiIGQ9Ik03Ny42LDEwOTkuNmwtOC4xLDguMWMxMy4zLDEzLjMsMTMuMywzNC43LDAsNDcuOGMtMTMuMywxMy4zLTM0LjcsMTMuMy00Ny44LDANCgkJYy0xMy4zLTEzLjMtMTMuMy0zNC43LDAtNDcuOGwwLDBsMjEuMS0yMS4xbDMtM2wwLDB2LTE1LjlsLTMxLjgsMzEuOGMtMTcuNywxNy43LTE3LjcsNDYuMywwLDY0YzE3LjcsMTcuNyw0Ni4zLDE3LjcsNjMuNywwDQoJCUM5NS4zLDExNDUuOCw5NS4zLDExMTcuNCw3Ny42LDEwOTkuNnoiLz4NCgk8Y2lyY2xlIGZpbGw9IiNFRTRDMkMiIGN4PSI2MS43IiBjeT0iMTA5MS44IiByPSI1LjkiLz4NCjwvZz4NCjwvc3ZnPg0K" alt="" width="32" height="22"></span>PyTorch 치트시트</a></p></section>
 </main>
 </body>
 </html>

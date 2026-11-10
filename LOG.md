@@ -23,3 +23,4 @@
 | 2026-11-10 | setup/postgresql | 설치 가이드를 llm/20261111에서 새 섹션 setup/postgresql로 이동. 홈에 '설치 가이드' 섹션, SETUP 공개 여부·--release 빌드 추가. 다운로드 첫 화면·19 버전 안내 반영 | main만 (미공개) |
 | 2026-11-10 | setup/postgresql | Windows 실제 설치 사진(Slack 스레드) 기준 수정: 기존 설치 확인·psql 단계 제거(psql은 별도 페이지 예정), pgAdmin 접속·Query Tool에 사진 4장(비밀번호 칸 가림), Master Password·자동 설정은 확인만, Stack Builder 해제 강조, Locale DEFAULT, 확인 SQL 한 줄로 | main만 (미공개) |
 | 2026-11-10 | (홈) | 치트시트·설치 가이드 섹션을 없애고 관련 과목 블록 아래 '참고' 한 줄(글자 링크)로 이동. 미공개 표시 제거(공개 구분은 브랜치로) | main만 |
+| 2026-11-10 | (홈) | 참고 줄을 공식 로고가 든 작은 칩으로 (너무 안 보인다는 피드백). PostgreSQL 로고 추가 | main만 |

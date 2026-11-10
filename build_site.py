@@ -54,28 +54,29 @@ PRACTICE = [
     ("SWEA", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
     ("Programmers", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
 ]
-# 치트시트: 경로 → (보이는 이름, 용도, 과목). 과목 블록 아래 '참고' 줄에 나온다.
+# 치트시트: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목). 과목 블록 아래 '참고' 줄에 나온다.
 CHEATSHEETS = {
-    "sklearn": ("scikit-learn 치트시트", "머신러닝 · 모델 평가", "ml"),
-    "pytorch": ("PyTorch 치트시트", "텐서 · 신경망 학습", "dl"),
-    "opencv": ("OpenCV 치트시트", "이미지 · 영상 처리", "vision"),
+    "sklearn": ("scikit-learn 치트시트", "sklearn.svg", "머신러닝 · 모델 평가", "ml"),
+    "pytorch": ("PyTorch 치트시트", "pytorch.svg", "텐서 · 신경망 학습", "dl"),
+    "opencv": ("OpenCV 치트시트", "opencv.png", "이미지 · 영상 처리", "vision"),
 }
 
-# 설치 가이드: 경로 → (보이는 이름, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
+# 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
-    "postgresql": ("PostgreSQL 설치 가이드", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", False),
+    "postgresql": ("PostgreSQL 설치 가이드", "postgresql.svg", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", False),
 }
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
 
 def setup_items():
-    return [(k, name, desc, subj) for k, (name, desc, subj, pub) in SETUP.items() if pub or not RELEASE]
+    return [(k, name, logo, desc, subj) for k, (name, logo, desc, subj, pub) in SETUP.items() if pub or not RELEASE]
 
 
 def refs_of(subject):
-    """과목에 딸린 참고 문서: [(루트 기준 경로, 이름, 용도)]"""
-    items = [(f"cheatsheet/{k}/", name, desc) for k, (name, desc, subj) in CHEATSHEETS.items() if subj == subject]
-    items += [(f"setup/{k}/", name, desc) for k, name, desc, subj in setup_items() if subj == subject]
+    """과목에 딸린 참고 문서: [(루트 기준 경로, 이름, 로고 파일, 용도)]"""
+    items = [(f"cheatsheet/{k}/", name, logo, desc)
+             for k, (name, logo, desc, subj) in CHEATSHEETS.items() if subj == subject]
+    items += [(f"setup/{k}/", name, logo, desc) for k, name, logo, desc, subj in setup_items() if subj == subject]
     return items
 
 
@@ -247,10 +248,15 @@ a.cell:hover{{transform:scale(1.25)}}
 .label{{font-size:13px;font-weight:600;color:var(--muted)}}
 .btn{{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
   background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
-.refs{{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;font-size:14px;color:var(--muted)}}
-.refs .label{{font-size:12px}}
-.refs a{{text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}}
-.refs a:hover{{color:var(--heading);text-decoration-color:currentColor}}
+.refs{{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}}
+.refs .label{{font-size:13px;margin-right:2px}}
+.ref{{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:5px 14px 5px 6px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  font-size:14px;font-weight:600;color:var(--heading)}}
+.ref:hover{{border-color:var(--primary);text-decoration:underline;text-underline-offset:3px}}
+.ref-logo{{display:flex;align-items:center;justify-content:center;width:44px;height:32px;
+  background:#FFFFFF;border:1px solid #D8E4F2;border-radius:8px}}
+.ref-logo img{{display:block;width:32px;height:22px;object-fit:contain}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
 @media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
 """
@@ -302,8 +308,10 @@ def refs_row(key, up):
     refs = refs_of(key)
     if not refs:
         return ""
-    links = "".join(f'<a href="{up}{path}" title="{html.escape(desc)}">{html.escape(name)}</a>'
-                    for path, name, desc in refs)
+    links = "".join(f'<a class="ref" href="{up}{path}" title="{html.escape(desc)}">'
+                    f'<span class="ref-logo"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
+                    f'width="32" height="22"></span>{html.escape(name)}</a>'
+                    for path, name, logo, desc in refs)
     return f'<p class="refs"><span class="label">참고</span>{links}</p>'
 
 
@@ -424,12 +432,12 @@ def main():
             print(f"  /{key}/ ← 날짜 카드 목록")
 
     print("치트시트")
-    for k, (name, _, _) in CHEATSHEETS.items():
+    for k, (name, *_) in CHEATSHEETS.items():
         src = PAGES / "cheatsheet" / k
         copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name, pdf=pdf_of(src)))
 
     print("설치 가이드" + (" (--release: 공개 전 페이지 제외)" if RELEASE else ""))
-    for k, name, _, _ in setup_items():
+    for k, name, *_ in setup_items():
         copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=name))
 
     (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
