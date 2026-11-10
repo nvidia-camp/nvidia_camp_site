@@ -6,12 +6,12 @@ from pathlib import Path
 start = {
     "next_id": 4,
     "entries": [
-        {"id": 1, "title": "가상환경", "category": "setup",
-         "content": "프로젝트별 패키지를 분리한다."},
-        {"id": 2, "title": "서버 실행", "category": "api",
-         "content": "uvicorn으로 개발 서버를 켠다."},
-        {"id": 3, "title": "입력 오류", "category": "api",
-         "content": "422이면 입력값을 확인한다."},
+        {"id": 1, "title": "가상환경",
+         "content": "프로젝트별 패키지를 분리한다.", "category": "setup"},
+        {"id": 2, "title": "서버 실행",
+         "content": "uvicorn으로 개발 서버를 켠다.", "category": "api"},
+        {"id": 3, "title": "입력 오류",
+         "content": "422이면 입력값을 확인한다.", "category": "api"},
     ],
 }
 

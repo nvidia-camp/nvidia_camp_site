@@ -68,7 +68,7 @@ class Server:
 def project(variant=None):
     root = Path(tempfile.mkdtemp(prefix="cap_")) / "fastapi_knowledge"
     root.mkdir()
-    for f in ("main.py", "make_data.py"):
+    for f in ("main.py", "storage.py", "make_data.py"):
         shutil.copy(SRC / f, root / f)
     if variant:
         text = (root / "main.py").read_text(encoding="utf-8")
@@ -108,7 +108,9 @@ def visit(page, server, path, name):
 def response_shot(page, live, name):
     """Server response 중 Code와 Response body까지만 자른다 (Response headers 제외)."""
     top = live.bounding_box()
-    body_box = live.locator(".response-col_description pre").first.bounding_box()
+    body = live.locator(".response-col_description div:has(> h5:text-is(\"Response body\")) pre")
+    target = body.first if body.count() else live.locator("tbody .response-col_status").first
+    body_box = target.bounding_box()
     scroll_y = page.evaluate("window.scrollY")
     clip = {"x": top["x"], "y": top["y"] + scroll_y, "width": top["width"],
             "height": body_box["y"] + body_box["height"] - top["y"] + 6}
@@ -136,9 +138,10 @@ def docs_execute(page, server, op_id, body, name, path_param=None):
     time.sleep(0.5)
     live = block.locator(".live-responses-table")
     code = live.locator("tbody .response-col_status").first.inner_text().strip()
-    resp_body = live.locator(".response-col_description pre").first.inner_text()
+    body_el = live.locator(".response-col_description div:has(> h5:text-is(\"Response body\")) pre")
+    resp_body = body_el.first.inner_text() if body_el.count() else ""
     # 입력 영역: 매개변수/Request body 시작부터 Execute 버튼까지
-    first = block.locator(".opblock-section-request-body" if body is not None else ".parameters-container").first
+    first = block.locator(".opblock-section-request-body" if path_param is None else ".parameters-container").first
     top = first.bounding_box()
     bottom = block.locator("button.execute").first.bounding_box()
     scroll_y = page.evaluate("window.scrollY")
@@ -153,7 +156,10 @@ def docs_execute(page, server, op_id, body, name, path_param=None):
 
 NEW = '{\n  "title": "실습 환경 안내",\n  "content": "Python 3.10 이상을 사용한다.",\n  "category": "setup"\n}'
 NO_TITLE = '{\n  "content": "Python 3.10 이상을 사용한다.",\n  "category": "setup"\n}'
+PUT_BODY = '{\n  "title": "서버 실행",\n  "content": "python -m uvicorn main:app --reload로 켠다.",\n  "category": "api"\n}'
 POST_OP = "operations-default-create_knowledge_api_knowledge_post"
+PUT_OP = "operations-default-update_knowledge_api_knowledge__knowledge_id__put"
+DELETE_OP = "operations-default-delete_knowledge_api_knowledge__knowledge_id__delete"
 
 rec = {}
 with sync_playwright() as p:
@@ -169,6 +175,7 @@ with sync_playwright() as p:
                         "server_log": server.clean(server.lines[mark:])}
     rec["health"] = visit(page, server, "/health", "health")
     rec["get_2"] = visit(page, server, "/api/knowledge/2", "get_2")
+    rec["get_9999"] = visit(page, server, "/api/knowledge/9999", "get_9999")
     rec["get_foo"] = visit(page, server, "/api/knowledge/foo", "get_foo")
     rec["list_before"] = visit(page, server, "/api/knowledge", "list_before")
     rec["post"] = docs_execute(page, server, POST_OP, NEW, "post_docs")
@@ -178,10 +185,24 @@ with sync_playwright() as p:
     rec["no_title"] = docs_execute(page, server, POST_OP, NO_TITLE, "no_title_docs")
     rec["no_title"]["file"] = state(root)
     rec["list_after_no_title"] = visit(page, server, "/api/knowledge", "list_after_no_title")
+    rec["put"] = docs_execute(page, server, PUT_OP, PUT_BODY, "put_docs", path_param=2)
+    rec["put"]["file"] = state(root)
+    rec["list_after_put"] = visit(page, server, "/api/knowledge", "list_after_put")
+    rec["delete"] = docs_execute(page, server, DELETE_OP, None, "delete_docs", path_param=3)
+    rec["delete"]["file"] = state(root)
+    rec["get_3_after_delete"] = visit(page, server, "/api/knowledge/3", "get_3_after_delete")
+    rec["list_after_delete"] = visit(page, server, "/api/knowledge", "list_after_delete")
     rec["stop"] = {"server_log": server.stop()}
+    # 같은 폴더·같은 명령으로 다시 켠다
+    server = Server(root)
+    rec["restart"] = {"server_log": server.start()}
+    rec["list_restart"] = visit(page, server, "/api/knowledge", "list_restart")
+    rec["get_3_restart"] = visit(page, server, "/api/knowledge/3", "get_3_restart")
+    rec["restart_file"] = state(root)
+    server.stop()
     shutil.rmtree(root.parent)
 
-    root = project(("        data[\"next_id\"] += 1\n        write_data(data)\n", "        data[\"next_id\"] += 1\n"))
+    root = project(("    data[\"next_id\"] += 1\n    write_data(data)\n", "    data[\"next_id\"] += 1\n"))
     server = Server(root)
     server.start()
     rec["nw_post"] = docs_execute(page, server, POST_OP, NEW, "nw_post_docs")

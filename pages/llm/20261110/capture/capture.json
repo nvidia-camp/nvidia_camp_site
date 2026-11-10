@@ -3,8 +3,8 @@
   "server_log": [
    "INFO:     Will watch for changes in these directories: ['~/fastapi_knowledge']",
    "INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)",
-   "INFO:     Started reloader process [8155] using WatchFiles",
-   "INFO:     Started server process [8158]",
+   "INFO:     Started reloader process [5751] using WatchFiles",
+   "INFO:     Started server process [5753]",
    "INFO:     Waiting for application startup.",
    "INFO:     Application startup complete."
   ]
@@ -12,8 +12,8 @@
  "docs_home": {
   "shot": "shots/docs_home.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /docs HTTP/1.1\" 200 OK",
-   "INFO:     127.0.0.1:57159 - \"GET /openapi.json HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59853 - \"GET /docs HTTP/1.1\" 200 OK",
+   "INFO:     127.0.0.1:59853 - \"GET /openapi.json HTTP/1.1\" 200 OK"
   ]
  },
  "health": {
@@ -23,18 +23,28 @@
   "pretty": null,
   "shot": "shots/health.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /health HTTP/1.1\" 200 OK",
-   "INFO:     127.0.0.1:57159 - \"GET /favicon.ico HTTP/1.1\" 404 Not Found"
+   "INFO:     127.0.0.1:59853 - \"GET /health HTTP/1.1\" 200 OK",
+   "INFO:     127.0.0.1:59853 - \"GET /favicon.ico HTTP/1.1\" 404 Not Found"
   ]
  },
  "get_2": {
   "url": "http://127.0.0.1:8000/api/knowledge/2",
   "status": 200,
-  "text": "{\"id\":2,\"title\":\"서버 실행\",\"category\":\"api\",\"content\":\"uvicorn으로 개발 서버를 켠다.\"}",
+  "text": "{\"id\":2,\"title\":\"서버 실행\",\"content\":\"uvicorn으로 개발 서버를 켠다.\",\"category\":\"api\"}",
   "pretty": null,
   "shot": "shots/get_2.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /api/knowledge/2 HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge/2 HTTP/1.1\" 200 OK"
+  ]
+ },
+ "get_9999": {
+  "url": "http://127.0.0.1:8000/api/knowledge/9999",
+  "status": 404,
+  "text": "{\"detail\":\"Knowledge not found\"}",
+  "pretty": null,
+  "shot": "shots/get_9999.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge/9999 HTTP/1.1\" 404 Not Found"
   ]
  },
  "get_foo": {
@@ -44,28 +54,28 @@
   "pretty": null,
   "shot": "shots/get_foo.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /api/knowledge/foo HTTP/1.1\" 422 Unprocessable Content"
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge/foo HTTP/1.1\" 422 Unprocessable Content"
   ]
  },
  "list_before": {
   "url": "http://127.0.0.1:8000/api/knowledge",
   "status": 200,
-  "text": "[{\"id\":1,\"title\":\"가상환경\",\"category\":\"setup\",\"content\":\"프로젝트별 패키지를 분리한다.\"},{\"id\":2,\"title\":\"서버 실행\",\"category\":\"api\",\"content\":\"uvicorn으로 개발 서버를 켠다.\"},{\"id\":3,\"title\":\"입력 오류\",\"category\":\"api\",\"content\":\"422이면 입력값을 확인한다.\"}]",
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"uvicorn으로 개발 서버를 켠다.\",\"category\":\"api\"},{\"id\":3,\"title\":\"입력 오류\",\"content\":\"422이면 입력값을 확인한다.\",\"category\":\"api\"}]",
   "pretty": null,
   "shot": "shots/list_before.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
   ]
  },
  "post": {
   "op": "operations-default-create_knowledge_api_knowledge_post",
   "request_body": "{\n  \"title\": \"실습 환경 안내\",\n  \"content\": \"Python 3.10 이상을 사용한다.\",\n  \"category\": \"setup\"\n}",
   "status": "201",
-  "response_body": "{\n  \"title\": \"실습 환경 안내\",\n  \"content\": \"Python 3.10 이상을 사용한다.\",\n  \"category\": \"setup\",\n  \"id\": 4\n}",
+  "response_body": "{\n  \"id\": 4,\n  \"title\": \"실습 환경 안내\",\n  \"content\": \"Python 3.10 이상을 사용한다.\",\n  \"category\": \"setup\"\n}",
   "shot_input": "shots/post_docs_input.png",
   "shot_response": "shots/post_docs_response.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"POST /api/knowledge HTTP/1.1\" 201 Created"
+   "INFO:     127.0.0.1:59853 - \"POST /api/knowledge HTTP/1.1\" 201 Created"
   ],
   "file": {
    "ids": [
@@ -80,21 +90,21 @@
  "list_after": {
   "url": "http://127.0.0.1:8000/api/knowledge",
   "status": 200,
-  "text": "[{\"id\":1,\"title\":\"가상환경\",\"category\":\"setup\",\"content\":\"프로젝트별 패키지를 분리한다.\"},{\"id\":2,\"title\":\"서버 실행\",\"category\":\"api\",\"content\":\"uvicorn으로 개발 서버를 켠다.\"},{\"id\":3,\"title\":\"입력 오류\",\"category\":\"api\",\"content\":\"422이면 입력값을 확인한다.\"},{\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\",\"id\":4}]",
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"uvicorn으로 개발 서버를 켠다.\",\"category\":\"api\"},{\"id\":3,\"title\":\"입력 오류\",\"content\":\"422이면 입력값을 확인한다.\",\"category\":\"api\"},{\"id\":4,\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\"}]",
   "pretty": null,
   "shot": "shots/list_after.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
   ]
  },
  "get_4": {
   "url": "http://127.0.0.1:8000/api/knowledge/4",
   "status": 200,
-  "text": "{\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\",\"id\":4}",
+  "text": "{\"id\":4,\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\"}",
   "pretty": null,
   "shot": "shots/get_4.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /api/knowledge/4 HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge/4 HTTP/1.1\" 200 OK"
   ]
  },
  "no_title": {
@@ -105,7 +115,7 @@
   "shot_input": "shots/no_title_docs_input.png",
   "shot_response": "shots/no_title_docs_response.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"POST /api/knowledge HTTP/1.1\" 422 Unprocessable Content"
+   "INFO:     127.0.0.1:59853 - \"POST /api/knowledge HTTP/1.1\" 422 Unprocessable Content"
   ],
   "file": {
    "ids": [
@@ -120,11 +130,80 @@
  "list_after_no_title": {
   "url": "http://127.0.0.1:8000/api/knowledge",
   "status": 200,
-  "text": "[{\"id\":1,\"title\":\"가상환경\",\"category\":\"setup\",\"content\":\"프로젝트별 패키지를 분리한다.\"},{\"id\":2,\"title\":\"서버 실행\",\"category\":\"api\",\"content\":\"uvicorn으로 개발 서버를 켠다.\"},{\"id\":3,\"title\":\"입력 오류\",\"category\":\"api\",\"content\":\"422이면 입력값을 확인한다.\"},{\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\",\"id\":4}]",
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"uvicorn으로 개발 서버를 켠다.\",\"category\":\"api\"},{\"id\":3,\"title\":\"입력 오류\",\"content\":\"422이면 입력값을 확인한다.\",\"category\":\"api\"},{\"id\":4,\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\"}]",
   "pretty": null,
   "shot": "shots/list_after_no_title.png",
   "server_log": [
-   "INFO:     127.0.0.1:57159 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+  ]
+ },
+ "put": {
+  "op": "operations-default-update_knowledge_api_knowledge__knowledge_id__put",
+  "request_body": "{\n  \"title\": \"서버 실행\",\n  \"content\": \"python -m uvicorn main:app --reload로 켠다.\",\n  \"category\": \"api\"\n}",
+  "status": "200",
+  "response_body": "{\n  \"id\": 2,\n  \"title\": \"서버 실행\",\n  \"content\": \"python -m uvicorn main:app --reload로 켠다.\",\n  \"category\": \"api\"\n}",
+  "shot_input": "shots/put_docs_input.png",
+  "shot_response": "shots/put_docs_response.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59853 - \"PUT /api/knowledge/2 HTTP/1.1\" 200 OK"
+  ],
+  "file": {
+   "ids": [
+    1,
+    2,
+    3,
+    4
+   ],
+   "next_id": 5
+  }
+ },
+ "list_after_put": {
+  "url": "http://127.0.0.1:8000/api/knowledge",
+  "status": 200,
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"python -m uvicorn main:app --reload로 켠다.\",\"category\":\"api\"},{\"id\":3,\"title\":\"입력 오류\",\"content\":\"422이면 입력값을 확인한다.\",\"category\":\"api\"},{\"id\":4,\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\"}]",
+  "pretty": null,
+  "shot": "shots/list_after_put.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+  ]
+ },
+ "delete": {
+  "op": "operations-default-delete_knowledge_api_knowledge__knowledge_id__delete",
+  "request_body": null,
+  "status": "204",
+  "response_body": "",
+  "shot_input": "shots/delete_docs_input.png",
+  "shot_response": "shots/delete_docs_response.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59853 - \"DELETE /api/knowledge/3 HTTP/1.1\" 204 No Content"
+  ],
+  "file": {
+   "ids": [
+    1,
+    2,
+    4
+   ],
+   "next_id": 5
+  }
+ },
+ "get_3_after_delete": {
+  "url": "http://127.0.0.1:8000/api/knowledge/3",
+  "status": 404,
+  "text": "{\"detail\":\"Knowledge not found\"}",
+  "pretty": null,
+  "shot": "shots/get_3_after_delete.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge/3 HTTP/1.1\" 404 Not Found"
+  ]
+ },
+ "list_after_delete": {
+  "url": "http://127.0.0.1:8000/api/knowledge",
+  "status": 200,
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"python -m uvicorn main:app --reload로 켠다.\",\"category\":\"api\"},{\"id\":4,\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\"}]",
+  "pretty": null,
+  "shot": "shots/list_after_delete.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59853 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
   ]
  },
  "stop": {
@@ -132,19 +211,57 @@
    "INFO:     Shutting down",
    "INFO:     Waiting for application shutdown.",
    "INFO:     Application shutdown complete.",
-   "INFO:     Finished server process [8158]",
-   "INFO:     Stopping reloader process [8155]"
+   "INFO:     Finished server process [5753]",
+   "INFO:     Stopping reloader process [5751]"
   ]
+ },
+ "restart": {
+  "server_log": [
+   "INFO:     Will watch for changes in these directories: ['~/fastapi_knowledge']",
+   "INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)",
+   "INFO:     Started reloader process [6404] using WatchFiles",
+   "INFO:     Started server process [6406]",
+   "INFO:     Waiting for application startup.",
+   "INFO:     Application startup complete."
+  ]
+ },
+ "list_restart": {
+  "url": "http://127.0.0.1:8000/api/knowledge",
+  "status": 200,
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"python -m uvicorn main:app --reload로 켠다.\",\"category\":\"api\"},{\"id\":4,\"title\":\"실습 환경 안내\",\"content\":\"Python 3.10 이상을 사용한다.\",\"category\":\"setup\"}]",
+  "pretty": null,
+  "shot": "shots/list_restart.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59861 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+  ]
+ },
+ "get_3_restart": {
+  "url": "http://127.0.0.1:8000/api/knowledge/3",
+  "status": 404,
+  "text": "{\"detail\":\"Knowledge not found\"}",
+  "pretty": null,
+  "shot": "shots/get_3_restart.png",
+  "server_log": [
+   "INFO:     127.0.0.1:59861 - \"GET /api/knowledge/3 HTTP/1.1\" 404 Not Found"
+  ]
+ },
+ "restart_file": {
+  "ids": [
+   1,
+   2,
+   4
+  ],
+  "next_id": 5
  },
  "nw_post": {
   "op": "operations-default-create_knowledge_api_knowledge_post",
   "request_body": "{\n  \"title\": \"실습 환경 안내\",\n  \"content\": \"Python 3.10 이상을 사용한다.\",\n  \"category\": \"setup\"\n}",
   "status": "201",
-  "response_body": "{\n  \"title\": \"실습 환경 안내\",\n  \"content\": \"Python 3.10 이상을 사용한다.\",\n  \"category\": \"setup\",\n  \"id\": 4\n}",
+  "response_body": "{\n  \"id\": 4,\n  \"title\": \"실습 환경 안내\",\n  \"content\": \"Python 3.10 이상을 사용한다.\",\n  \"category\": \"setup\"\n}",
   "shot_input": "shots/nw_post_docs_input.png",
   "shot_response": "shots/nw_post_docs_response.png",
   "server_log": [
-   "INFO:     127.0.0.1:57167 - \"POST /api/knowledge HTTP/1.1\" 201 Created"
+   "INFO:     127.0.0.1:59862 - \"POST /api/knowledge HTTP/1.1\" 201 Created"
   ],
   "file": {
    "ids": [
@@ -162,17 +279,17 @@
   "pretty": null,
   "shot": "shots/nw_get_4.png",
   "server_log": [
-   "INFO:     127.0.0.1:57167 - \"GET /api/knowledge/4 HTTP/1.1\" 404 Not Found"
+   "INFO:     127.0.0.1:59862 - \"GET /api/knowledge/4 HTTP/1.1\" 404 Not Found"
   ]
  },
  "nw_list": {
   "url": "http://127.0.0.1:8000/api/knowledge",
   "status": 200,
-  "text": "[{\"id\":1,\"title\":\"가상환경\",\"category\":\"setup\",\"content\":\"프로젝트별 패키지를 분리한다.\"},{\"id\":2,\"title\":\"서버 실행\",\"category\":\"api\",\"content\":\"uvicorn으로 개발 서버를 켠다.\"},{\"id\":3,\"title\":\"입력 오류\",\"category\":\"api\",\"content\":\"422이면 입력값을 확인한다.\"}]",
+  "text": "[{\"id\":1,\"title\":\"가상환경\",\"content\":\"프로젝트별 패키지를 분리한다.\",\"category\":\"setup\"},{\"id\":2,\"title\":\"서버 실행\",\"content\":\"uvicorn으로 개발 서버를 켠다.\",\"category\":\"api\"},{\"id\":3,\"title\":\"입력 오류\",\"content\":\"422이면 입력값을 확인한다.\",\"category\":\"api\"}]",
   "pretty": null,
   "shot": "shots/nw_list.png",
   "server_log": [
-   "INFO:     127.0.0.1:57167 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
+   "INFO:     127.0.0.1:59862 - \"GET /api/knowledge HTTP/1.1\" 200 OK"
   ]
  }
 }

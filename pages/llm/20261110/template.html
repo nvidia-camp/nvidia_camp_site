@@ -66,7 +66,7 @@ code, pre { font-family: var(--font-code); }
 .variant-btn[aria-pressed="true"] { background: var(--color-primary); color: #fff; border-style: solid; }
 
 /* 가운데: 코드 | 브라우저 */
-.mid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-6); margin-top: var(--space-6); align-items: start; }
+.mid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--space-6); margin-top: var(--space-6); align-items: start; }
 .col-label { font-size: 0.8rem; font-weight: 700; color: var(--color-muted); margin: 0 0 var(--space-2); }
 .stack > * + * { margin-top: var(--space-3); }
 .pane { background: var(--color-code-bg); color: var(--color-code-text); border-radius: var(--radius-card); overflow: hidden; }
@@ -74,7 +74,7 @@ code, pre { font-family: var(--font-code); }
 .pane-head b { color: #fff; font-weight: 600; }
 .pane-btn { font: inherit; font-size: 0.78rem; color: var(--code-soft); background: transparent; border: 1px solid rgba(207, 224, 245, 0.4); border-radius: var(--radius-badge); padding: 0.15rem 0.6rem; cursor: pointer; }
 .pane-btn:hover { background: rgba(255, 255, 255, 0.08); }
-pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.86rem; line-height: 1.65; white-space: pre; word-break: normal; overflow-wrap: normal; }
+pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.82rem; line-height: 1.65; white-space: pre; word-break: normal; overflow-wrap: normal; }
 .ln { display: block; padding-right: var(--space-4); }
 .ln .no { display: inline-block; width: 3.2em; padding-right: 0.9em; text-align: right; color: var(--code-muted); user-select: none; }
 .ln.mark { background: var(--code-mark-bg); box-shadow: inset 3px 0 0 var(--color-soft); }
@@ -129,6 +129,8 @@ pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.86rem
 .node span { font-size: 0.85rem; color: var(--color-muted); }
 .link { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--color-primary); line-height: 1.5; }
 .terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin: var(--space-6) 0 0; }
+.terms.roles { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0; }
+.terms.roles code { font-size: 0.85rem; }
 .terms div { padding: var(--space-3) var(--space-4); background: var(--color-soft); border-radius: var(--radius-control); }
 .terms dt { font-weight: 700; color: var(--color-primary); }
 .terms dd { margin: 0; }
@@ -156,7 +158,7 @@ pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.86rem
   .brief dt { padding-top: var(--space-2); }
   .flow { grid-template-columns: minmax(0, 1fr); }
   .link { padding: var(--space-1) 0; }
-  .terms { grid-template-columns: minmax(0, 1fr); }
+  .terms, .terms.roles { grid-template-columns: minmax(0, 1fr); }
   .btn { padding-inline: var(--space-4); }
   .shot-wrap .shot { width: 34rem; max-width: none; }
 }
@@ -241,7 +243,7 @@ function browser(view) {
       <div class="viewport"><p class="shot-step">${esc(view.caption)}</p>${input}
         <div class="shot-wrap"><img class="shot" src="${view.response}" alt="Server response의 Code와 Response body"></div></div></div>`;
   }
-  const rows = view.lines.map((l) => `<span class="row${l.new ? " new" : ""}">${esc(l.text)}${l.new ? '<span class="tag">새로 생김</span>' : ""}</span>`).join("");
+  const rows = view.lines.map((l) => `<span class="row${l.tag ? " new" : ""}">${esc(l.text)}${l.tag ? `<span class="tag">${esc(l.tag)}</span>` : ""}</span>`).join("");
   return `<div class="browser"><div class="browser-bar"><span class="addr">${address(view.url)}</span><span class="status">${view.status}</span></div>
     <div class="viewport"><pre class="json">${rows}</pre></div></div>`;
 }
@@ -276,6 +278,10 @@ function renderIntro(step) {
     <div class="crud">
       <span>읽기<b>GET</b></span><span>만들기<b>POST</b></span><span>바꾸기<b>PUT</b></span><span>지우기<b>DELETE</b></span>
     </div>
+    <p class="col-label" style="margin:var(--space-6) 0 var(--space-2)">main.py에서 매 단계 짚는 세 곳</p>
+    <dl class="terms roles">
+      ${step.roles.map(([r, c]) => `<div><dt>${esc(r)}</dt><dd><code>${esc(c)}</code></dd></div>`).join("")}
+    </dl>
     <div class="why"><p>다음 단계부터 왼쪽은 코드와 터미널, 오른쪽은 브라우저 화면입니다.</p>
       <span class="refs">공식 문서 <a href="${esc(step.doc[1])}" target="_blank" rel="noopener">${esc(step.doc[0])} ↗</a></span></div>
   </article>`;
