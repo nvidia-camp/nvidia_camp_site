@@ -64,6 +64,7 @@ CHEATSHEETS = {
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
     "postgresql": ("PostgreSQL 설치 가이드", "postgresql.svg", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", True),
+    "psql": ("psql 접속 가이드", "postgresql.svg", "명령창(SQL Shell)으로 접속 · 선택", "llm", True),
 }
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
@@ -151,7 +152,8 @@ def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None, lecture=
 ANALYTICS = """<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>"""
 
-LOCAL_LINK = re.compile(r'<a\s[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
+# 사이트 안 다른 페이지로 가는 링크는 data-site를 붙여 두면 살린다
+LOCAL_LINK = re.compile(r'<a\s(?![^>]*data-site)[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
 
 
 SCRIPT_BLOCK = re.compile(r"(<script\b.*?</script>)", re.S | re.I)
