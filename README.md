@@ -38,6 +38,6 @@ git add -A && git commit -m "..." && git push        # main → 미리보기
 ```
 
 - main 미리보기: https://nvidiasesac-git-main-test11-ebb8.vercel.app/ (Vercel 로그인 필요, 항상 main 최신)
-- 사이트는 2026-11-10에 출시됐습니다. 작업은 main에만 올리고, 배포는 따로 요청할 때만 합니다.
+- 사이트는 2026-11-10에 출시됐습니다. 2026-11-10 저녁부터는 수정할 때마다 main에 올린 뒤 바로 `git push origin main:deploy`로 배포합니다(deploy는 항상 main을 그대로 따라가는 fast-forward).
 - 공개 전 페이지: `SETUP`의 공개 여부가 False인 페이지는 main 빌드에는 그대로 들어가(따로 표시 없음) 미리보기에서 볼 수 있습니다. `uv run build_site.py --release`로 만들면 빠집니다.
 - 실제 배포: 공개 전 페이지가 없으면 `git push origin main:deploy`. 있으면 main을 그대로 올리지 않고, `--release`로 다시 만든 public/을 deploy에 올립니다.
