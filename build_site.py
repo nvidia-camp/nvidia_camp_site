@@ -10,10 +10,13 @@
     pages/<과목>/<YYYYMMDD>/   매일 요약     → /<과목>/<YYYYMMDD>/  (같은 날 두 번째 회차는 <YYYYMMDD>-2)
     pages/<과목>/all/          과목 4일 종합 → /<과목>/  (없으면 날짜 카드 목록)
     pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 보이는 이름 등록)
+    pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 등록, 공개 여부 표시)
 - 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
+- 미공개(SETUP의 공개=False) 페이지는 main 미리보기에는 '미공개' 표시와 함께 들어가고,
+  `--release`로 만들면 빠진다. deploy에는 반드시 --release 빌드를 올린다.
 """
 import base64
 import datetime
@@ -21,6 +24,7 @@ import json
 import html
 import re
 import shutil
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -55,6 +59,17 @@ CHEATSHEETS = {
     "pytorch": ("PyTorch", "pytorch.svg", "텐서 · 신경망 학습"),
     "opencv": ("OpenCV", "opencv.png", "이미지 · 영상 처리"),
 }
+
+# 설치 가이드: 경로 → (보이는 이름, 용도, 공개 여부). 공개 전에는 False로 둔다.
+SETUP = {
+    "postgresql": ("PostgreSQL · pgAdmin", "Windows 설치 · 접속 확인 · Day18부터", False),
+}
+RELEASE = "--release" in sys.argv   # deploy용: 미공개 페이지를 뺀다
+
+
+def setup_items():
+    return [(k, name, desc, pub) for k, (name, desc, pub) in SETUP.items() if pub or not RELEASE]
+
 
 FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif'
 
@@ -231,6 +246,9 @@ a.cell:hover{{transform:scale(1.25)}}
 .sheet-text{{display:grid;gap:4px}}
 .sheet-text p{{color:var(--muted);font-size:13px;line-height:1.6}}
 .sheet-text h3{{font-size:18px;line-height:1.45}}
+.setup-card{{padding:20px;gap:4px}}
+.setup-card h3{{font-size:18px;line-height:1.45}}
+.setup-card p{{color:var(--muted);font-size:13px;line-height:1.6}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
 @media (max-width:900px){{.grid.sheets{{grid-template-columns:1fr}}}}
 @media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
@@ -331,6 +349,12 @@ def cheatsheet_card(key, name, logo, description):
             f'<div class="sheet-text"><h3>{html.escape(name)}</h3><p>{html.escape(description)}</p></div></a>')
 
 
+def setup_card(key, name, description, published):
+    badge = "" if published else '<span class="soon">미공개</span>'
+    return (f'<a class="card setup-card" href="setup/{key}/"><h3>{html.escape(name)} {badge}</h3>'
+            f'<p>{html.escape(description)}</p></a>')
+
+
 def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
@@ -340,6 +364,9 @@ def home_page(days, subjects, today):
     quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
     blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
     sheets = "".join(cheatsheet_card(k, *sheet) for k, sheet in CHEATSHEETS.items())
+    guides = "".join(setup_card(*item) for item in setup_items())
+    setup = (f'\n<section class="subject" id="setup"><div class="subject-head"><h2>설치 가이드</h2></div>'
+             f'<div class="grid sheets">{guides}</div></section>') if guides else ""
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{name} ↗</a>'
                        for name, url in PRACTICE)
     sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
@@ -356,7 +383,7 @@ def home_page(days, subjects, today):
 </header>
 {blocks}
 <section class="subject" id="cheatsheet"><div class="subject-head"><h2>치트시트</h2></div>
-<div class="grid sheets">{sheets}</div></section>"""
+<div class="grid sheets">{sheets}</div></section>{setup}"""
     return list_page(SITE_NAME, body)
 
 
@@ -407,6 +434,11 @@ def main():
     for k, (name, _, _) in CHEATSHEETS.items():
         src = PAGES / "cheatsheet" / k
         copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name, pdf=pdf_of(src)))
+
+    print("설치 가이드" + (" (--release: 미공개 제외)" if RELEASE else ""))
+    for k, name, _, published in setup_items():
+        here = name if published else f"{name} · 미공개"
+        copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=here))
 
     (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
     print(f"홈 · 기준일 {today}")

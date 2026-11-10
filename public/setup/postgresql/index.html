@@ -125,11 +125,20 @@ td.screen { font-family: var(--font-code); font-size: 0.88rem; }
 }
 </style>
 </head>
-<body>
+<body><style>
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 노트</a><span class="cn-here">PostgreSQL · pgAdmin · 미공개</span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <main>
 
 <header class="head">
-  <p class="eyebrow">Day18 · 11/11(수) 실습 준비 · Windows 10/11</p>
+  <p class="eyebrow">설치 가이드 · Windows 10/11 · Day18(11/11) PostgreSQL 실습부터 사용</p>
   <h1>PostgreSQL 설치 가이드</h1>
   <p class="lead">수업 전에 PostgreSQL 18과 pgAdmin 4를 설치하고, 접속까지 확인합니다. 15분 정도 걸립니다.</p>
 </header>
@@ -197,8 +206,8 @@ td.screen { font-family: var(--font-code); font-size: 0.88rem; }
 <section class="card" aria-labelledby="s2">
   <div class="step-head"><span class="num">2</span><h2 id="s2">설치 파일 내려받기</h2></div>
   <ol class="plain">
-    <li><a href="https://www.postgresql.org/download/windows/" target="_blank" rel="noopener">postgresql.org/download/windows</a>에서 <b>Download the installer</b>를 누릅니다.</li>
-    <li>EDB 다운로드 표에서 <b>PostgreSQL 18.x</b> 줄의 <b>Windows x86-64</b>를 받습니다.</li>
+    <li><a href="https://www.postgresql.org/download/windows/" target="_blank" rel="noopener">postgresql.org/download/windows</a>에서 <b>Download the installer</b>를 누릅니다. <code>postgresql.org/download</code> 첫 화면에서 왔다면 <b>Windows</b>를 누르면 같은 곳입니다.</li>
+    <li>EDB 다운로드 표에서 <b>PostgreSQL 18.x</b> 줄의 <b>Windows x86-64</b>를 받습니다. 표 맨 위에 더 새 버전(19 등)이 보여도 수업 기준인 18.x를 받습니다.</li>
     <li>받은 파일(<code>postgresql-18.x-windows-x64.exe</code>)을 실행하고, 관리자 권한을 물으면 <b>예</b>를 누릅니다.</li>
   </ol>
 </section>
