@@ -10,6 +10,7 @@ CAP_DIR = HERE / "capture"
 CAP = json.loads((CAP_DIR / "capture.json").read_text(encoding="utf-8"))
 MAIN = (HERE / "code" / "main.py").read_text(encoding="utf-8")
 DOC = "https://fastapi.tiangolo.com/tutorial/"
+MDN = "https://developer.mozilla.org/ko/docs/"
 URL = "http://127.0.0.1:8000"
 
 # 브라우저가 탭 아이콘을 스스로 찾는 요청(favicon.ico)은 데모와 관계없어 로그에서 뺀다
@@ -100,11 +101,39 @@ get_span = span(MAIN, "def find_entry", "return find_entry(read_data(), knowledg
 RUN = "python -m uvicorn main:app --reload"
 
 steps = [
+    # ── 웹 기초 세 장 (강의 PDF p.2~14·26·28·88) ──
     {
-        "id": "intro", "period": "시작", "title": "전체 구조", "kind": "intro",
-        "task": "오늘 만드는 것: 브라우저의 요청을 받아 지식을 읽고·만들고·바꾸고·지우는 작은 서버",
+        "id": "api", "period": "웹 기초", "title": "API", "kind": "intro", "section": "api",
+        "lead": "오늘 만드는 것은 지식을 읽고·만들고·바꾸고·지우는 API입니다.",
+        "compare": [
+            {"name": "웹페이지", "form": "HTML", "who": "사람이 보는 화면", "sample": "<li>서버 실행</li>"},
+            {"name": "API", "form": "JSON", "who": "프로그램이 쓰는 데이터", "sample": "{\"id\": 2, \"title\": \"서버 실행\"}"},
+        ],
+        "platform": [["오늘", "지식 관리 API + JSON 파일"], ["다음", "데이터베이스"], ["그다음", "RAG 검색"], ["마지막", "AI Agent"]],
+        "why": "AI Agent가 질문에 답하려면 근거가 되는 지식이 먼저 있어야 합니다. 오늘은 그 지식을 관리하는 API를 만듭니다. 검색과 답변 생성은 이후 수업에서 이 API 위에 붙입니다.",
+        "doc": ("MDN · API", MDN + "Glossary/API"),
+    },
+    {
+        "id": "http", "period": "웹 기초", "title": "HTTP 요청·응답", "kind": "intro", "section": "http",
+        "lead": "브라우저가 요청을 보내면 서버가 응답을 돌려줍니다. 요청과 응답은 늘 한 쌍입니다.",
+        "nodes": [["클라이언트", "브라우저 · /docs"], ["서버", "FastAPI · main.py"], ["파일", "data/knowledge.json"]],
+        "pair": [
+            {"name": "요청", "rows": [["Method", "GET"], ["주소", "/api/knowledge/2"], ["Body", "없음 (POST·PUT 때만 JSON)"]]},
+            {"name": "응답", "rows": [["상태코드", "200"], ["Body", "{\"id\": 2, \"title\": \"서버 실행\", …}"]]},
+        ],
+        "why": "주소창에 주소를 넣으면 브라우저는 GET 요청을 보냅니다. 그래서 POST·PUT·DELETE는 /docs 화면에서 보냅니다. 응답이 돌아오면 그 요청은 끝납니다.",
+        "doc": ("MDN · HTTP 개요", MDN + "Web/HTTP/Guides/Overview"),
+    },
+    {
+        "id": "url", "period": "웹 기초", "title": "URL", "kind": "intro", "section": "url",
+        "lead": "주소 하나에 어느 컴퓨터의, 어느 서버에서, 무엇을 할지가 모두 들어 있습니다.",
+        "segments": [["http://", "통신 방식"], ["127.0.0.1", "내 컴퓨터"], [":8000", "포트"], ["/api/knowledge", "경로"], ["/2", "대상 ID"]],
+        "query": "? 뒤에 조건을 붙이기도 합니다. 예) /api/knowledge?category=api",
+        "roles_label": "주소가 서버에 닿으면 main.py에서 지나는 곳",
         "roles": [["주소 연결", "@app.get(\"/health\")"], ["입력 검사", "knowledge_id: int · Knowledge"], ["저장", "write_data(data)"]],
-        "doc": ("First Steps", DOC + "first-steps/"),
+        "why": "127.0.0.1은 지금 쓰고 있는 내 컴퓨터를 가리킵니다. 8000은 서버가 요청을 기다리는 번호(포트)라서, 서버를 켜 두어야 응답이 옵니다.",
+        "next": "다음 단계부터 왼쪽은 코드와 터미널, 오른쪽은 브라우저 화면입니다.",
+        "doc": ("MDN · URL이란?", MDN + "Learn_web_development/Howto/Web_mechanics/What_is_a_URL"),
     },
     {
         "id": "start", "period": "1교시", "title": "서버 실행", "endpoint": RUN,
@@ -257,8 +286,18 @@ steps = [
         "why": "서버를 껐다 켜도 목록이 그대로입니다. 요청마다 read_data()가 파일을 읽고, 바꿀 때마다 write_data(data)가 파일에 저장하기 때문입니다. 이것으로 지식 관리 API가 완성됐습니다.",
         "doc": ("Tutorial - User Guide", DOC),
         "recap": [["200", "성공"], ["201", "새로 만들어짐"], ["204", "처리함, 본문 없음"], ["404", "찾는 것이 없음"], ["422", "보낸 값의 형식이 틀림"]],
+        "recap_note": ["2xx 성공", "4xx 보낸 쪽 문제", "5xx 서버 쪽 문제"],
     },
 ]
+
+# 단계 번호: 웹 기초는 0-1·0-2·0-3, 나머지는 1부터
+intro_count = 0
+for i, step in enumerate(steps):
+    if step.get("kind") == "intro":
+        intro_count += 1
+        step["no"] = f"0-{intro_count}"
+    else:
+        step["no"] = str(i - intro_count + 1)
 
 template = (HERE / "template.html").read_text(encoding="utf-8")
 data = json.dumps(steps, ensure_ascii=False).replace("</", "<\\/")

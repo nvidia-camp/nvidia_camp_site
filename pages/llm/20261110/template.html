@@ -128,12 +128,39 @@ pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.82rem
 .node b { display: block; font-size: 1.15rem; color: var(--color-heading); }
 .node span { font-size: 0.85rem; color: var(--color-muted); }
 .link { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--color-primary); line-height: 1.5; }
-.terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin: var(--space-6) 0 0; }
-.terms.roles { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 0; }
-.terms.roles code { font-size: 0.85rem; }
-.terms div { padding: var(--space-3) var(--space-4); background: var(--color-soft); border-radius: var(--radius-control); }
-.terms dt { font-weight: 700; color: var(--color-primary); }
-.terms dd { margin: 0; }
+.cmp-row, .msg-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-6); }
+.cmp, .msg { padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-soft); }
+.cmp b, .msg > b { display: block; font-size: 1.1rem; color: var(--color-heading); }
+.cmp span { display: block; font-size: 0.9rem; color: var(--color-muted); }
+.cmp code { display: block; margin-top: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); background: var(--color-surface); font-size: 0.85rem; color: var(--color-primary); }
+.platform { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0; margin: 0; }
+.platform li { padding: var(--space-2) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-control); font-weight: 600; }
+.platform li span { display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-muted); }
+.platform li.now { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.platform li.now span { color: var(--code-soft); }
+.platform li { position: relative; }
+.platform li + li { margin-left: var(--space-4); }
+.platform li + li::before { content: "→"; position: absolute; left: -1.05rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 700; }
+.msg dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-1) var(--space-3); margin: var(--space-2) 0 0; }
+.msg dt { font-size: 0.85rem; font-weight: 700; color: var(--color-muted); }
+.msg dd { margin: 0; }
+.msg code { font-size: 0.88rem; color: var(--color-primary); }
+.url { display: flex; flex-wrap: wrap; margin-top: var(--space-6); }
+.seg { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); background: var(--color-soft); }
+.seg + .seg { border-left: 0; }
+.seg:first-child { border-radius: var(--radius-control) 0 0 var(--radius-control); }
+.seg:last-child { border-radius: 0 var(--radius-control) var(--radius-control) 0; }
+.seg code { font-size: 1rem; font-weight: 700; color: var(--color-primary); }
+.seg span { font-size: 0.8rem; color: var(--color-muted); }
+.url-note { margin: var(--space-2) 0 0; font-size: 0.9rem; color: var(--color-muted); }
+.roles { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; }
+.roles div { padding: var(--space-2) var(--space-4); background: var(--color-soft); border-radius: var(--radius-control); }
+.roles dt { font-weight: 700; color: var(--color-primary); }
+.roles dd { margin: 0; font-size: 0.85rem; }
+.roles .arrow { color: var(--color-muted); font-weight: 700; }
+.next { color: var(--color-muted); font-size: 0.92rem; }
+.recap-note { margin: var(--space-2) 0 0; color: var(--color-muted); }
+.recap-note span + span::before { content: "·"; margin: 0 0.6em; }
 .crud { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); align-items: center; }
 .crud span { padding: var(--space-1) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-badge); font-size: 0.9rem; }
 .crud b { font-family: var(--font-code); color: var(--color-primary); margin-left: 0.3em; }
@@ -158,7 +185,14 @@ pre { margin: 0; padding: var(--space-3) 0; overflow-x: auto; font-size: 0.82rem
   .brief dt { padding-top: var(--space-2); }
   .flow { grid-template-columns: minmax(0, 1fr); }
   .link { padding: var(--space-1) 0; }
-  .terms, .terms.roles { grid-template-columns: minmax(0, 1fr); }
+  .cmp-row, .msg-row { grid-template-columns: minmax(0, 1fr); }
+  .seg { flex: 1 1 auto; }
+  .seg code { white-space: nowrap; }
+  .roles { flex-direction: column; align-items: stretch; }
+  .roles .arrow { align-self: center; transform: rotate(90deg); }
+  .seg + .seg { border-left: 1px solid var(--color-border); }
+  .seg, .seg:first-child, .seg:last-child { border-radius: var(--radius-control); }
+  .url { gap: var(--space-1); }
   .btn { padding-inline: var(--space-4); }
   .shot-wrap .shot { width: 34rem; max-width: none; }
 }
@@ -257,33 +291,41 @@ function serverLine(lines) {
   return `<div class="server-line"><span>서버 터미널</span>${lines.map((l) => `<span>${esc(l)}</span>`).join("")}</div>`;
 }
 
+function introBody(step) {
+  if (step.section === "api") {
+    const cards = step.compare.map((c) => `<div class="cmp"><b>${esc(c.name)}</b><span>${esc(c.form)} · ${esc(c.who)}</span>
+      <code>${esc(c.sample)}</code></div>`).join("");
+    const plat = step.platform.map(([when, what], i) =>
+      `<li class="${i === 0 ? "now" : ""}"><span>${esc(when)}</span>${esc(what)}</li>`).join("");
+    return `<div class="cmp-row">${cards}</div>
+      <p class="col-label" style="margin:var(--space-6) 0 var(--space-2)">앞으로 이어지는 순서</p>
+      <ol class="platform">${plat}</ol>`;
+  }
+  if (step.section === "http") {
+    const [a, b, c] = step.nodes;
+    const node = ([n, d]) => `<div class="node"><b>${esc(n)}</b><span>${esc(d)}</span></div>`;
+    const pair = step.pair.map((p) => `<div class="msg"><b>${esc(p.name)}</b><dl>${p.rows.map(([k, v]) =>
+      `<dt>${esc(k)}</dt><dd><code>${esc(v)}</code></dd>`).join("")}</dl></div>`).join("");
+    return `<div class="flow">${node(a)}<div class="link">요청 →<br>← 응답</div>${node(b)}<div class="link">읽기 →<br>← 저장</div>${node(c)}</div>
+      <div class="msg-row">${pair}</div>
+      <div class="crud"><span>읽기<b>GET</b></span><span>만들기<b>POST</b></span><span>바꾸기<b>PUT</b></span><span>지우기<b>DELETE</b></span></div>`;
+  }
+  const segs = step.segments.map(([part, name]) => `<span class="seg"><code>${esc(part)}</code><span>${esc(name)}</span></span>`).join("");
+  const roles = step.roles.map(([r, c], i) => `${i ? '<span class="arrow">→</span>' : ""}<div><dt>${esc(r)}</dt><dd><code>${esc(c)}</code></dd></div>`).join("");
+  return `<div class="url">${segs}</div>
+    <p class="url-note">${esc(step.query)}</p>
+    <p class="col-label" style="margin:var(--space-6) 0 var(--space-2)">${esc(step.roles_label)}</p>
+    <dl class="roles">${roles}</dl>`;
+}
+
 function renderIntro(step) {
   return `<article class="card">
-    <span class="badge">시작</span>
+    <span class="badge">${esc(step.period)}</span>
     <h2 style="margin-top:var(--space-2)">${esc(step.title)}</h2>
-    <p style="margin:var(--space-2) 0 0">${esc(step.task)}</p>
-    <div class="flow">
-      <div class="node"><b>브라우저</b><span>주소창 · /docs</span></div>
-      <div class="link">요청 →<br>← 응답</div>
-      <div class="node"><b>서버</b><span>FastAPI · main.py</span></div>
-      <div class="link">읽기 →<br>← 저장</div>
-      <div class="node"><b>파일</b><span>data/knowledge.json · 처음 3건</span></div>
-    </div>
-    <dl class="terms">
-      <div><dt>서버</dt><dd>켜 둔 채로 요청을 기다렸다가 답하는 프로그램</dd></div>
-      <div><dt>요청</dt><dd>무엇을 할지(GET·POST…) + 어디에(/api/knowledge/2)</dd></div>
-      <div><dt>응답</dt><dd>결과 숫자(200·404…) + 내용</dd></div>
-      <div><dt>JSON</dt><dd>{"이름": 값} 모양으로 데이터를 적은 글자</dd></div>
-    </dl>
-    <div class="crud">
-      <span>읽기<b>GET</b></span><span>만들기<b>POST</b></span><span>바꾸기<b>PUT</b></span><span>지우기<b>DELETE</b></span>
-    </div>
-    <p class="col-label" style="margin:var(--space-6) 0 var(--space-2)">main.py에서 매 단계 짚는 세 곳</p>
-    <dl class="terms roles">
-      ${step.roles.map(([r, c]) => `<div><dt>${esc(r)}</dt><dd><code>${esc(c)}</code></dd></div>`).join("")}
-    </dl>
-    <div class="why"><p>다음 단계부터 왼쪽은 코드와 터미널, 오른쪽은 브라우저 화면입니다.</p>
-      <span class="refs">공식 문서 <a href="${esc(step.doc[1])}" target="_blank" rel="noopener">${esc(step.doc[0])} ↗</a></span></div>
+    <p style="margin:var(--space-2) 0 0">${esc(step.lead)}</p>
+    ${introBody(step)}
+    <div class="why"><p>${sentences(step.why)}${step.next ? `<br><span class="next">${esc(step.next)}</span>` : ""}</p>
+      <span class="refs">참고 <a href="${esc(step.doc[1])}" target="_blank" rel="noopener">${esc(step.doc[0])} ↗</a></span></div>
   </article>`;
 }
 
@@ -301,7 +343,8 @@ function renderStep(step) {
     right.push(`<div><div class="result-head"><span class="col-label" style="margin:0">다시 확인 · ${esc(src.result.label)}</span>
       <span class="change">${esc(src.result.change)}</span></div>${browser(src.result.view)}</div>`);
   }
-  const recap = step.recap ? `<div class="recap">지금까지 만난 상태코드 ${step.recap.map(([c, m]) => `<span><b>${esc(c)}</b>${esc(m)}</span>`).join("")}</div>` : "";
+  const note = step.recap_note ? `<p class="recap-note">앞자리로 읽기 ${step.recap_note.map((t) => `<span>${esc(t)}</span>`).join("")}</p>` : "";
+  const recap = step.recap ? `<div class="recap">지금까지 만난 상태코드 ${step.recap.map(([c, m]) => `<span><b>${esc(c)}</b>${esc(m)}</span>`).join("")}${note}</div>` : "";
   return `<article class="card">
     <div class="brief">
       <div>
@@ -347,7 +390,7 @@ function buildNav() {
   STEPS.forEach((s, i) => {
     let g = groups.find((x) => x.period === s.period);
     if (!g) groups.push((g = { period: s.period, items: [] }));
-    g.items.push(`<button class="chip" type="button" data-i="${i}"><span class="n">${i}</span>${esc(s.title)}</button>`);
+    g.items.push(`<button class="chip" type="button" data-i="${i}"><span class="n">${esc(s.no)}</span>${esc(s.title)}</button>`);
   });
   document.getElementById("steps").innerHTML = groups.map((g) =>
     `<div class="group"><span class="group-label">${esc(g.period)}</span><div class="group-items">${g.items.join("")}</div></div>`).join("");
