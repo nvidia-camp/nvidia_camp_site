@@ -319,10 +319,10 @@ def subject_block(key, ds, up, link_head=True):
     made = [d for d in ds if d["src"]]
     has_all = (PAGES / key / "all" / "index.html").exists()
     if not made and not has_all:
-        return (f'<section class="subject quiet"><div class="subject-head"><h2>{html.escape(ds[0]["subject"])}</h2>'
+        return (f'<section class="subject quiet"><div class="subject-head"><h2 title="{html.escape(ds[0]["subject"])}">{html.escape(ds[0]["short"])}</h2>'
                 f'<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span><span class="soon">준비 중</span></div>'
                 f'{refs_row(key, up)}</section>')
-    head = f'<h2>{html.escape(ds[0]["subject"])}</h2>'
+    head = f'<h2 title="{html.escape(ds[0]["subject"])}">{html.escape(ds[0]["short"])}</h2>'
     if link_head:
         head = f'<a href="{up}{key}/">{head}</a>'
     parts = [f'<div class="subject-head">{head}<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span></div>']
