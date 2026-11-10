@@ -9,14 +9,15 @@
 - 원본은 pages/ 아래에 둔다. 폴더 이름만 맞추면 자동으로 사이트에 들어간다.
     pages/<과목>/<YYYYMMDD>/   매일 요약     → /<과목>/<YYYYMMDD>/  (같은 날 두 번째 회차는 <YYYYMMDD>-2)
     pages/<과목>/all/          과목 4일 종합 → /<과목>/  (없으면 날짜 카드 목록)
-    pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 보이는 이름 등록)
-    pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 등록, 공개 여부 표시)
+    pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 이름·과목 등록)
+    pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 이름·과목·공개 여부 등록)
+- 치트시트·설치 가이드는 등록한 과목 블록 아래 '참고' 줄에 링크로 나온다.
 - 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
-- 미공개(SETUP의 공개=False) 페이지는 main 미리보기에는 '미공개' 표시와 함께 들어가고,
-  `--release`로 만들면 빠진다. deploy에는 반드시 --release 빌드를 올린다.
+- 공개 전(SETUP의 공개=False) 페이지는 main 빌드에는 들어가고 `--release`로 만들면 빠진다.
+  화면에 따로 표시하지 않는다(공개 구분은 main/deploy 브랜치로 한다).
 """
 import base64
 import datetime
@@ -53,22 +54,29 @@ PRACTICE = [
     ("SWEA", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
     ("Programmers", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
 ]
-# 치트시트: 경로 → (보이는 이름, 공식 로고 파일, 용도)
+# 치트시트: 경로 → (보이는 이름, 용도, 과목). 과목 블록 아래 '참고' 줄에 나온다.
 CHEATSHEETS = {
-    "sklearn": ("scikit-learn", "sklearn.svg", "머신러닝 · 모델 평가"),
-    "pytorch": ("PyTorch", "pytorch.svg", "텐서 · 신경망 학습"),
-    "opencv": ("OpenCV", "opencv.png", "이미지 · 영상 처리"),
+    "sklearn": ("scikit-learn 치트시트", "머신러닝 · 모델 평가", "ml"),
+    "pytorch": ("PyTorch 치트시트", "텐서 · 신경망 학습", "dl"),
+    "opencv": ("OpenCV 치트시트", "이미지 · 영상 처리", "vision"),
 }
 
-# 설치 가이드: 경로 → (보이는 이름, 용도, 공개 여부). 공개 전에는 False로 둔다.
+# 설치 가이드: 경로 → (보이는 이름, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
-    "postgresql": ("PostgreSQL · pgAdmin", "Windows 설치 · 접속 확인 · Day18부터", False),
+    "postgresql": ("PostgreSQL 설치 가이드", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", False),
 }
-RELEASE = "--release" in sys.argv   # deploy용: 미공개 페이지를 뺀다
+RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
 
 def setup_items():
-    return [(k, name, desc, pub) for k, (name, desc, pub) in SETUP.items() if pub or not RELEASE]
+    return [(k, name, desc, subj) for k, (name, desc, subj, pub) in SETUP.items() if pub or not RELEASE]
+
+
+def refs_of(subject):
+    """과목에 딸린 참고 문서: [(루트 기준 경로, 이름, 용도)]"""
+    items = [(f"cheatsheet/{k}/", name, desc) for k, (name, desc, subj) in CHEATSHEETS.items() if subj == subject]
+    items += [(f"setup/{k}/", name, desc) for k, name, desc, subj in setup_items() if subj == subject]
+    return items
 
 
 FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif'
@@ -203,6 +211,7 @@ p{{margin:0}}
   border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}}
 .links a:hover{{border-color:var(--primary)}}
 .quiet-list{{display:grid;gap:12px}}
+.subject.quiet{{gap:6px}}
 .quiet h2{{font-size:17px;color:var(--muted);font-weight:600}}
 .soon{{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}}
 .count{{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}}
@@ -238,19 +247,11 @@ a.cell:hover{{transform:scale(1.25)}}
 .label{{font-size:13px;font-weight:600;color:var(--muted)}}
 .btn{{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
   background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
-.grid.sheets{{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.sheet-card{{grid-template-columns:96px minmax(0,1fr);align-items:center;gap:16px;padding:20px}}
-.sheet-logo{{display:flex;align-items:center;justify-content:center;width:96px;height:72px;
-  padding:8px;background:#FFFFFF;border:1px solid #D8E4F2;border-radius:12px}}
-.sheet-logo img{{display:block;width:80px;height:56px;object-fit:contain}}
-.sheet-text{{display:grid;gap:4px}}
-.sheet-text p{{color:var(--muted);font-size:13px;line-height:1.6}}
-.sheet-text h3{{font-size:18px;line-height:1.45}}
-.setup-card{{padding:20px;gap:4px}}
-.setup-card h3{{font-size:18px;line-height:1.45}}
-.setup-card p{{color:var(--muted);font-size:13px;line-height:1.6}}
+.refs{{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;font-size:14px;color:var(--muted)}}
+.refs .label{{font-size:12px}}
+.refs a{{text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}}
+.refs a:hover{{color:var(--heading);text-decoration-color:currentColor}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
-@media (max-width:900px){{.grid.sheets{{grid-template-columns:1fr}}}}
 @media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
 """
 
@@ -297,12 +298,22 @@ def feature_card(key, up):
             f'<h3>{html.escape(page_h1(src))}</h3></a>{pdf_link}</div>')
 
 
+def refs_row(key, up):
+    refs = refs_of(key)
+    if not refs:
+        return ""
+    links = "".join(f'<a href="{up}{path}" title="{html.escape(desc)}">{html.escape(name)}</a>'
+                    for path, name, desc in refs)
+    return f'<p class="refs"><span class="label">참고</span>{links}</p>'
+
+
 def subject_block(key, ds, up, link_head=True):
     made = [d for d in ds if d["src"]]
     has_all = (PAGES / key / "all" / "index.html").exists()
     if not made and not has_all:
         return (f'<section class="subject quiet"><div class="subject-head"><h2>{html.escape(ds[0]["subject"])}</h2>'
-                f'<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span><span class="soon">준비 중</span></div></section>')
+                f'<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span><span class="soon">준비 중</span></div>'
+                f'{refs_row(key, up)}</section>')
     head = f'<h2>{html.escape(ds[0]["subject"])}</h2>'
     if link_head:
         head = f'<a href="{up}{key}/">{head}</a>'
@@ -311,6 +322,7 @@ def subject_block(key, ds, up, link_head=True):
         parts.append(feature_card(key, up))
     if made:
         parts.append(f'<div class="grid">{"".join(day_card(d, up) for d in made)}</div>')
+    parts.append(refs_row(key, up))
     return f'<section class="subject">{"".join(parts)}</section>'
 
 
@@ -342,19 +354,6 @@ def image_data(image):
     return f"data:{mime};base64,{data}"
 
 
-def cheatsheet_card(key, name, logo, description):
-    image = image_data(HERE / "assets" / "logos" / logo)
-    return (f'<a class="card sheet-card" href="cheatsheet/{key}/">'
-            f'<span class="sheet-logo"><img src="{image}" alt="" width="80" height="56"></span>'
-            f'<div class="sheet-text"><h3>{html.escape(name)}</h3><p>{html.escape(description)}</p></div></a>')
-
-
-def setup_card(key, name, description, published):
-    badge = "" if published else '<span class="soon">미공개</span>'
-    return (f'<a class="card setup-card" href="setup/{key}/"><h3>{html.escape(name)} {badge}</h3>'
-            f'<p>{html.escape(description)}</p></a>')
-
-
 def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
@@ -363,10 +362,6 @@ def home_page(days, subjects, today):
     full = [subject_block(k, ds, "") for k, ds in ordered if "quiet" not in subject_block(k, ds, "")]
     quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
     blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
-    sheets = "".join(cheatsheet_card(k, *sheet) for k, sheet in CHEATSHEETS.items())
-    guides = "".join(setup_card(*item) for item in setup_items())
-    setup = (f'\n<section class="subject" id="setup"><div class="subject-head"><h2>설치 가이드</h2></div>'
-             f'<div class="grid sheets">{guides}</div></section>') if guides else ""
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{name} ↗</a>'
                        for name, url in PRACTICE)
     sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
@@ -381,9 +376,7 @@ def home_page(days, subjects, today):
 <nav class="links" aria-label="문제 풀이">{practice}</nav></div>
 <div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
 </header>
-{blocks}
-<section class="subject" id="cheatsheet"><div class="subject-head"><h2>치트시트</h2></div>
-<div class="grid sheets">{sheets}</div></section>{setup}"""
+{blocks}"""
     return list_page(SITE_NAME, body)
 
 
@@ -435,10 +428,9 @@ def main():
         src = PAGES / "cheatsheet" / k
         copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name, pdf=pdf_of(src)))
 
-    print("설치 가이드" + (" (--release: 미공개 제외)" if RELEASE else ""))
-    for k, name, _, published in setup_items():
-        here = name if published else f"{name} · 미공개"
-        copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=here))
+    print("설치 가이드" + (" (--release: 공개 전 페이지 제외)" if RELEASE else ""))
+    for k, name, _, _ in setup_items():
+        copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=name))
 
     (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
     print(f"홈 · 기준일 {today}")
