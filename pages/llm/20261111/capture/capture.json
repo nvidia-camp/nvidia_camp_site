@@ -1,0 +1,354 @@
+{
+ "sql": {
+  "select": "SELECT id, title\nFROM knowledge\nWHERE category_id = 1\nORDER BY id;",
+  "join": "SELECT k.id, k.title, c.name AS category\nFROM knowledge AS k\nJOIN categories AS c\n  ON c.id = k.category_id\nORDER BY k.id;",
+  "left_join": "SELECT c.name AS category, k.title\nFROM categories AS c\nLEFT JOIN knowledge AS k\n  ON k.category_id = c.id\nORDER BY c.id, k.id;",
+  "group_by": "SELECT c.name AS category,\n       COUNT(k.id) AS knowledge_count\nFROM categories AS c\nLEFT JOIN knowledge AS k\n  ON k.category_id = c.id\nGROUP BY c.id, c.name\nORDER BY c.id;",
+  "insert": "INSERT INTO knowledge (title, content, category_id)\nVALUES ('임시 안내', '한 번만 실행합니다.', 1)\nRETURNING id;",
+  "update": "UPDATE knowledge\nSET content = '실행 전에 가상환경을 확인합니다.'\nWHERE id = 2;",
+  "delete": "DELETE FROM knowledge\nWHERE id = 3;",
+  "create_table": "CREATE TABLE knowledge (\n  id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  title       VARCHAR(80) NOT NULL\n              CHECK (char_length(title) BETWEEN 1 AND 80),\n  content     TEXT NOT NULL\n              CHECK (char_length(content) BETWEEN 1 AND 2000),\n  category_id BIGINT NOT NULL\n              REFERENCES categories (id) ON DELETE RESTRICT\n);",
+  "tx_category": "INSERT INTO categories (name) VALUES ('api');",
+  "tx_knowledge": "INSERT INTO knowledge (title, content, category_id)\nVALUES ('API 문서', '', 4);"
+ },
+ "reject_sql": {
+  "not_null": "INSERT INTO knowledge (title, content, category_id) VALUES (NULL, '본문', 1)",
+  "check": "INSERT INTO knowledge (title, content, category_id) VALUES ('제목', '', 1)",
+  "fk": "INSERT INTO knowledge (title, content, category_id) VALUES ('제목', '본문', 99)",
+  "unique": "INSERT INTO categories (name) VALUES ('learning')",
+  "restrict": "DELETE FROM categories WHERE name = 'learning'"
+ },
+ "version": "17.10 (Homebrew)",
+ "categories": {
+  "cols": [
+   "id",
+   "name"
+  ],
+  "rows": [
+   [
+    1,
+    "learning"
+   ],
+   [
+    2,
+    "environment"
+   ],
+   [
+    3,
+    "reference"
+   ]
+  ]
+ },
+ "knowledge": {
+  "cols": [
+   "id",
+   "title",
+   "content",
+   "category_id"
+  ],
+  "rows": [
+   [
+    1,
+    "실습 파일 보관",
+    "실습 파일은 개인 폴더에 보관합니다.",
+    1
+   ],
+   [
+    2,
+    "서버 실행",
+    "프로젝트 폴더에서 서버를 실행합니다.",
+    2
+   ],
+   [
+    3,
+    "질문 작성",
+    "오류 메시지와 시도한 작업을 함께 적습니다.",
+    1
+   ]
+  ]
+ },
+ "select": {
+  "cols": [
+   "id",
+   "title"
+  ],
+  "rows": [
+   [
+    1,
+    "실습 파일 보관"
+   ],
+   [
+    3,
+    "질문 작성"
+   ]
+  ]
+ },
+ "join": {
+  "cols": [
+   "id",
+   "title",
+   "category"
+  ],
+  "rows": [
+   [
+    1,
+    "실습 파일 보관",
+    "learning"
+   ],
+   [
+    2,
+    "서버 실행",
+    "environment"
+   ],
+   [
+    3,
+    "질문 작성",
+    "learning"
+   ]
+  ]
+ },
+ "left_join": {
+  "cols": [
+   "category",
+   "title"
+  ],
+  "rows": [
+   [
+    "learning",
+    "실습 파일 보관"
+   ],
+   [
+    "learning",
+    "질문 작성"
+   ],
+   [
+    "environment",
+    "서버 실행"
+   ],
+   [
+    "reference",
+    null
+   ]
+  ]
+ },
+ "group_by": {
+  "cols": [
+   "category",
+   "knowledge_count"
+  ],
+  "rows": [
+   [
+    "learning",
+    2
+   ],
+   [
+    "environment",
+    1
+   ],
+   [
+    "reference",
+    0
+   ]
+  ]
+ },
+ "insert": {
+  "returning": {
+   "cols": [
+    "id"
+   ],
+   "rows": [
+    [
+     4
+    ]
+   ]
+  },
+  "rowcount": 1,
+  "after": {
+   "cols": [
+    "id",
+    "title",
+    "content",
+    "category_id"
+   ],
+   "rows": [
+    [
+     1,
+     "실습 파일 보관",
+     "실습 파일은 개인 폴더에 보관합니다.",
+     1
+    ],
+    [
+     2,
+     "서버 실행",
+     "프로젝트 폴더에서 서버를 실행합니다.",
+     2
+    ],
+    [
+     3,
+     "질문 작성",
+     "오류 메시지와 시도한 작업을 함께 적습니다.",
+     1
+    ],
+    [
+     4,
+     "임시 안내",
+     "한 번만 실행합니다.",
+     1
+    ]
+   ]
+  }
+ },
+ "update": {
+  "returning": null,
+  "rowcount": 1,
+  "after": {
+   "cols": [
+    "id",
+    "title",
+    "content",
+    "category_id"
+   ],
+   "rows": [
+    [
+     1,
+     "실습 파일 보관",
+     "실습 파일은 개인 폴더에 보관합니다.",
+     1
+    ],
+    [
+     2,
+     "서버 실행",
+     "실행 전에 가상환경을 확인합니다.",
+     2
+    ],
+    [
+     3,
+     "질문 작성",
+     "오류 메시지와 시도한 작업을 함께 적습니다.",
+     1
+    ]
+   ]
+  }
+ },
+ "delete": {
+  "returning": null,
+  "rowcount": 1,
+  "after": {
+   "cols": [
+    "id",
+    "title",
+    "content",
+    "category_id"
+   ],
+   "rows": [
+    [
+     1,
+     "실습 파일 보관",
+     "실습 파일은 개인 폴더에 보관합니다.",
+     1
+    ],
+    [
+     2,
+     "서버 실행",
+     "프로젝트 폴더에서 서버를 실행합니다.",
+     2
+    ]
+   ]
+  }
+ },
+ "create_table_ok": true,
+ "reject": {
+  "not_null": {
+   "sqlstate": "23502",
+   "constraint": null
+  },
+  "check": {
+   "sqlstate": "23514",
+   "constraint": "knowledge_content_length"
+  },
+  "fk": {
+   "sqlstate": "23503",
+   "constraint": "knowledge_category_fk"
+  },
+  "unique": {
+   "sqlstate": "23505",
+   "constraint": "categories_name_key"
+  },
+  "restrict": {
+   "sqlstate": "23503",
+   "constraint": "knowledge_category_fk"
+  }
+ },
+ "after_reject": {
+  "cols": [
+   "id",
+   "title",
+   "content",
+   "category_id"
+  ],
+  "rows": [
+   [
+    1,
+    "실습 파일 보관",
+    "실습 파일은 개인 폴더에 보관합니다.",
+    1
+   ],
+   [
+    2,
+    "서버 실행",
+    "프로젝트 폴더에서 서버를 실행합니다.",
+    2
+   ],
+   [
+    3,
+    "질문 작성",
+    "오류 메시지와 시도한 작업을 함께 적습니다.",
+    1
+   ]
+  ]
+ },
+ "tx_rollback": {
+  "cols": [
+   "id",
+   "name"
+  ],
+  "rows": [
+   [
+    1,
+    "learning"
+   ],
+   [
+    2,
+    "environment"
+   ],
+   [
+    3,
+    "reference"
+   ]
+  ]
+ },
+ "tx_autocommit": {
+  "cols": [
+   "id",
+   "name"
+  ],
+  "rows": [
+   [
+    1,
+    "learning"
+   ],
+   [
+    2,
+    "environment"
+   ],
+   [
+    3,
+    "reference"
+   ],
+   [
+    4,
+    "api"
+   ]
+  ]
+ }
+}
