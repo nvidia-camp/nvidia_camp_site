@@ -12,6 +12,7 @@ pages/                     ← 원본 (구성안·템플릿·제작 스크립트
 ├─ overview/                전체 과목 연결 요약 → /overview/
 ├─ cheatsheet/<이름>/        라이브러리 치트시트 → /cheatsheet/<이름>/
 └─ setup/<이름>/             설치 가이드         → /setup/<이름>/
+   └─ <하위>/               가이드 안 페이지    → /setup/<이름>/<하위>/ (SETUP_PAGES에 순서 등록)
 public/                    ← build_site.py가 만드는 배포본 (Vercel이 이 폴더만 배포)
 sync_lectures.py           ← 학습 자료 시트 → lectures.json (Day·날짜·과목·강의 자료 링크)
 lectures.json              ← 실제 일정. 사이트의 Day 번호와 날짜 기준
@@ -20,7 +21,7 @@ DESIGN.md                  ← 모든 페이지 공통 디자인 원칙
 ```
 
 - 과목 key: `ml`, `dl`, `vision`, `llm`. 새 요약은 위 규칙의 폴더에 `index.html`을 만들면 자동으로 들어갑니다. 치트시트는 `build_site.py`의 `CHEATSHEETS`에, 설치 가이드는 `SETUP`에 이름과 과목을 한 줄 추가합니다. 홈과 과목 목록에서 그 과목 아래 '참고' 줄에 링크로 나옵니다.
-- 페이지 안의 상대 링크는 빌드할 때 글자로 바뀝니다. 사이트의 다른 페이지로 가는 링크만 `<a data-site href="../psql/">`처럼 `data-site`를 붙이면 살아 있습니다.
+- 페이지 안의 상대 링크는 빌드할 때 글자로 바뀝니다. 사이트의 다른 페이지로 가는 링크만 `<a data-site href="../pgadmin/">`처럼 `data-site`를 붙이면 살아 있습니다.
 - 요약 PDF는 페이지 폴더에 함께 둡니다. 사이트에서는 위쪽 메뉴의 PDF 링크로 열립니다. 강의 교재 PDF는 넣지 않습니다.
 - 제작 스크립트는 실습 코드·데이터를 `nvidia_camp`에서 읽기만 합니다. `nvidia_camp`는 이 폴더를 참조하지 않습니다.
 - 진행 기록은 `LOG.md`, 페이지별 제작 기록은 각 폴더의 `DESIGN.md`에 남깁니다.

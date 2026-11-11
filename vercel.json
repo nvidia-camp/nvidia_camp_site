@@ -1,3 +1,7 @@
 {
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "redirects": [
+    { "source": "/setup/psql", "destination": "/setup/postgresql/psql/", "permanent": true },
+    { "source": "/setup/psql/", "destination": "/setup/postgresql/psql/", "permanent": true }
+  ]
 }

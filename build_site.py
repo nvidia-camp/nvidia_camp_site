@@ -11,6 +11,7 @@
     pages/<과목>/all/          과목 4일 종합 → /<과목>/  (없으면 날짜 카드 목록)
     pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 이름·과목 등록)
     pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 이름·과목·공개 여부 등록)
+    pages/setup/<이름>/<하위>/ 가이드 안 페이지 → /setup/<이름>/<하위>/ (SETUP_PAGES에 순서·이름 등록)
 - 치트시트·설치 가이드는 등록한 과목 블록 아래 '참고' 줄에 링크로 나온다.
 - 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
@@ -63,8 +64,11 @@ CHEATSHEETS = {
 
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
-    "postgresql": ("PostgreSQL 설치 가이드", "postgresql.svg", "Windows · PostgreSQL 18 · pgAdmin 4", "llm", True),
-    "psql": ("psql 접속 가이드", "postgresql.svg", "명령창(SQL Shell)으로 접속 · 선택", "llm", True),
+    "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
+}
+# 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
+SETUP_PAGES = {
+    "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
 }
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
@@ -440,7 +444,20 @@ def main():
 
     print("설치 가이드" + (" (--release: 공개 전 페이지 제외)" if RELEASE else ""))
     for k, name, *_ in setup_items():
-        copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=name))
+        subs = SETUP_PAGES.get(k)
+        if not subs:
+            copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=name))
+            continue
+        paths = [f"setup/{k}/" + (f"{sub}/" if sub else "") for sub, _ in subs]
+        for i, (sub, label) in enumerate(subs):
+            prev = (subs[i - 1][1], paths[i - 1]) if i else None
+            next_ = (subs[i + 1][1], paths[i + 1]) if i + 1 < len(subs) else None
+            if sub:
+                nav = nav_html(3, [(name, paths[0])], here=label, prev=prev, next_=next_)
+            else:
+                nav = nav_html(2, [], here=f"{name} · {label}", next_=next_)
+            copy_page(PAGES / "setup" / k / sub if sub else PAGES / "setup" / k,
+                      paths[i].rstrip("/"), nav)
 
     (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
     print(f"홈 · 기준일 {today}")
