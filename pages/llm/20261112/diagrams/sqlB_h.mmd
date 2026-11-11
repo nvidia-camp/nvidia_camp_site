@@ -1,0 +1,19 @@
+flowchart LR
+  ready["00_ready_database.sql"] -- 지식 3행 준비 --> t2[("day19_crud_h<br/>categories · knowledge")]
+  exp["CRUD_명세와_예상결과.md"] -. 결과 비교 .-> rd["<b>queries/01_reads.sql</b><br/>문제 9개 · R01~R09"]
+  rd -- SELECT --> t2
+  cr["<b>changes/02_create.sql</b><br/>C01"] -- INSERT --> t2
+  up["<b>transactions/03_update.sql</b><br/>U01·U02"] -- "UPDATE<br/>ROLLBACK/COMMIT" --> t2
+  dl["<b>changes/04_delete.sql</b><br/>D01"] -- DELETE --> t2
+  at["<b>transactions/05_atomicity.sql</b><br/>T01 · 묶어서 취소"] -- UPDATE 2개 --> t2
+  ex["checks/explain.sql<br/>인덱스 사용 확인"] --> t2
+  err["errors.sql"] -- 규칙 위반 시도 --> t2
+  classDef q fill:#FFF3D8,stroke:#C9962E,color:#7A4F0E,stroke-width:2px
+  classDef ref fill:#E9F3FC,stroke:#8DB3DF,color:#245C9C
+  classDef run fill:#E9F5EE,stroke:#86BF9B,color:#2E6B45
+  classDef keep fill:#EEF1F6,stroke:#AEB8C8,color:#4A5870
+  classDef db fill:#142849,stroke:#142849,color:#FFFFFF
+  class rd,cr,up,dl,at q
+  class exp ref
+  class ready,err,ex run
+  class t2 db

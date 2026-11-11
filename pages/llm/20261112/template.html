@@ -104,7 +104,24 @@ section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
 .files li { display: grid; grid-template-columns: 3.4rem minmax(0, 13.5rem) minmax(0, 1fr); gap: 0.6rem; align-items: baseline; font-size: 0.92rem; }
 .files li.is-q .fn { color: var(--q-fg); }
 .files .fn { font-family: var(--font-code); font-weight: 600; color: var(--color-heading); font-size: 0.86rem; overflow-wrap: anywhere; }
-.files .sub-dir { grid-column: 1 / -1; font-family: var(--font-code); font-size: 0.8rem; font-weight: 700; color: var(--color-muted); margin-top: 0.35rem; }
+.files code { white-space: nowrap; }
+.files li.sub-dir { display: block; font-family: var(--font-code); font-size: 0.8rem; font-weight: 700; color: var(--color-muted); margin-top: 0.35rem; }
+
+/* 수준 탭 */
+.tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tabs button { font: 700 0.95rem/1.4 var(--font-body); color: var(--color-heading); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.45rem 1rem; cursor: pointer; }
+.tabs button small { font-weight: 600; font-size: 0.75rem; color: var(--color-muted); margin-left: 0.2rem; }
+.tabs button[aria-selected="true"] { background: var(--color-primary); color: var(--on-primary); border-color: var(--color-primary); }
+.tabs button[aria-selected="true"] small { color: inherit; opacity: 0.8; }
+.tabs button:focus-visible { outline: 3px solid var(--q-line); outline-offset: 2px; }
+.level-panel { display: grid; gap: 1rem; }
+.level-panel[hidden] { display: none; }
+.panel-note { font-size: 0.9rem; color: var(--color-muted); }
+.panel-note b { color: var(--color-heading); }
+.basic-only { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; border-top: 2px solid var(--color-primary); padding-top: 1.25rem; }
+.basic-only p { flex: 1 1 22rem; }
+.basic-only b { color: var(--color-heading); }
+.diagram .diagram-title { color: #1C2B40; }
 
 /* 그래프 */
 .diagram { background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1rem; overflow-x: auto; }
@@ -160,6 +177,10 @@ figure img { display: block; max-width: 100%; height: auto; }
 .ex-label { font-size: 0.8rem; font-weight: 700; color: var(--color-muted); }
 .ex-steps { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.35rem; }
 .ex-steps b { color: var(--color-heading); }
+.ex { display: grid; gap: 0.7rem; padding-top: 0.9rem; border-top: 1px dashed var(--color-border); }
+.ex h4 { margin: 0; font-size: 1rem; color: var(--q-fg); }
+.now-you { background: var(--q-bg); border-radius: var(--radius-control); padding: 0.8rem 1rem; }
+.now-you b { color: var(--q-fg); margin-right: 0.35rem; }
 
 .foot { font-size: 0.875rem; color: var(--color-muted); display: grid; gap: 0.3rem; border-top: 1px solid var(--color-border); padding-top: 1rem; }
 
@@ -212,9 +233,17 @@ figure img { display: block; max-width: 100%; height: auto; }
 <section aria-labelledby="map-title">
   <div class="section-head">
     <h2 id="map-title">폴더 지도</h2>
-    <p>풀어야 할 문제가 있는 파일은 3개입니다. 같은 이름의 <code>.html</code>은 <code>.md</code>를 브라우저용으로 만든 사본입니다.</p>
+    <p>같은 이름의 <code>.html</code>은 <code>.md</code>를 브라우저용으로 만든 사본입니다. 응용·심화는 탭을 눌러 봅니다.</p>
+  </div>
+  <div class="tabs" role="tablist" aria-label="수준">
+    <button type="button" role="tab" data-level="b" aria-selected="true">basic</button>
+    <button type="button" role="tab" data-level="a" aria-selected="false">응용 <small>intermediate</small></button>
+    <button type="button" role="tab" data-level="h" aria-selected="false">심화 <small>advanced</small></button>
   </div>
   <p class="legend"><span class="role r-q">문제</span>빈칸 문제를 푸는 파일 <span class="role r-ref">참고</span>문제를 풀 때 보는 명세·예상 결과 <span class="role r-run">실행</span>실행만 하는 파일 <span class="role r-keep">제공</span>건드리지 않는 파일</p>
+
+  <div class="level-panel" data-level="b">
+  <p class="panel-note"><b>basic</b> · 문제 파일 3개 · API 6 · DDL 4 · SQL 8</p>
   <div class="cards">
     <article class="card">
       <div class="card-head"><h3>01_FastAPI</h3><span class="path">01_basic/01_FastAPI/</span></div>
@@ -236,7 +265,7 @@ figure img { display: block; max-width: 100%; height: auto; }
         <li><span class="role r-ref">참고</span><span class="fn">README.md</span><span class="desc">A·B 진행 방법</span></li>
         <li><span class="role r-ref">참고</span><span class="fn">스키마명세서.md · ERD.dbml</span><span class="desc">테이블 설계도</span></li>
         <li><span class="role r-ref">참고</span><span class="fn">CRUD_명세와_예상결과.md</span><span class="desc">문제별 예상 결과 표</span></li>
-        <li><span class="role r-run">실행</span><span class="fn">00_접속준비.sql</span><span class="desc">DB 2개 만들기 (pgAdmin 메뉴로 해도 됨)</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">00_접속준비.sql</span><span class="desc">DB 2개 만들기: day19_build_b · day19_crud_b</span></li>
         <li class="sub-dir">A_구축/</li>
         <li class="is-q"><span class="role r-q">문제</span><span class="fn">build.sql</span><span class="desc">문제 4개 (B-DDL-01~04)</span></li>
         <li><span class="role r-run">실행</span><span class="fn">check_structure.sql</span><span class="desc">열·제약조건 확인</span></li>
@@ -249,23 +278,109 @@ figure img { display: block; max-width: 100%; height: auto; }
       </ul>
     </article>
   </div>
+  </div>
+
+  <div class="level-panel" data-level="a" hidden>
+  <p class="panel-note"><b>응용</b> · basic의 한 파일이 역할별 파일로 나뉩니다 · API 9 · DDL 6 · SQL 11</p>
+  <div class="cards">
+    <article class="card">
+      <div class="card-head"><h3>01_FastAPI</h3><span class="path">02_intermediate/01_FastAPI/</span></div>
+      <ul class="files">
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">main.py</span><span class="desc">문제 7개 (A-API-03~09) · API 처리</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">queries.py</span><span class="desc">문제 2개 (A-API-01·02) · 분류 필터, id로 찾기</span></li>
+        <li><span class="role r-ref">참고</span><span class="fn">명세서.md · 예상결과.md</span><span class="desc">분류 Query(<code>?category=</code>)가 추가됨</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">check_api.py · reset_data.py</span><span class="desc">채점 · 초기화</span></li>
+        <li><span class="role r-keep">제공</span><span class="fn">schemas.py</span><span class="desc">입력·응답 모델</span></li>
+        <li><span class="role r-keep">제공</span><span class="fn">storage.py</span><span class="desc">JSON 파일 읽기·쓰기 함수</span></li>
+        <li><span class="role r-keep">제공</span><span class="fn">data/ · requests/ · expected/</span><span class="desc">basic과 같음</span></li>
+      </ul>
+    </article>
+    <article class="card">
+      <div class="card-head"><h3>02_PostgreSQL</h3><span class="path">02_intermediate/02_PostgreSQL/</span></div>
+      <ul class="files">
+        <li><span class="role r-ref">참고</span><span class="fn">README.md · 스키마명세서.md · CRUD_명세와_예상결과.md</span><span class="desc">basic과 같은 역할</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">00_접속준비.sql</span><span class="desc">DB 2개: day19_build_a · day19_crud_a</span></li>
+        <li class="sub-dir">A_구축/schema/ · 순서대로</li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">01_categories.sql</span><span class="desc">문제 3개 (A-DDL-01~03) · 부모 테이블</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">02_knowledge.sql</span><span class="desc">문제 3개 (A-DDL-04~06) · 자식 테이블과 FK</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">../check_structure.sql · check_insert.sql</span><span class="desc">결과 확인</span></li>
+        <li class="sub-dir">B_CRUD/</li>
+        <li><span class="role r-run">실행</span><span class="fn">00_ready_database.sql</span><span class="desc">완성 DB 준비 (한 번만)</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">queries/01_reads.sql</span><span class="desc">문제 7개 (R01~R07) · 조건 결합·HAVING 추가</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">changes/02_crud.sql</span><span class="desc">문제 4개 (C01·U01·U02·D01)</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">errors.sql</span><span class="desc">일부러 규칙을 어겨 보는 SQL</span></li>
+      </ul>
+    </article>
+  </div>
+  </div>
+
+  <div class="level-panel" data-level="h" hidden>
+  <p class="panel-note"><b>심화</b> · 앱을 router·repository로 나누고 테스트를 직접 씁니다 · API 12 · DDL 9 · SQL 14</p>
+  <div class="cards">
+    <article class="card">
+      <div class="card-head"><h3>01_FastAPI</h3><span class="path">03_advanced/01_FastAPI/</span></div>
+      <ul class="files">
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">app/repositories/json_knowledge.py</span><span class="desc">문제 6개 (H-API-01~06) · 파일에서 찾기·추가·수정·삭제</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">app/routers/knowledge.py</span><span class="desc">문제 4개 (H-API-07~10) · 404·201·204 같은 HTTP 처리</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">tests/test_contract.py</span><span class="desc">문제 2개 (H-API-11·12) · pytest 검사 작성</span></li>
+        <li><span class="role r-ref">참고</span><span class="fn">명세서.md · 예상결과.md</span><span class="desc">서버 실행은 <code>app.main:app</code></span></li>
+        <li><span class="role r-run">실행</span><span class="fn">check_api.py · reset_data.py</span><span class="desc">채점 · 초기화. 테스트는 <code>python -m pytest</code></span></li>
+        <li><span class="role r-keep">제공</span><span class="fn">app/main.py</span><span class="desc">앱 조립 (router 연결)</span></li>
+        <li><span class="role r-keep">제공</span><span class="fn">app/schemas.py</span><span class="desc">입력·응답 모델</span></li>
+        <li><span class="role r-keep">제공</span><span class="fn">tests/conftest.py · pytest.ini</span><span class="desc">테스트가 임시 파일을 쓰도록 격리</span></li>
+      </ul>
+    </article>
+    <article class="card">
+      <div class="card-head"><h3>02_PostgreSQL</h3><span class="path">03_advanced/02_PostgreSQL/</span></div>
+      <ul class="files">
+        <li><span class="role r-ref">참고</span><span class="fn">README.md · 스키마명세서.md · CRUD_명세와_예상결과.md</span><span class="desc">basic과 같은 역할</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">00_접속준비.sql</span><span class="desc">DB 2개: day19_build_h · day19_crud_h</span></li>
+        <li class="sub-dir">A_구축/ · 순서대로</li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">schema/01_categories.sql</span><span class="desc">문제 3개 (H-DDL-01~03)</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">schema/02_knowledge.sql</span><span class="desc">문제 5개 (H-DDL-04~08) · 열 정의부터 직접</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">indexes/03_category_index.sql</span><span class="desc">문제 1개 (H-DDL-09) · category_id 인덱스</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">check_structure.sql · check_insert.sql</span><span class="desc">결과 확인</span></li>
+        <li class="sub-dir">B_CRUD/</li>
+        <li><span class="role r-run">실행</span><span class="fn">00_ready_database.sql</span><span class="desc">완성 DB 준비 (한 번만)</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">queries/01_reads.sql</span><span class="desc">문제 9개 (R01~R09) · IS NULL·글자 수 추가</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">changes/02_create.sql · 04_delete.sql</span><span class="desc">C01 · D01</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">transactions/03_update.sql</span><span class="desc">U01 · U02</span></li>
+        <li class="is-q"><span class="role r-q">문제</span><span class="fn">transactions/05_atomicity.sql</span><span class="desc">T01 · UPDATE 2개를 한 트랜잭션으로 묶어 취소</span></li>
+        <li><span class="role r-run">실행</span><span class="fn">checks/explain.sql · errors.sql</span><span class="desc">인덱스 사용 확인 · 규칙 위반 시도</span></li>
+      </ul>
+    </article>
+  </div>
+  </div>
 </section>
 
 <section aria-labelledby="rel-title">
   <div class="section-head"><h2 id="rel-title">파일 관계</h2><p>노란 칸이 문제 파일, 남색 칸이 데이터가 저장되는 곳입니다.</p></div>
-  <div class="diagram">
-    <p class="diagram-title" style="color:#1C2B40">실습 1 · FastAPI</p>
-    {{SVG:api}}
+  <div class="tabs" role="tablist" aria-label="수준">
+    <button type="button" role="tab" data-level="b" aria-selected="true">basic</button>
+    <button type="button" role="tab" data-level="a" aria-selected="false">응용 <small>intermediate</small></button>
+    <button type="button" role="tab" data-level="h" aria-selected="false">심화 <small>advanced</small></button>
   </div>
-  <div class="diagram">
-    <p class="diagram-title" style="color:#1C2B40">실습 2A · DB 구축</p>
-    {{SVG:sqlA}}
+  <div class="level-panel stack" data-level="b">
+    <div class="diagram"><p class="diagram-title">실습 1 · FastAPI</p>{{SVG:api}}</div>
+    <div class="diagram"><p class="diagram-title">실습 2A · DB 구축</p>{{SVG:sqlA}}</div>
+    <div class="diagram"><p class="diagram-title">실습 2B · CRUD</p>{{SVG:sqlB}}</div>
   </div>
-  <div class="diagram">
-    <p class="diagram-title" style="color:#1C2B40">실습 2B · CRUD</p>
-    {{SVG:sqlB}}
+  <div class="level-panel stack" data-level="a" hidden>
+    <div class="diagram"><p class="diagram-title">실습 1 · FastAPI (응용)</p>{{SVG:api_i}}</div>
+    <div class="diagram"><p class="diagram-title">실습 2A · DB 구축 (응용)</p>{{SVG:sqlA_i}}</div>
+    <div class="diagram"><p class="diagram-title">실습 2B · CRUD (응용)</p>{{SVG:sqlB_i}}</div>
+  </div>
+  <div class="level-panel stack" data-level="h" hidden>
+    <div class="diagram"><p class="diagram-title">실습 1 · FastAPI (심화)</p>{{SVG:api_h}}</div>
+    <div class="diagram"><p class="diagram-title">실습 2A · DB 구축 (심화)</p>{{SVG:sqlA_h}}</div>
+    <div class="diagram"><p class="diagram-title">실습 2B · CRUD (심화)</p>{{SVG:sqlB_h}}</div>
   </div>
 </section>
+
+<div class="basic-only">
+  <span class="level-tag">basic</span>
+  <p><b>여기부터는 basic 기준입니다.</b> 응용·심화도 진행 방법은 같고, 위 폴더 지도의 문제 파일을 차례로 풉니다.</p>
+</div>
 
 <!-- ───────── 실습 1 ───────── -->
 <section aria-labelledby="p1-title">
@@ -325,33 +440,43 @@ figure img { display: block; max-width: 100%; height: auto; }
   </div>
 
   <article class="card wide example">
-    <div class="card-head"><h3>예시 · API-01 하나 풀어 보기</h3><span class="path">main.py › list_knowledge</span></div>
-    <div class="ex-grid">
-      <div class="ex-col">
-        <p class="ex-label">받은 코드</p>
+    <h3>예시 · 두 문제 풀어 보기</h3>
+    <div class="ex">
+      <div class="card-head"><h4>API-01 · 목록 반환</h4><span class="path">main.py › list_knowledge</span></div>
+      <div class="ex-grid">
+        <div class="ex-col"><p class="ex-label">받은 코드</p>
 <pre class="code"><code>    <span class="kw">with</span> LOCK:
         data = read_data()
-    <span class="cmt"># BEGIN B-API-01</span>
     <span class="cmt"># TODO B-API-01: data의 entries를 id 오름차순으로 반환하세요. sorted(..., key=lambda e:</span>
     <span class="cmt"># e["id"])를 사용할 수 있습니다. next_id는 응답하지 않습니다.</span>
-    <span class="kw">raise</span> NotImplementedError(<span class="str">"B-API-01: 주석 요구사항을 완성하세요."</span>)
-    <span class="cmt"># END B-API-01</span></code></pre>
-      </div>
-      <div class="ex-col">
-        <p class="ex-label">푼 코드</p>
+    <span class="kw">raise</span> NotImplementedError(<span class="str">"B-API-01: 주석 요구사항을 완성하세요."</span>)</code></pre></div>
+        <div class="ex-col"><p class="ex-label">푼 코드</p>
 <pre class="code"><code>    <span class="kw">with</span> LOCK:
         data = read_data()
-    <span class="cmt"># BEGIN B-API-01</span>
-    <span class="kw">return</span> sorted(data[<span class="str">"entries"</span>], key=<span class="kw">lambda</span> e: e[<span class="str">"id"</span>])
-    <span class="cmt"># END B-API-01</span></code></pre>
+    <span class="cmt"># TODO B-API-01: …</span>
+    <span class="kw">return</span> sorted(data[<span class="str">"entries"</span>], key=<span class="kw">lambda</span> e: e[<span class="str">"id"</span>])</code></pre></div>
       </div>
+      <ol class="ex-steps"><li><b>TODO 주석을 읽습니다.</b> 할 일(entries를 id 오름차순으로 반환)과 힌트(<code>sorted(..., key=…)</code>)가 함께 있습니다.</li><li><b>위에서 준비된 변수를 찾습니다.</b> <code>data</code>는 <code>{"next_id": 4, "entries": [...]}</code> 모양입니다.</li><li><b><code>raise</code> 줄을 지우고 그 자리에 씁니다.</b> BEGIN·END 주석은 그대로 둡니다.</li><li><b>/docs에서 GET /api/knowledge를 Execute</b> → 500이 200으로 바뀝니다.</li></ol>
     </div>
-    <ol class="ex-steps">
-      <li><b>TODO 주석을 읽습니다.</b> 할 일(“entries를 id 오름차순으로 반환”)과 힌트(<code>sorted(..., key=…)</code>)가 함께 있습니다.</li>
-      <li><b>위에서 준비된 변수를 찾습니다.</b> <code>data = read_data()</code>는 <code>{"next_id": 4, "entries": [...]}</code> 모양입니다.</li>
-      <li><b><code>raise</code> 줄을 지우고 그 자리에 씁니다.</b> BEGIN·END 주석은 그대로 둡니다.</li>
-      <li><b>저장하고 /docs에서 GET /api/knowledge를 Execute</b> → 500이 200으로 바뀌면 다음 문제로 갑니다.</li>
-    </ol>
+    <div class="ex">
+      <div class="card-head"><h4>API-02 · id로 하나 찾기</h4><span class="path">main.py › get_knowledge</span></div>
+      <div class="ex-grid">
+        <div class="ex-col"><p class="ex-label">받은 코드</p>
+<pre class="code"><code>    <span class="kw">for</span> entry <span class="kw">in</span> data[<span class="str">"entries"</span>]:
+        <span class="cmt"># TODO B-API-02: 반복 중인 entry의 id가 knowledge_id와 같을 때</span>
+        <span class="cmt"># entry를 반환하세요. 목록 인덱스와 ID를 혼동하지 마세요.</span>
+        <span class="kw">raise</span> NotImplementedError(<span class="str">"B-API-02: …"</span>)
+    <span class="kw">raise</span> HTTPException(404, <span class="str">"Knowledge not found"</span>)</code></pre></div>
+        <div class="ex-col"><p class="ex-label">푼 코드</p>
+<pre class="code"><code>    <span class="kw">for</span> entry <span class="kw">in</span> data[<span class="str">"entries"</span>]:
+        <span class="cmt"># TODO B-API-02: …</span>
+        <span class="kw">if</span> entry[<span class="str">"id"</span>] == knowledge_id:
+            <span class="kw">return</span> entry
+    <span class="kw">raise</span> HTTPException(404, <span class="str">"Knowledge not found"</span>)</code></pre></div>
+      </div>
+      <ol class="ex-steps"><li><b>빈칸이 for 문 안에 있습니다.</b> 항목 하나(<code>entry</code>)를 볼 때마다 실행됩니다.</li><li><b>목록 위치가 아니라 <code>entry["id"]</code>를 비교합니다.</b> 삭제가 있으면 위치와 id가 달라지기 때문입니다.</li><li><b>못 찾으면 for 문이 끝나고 아래 404가 실행됩니다.</b> 404는 이미 써 있습니다.</li><li><b>/docs에서 GET <code>2</code>는 200, <code>999999</code>는 404</b>가 나오면 됩니다.</li></ol>
+    </div>
+    <p class="now-you"><b>이제 직접</b> API-03~06도 같은 방법입니다. 함수 안에 준비된 변수(<code>payload</code>, <code>entry</code>, <code>i</code>, <code>updated</code>)를 찾고, 바꾼 뒤에는 <code>write_data(data)</code>로 저장합니다. 마지막에 <code>python check_api.py</code>로 채점합니다.</p>
   </article>
 </section>
 
@@ -403,28 +528,39 @@ figure img { display: block; max-width: 100%; height: auto; }
   </div>
 
   <article class="card wide example">
-    <div class="card-head"><h3>예시 · DDL-02 하나 풀어 보기</h3><span class="path">A_구축/build.sql</span></div>
-    <div class="ex-grid">
-      <div class="ex-col">
-        <p class="ex-label">받은 코드</p>
+    <h3>예시 · 두 문제 풀어 보기</h3>
+    <div class="ex">
+      <div class="card-head"><h4>DDL-01 · 자동 번호 PK</h4><span class="path">A_구축/build.sql</span></div>
+      <div class="ex-grid">
+        <div class="ex-col"><p class="ex-label">받은 코드</p>
+<pre class="code"><code><span class="kw">CREATE TABLE</span> public.categories (
+    <span class="cmt">-- TODO B-DDL-01: categories의 id를 BIGINT 자동 생성</span>
+    <span class="cmt">-- IDENTITY와 PRIMARY KEY로 선언하세요. 쉼표까지 포함합니다.</span>
+    id <span class="kw">BIGINT</span> __TODO_B_DDL_01__,</code></pre></div>
+        <div class="ex-col"><p class="ex-label">푼 코드</p>
+<pre class="code"><code><span class="kw">CREATE TABLE</span> public.categories (
+    <span class="cmt">-- TODO B-DDL-01: …</span>
+    id <span class="kw">BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,</code></pre></div>
+      </div>
+      <ol class="ex-steps"><li><b>TODO에 키워드가 다 있습니다.</b> 자동 생성 IDENTITY + PRIMARY KEY</li><li><b>바로 아래 knowledge 테이블의 id 줄이 같은 모양으로 이미 써 있습니다.</b> 그 줄을 보고 맞춥니다.</li><li><b>빈칸 자리만 바꾸고 뒤의 쉼표는 남깁니다.</b></li></ol>
+    </div>
+    <div class="ex">
+      <div class="card-head"><h4>DDL-02 · 길이 CHECK</h4><span class="path">A_구축/build.sql</span></div>
+      <div class="ex-grid">
+        <div class="ex-col"><p class="ex-label">받은 코드</p>
 <pre class="code"><code>    name <span class="kw">VARCHAR</span>(30) <span class="kw">NOT NULL UNIQUE</span>,
     <span class="cmt">-- TODO B-DDL-02: categories.name의 1~30자 길이 CHECK를</span>
     <span class="cmt">-- categories_name_length라는 이름으로 완성하세요.</span>
-    <span class="kw">CONSTRAINT</span> categories_name_length <span class="kw">CHECK</span> (__TODO_B_DDL_02__)</code></pre>
-      </div>
-      <div class="ex-col">
-        <p class="ex-label">푼 코드</p>
+    <span class="kw">CONSTRAINT</span> categories_name_length <span class="kw">CHECK</span> (__TODO_B_DDL_02__)</code></pre></div>
+        <div class="ex-col"><p class="ex-label">푼 코드</p>
 <pre class="code"><code>    name <span class="kw">VARCHAR</span>(30) <span class="kw">NOT NULL UNIQUE</span>,
     <span class="cmt">-- TODO B-DDL-02: …</span>
     <span class="kw">CONSTRAINT</span> categories_name_length
-        <span class="kw">CHECK</span> (char_length(name) <span class="kw">BETWEEN</span> 1 <span class="kw">AND</span> 30)</code></pre>
+        <span class="kw">CHECK</span> (char_length(name) <span class="kw">BETWEEN</span> 1 <span class="kw">AND</span> 30)</code></pre></div>
       </div>
+      <ol class="ex-steps"><li><b>명세에서 규칙을 찾습니다.</b> <code>스키마명세서.md</code>: categories_name_length · char_length(name) 1~30</li><li><b>CHECK 괄호 안에는 참·거짓이 나오는 조건식</b>을 씁니다. 글자 수는 <code>char_length()</code>로 셉니다.</li><li><b>파일 전체를 실행(F5)</b>해서 <code>COMMIT</code>이 나오면 됩니다. 다른 빈칸이 남았으면 그 이름이 오류에 나옵니다.</li></ol>
     </div>
-    <ol class="ex-steps">
-      <li><b>명세에서 규칙을 찾습니다.</b> <code>스키마명세서.md</code>: categories_name_length · char_length(name) 1~30</li>
-      <li><b>CHECK 괄호 안에는 참·거짓이 나오는 조건식</b>을 씁니다. 글자 수는 <code>char_length()</code>로 셉니다.</li>
-      <li><b>DDL-03도 같은 모양입니다.</b> 열 이름과 숫자만 바뀝니다.</li>
-    </ol>
+    <p class="now-you"><b>이제 직접</b> DDL-03은 DDL-02와 같은 모양입니다(열 이름과 숫자만 다름). DDL-04는 명세의 FK 줄을 보고 가리킬 테이블(열)과 삭제 규칙을 씁니다. 다 풀면 확인 SQL 2개를 실행합니다.</p>
   </article>
 </section>
 
@@ -500,26 +636,44 @@ figure img { display: block; max-width: 100%; height: auto; }
   </article>
 
   <article class="card wide example">
-    <div class="card-head"><h3>예시 · R01 하나 풀어 보기</h3><span class="path">B_CRUD/tasks.sql › CASE R01</span></div>
-    <div class="ex-grid">
-      <div class="ex-col">
-        <p class="ex-label">받은 코드</p>
+    <h3>예시 · 두 문제 풀어 보기</h3>
+    <div class="ex">
+      <div class="card-head"><h4>R01 · 정렬</h4><span class="path">B_CRUD/tasks.sql › CASE R01</span></div>
+      <div class="ex-grid">
+        <div class="ex-col"><p class="ex-label">받은 코드</p>
 <pre class="code"><code><span class="cmt">-- TODO B-SQL-01: 초기 S0에서 id·title만 id 오름차순으로 조회하세요.</span>
 <span class="kw">SELECT</span> id, title <span class="kw">FROM</span> public.knowledge
-__TODO_B_SQL_01__ id;</code></pre>
-      </div>
-      <div class="ex-col">
-        <p class="ex-label">푼 코드</p>
+__TODO_B_SQL_01__ id;</code></pre></div>
+        <div class="ex-col"><p class="ex-label">푼 코드</p>
 <pre class="code"><code><span class="cmt">-- TODO B-SQL-01: …</span>
 <span class="kw">SELECT</span> id, title <span class="kw">FROM</span> public.knowledge
-<span class="kw">ORDER BY</span> id;</code></pre>
+<span class="kw">ORDER BY</span> id;</code></pre></div>
       </div>
+      <ol class="ex-steps"><li><b>TODO의 핵심 말을 찾습니다.</b> “id 오름차순” → 정렬은 <code>ORDER BY</code></li><li><b>SELECT부터 세미콜론까지만 드래그해서 F5.</b></li><li><b>결과 표를 예상 결과와 비교합니다.</b> 3행, id 1·2·3 순서</li></ol>
     </div>
-    <ol class="ex-steps">
-      <li><b>TODO의 핵심 말을 찾습니다.</b> “id 오름차순” → 정렬은 <code>ORDER BY</code></li>
-      <li><b>SELECT부터 세미콜론까지만 드래그해서 F5.</b> 위의 TODO 주석은 같이 선택해도 됩니다.</li>
-      <li><b>결과 표를 예상 결과와 비교합니다.</b> 3행, id 1·2·3 순서면 다음 문제로 갑니다.</li>
-    </ol>
+    <div class="ex">
+      <div class="card-head"><h4>C01 · 추가하고 새 id 받기</h4><span class="path">B_CRUD/tasks.sql › CASE C01</span></div>
+      <div class="ex-grid">
+        <div class="ex-col"><p class="ex-label">받은 코드</p>
+<pre class="code"><code><span class="kw">BEGIN</span>;
+<span class="cmt">-- TODO B-SQL-05: … 행을 INSERT하고 id·title·category_id를</span>
+<span class="cmt">-- RETURNING하세요. 실제 id를 기억합니다.</span>
+__TODO_B_SQL_05__ public.knowledge(title,content,category_id)
+<span class="kw">VALUES</span> (<span class="str">'보충 학습'</span>,<span class="str">'복습 자료는 개인 폴더에서 확인합니다.'</span>,1)
+<span class="kw">RETURNING</span> id,title,category_id;
+<span class="kw">COMMIT</span>;
+<span class="kw">SELECT COUNT</span>(*) <span class="kw">AS</span> knowledge_count <span class="kw">FROM</span> public.knowledge;</code></pre></div>
+        <div class="ex-col"><p class="ex-label">푼 코드</p>
+<pre class="code"><code><span class="kw">BEGIN</span>;                               <span class="cmt">-- ① 이 줄만 실행</span>
+<span class="kw">INSERT INTO</span> public.knowledge(title,content,category_id)
+<span class="kw">VALUES</span> (<span class="str">'보충 학습'</span>,<span class="str">'복습 자료는 개인 폴더에서 확인합니다.'</span>,1)
+<span class="kw">RETURNING</span> id,title,category_id;   <span class="cmt">-- ② 여기까지 실행 → id 4</span>
+<span class="kw">COMMIT</span>;                              <span class="cmt">-- ③ 이 줄만 실행</span>
+<span class="kw">SELECT COUNT</span>(*) …;                    <span class="cmt">-- ④ 개수 4</span></code></pre></div>
+      </div>
+      <ol class="ex-steps"><li><b>빈칸은 추가 명령 하나</b>(<code>INSERT INTO</code>)입니다. 열과 값은 이미 써 있습니다.</li><li><b>①~④를 따로따로 선택해서 실행합니다.</b> 한꺼번에 실행하면 마지막 개수만 보여서 새 id를 놓칩니다.</li><li><b>②에서 나온 id(처음이면 4)를 적어 둡니다.</b> 뒤 문제의 <code>__NEW_ID__</code>를 모두 이 숫자로 바꿉니다.</li></ol>
+    </div>
+    <p class="now-you"><b>이제 직접</b> R02~R04는 R01처럼 빈칸에 키워드나 조건을 넣고 SELECT 하나씩 실행합니다. U01·U02·D01은 C01처럼 <code>BEGIN</code> → 변경문 → <code>ROLLBACK</code> 또는 <code>COMMIT</code> → SELECT를 한 줄씩 실행하고, 아래 사진과 결과를 비교합니다.</p>
   </article>
 </section>
 
@@ -528,5 +682,15 @@ __TODO_B_SQL_01__ id;</code></pre>
   <p>pgAdmin 화면은 강사가 basic 실습을 직접 진행한 화면이고, /docs 화면은 같은 실습 파일을 FastAPI 0.128에서 실행한 화면입니다.</p>
 </footer>
 </main>
+<script>
+// 수준 탭: 한 곳을 누르면 폴더 지도와 파일 관계가 같은 수준으로 바뀐다
+document.querySelectorAll('.tabs button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var level = btn.dataset.level;
+    document.querySelectorAll('.tabs button').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.level === level ? 'true' : 'false'); });
+    document.querySelectorAll('.level-panel').forEach(function (p) { p.hidden = p.dataset.level !== level; });
+  });
+});
+</script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+flowchart TB
+  docs(["/docs 요청"]) --> app["app/main.py<br/>앱 조립"]
+  app -- include_router --> router["<b>app/routers/knowledge.py</b><br/>문제 4개 · HTTP 상태 코드"]
+  router -- repo 호출 --> repo["<b>app/repositories/json_knowledge.py</b><br/>문제 6개 · 파일 CRUD"]
+  router -- import --> sch["app/schemas.py"]
+  repo -- 읽기·쓰기 --> json[("data/<br/>knowledge.json")]
+  test["<b>tests/test_contract.py</b><br/>문제 2개 · 계약 검사"] -- pytest --> app
+  conf["tests/conftest.py<br/>임시 파일로 격리"] -.-> test
+  check["check_api.py"] -- 임시 복사본으로 채점 --> app
+  classDef q fill:#FFF3D8,stroke:#C9962E,color:#7A4F0E,stroke-width:2px
+  classDef ref fill:#E9F3FC,stroke:#8DB3DF,color:#245C9C
+  classDef run fill:#E9F5EE,stroke:#86BF9B,color:#2E6B45
+  classDef keep fill:#EEF1F6,stroke:#AEB8C8,color:#4A5870
+  classDef db fill:#142849,stroke:#142849,color:#FFFFFF
+  class router,repo,test q
+  class check run
+  class app,sch,conf,docs keep
+  class json db

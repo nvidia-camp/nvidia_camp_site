@@ -1,0 +1,14 @@
+flowchart LR
+  schema["스키마명세서.md<br/>ERD.dbml"] -. 보고 푼다 .-> c1["<b>schema/01_categories.sql</b><br/>문제 3개"]
+  c1 -- "① 부모 먼저" --> t1[("day19_build_a<br/>categories · knowledge")]
+  c2["<b>schema/02_knowledge.sql</b><br/>문제 3개"] -- "② FK는 부모 다음" --> t1
+  cs["check_structure.sql<br/>check_insert.sql"] -- 결과 확인 --> t1
+  classDef q fill:#FFF3D8,stroke:#C9962E,color:#7A4F0E,stroke-width:2px
+  classDef ref fill:#E9F3FC,stroke:#8DB3DF,color:#245C9C
+  classDef run fill:#E9F5EE,stroke:#86BF9B,color:#2E6B45
+  classDef keep fill:#EEF1F6,stroke:#AEB8C8,color:#4A5870
+  classDef db fill:#142849,stroke:#142849,color:#FFFFFF
+  class c1,c2 q
+  class schema ref
+  class cs run
+  class t1 db
