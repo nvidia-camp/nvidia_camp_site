@@ -1,0 +1,13 @@
+flowchart LR
+  ready["00_ready_database.sql"] -- 지식 3행 준비 --> t2[("day19_crud_b<br/>categories · knowledge")]
+  exp["CRUD_명세와_예상결과.md"] -. 결과 비교 .-> tasks["<b>tasks.sql</b><br/>문제 8개"]
+  tasks -- SELECT · INSERT<br/>UPDATE · DELETE --> t2
+  err["errors.sql"] -- 규칙 위반 시도 --> t2
+  classDef q fill:#FFF3D8,stroke:#C9962E,color:#7A4F0E,stroke-width:2px
+  classDef ref fill:#E9F3FC,stroke:#8DB3DF,color:#245C9C
+  classDef run fill:#E9F5EE,stroke:#86BF9B,color:#2E6B45
+  classDef db fill:#142849,stroke:#142849,color:#FFFFFF
+  class tasks q
+  class exp ref
+  class ready,err run
+  class t2 db
