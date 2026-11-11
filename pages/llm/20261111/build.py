@@ -90,11 +90,11 @@ cat_table = mini(["id", "name"], CAP["categories"]["rows"],
 know_table = mini(k_cols, k_rows, render=by_category, caption="<code>knowledge</code> 지식")
 
 MAP = [
-    ("조회", "행 조회 · 두 테이블 연결 · 집계",
+    ("조회<small>Queries</small>", "행 조회 · 두 테이블 연결 · 집계",
      [("SELECT", "select"), ("JOIN", "join"), ("LEFT JOIN", "left_join"), ("GROUP BY", "group_by")]),
-    ("변경", "행 추가 · 수정 · 삭제", [("INSERT", "insert"), ("UPDATE", "update"), ("DELETE", "delete")]),
-    ("테이블 정의", "열 · 자료형 · 제약조건", [("CREATE TABLE", "create_table")]),
-    ("트랜잭션", "여러 변경을 확정하거나 취소", [("BEGIN · COMMIT · ROLLBACK", "transaction")]),
+    ("데이터 조작<small>DML</small>", "행 추가 · 수정 · 삭제", [("INSERT", "insert"), ("UPDATE", "update"), ("DELETE", "delete")]),
+    ("데이터 정의<small>DDL</small>", "열 · 자료형 · 제약조건", [("CREATE TABLE", "create_table")]),
+    ("트랜잭션<small>Transaction</small>", "여러 변경을 확정하거나 취소", [("BEGIN · COMMIT · ROLLBACK", "transaction")]),
 ]
 map_rows = "".join(
     f'<li><span class="map-group">{g}</span><span class="map-links">'
@@ -242,7 +242,7 @@ SUMMARY = [
     ("PRIMARY KEY", "행을 구분합니다", "<code>WHERE id = 2</code> — 조회·수정·삭제할 행 하나를 정확히 고름"),
     ("FOREIGN KEY", "부모에 있는 값만 받습니다", "<code>JOIN … ON c.id = k.category_id</code> — 조회할 때 그 값으로 연결"),
     ("제약조건", "잘못된 값을 거부합니다", "INSERT·UPDATE가 실패해도 기존 데이터는 그대로"),
-    ("트랜잭션", "여러 변경을 하나로 묶습니다", "<code>COMMIT</code>으로 확정, <code>ROLLBACK</code>으로 취소"),
+    ("트랜잭션<small>Transaction</small>", "여러 변경을 하나로 묶습니다", "<code>COMMIT</code>으로 확정, <code>ROLLBACK</code>으로 취소"),
 ]
 summary_rows = "".join(
     f'<li><span class="badge strong">{a}</span><span class="sum-what">{b}</span><span class="sum-where">{c}</span></li>'

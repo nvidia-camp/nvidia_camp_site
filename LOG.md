@@ -34,3 +34,4 @@
 | 2026-11-10 | setup/postgresql | 6단계 "실습 SQL 파일 열기" 추가(Open File·파일 선택·열린 화면 사진 3장, mentor 경로·개인 폴더는 잘라냄). 여기까지만 안내를 6단계 끝으로. 1단계 다운로드 사진과 함께 배포 | 배포 |
 | 2026-11-11 | setup/postgresql | 설치·psql 가이드를 'PostgreSQL 가이드' 하나로 묶음: 1 셋업 · 2 pgAdmin 사용법(새 페이지: 서비스 세 층 속 위치, 접속 다섯 값, 화면 구성 그림, knowledge_lab Query Tool, 실행·결과 읽기, 표·구조 보기) · 3 psql(setup/psql에서 이동, knowledge_lab 접속·\dt·\d·SQL 실행·명령 모음 추가, 출력은 임시 서버 실측). 페이지 탭, SETUP_PAGES, 옛 /setup/psql/ 리디렉션. 1280·375px·다크 확인 | 배포 |
 | 2026-11-11 | llm/20261111 | Day18 요약 초안: 같은 두 테이블을 카드마다 다시 그려 SQL이 고르고 바꾸는 칸을 표시(조회 4·변경 3·CREATE TABLE·트랜잭션), 큰 그림 지도·종합·더 알아보기. 결과는 capture.py로 S0에서 실측(PostgreSQL 17.10). 1280·375px·다크 확인 | main만 |
+| 2026-11-11 | llm/20261111 | 묶음 이름을 공식 용어로: 조회 Queries · 데이터 조작 DML · 데이터 정의 DDL · 트랜잭션 Transaction ("변경" 제거). 사용자 요청으로 배포 | 배포 |

@@ -83,8 +83,10 @@ section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
 .big-tables { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 0.75rem; align-items: start; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.1rem; }
 .big-tables .rel { grid-column: 1 / -1; font-size: 0.875rem; color: var(--color-muted); }
 .map { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
-.map li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.1rem 0.75rem; align-items: baseline; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.7rem 0.9rem; }
-.map-group { grid-row: span 2; font-weight: 700; color: var(--color-heading); }
+.map li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0.1rem 0.75rem; align-items: baseline; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.7rem 0.9rem; }
+.map-group { grid-row: span 2; font-weight: 700; color: var(--color-heading); display: grid; line-height: 1.35; }
+.map-group small, h2 small { font-family: var(--font-code); font-size: 0.75rem; font-weight: 700; color: var(--color-muted); }
+h2 small { font-size: 0.85rem; margin-left: 0.25rem; }
 .map-links { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; }
 .map-links a { font-family: var(--font-code); font-weight: 700; font-size: 0.92rem; text-underline-offset: 0.2em; }
 .map-desc { font-size: 0.875rem; color: var(--color-muted); }
@@ -214,22 +216,22 @@ details dd { margin: 0; }
 </section>
 
 <section aria-labelledby="read-title">
-  <div class="section-head"><h2 id="read-title">조회</h2><p>테이블은 그대로 두고 행을 골라 봅니다.</p></div>
+  <div class="section-head"><h2 id="read-title">조회 <small>Queries</small></h2><p>테이블은 그대로 두고 행을 골라 봅니다.</p></div>
   <div class="cards">{{CARDS_READ}}</div>
 </section>
 
 <section aria-labelledby="write-title">
-  <div class="section-head"><h2 id="write-title">변경</h2><p>각 예시는 처음 3행에서 실행한 결과입니다.</p></div>
+  <div class="section-head"><h2 id="write-title">데이터 조작 <small>DML</small></h2><p>각 예시는 처음 3행에서 실행한 결과입니다.</p></div>
   <div class="cards">{{CARDS_WRITE}}</div>
 </section>
 
 <section aria-labelledby="ddl-title">
-  <div class="section-head"><h2 id="ddl-title">테이블 정의</h2><p>지금까지 쓴 테이블이 어떻게 정의되어 있는지 봅니다.</p></div>
+  <div class="section-head"><h2 id="ddl-title">데이터 정의 <small>DDL</small></h2><p>지금까지 쓴 테이블이 어떻게 정의되어 있는지 봅니다.</p></div>
   <div class="cards">{{CARD_DDL}}</div>
 </section>
 
 <section aria-labelledby="tx-title">
-  <div class="section-head"><h2 id="tx-title">트랜잭션</h2><p>새 분류 api를 만들고 그 분류에 지식을 넣는데, 두 번째 INSERT가 실패하는 경우입니다.</p></div>
+  <div class="section-head"><h2 id="tx-title">트랜잭션 <small>Transaction</small></h2><p>새 분류 api를 만들고 그 분류에 지식을 넣는데, 두 번째 INSERT가 실패하는 경우입니다.</p></div>
   <div class="cards">{{CARD_TX}}</div>
 </section>
 
