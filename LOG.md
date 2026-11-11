@@ -32,3 +32,4 @@
 | 2026-11-10 | setup/psql · setup/postgresql | 사용자 요청으로 배포: psql 접속 가이드, 5단계 실제 화면 기준 수정 | 배포 |
 | 2026-11-10 | setup/postgresql | 1단계(설치 파일 내려받기)에 EDB 다운로드 표 사진 1장 (18.x 줄 × Windows x86-64 표시) | main만 |
 | 2026-11-10 | setup/postgresql | 6단계 "실습 SQL 파일 열기" 추가(Open File·파일 선택·열린 화면 사진 3장, mentor 경로·개인 폴더는 잘라냄). 여기까지만 안내를 6단계 끝으로. 1단계 다운로드 사진과 함께 배포 | 배포 |
+| 2026-11-11 | setup/postgresql | 설치·psql 가이드를 'PostgreSQL 가이드' 하나로 묶음: 1 셋업 · 2 pgAdmin 사용법(새 페이지: 서비스 세 층 속 위치, 접속 다섯 값, 화면 구성 그림, knowledge_lab Query Tool, 실행·결과 읽기, 표·구조 보기) · 3 psql(setup/psql에서 이동, knowledge_lab 접속·\dt·\d·SQL 실행·명령 모음 추가, 출력은 임시 서버 실측). 페이지 탭, SETUP_PAGES, 옛 /setup/psql/ 리디렉션. 1280·375px·다크 확인 | 배포 |
