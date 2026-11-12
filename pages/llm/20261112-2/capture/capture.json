@@ -1,0 +1,713 @@
+{
+ "start": {
+  "knowledge": {
+   "cols": [
+    "id",
+    "title",
+    "content",
+    "category"
+   ],
+   "rows": [
+    [
+     1,
+     "실습 파일 보관",
+     "실습 파일은 개인 폴더에 보관합니다.",
+     "learning"
+    ],
+    [
+     2,
+     "서버 실행",
+     "프로젝트 폴더에서 서버를 실행합니다.",
+     "environment"
+    ],
+    [
+     3,
+     "질문 작성",
+     "오류 메시지와 시도한 작업을 함께 적습니다.",
+     "learning"
+    ]
+   ]
+  },
+  "categories": {
+   "cols": [
+    "id",
+    "name"
+   ],
+   "rows": [
+    [
+     1,
+     "learning"
+    ],
+    [
+     2,
+     "environment"
+    ],
+    [
+     3,
+     "reference"
+    ]
+   ]
+  }
+ },
+ "api": {
+  "health": {
+   "request": "GET /health",
+   "body": null,
+   "status": 200,
+   "size": 38,
+   "response": {
+    "status": "ok",
+    "database": "reachable"
+   }
+  },
+  "list": {
+   "request": "GET /api/knowledge",
+   "body": null,
+   "status": 200,
+   "size": 377,
+   "response": [
+    {
+     "title": "실습 파일 보관",
+     "content": "실습 파일은 개인 폴더에 보관합니다.",
+     "category": "learning",
+     "id": 1
+    },
+    {
+     "title": "서버 실행",
+     "content": "프로젝트 폴더에서 서버를 실행합니다.",
+     "category": "environment",
+     "id": 2
+    },
+    {
+     "title": "질문 작성",
+     "content": "오류 메시지와 시도한 작업을 함께 적습니다.",
+     "category": "learning",
+     "id": 3
+    }
+   ]
+  },
+  "filter_learning": {
+   "request": "GET /api/knowledge?category=learning",
+   "body": null,
+   "status": 200,
+   "size": 254,
+   "response": [
+    {
+     "title": "실습 파일 보관",
+     "content": "실습 파일은 개인 폴더에 보관합니다.",
+     "category": "learning",
+     "id": 1
+    },
+    {
+     "title": "질문 작성",
+     "content": "오류 메시지와 시도한 작업을 함께 적습니다.",
+     "category": "learning",
+     "id": 3
+    }
+   ]
+  },
+  "filter_none": {
+   "request": "GET /api/knowledge?category=nothing",
+   "body": null,
+   "status": 200,
+   "size": 2,
+   "response": []
+  },
+  "post_a": {
+   "request": "POST /api/knowledge",
+   "body": {
+    "title": "실습 질문 채널",
+    "content": "막히면 팀 채널에 질문을 남깁니다.",
+    "category": "learning"
+   },
+   "status": 201,
+   "size": 121,
+   "response": {
+    "title": "실습 질문 채널",
+    "content": "막히면 팀 채널에 질문을 남깁니다.",
+    "category": "learning",
+    "id": 4
+   }
+  },
+  "post_b": {
+   "request": "POST /api/knowledge (/docs)",
+   "body": {
+    "title": "가상환경 정책",
+    "content": "새 프로젝트는 uv로 가상환경을 만듭니다.",
+    "category": "policy"
+   },
+   "status": 201,
+   "response": {
+    "title": "가상환경 정책",
+    "content": "새 프로젝트는 uv로 가상환경을 만듭니다.",
+    "category": "policy",
+    "id": 5
+   },
+   "shots": [
+    "shots/post_input.png",
+    "shots/post_response.png"
+   ]
+  },
+  "get_b": {
+   "request": "GET /api/knowledge/5",
+   "body": null,
+   "status": 200,
+   "size": 126,
+   "response": {
+    "title": "가상환경 정책",
+    "content": "새 프로젝트는 uv로 가상환경을 만듭니다.",
+    "category": "policy",
+    "id": 5
+   }
+  },
+  "get_missing": {
+   "request": "GET /api/knowledge/9999",
+   "body": null,
+   "status": 404,
+   "size": 32,
+   "response": {
+    "detail": "Knowledge not found"
+   }
+  },
+  "get_not_int": {
+   "request": "GET /api/knowledge/abc",
+   "body": null,
+   "status": 422,
+   "size": 157,
+   "response": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "path",
+       "knowledge_id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "abc"
+     }
+    ]
+   }
+  },
+  "put_b": {
+   "request": "PUT /api/knowledge/5",
+   "body": {
+    "title": "가상환경 정책",
+    "content": "새 프로젝트는 uv init으로 시작합니다.",
+    "category": "environment"
+   },
+   "status": 200,
+   "size": 126,
+   "response": {
+    "title": "가상환경 정책",
+    "content": "새 프로젝트는 uv init으로 시작합니다.",
+    "category": "environment",
+    "id": 5
+   }
+  },
+  "post_c": {
+   "request": "POST /api/knowledge",
+   "body": {
+    "title": "임시 공지",
+    "content": "오늘만 쓰는 안내입니다.",
+    "category": "reference"
+   },
+   "status": 201,
+   "size": 101,
+   "response": {
+    "title": "임시 공지",
+    "content": "오늘만 쓰는 안내입니다.",
+    "category": "reference",
+    "id": 6
+   }
+  },
+  "delete_c": {
+   "request": "DELETE /api/knowledge/6",
+   "body": null,
+   "status": 204,
+   "size": 0,
+   "response": null
+  },
+  "get_c": {
+   "request": "GET /api/knowledge/6",
+   "body": null,
+   "status": 404,
+   "size": 32,
+   "response": {
+    "detail": "Knowledge not found"
+   }
+  },
+  "post_empty": {
+   "request": "POST /api/knowledge",
+   "body": {
+    "title": "빈 본문",
+    "content": "",
+    "category": "learning"
+   },
+   "status": 422,
+   "size": 147,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "content"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     }
+    ]
+   }
+  },
+  "put_partial": {
+   "request": "PUT /api/knowledge/5",
+   "body": {
+    "content": "본문만 보냄"
+   },
+   "status": 422,
+   "size": 223,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "title"
+      ],
+      "msg": "Field required",
+      "input": {
+       "content": "본문만 보냄"
+      }
+     },
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "category"
+      ],
+      "msg": "Field required",
+      "input": {
+       "content": "본문만 보냄"
+      }
+     }
+    ]
+   }
+  },
+  "put_missing_newcat": {
+   "request": "PUT /api/knowledge/9999",
+   "body": {
+    "title": "없는 지식",
+    "content": "새 분류도 생기면 안 됩니다.",
+    "category": "brandnew"
+   },
+   "status": 404,
+   "size": 32,
+   "response": {
+    "detail": "Knowledge not found"
+   }
+  },
+  "list_after_restart": {
+   "request": "GET /api/knowledge",
+   "body": null,
+   "status": 200,
+   "size": 626,
+   "response": [
+    {
+     "title": "실습 파일 보관",
+     "content": "실습 파일은 개인 폴더에 보관합니다.",
+     "category": "learning",
+     "id": 1
+    },
+    {
+     "title": "서버 실행",
+     "content": "프로젝트 폴더에서 서버를 실행합니다.",
+     "category": "environment",
+     "id": 2
+    },
+    {
+     "title": "질문 작성",
+     "content": "오류 메시지와 시도한 작업을 함께 적습니다.",
+     "category": "learning",
+     "id": 3
+    },
+    {
+     "title": "실습 질문 채널",
+     "content": "막히면 팀 채널에 질문을 남깁니다.",
+     "category": "learning",
+     "id": 4
+    },
+    {
+     "title": "가상환경 정책",
+     "content": "새 프로젝트는 uv init으로 시작합니다.",
+     "category": "environment",
+     "id": 5
+    }
+   ]
+  }
+ },
+ "sql_b_after_post": {
+  "cols": [
+   "id",
+   "title",
+   "content",
+   "category"
+  ],
+  "rows": [
+   [
+    5,
+    "가상환경 정책",
+    "새 프로젝트는 uv로 가상환경을 만듭니다.",
+    "policy"
+   ]
+  ]
+ },
+ "sql_b_category_id": {
+  "cols": [
+   "id",
+   "title",
+   "category_id"
+  ],
+  "rows": [
+   [
+    5,
+    "가상환경 정책",
+    4
+   ]
+  ]
+ },
+ "categories_after_post": {
+  "cols": [
+   "id",
+   "name"
+  ],
+  "rows": [
+   [
+    1,
+    "learning"
+   ],
+   [
+    2,
+    "environment"
+   ],
+   [
+    3,
+    "reference"
+   ],
+   [
+    4,
+    "policy"
+   ]
+  ]
+ },
+ "sql_b_after_put": {
+  "cols": [
+   "id",
+   "title",
+   "content",
+   "category"
+  ],
+  "rows": [
+   [
+    5,
+    "가상환경 정책",
+    "새 프로젝트는 uv init으로 시작합니다.",
+    "environment"
+   ]
+  ]
+ },
+ "sql_c_after_delete": {
+  "cols": [
+   "rows"
+  ],
+  "rows": [
+   [
+    0
+   ]
+  ]
+ },
+ "fail_counts": {
+  "before": {
+   "knowledge": 5,
+   "categories": 4
+  },
+  "after": {
+   "knowledge": 5,
+   "categories": 4
+  },
+  "brandnew": 0
+ },
+ "project": {
+  "N": 3,
+  "a": 4,
+  "b": 5,
+  "c": 6,
+  "final": 5
+ },
+ "down": true,
+ "sql_after_restart": {
+  "cols": [
+   "id",
+   "title",
+   "content",
+   "category"
+  ],
+  "rows": [
+   [
+    1,
+    "실습 파일 보관",
+    "실습 파일은 개인 폴더에 보관합니다.",
+    "learning"
+   ],
+   [
+    2,
+    "서버 실행",
+    "프로젝트 폴더에서 서버를 실행합니다.",
+    "environment"
+   ],
+   [
+    3,
+    "질문 작성",
+    "오류 메시지와 시도한 작업을 함께 적습니다.",
+    "learning"
+   ],
+   [
+    4,
+    "실습 질문 채널",
+    "막히면 팀 채널에 질문을 남깁니다.",
+    "learning"
+   ],
+   [
+    5,
+    "가상환경 정책",
+    "새 프로젝트는 uv init으로 시작합니다.",
+    "environment"
+   ]
+  ]
+ },
+ "session": {
+  "add": {
+   "id": null,
+   "other": 5
+  },
+  "flush": {
+   "id": 7,
+   "other": 5
+  },
+  "commit": {
+   "id": 7,
+   "other": 6
+  },
+  "together": {
+   "categories_before": 4,
+   "error": {
+    "type": "IntegrityError",
+    "constraint": "knowledge_content_length"
+   },
+   "category_left": 0
+  },
+  "split": {
+   "categories_before": 4,
+   "error": {
+    "type": "IntegrityError",
+    "constraint": "knowledge_content_length"
+   },
+   "category_left": 1
+  }
+ },
+ "orm_only": {
+  "ok": false,
+  "type": "ProgrammingError",
+  "message": "column knowledge.source does not exist"
+ },
+ "migration": {
+  "current_0": [],
+  "history": [
+   "001_initial -> 002_source (head), ",
+   "<base> -> 001_initial, "
+  ],
+  "up_001": [
+   "Running upgrade  -> 001_initial"
+  ],
+  "current_1": [
+   "001_initial"
+  ],
+  "tables_1": {
+   "cols": [
+    "table_name"
+   ],
+   "rows": [
+    [
+     "categories"
+    ],
+    [
+     "knowledge"
+    ]
+   ]
+  },
+  "cols_1": {
+   "cols": [
+    "column_name",
+    "data_type",
+    "max_length",
+    "is_nullable"
+   ],
+   "rows": [
+    [
+     "id",
+     "bigint",
+     null,
+     "NO"
+    ],
+    [
+     "title",
+     "character varying",
+     80,
+     "NO"
+    ],
+    [
+     "content",
+     "text",
+     null,
+     "NO"
+    ],
+    [
+     "category_id",
+     "bigint",
+     null,
+     "NO"
+    ]
+   ]
+  },
+  "up_head": [
+   "Running upgrade 001_initial -> 002_source"
+  ],
+  "current_2": [
+   "002_source (head)"
+  ],
+  "cols_2": {
+   "cols": [
+    "column_name",
+    "data_type",
+    "max_length",
+    "is_nullable"
+   ],
+   "rows": [
+    [
+     "id",
+     "bigint",
+     null,
+     "NO"
+    ],
+    [
+     "title",
+     "character varying",
+     80,
+     "NO"
+    ],
+    [
+     "content",
+     "text",
+     null,
+     "NO"
+    ],
+    [
+     "category_id",
+     "bigint",
+     null,
+     "NO"
+    ],
+    [
+     "source",
+     "character varying",
+     120,
+     "YES"
+    ]
+   ]
+  },
+  "rows_2": {
+   "cols": [
+    "id",
+    "title",
+    "content",
+    "source"
+   ],
+   "rows": [
+    [
+     1,
+     "기준 지식",
+     "Migration 전부터 있던 행",
+     null
+    ]
+   ]
+  },
+  "down_001": [
+   "Running downgrade 002_source -> 001_initial"
+  ],
+  "cols_3": {
+   "cols": [
+    "column_name",
+    "data_type",
+    "max_length",
+    "is_nullable"
+   ],
+   "rows": [
+    [
+     "id",
+     "bigint",
+     null,
+     "NO"
+    ],
+    [
+     "title",
+     "character varying",
+     80,
+     "NO"
+    ],
+    [
+     "content",
+     "text",
+     null,
+     "NO"
+    ],
+    [
+     "category_id",
+     "bigint",
+     null,
+     "NO"
+    ]
+   ]
+  },
+  "rows_3": {
+   "cols": [
+    "id",
+    "title",
+    "content"
+   ],
+   "rows": [
+    [
+     1,
+     "기준 지식",
+     "Migration 전부터 있던 행"
+    ]
+   ]
+  },
+  "up_again": [
+   "Running upgrade 001_initial -> 002_source"
+  ],
+  "current_4": [
+   "002_source (head)"
+  ]
+ },
+ "env": {
+  "postgresql": "17.10 (Homebrew)",
+  "fastapi": "0.162.5",
+  "sqlalchemy": "2.1.8",
+  "psycopg": "3.3.8",
+  "pydantic": "2.14.3",
+  "alembic": "1.20.1",
+  "python": "3.13.15"
+ }
+}
