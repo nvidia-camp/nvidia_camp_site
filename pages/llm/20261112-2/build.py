@@ -111,10 +111,8 @@ def excerpt(src, keep):
 
 
 def short_pane(label, src, keep, marks=(), lang="py"):
-    """핵심 줄만 보이고, 전체 코드는 접어 둔다."""
-    return (f'<div class="code-box">{pane(label, excerpt(src, keep), marks, lang)}'
-            + f'<details class="full"><summary><span class="when-closed">전체 코드 보기</span><span class="when-open">핵심 줄만 보기</span></summary>'
-            + f'{pane(label, src, marks, lang)}</details></div>')
+    """핵심 줄만 보인다. 건너뛴 자리는 … 로 표시한다."""
+    return pane(label, excerpt(src, keep), marks, lang)
 
 
 def read(name):
@@ -372,7 +370,7 @@ s3 = step(3, "ORM Model · 테이블을 클래스로",
           "클래스는 이미 있는 테이블을 읽는 설계도다. API는 분류를 <b>이름</b>으로, DB는 <b>번호</b>로 다룬다.",
           given=True)
 lst = API["list"]["response"]
-s4 = step(4, "첫 조회 · SQL로 넣은 지식이 API에 보인다",
+s4 = step(4, "조회 · <code>select()</code>로 목록 읽기",
           short_pane("app/main.py", block(MAIN, "to_read") + "\n\n\n" + block(MAIN, "list_knowledge"),
                      ["@app.get", "def list_knowledge", "stmt = select(", "return [to_read"], marks=("select(", "db.scalars")),
           table(["id", "title", "category"], [[x["id"], e(x["title"]), e(x["category"])] for x in lst],
@@ -382,7 +380,7 @@ s4 = step(4, "첫 조회 · SQL로 넣은 지식이 API에 보인다",
 out.append(section("connect", [s1, s2, s3, s4]))
 
 cats = CAP["categories_after_post"]["rows"]
-s5 = step(5, "분류 연결 · 이름으로 찾고, 없으면 만든다",
+s5 = step(5, "분류 변환 · 분류명을 <code>category_id</code>로",
           pane("app/main.py", block(MAIN, "get_or_create_category"), marks=("db.flush()",)),
           table(["id", "name", ""], [[r[0], f"<code>{e(r[1])}</code>",
                                       '<span class="tag ok">B가 새로 만듦</span>' if r[1] == "policy" else
@@ -391,7 +389,7 @@ s5 = step(5, "분류 연결 · 이름으로 찾고, 없으면 만든다",
           "<code>add</code>는 Session에 올리기, <code>flush</code>는 SQL을 보내 id 받기, <code>commit</code>은 확정. 분류 번호는 이 함수가 찾거나 새로 받아 온다.",
           todo=["B04"])
 post_row = CAP["sql_b_after_post"]["rows"][0]
-s6 = step(6, "POST · 저장하고 201",
+s6 = step(6, "POST · INSERT하고 DB가 정한 id 받기",
           pane("app/main.py", block(MAIN, "create_knowledge"), marks=("db.add", "db.flush()", "with transaction")),
           '<div class="shots">'
           + f'<img src="{img(API["post_b"]["shots"][0])}" alt="/docs에서 POST Body를 입력한 화면" width="582" height="295">'
@@ -408,7 +406,7 @@ s7 = step(7, "GET 상세 · 없으면 404",
           "없는 번호는 404, 숫자가 아닌 값은 FastAPI가 먼저 422로 거절한다.",
           todo=["B05"])
 put_row = CAP["sql_b_after_put"]["rows"][0]
-s8 = step(8, "PUT · id는 그대로, 세 필드를 바꾼다",
+s8 = step(8, "PUT · 객체 값을 바꾸면 UPDATE",
           short_pane("app/main.py", block(MAIN, "update_knowledge"),
                      ["def update_knowledge", "item = load_one", "with transaction", ("item.title", "item.category ="), "db.flush()"],
                      marks=("item.title", "item.content", "item.category =")),
@@ -416,7 +414,7 @@ s8 = step(8, "PUT · id는 그대로, 세 필드를 바꾼다",
                                      caption=f"SQL · WHERE k.id = {B}", classes=["hit"]),
           f"객체의 값을 바꾸면 Session이 UPDATE를 만든다. id {B}와 지식 수는 그대로다.",
           todo=["B07"])
-s9 = step(9, "DELETE · 본문 없는 204",
+s9 = step(9, "DELETE · <code>db.delete()</code> 후 commit",
           pane("app/main.py", block(MAIN, "delete_knowledge"), marks=("db.delete",)),
           '<div class="resps">' + resp(API["delete_c"]) + resp(API["get_c"]) + "</div>"
           + f'<p class="sub">SQL · <code>WHERE id = {C}</code> → {CAP["sql_c_after_delete"]["rows"][0][0]}행</p>',
@@ -430,7 +428,7 @@ db.add(item)
 db.flush()
 db.commit()
 # 단계마다 다른 연결에서 SELECT count(*) FROM knowledge"""
-s10 = step(10, "flush와 commit · 언제 다른 요청에게 보이나",
+s10 = step(10, "flush와 commit · 보내기와 확정은 다르다",
            pane("실험 · 같은 앱 코드로", FLUSH_DEMO, marks=("db.flush()", "db.commit()")),
            table(["이 Session에서", "item.id", "다른 연결이 본 knowledge 수"], [
                ["<code>db.add(item)</code>", "None (아직 없음)", S["add"]["other"]],
@@ -439,18 +437,16 @@ s10 = step(10, "flush와 commit · 언제 다른 요청에게 보이나",
            ], classes=["", "", "hit"]),
            "flush 뒤에 id가 생겨도 commit 전에는 다른 요청에게 보이지 않는다. 그래서 201은 commit 뒤에 보낸다.")
 T, SP = S["together"], S["split"]
-s11 = step(11, "함께 확정 · 새 분류만 남는 반쪽 저장을 막는다",
+s11 = step(11, "트랜잭션 · 전부 저장하거나, 전부 취소하거나",
            pane("app/db.py", block(DB, "transaction"), marks=("db.commit()", "db.rollback()")),
-           table(["저장 방식", "지식 저장", "새 분류"], [
-               ["분류 먼저 commit → 그다음 지식", '<span class="tag bad">실패</span>',
-                f'<span class="tag bad">{SP["category_left"]}건 남음</span> 지식 없는 분류'],
-               ["<code>with transaction(db):</code> 안에서 함께", '<span class="tag bad">실패</span>',
-                f'<span class="tag ok">{T["category_left"]}건</span> 함께 취소'],
-           ], caption="새 분류를 만든 뒤 지식 저장이 DB 규칙(본문 2,000자 이하)에 걸려 실패하게 했다", classes=["bad", "hit"]),
-           "어제의 COMMIT·ROLLBACK이 코드에서는 이 함수다. 함께 맞아야 하는 변경은 한 번에 확정하고, 하나라도 실패하면 전부 취소한다.",
+           table(["저장 방식", "분류 → 지식", "남은 새 분류"], [
+               ["<b>묶지 않음</b><br>분류를 먼저 commit", "성공 → 실패", f'<span class="tag bad">{SP["category_left"]}건</span> 분류만 남음'],
+               ["<b>트랜잭션으로 묶음</b><br><code>with transaction(db):</code>", "성공 → 실패", f'<span class="tag ok">{T["category_left"]}건</span> 둘 다 취소'],
+           ], caption="실험 · 새 분류를 만든 뒤, 지식 저장이 DB 규칙(본문 2,000자 이하)에 걸려 실패하게 했다", classes=["bad", "hit"]),
+           "POST 한 번에 INSERT가 두 번 일어난다(새 분류, 지식). <code>transaction()</code>으로 묶으면 둘 다 성공해야 commit되고, 하나라도 실패하면 rollback으로 둘 다 취소된다. 이것이 트랜잭션의 원자성(Atomicity)이다.",
            todo=["B09"])
 fb, fa = F["before"], F["after"]
-s12 = step(12, "실패한 요청은 DB를 바꾸지 않는다",
+s12 = step(12, "422와 404 · 실패한 요청은 저장하지 않는다",
            table(["보낸 것", "응답"], [
                ['POST · <code>content</code> 빈 문자열', f'<b>{API["post_empty"]["status"]}</b> 입력 거절'],
                [f'PUT <code>/{B}</code> · <code>content</code>만 보냄', f'<b>{API["put_partial"]["status"]}</b> 입력 거절'],
@@ -468,12 +464,12 @@ ORM_DEMO = """# models.py의 Knowledge에 한 줄만 더했다 (DB는 그대로)
 source: Mapped[str | None] = mapped_column(String(120))
 
 db.scalars(select(Knowledge)).all()"""
-s13 = step(13, "ORM만 바꾸면 · DB는 따라오지 않는다",
+s13 = step(13, "Migration이 필요한 이유 · 클래스를 고쳐도 테이블은 그대로",
            pane("실험", ORM_DEMO, marks=("source:",)),
            f'<div class="resp"><div class="resp-bar"><span>조회 결과</span><b>실패</b></div><pre>{e(CAP["orm_only"]["message"])}</pre></div>',
            "클래스에 열을 적어도 실제 테이블은 그대로다. 테이블 구조를 바꾸는 일은 Migration이 한다.")
 cols2 = M["cols_2"]["rows"]
-s14 = step(14, "Revision 적용 · Alembic",
+s14 = step(14, "Alembic · Revision으로 열 추가하고 되돌리기",
            short_pane("migrations/versions/002_source.py", MIG_SRC.replace("branch_labels = None\ndepends_on = None\n", ""),
                 ["revision =", "down_revision", "def upgrade", "op.add_column", "def downgrade", "op.drop_column"],
                 marks=("op.add_column", "op.drop_column", "down_revision")),
@@ -495,7 +491,7 @@ FROM knowledge AS k
 JOIN categories AS c ON c.id = k.category_id
 -- {B}는 POST 응답에서 받은 id
 WHERE k.id = {B};"""
-s15 = step(15, "같은 id로 확인 · API와 DB가 같은 행을 보는가",
+s15 = step(15, "검증 · 응답 id로 DB 행 다시 조회",
            pane("SQL", CHECK_SQL, lang="sql", marks=("WHERE",)),
            resp(API["get_b"], f"GET /api/knowledge/{B}")
            + table(["id", "title", "content", "category"], [[e(v) for v in put_row]], caption="SQL 결과", classes=["hit"]),
