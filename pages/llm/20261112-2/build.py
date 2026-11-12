@@ -112,8 +112,9 @@ def excerpt(src, keep):
 
 def short_pane(label, src, keep, marks=(), lang="py"):
     """핵심 줄만 보이고, 전체 코드는 접어 둔다."""
-    return (pane(label, excerpt(src, keep), marks, lang)
-            + f'<details class="full"><summary>전체 코드 보기</summary>{pane(label, src, marks, lang)}</details>')
+    return (f'<div class="code-box">{pane(label, excerpt(src, keep), marks, lang)}'
+            + f'<details class="full"><summary><span class="when-closed">전체 코드 보기</span><span class="when-open">핵심 줄만 보기</span></summary>'
+            + f'{pane(label, src, marks, lang)}</details></div>')
 
 
 def read(name):
@@ -192,7 +193,7 @@ out = [f"""<header class="head">
 
 # ── 큰 그림: 연결 지도 ──
 LAYERS = [
-    ("cli", "/docs", "요청을 보내고 응답을 받는다. /docs 대신 Postman 같은 도구로 보내도 된다", [("브라우저", "127.0.0.1:8000/docs")], [4, 6]),
+    ("cli", "/docs", '요청을 보내고 응답을 받는다. Postman 같은 도구로 보내도 된다 (<a href="#client">비교 ↓</a>)', [("브라우저", "127.0.0.1:8000/docs")], [6]),
     ("api", "FastAPI", "주소를 경로 함수에 연결하고, 입력을 검사하고, 응답 모양을 정한다",
      [("main.py", "@app.post(…)"), ("schemas.py", "KnowledgeWrite · KnowledgeRead")], [6, 7, 12]),
     ("orm", "ORM Model", "테이블 한 행 = Python 객체 하나. 분류는 이름과 번호를 서로 바꾼다",
@@ -220,7 +221,7 @@ def layer_box(key, name, meaning, files, steps):
     fl = "".join(f'<li><b>{e(f)}</b><code>{e(c)}</code></li>' for f, c in files)
     links = " ".join(f'<a href="#s{n}">{n}</a>' for n in steps)
     return (f'<div class="lbox ly-{key}"><div class="lbox-top"><span class="lname">{e(name)}</span>'
-            f'<span class="lsteps">단계 {links}</span></div><p>{e(meaning)}</p><ul class="lfiles">{fl}</ul></div>')
+            f'<span class="lsteps">단계 {links}</span></div><p>{meaning}</p><ul class="lfiles">{fl}</ul></div>')
 
 
 lift = ['<div class="lift-head"><span>요청 ↓ 내려간다</span><span></span><span>↑ 응답이 올라온다</span></div>']
@@ -271,6 +272,20 @@ out.append(f"""<section id="big" aria-labelledby="big-title">
     <p class="fig-title">연결 지도 · POST 한 번이 DB 행이 되기까지 <small>실제 값</small></p>
     {lift_html}
   </div>
+  <div class="fig" id="client">
+    <p class="fig-title">요청을 보내는 도구 · /docs와 Postman <small>어느 쪽으로 보내도 FastAPI 아래 층은 똑같이 동작한다</small></p>
+    <div class="vs">
+      <figure><figcaption><b>/docs</b> 서버를 켜면 코드의 경로 {len(CAP["docs_home"]["paths"])}개가 자동으로 나온다</figcaption>
+        <img src="{img(CAP["docs_home"]["shot"])}" width="744" height="376" alt="/docs 화면: GET /health부터 DELETE /api/knowledge/{{knowledge_id}}까지 경로 6개"></figure>
+      <figure><figcaption><b>Postman</b> 요청을 직접 만들어 Collection으로 저장한다 (1·2교시 실습)</figcaption>
+        {webp("postman_collection", 311, 362)} alt="Postman Collection: Day19 basic PM01 요청 6개와 PM02 요청 11개"></figure>
+    </div>
+    {table(["", "/docs", "Postman"], [
+        ["여는 곳", "서버가 제공 <code>127.0.0.1:8000/docs</code>", "따로 설치한 Postman 앱"],
+        ["경로 · 입력", "코드에서 자동으로 채워진다", "직접 만들거나 <code>/openapi.json</code>을 가져온다"],
+        ["다시 보내기", "새로고침하면 사라진다", "Collection에 저장해 두고 차례로 다시 보낸다"],
+    ])}
+  </div>
   <div class="fig">
     <p class="fig-title">이 연결을 만드는 파일 · 설정이 이어지는 순서</p>
     {files_html}
@@ -279,7 +294,7 @@ out.append(f"""<section id="big" aria-labelledby="big-title">
 
 
 # ── 단계 카드 ──
-STEP_LAYERS = {1: "eng db", 2: "ses", 3: "orm db", 4: "cli api orm ses", 5: "orm ses", 6: "cli api orm ses", 7: "api",
+STEP_LAYERS = {1: "eng db", 2: "ses", 3: "orm db", 4: "api orm ses", 5: "orm ses", 6: "cli api orm ses", 7: "api",
         8: "api orm ses", 9: "api ses", 10: "ses eng", 11: "ses", 12: "cli api", 13: "orm db", 14: "db", 15: "cli db"}
 STEP_LAYERS = {k: v.split() for k, v in STEP_LAYERS.items()}
 
@@ -363,11 +378,7 @@ s4 = step(4, "첫 조회 · SQL로 넣은 지식이 API에 보인다",
           table(["id", "title", "category"], [[x["id"], e(x["title"]), e(x["category"])] for x in lst],
                 caption=f"GET /api/knowledge → {API['list']['status']} · 오전 DB의 {len(lst)}건"),
           "<code>select</code>로 만든 SQL을 Session이 실행하고, 결과는 <code>Knowledge</code> 객체로 온다. <b>어제 SQL로 넣은 실제 행</b>이 보이면 연결된 것이다.",
-          todo=["B03"],
-          extra='<div class="extra"><p class="label">같은 요청을 Postman으로 보낸 화면</p>'
-                + webp("postman_list", 884, 726) + ' alt="Postman에서 GET /api/knowledge를 보내 200 OK와 지식 목록 JSON을 받은 화면">'
-                + '<p class="sub">/docs 대신 Postman 같은 도구로 보내도 결과는 같다. 요청을 Collection으로 저장해 두고 다시 보낼 수 있다. '
-                + '화면의 DB는 실습을 진행한 뒤라 행이 더 많다.</p></div>')
+          todo=["B03"])
 out.append(section("connect", [s1, s2, s3, s4]))
 
 cats = CAP["categories_after_post"]["rows"]

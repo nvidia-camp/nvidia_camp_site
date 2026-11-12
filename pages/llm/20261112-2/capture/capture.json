@@ -348,6 +348,17 @@
    ]
   }
  },
+ "docs_home": {
+  "shot": "shots/docs_home.png",
+  "paths": [
+   "/health",
+   "/api/knowledge",
+   "/api/knowledge",
+   "/api/knowledge/{knowledge_id}",
+   "/api/knowledge/{knowledge_id}",
+   "/api/knowledge/{knowledge_id}"
+  ]
+ },
  "sql_b_after_post": {
   "cols": [
    "id",

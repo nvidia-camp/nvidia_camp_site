@@ -88,6 +88,21 @@ def start_server(work):
     raise RuntimeError("서버가 뜨지 않았습니다")
 
 
+def docs_home():
+    """/docs 첫 화면: 코드의 경로가 자동으로 나열된 목록을 저장한다."""
+    SHOTS.mkdir(exist_ok=True)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(executable_path=CHROME)
+        page = browser.new_page(viewport={"width": 760, "height": 900}, device_scale_factor=2)
+        page.goto(BASE + "/docs"); page.wait_for_selector(".opblock"); time.sleep(0.5)
+        page.locator(".information-container").first.evaluate("el => el.style.display = 'none'") if page.locator(".information-container").count() else None
+        target = page.locator(".swagger-ui .wrapper").filter(has=page.locator(".opblock-tag-section")).first
+        target.screenshot(path=str(SHOTS / "docs_home.png"))
+        paths = [el.inner_text().strip() for el in page.locator(".opblock-summary-path").all()]
+        browser.close()
+    return {"shot": "shots/docs_home.png", "paths": paths}
+
+
 def docs_post(body):
     """/docs에서 POST /api/knowledge를 펼쳐 Try it out → Body 입력 → Execute. 입력·응답 화면을 저장한다."""
     SHOTS.mkdir(exist_ok=True)
@@ -135,6 +150,7 @@ def main():
     server = start_server(work)
     api = out["api"] = {}
     api["health"] = call("GET", "/health")
+    out["docs_home"] = docs_home()
     api["list"] = call("GET", "/api/knowledge")
     api["filter_learning"] = call("GET", "/api/knowledge?category=learning")
     api["filter_none"] = call("GET", "/api/knowledge?category=nothing")

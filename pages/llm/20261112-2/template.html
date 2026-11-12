@@ -148,7 +148,7 @@ tr.bad td { background: var(--bad-bg); }
 .mean { border-left: 4px solid var(--color-primary); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: 0.7rem 1rem; }
 .mean b { color: var(--color-heading); margin-right: 0.3rem; }
 .two { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
-.two > div { display: grid; gap: 0.5rem; min-width: 0; }
+.two > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.5rem; min-width: 0; }
 .key { font-weight: 600; color: var(--color-heading); border-top: 1px solid var(--color-border); padding-top: 0.8rem; }
 .key::before { content: "핵심 "; font-size: 0.8rem; font-weight: 700; color: var(--color-primary); margin-right: 0.2rem; }
 
@@ -223,6 +223,13 @@ details dd { margin: 0; }
 .wire::after { content: "↑"; right: 30%; }
 .wire { background: linear-gradient(var(--color-border), var(--color-border)) 30% 0 / 2px 100% no-repeat, linear-gradient(var(--color-border), var(--color-border)) 70% 0 / 2px 100% no-repeat; }
 
+/* /docs와 Postman */
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.vs figure { margin: 0; display: grid; gap: 0.5rem; min-width: 0; }
+.vs figcaption { font-size: 0.88rem; color: var(--color-muted); }
+.vs figcaption b { display: block; font-size: 1rem; color: var(--color-heading); }
+.vs img { display: block; width: auto; max-width: 100%; height: auto; border: 1px solid var(--color-border); border-radius: 0.5rem; background: #fff; }
+
 /* 파일 연결 */
 .fwire { display: grid; grid-template-columns: minmax(0, 1.25fr) auto minmax(0, 1fr) auto minmax(0, 1.35fr) auto minmax(0, 1.25fr); gap: 0.6rem; align-items: stretch; }
 .fnode { display: grid; gap: 0.35rem; align-content: start; text-decoration: none; color: var(--color-text); background: var(--color-soft); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.7rem 0.8rem; min-width: 0; }
@@ -263,11 +270,16 @@ details dd { margin: 0; }
 .ltag { font-size: 0.72rem; font-weight: 700; padding: 0.05rem 0.5rem; border-radius: 0.4rem; background: var(--ly-bg); color: var(--ly-fg); border: 1px solid var(--ly-fg); white-space: nowrap; }
 
 /* 전체 코드 접기 */
-details.full { background: none; border: 0; padding: 0; }
+.code-box { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.3rem; min-width: 0; }
+.code-box:has(details.full[open]) > .pane { display: none; }
+details.full { background: none; border: 0; padding: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+details.full .when-open, details.full[open] .when-closed { display: none; }
+details.full[open] .when-open { display: inline; }
 details.full summary { font-size: 0.82rem; font-weight: 600; color: var(--color-primary); padding: 0.3rem 0; }
-details.full[open] summary { margin-bottom: 0.4rem; }
+details.full[open] summary { margin-bottom: 0.4rem; order: -1; }
 
 @media (max-width: 56rem) {
+  .vs { grid-template-columns: minmax(0, 1fr); }
   .fwire { grid-template-columns: minmax(0, 1fr); }
   .farrow { max-width: none; }
   .farrow::after { content: "↓"; display: inline; margin-left: 0.4rem; }
