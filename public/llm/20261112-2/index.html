@@ -489,22 +489,6 @@ details.full[open] summary { margin-bottom: 0.4rem; order: -1; }
 </article></div>
 </section>
 
-<section id="summary" class="part" aria-labelledby="summary-title">
-  <header class="part-head">
-    <span class="part-no">5</span>
-    <div class="part-title"><h2 id="summary-title">종합</h2><span>일일프로젝트 · 5교시</span></div>
-    <ol class="part-steps"></ol>
-  </header>
-  <p class="sub">시작 N = 3 → POST A·B·C → PUT B → 실패 요청 3개 → DELETE C → 서버를 껐다가 다시 켠 뒤 확인</p>
-  <div class="table-wrap"><table><thead><tr><th class="">지식</th><th class="">한 일</th><th class="">재시작 뒤 API</th><th class="">SQL</th></tr></thead><tbody><tr class=""><td class="">A · id 4</td><td class="">유지</td><td class="">200 · 실습 질문 채널</td><td class="">있음</td></tr><tr class=""><td class="">B · id 5</td><td class="">수정</td><td class="">200 · 새 프로젝트는 uv init으로 시작합니다.</td><td class="">있음</td></tr><tr class=""><td class="">C · id 6</td><td class="">삭제</td><td class="">404</td><td class="">0행</td></tr><tr class="hit"><td class="">전체</td><td class=""></td><td class=""><span class="big">5건 = N+2</span></td><td class="">5행</td></tr></tbody></table></div>
-  <ol class="summary">
-    <li><p>API 약속(주소·입력·응답)은 오전과 같다. 저장하는 곳만 PostgreSQL로 바뀌었다.</p></li>
-    <li><p>요청 하나에 Session 하나. 그 안에서 add·flush로 모으고, commit 한 번으로 확정하거나 rollback으로 함께 취소한다.</p></li>
-    <li><p>API는 분류를 이름으로, DB는 번호(FK)로 다룬다. 바꾸는 일은 <code>get_or_create_category</code>와 <code>to_read</code>가 한다.</p></li>
-    <li><p>테이블 구조를 바꾸는 일은 ORM 코드가 아니라 Migration이 한다. 성공은 응답 id로 DB 행을 다시 찾아 확인한다.</p></li>
-  </ol>
-</section>
-
 <details>
   <summary>더 알아보기</summary>
   <dl>

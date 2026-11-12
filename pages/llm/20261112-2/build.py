@@ -503,26 +503,6 @@ s15 = step(15, "같은 id로 확인 · API와 DB가 같은 행을 보는가",
            todo=["B11"])
 out.append(section("mig", [s13, s14, s15]))
 
-# ── 종합 ──
-after = {x["id"]: x for x in API["list_after_restart"]["response"]}
-a_id = P["a"]
-out.append(f"""<section id="summary" class="part" aria-labelledby="summary-title">
-  {part_head(5, "summary", "종합", "일일프로젝트 · 5교시", [])}
-  <p class="sub">시작 N = {P["N"]} → POST A·B·C → PUT B → 실패 요청 3개 → DELETE C → 서버를 껐다가 다시 켠 뒤 확인</p>
-  {table(["지식", "한 일", "재시작 뒤 API", "SQL"], [
-      [f"A · id {a_id}", "유지", f'200 · {e(after[a_id]["title"])}', "있음"],
-      [f"B · id {B}", "수정", f'200 · {e(after[B]["content"])}', "있음"],
-      [f"C · id {C}", "삭제", "404", "0행"],
-      ["전체", "", f'<span class="big">{len(after)}건 = N+2</span>', f'{len(CAP["sql_after_restart"]["rows"])}행'],
-  ], classes=["", "", "", "hit"])}
-  <ol class="summary">
-    <li><p>API 약속(주소·입력·응답)은 오전과 같다. 저장하는 곳만 PostgreSQL로 바뀌었다.</p></li>
-    <li><p>요청 하나에 Session 하나. 그 안에서 add·flush로 모으고, commit 한 번으로 확정하거나 rollback으로 함께 취소한다.</p></li>
-    <li><p>API는 분류를 이름으로, DB는 번호(FK)로 다룬다. 바꾸는 일은 <code>get_or_create_category</code>와 <code>to_read</code>가 한다.</p></li>
-    <li><p>테이블 구조를 바꾸는 일은 ORM 코드가 아니라 Migration이 한다. 성공은 응답 id로 DB 행을 다시 찾아 확인한다.</p></li>
-  </ol>
-</section>""")
-
 # ── 더 알아보기 ──
 out.append(f"""<details>
   <summary>더 알아보기</summary>
