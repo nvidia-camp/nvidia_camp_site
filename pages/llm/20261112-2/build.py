@@ -89,6 +89,33 @@ def pane(label, src, marks=(), lang="py"):
     return f'<div class="pane"><div class="pane-head">{e(label)}</div><pre><code>{"".join(rows)}</code></pre></div>'
 
 
+def excerpt(src, keep):
+    """keep: 한 줄(부분 문자열) 또는 (시작, 끝) 범위. 원본 순서대로 남기고, 건너뛴 자리는 … 한 줄."""
+    lines = src.split("\n")
+    chosen = set()
+    for k in keep:
+        if isinstance(k, tuple):
+            a = next(i for i, l in enumerate(lines) if k[0] in l)
+            b = next(i for i in range(a + 1, len(lines)) if k[1] in lines[i])
+            chosen.update(range(a, b + 1))
+        else:
+            chosen.add(next(i for i, l in enumerate(lines) if k in l))
+    out, last = [], None
+    for i in sorted(chosen):
+        if last is not None and i > last + 1:
+            nxt = lines[i]
+            out.append(" " * (len(nxt) - len(nxt.lstrip())) + "…")
+        out.append(lines[i])
+        last = i
+    return "\n".join(out)
+
+
+def short_pane(label, src, keep, marks=(), lang="py"):
+    """핵심 줄만 보이고, 전체 코드는 접어 둔다."""
+    return (pane(label, excerpt(src, keep), marks, lang)
+            + f'<details class="full"><summary>전체 코드 보기</summary>{pane(label, src, marks, lang)}</details>')
+
+
 def read(name):
     return (APP / name).read_text(encoding="utf-8")
 
@@ -220,10 +247,9 @@ for i, (f, code, what, no) in enumerate(FILES):
 files_html = f'<div class="fwire">{"".join(wire)}</div>'
 
 
-def here(keys):
-    """단계 카드 머리의 '지금 여기' 띠: 연결 지도의 여섯 층 중 이 단계가 다루는 층을 칠한다."""
-    items = "".join(f'<li class="ly-{k}{" on" if k in keys else ""}">{e(n)}</li>' for k, n, *_ in LAYERS)
-    return f'<div class="here"><span>지금 여기</span><ol>{items}</ol></div>'
+def layer_tags(keys):
+    """이 단계가 다루는 층만 작은 색 태그로."""
+    return "".join(f'<span class="ltag ly-{k}">{e(LAYER_NAME[k])}</span>' for k in keys)
 
 
 GROUPS = [
@@ -263,20 +289,29 @@ def step(no, title, left, right, key, todo=None, given=False, left_label="코드
     badge = "".join(f'<span class="todo">{t}</span>' for t in (todo or []))
     if given:
         badge += '<span class="given">제공 코드 · 읽기만</span>'
-    right_html = f'<div><p class="label">실제 결과</p>{right}</div>' if right else ""
+    right_html = f'<div>{right}</div>' if right else ""
     return f"""<article class="step" id="s{no}">
-  <div class="step-head"><span class="no">{no}</span><h3>{title}</h3>{badge}</div>
-  {here(keys)}
+  <div class="step-head"><span class="no">{no}</span><h3>{title}</h3>{badge}<span class="ltags">{layer_tags(keys)}</span></div>
   <p class="mean"><b>핵심</b>{key}</p>
-  <div class="two"><div><p class="label">{left_label}</p>{left}</div>{right_html}</div>
+  <div class="two"><div>{left}</div>{right_html}</div>
   {extra}
 </article>"""
 
 
+def part_head(num, gid, name, sub, items):
+    links = "".join(f'<li><a href="#s{no}"><span>{no}</span>{e(t)}</a></li>' for no, t in items)
+    return f"""<header class="part-head">
+    <span class="part-no">{num}</span>
+    <div class="part-title"><h2 id="{gid}-title">{e(name)}</h2><span>{e(sub)}</span></div>
+    <ol class="part-steps">{links}</ol>
+  </header>"""
+
+
 def section(gid, steps_html):
-    _, name, en, per, _ = next(g for g in GROUPS if g[0] == gid)
-    return f"""<section id="{gid}" aria-labelledby="{gid}-title">
-  <div class="section-head"><h2 id="{gid}-title">{e(name)}<small>{e(en)} · {e(per)}</small></h2></div>
+    num = [g[0] for g in GROUPS].index(gid) + 1
+    _, name, en, per, items = next(g for g in GROUPS if g[0] == gid)
+    return f"""<section id="{gid}" class="part" aria-labelledby="{gid}-title">
+  {part_head(num, gid, name, f"{en} · {per}", items)}
   <div class="steps">{"".join(steps_html)}</div>
 </section>"""
 
@@ -295,7 +330,8 @@ engine_src = "\n".join(l for l in DB.split("\n") if l.startswith(("engine", "Ses
 api_b, sql_b = API["get_b"]["response"], CAP["sql_b_category_id"]["rows"][0]
 
 s1 = step(1, "접속 설정 · <code>.env</code>와 <code>URL.create</code>",
-          pane(".env", ENV, lang="text") + pane("app/settings.py", block(SETTINGS, "Settings"), marks=("URL.create",)),
+          pane(".env", ENV, lang="text") + short_pane("app/settings.py", block(SETTINGS, "Settings"),
+                                              ["class Settings", "model_config", ("def database_url", "        )")], marks=("URL.create",)),
           pane("터미널", RUN, lang="text") + resp(API["health"], "GET /health"),
           "접속 정보는 <code>.env</code>에 두고 <code>URL.create</code>로 주소를 만든다. <code>.env</code>의 DB 이름이 pgAdmin에서 본 DB와 같아야 같은 데이터를 본다.",
           todo=["B01"])
@@ -311,7 +347,8 @@ s2 = step(2, "Session · 요청마다 하나 열고, 끝나면 닫는다",
           "<code>Depends(get_db)</code>가 요청마다 Session을 하나 열어 넘기고, 응답이 나가면 닫는다. 닫는 것(close)은 저장(commit)이 아니다.",
           todo=["B02"])
 s3 = step(3, "ORM Model · 테이블을 클래스로",
-          pane("app/models.py", block(MODELS, "Category") + "\n\n\n" + block(MODELS, "Knowledge"), marks=("category_id", "relationship")),
+          short_pane("app/models.py", block(MODELS, "Category") + "\n\n\n" + block(MODELS, "Knowledge"),
+                     [("class Knowledge", "relationship()")], marks=("category_id", "relationship")),
           table(["", "API 응답 (외부)", "DB 행 (내부)"], [
               ["id", f"<code>{api_b['id']}</code>", f"<code>{sql_b[0]}</code>"],
               ["title", e(api_b["title"]), e(sql_b[1])],
@@ -321,13 +358,13 @@ s3 = step(3, "ORM Model · 테이블을 클래스로",
           given=True)
 lst = API["list"]["response"]
 s4 = step(4, "첫 조회 · SQL로 넣은 지식이 API에 보인다",
-          pane("app/main.py", block(MAIN, "to_read") + "\n\n\n" + block(MAIN, "list_knowledge"), marks=("select(", "db.scalars")),
+          short_pane("app/main.py", block(MAIN, "to_read") + "\n\n\n" + block(MAIN, "list_knowledge"),
+                     ["@app.get", "def list_knowledge", "stmt = select(", "return [to_read"], marks=("select(", "db.scalars")),
           table(["id", "title", "category"], [[x["id"], e(x["title"]), e(x["category"])] for x in lst],
-                caption=f"GET /api/knowledge → {API['list']['status']} · 오전 DB의 {len(lst)}건 그대로")
-          + f'<p class="sub"><code>?category=learning</code> → id {", ".join(str(x["id"]) for x in API["filter_learning"]["response"])} · 없는 분류 → <code>[]</code></p>',
+                caption=f"GET /api/knowledge → {API['list']['status']} · 오전 DB의 {len(lst)}건"),
           "<code>select</code>로 만든 SQL을 Session이 실행하고, 결과는 <code>Knowledge</code> 객체로 온다. <b>어제 SQL로 넣은 실제 행</b>이 보이면 연결된 것이다.",
           todo=["B03"],
-          extra='<div class="extra"><p class="label">같은 요청을 Postman으로 · 수업 중 실제 화면</p>'
+          extra='<div class="extra"><p class="label">같은 요청을 Postman으로 보낸 화면</p>'
                 + webp("postman_list", 884, 726) + ' alt="Postman에서 GET /api/knowledge를 보내 200 OK와 지식 목록 JSON을 받은 화면">'
                 + '<p class="sub">/docs 대신 Postman 같은 도구로 보내도 결과는 같다. 요청을 Collection으로 저장해 두고 다시 보낼 수 있다. '
                 + '화면의 DB는 실습을 진행한 뒤라 행이 더 많다.</p></div>')
@@ -350,17 +387,20 @@ s6 = step(6, "POST · 저장하고 201",
           + f'<img src="{img(API["post_b"]["shots"][1])}" alt="/docs의 응답 201과 Response body, id {B}" width="542" height="196">'
           + "</div>"
           + table(["id", "title", "content", "category"], [[e(v) for v in post_row]],
-                  caption=f"SQL · WHERE k.id = {B}  →  응답과 같은 행", classes=["hit"]),
+                  caption=f"SQL · WHERE k.id = {B}", classes=["hit"]),
           "id는 DB가 정한다(오전의 <code>next_id</code>는 없다). 응답의 id로 SQL을 실행하면 같은 행이 나온다.",
           todo=["B06"])
 s7 = step(7, "GET 상세 · 없으면 404",
-          pane("app/main.py", block(MAIN, "load_one") + "\n\n\n" + block(MAIN, "read_knowledge"), marks=("raise HTTPException",)),
+          short_pane("app/main.py", block(MAIN, "load_one") + "\n\n\n" + block(MAIN, "read_knowledge"),
+                     ["def load_one", "item = db.scalar", ("if item is None", "raise HTTPException")], marks=("raise HTTPException",)),
           '<div class="resps">' + resp(API["get_b"]) + resp(API["get_missing"]) + resp(API["get_not_int"], trim=90) + "</div>",
           "없는 번호는 404, 숫자가 아닌 값은 FastAPI가 먼저 422로 거절한다.",
           todo=["B05"])
 put_row = CAP["sql_b_after_put"]["rows"][0]
 s8 = step(8, "PUT · id는 그대로, 세 필드를 바꾼다",
-          pane("app/main.py", block(MAIN, "update_knowledge"), marks=("item.title", "item.content", "item.category =")),
+          short_pane("app/main.py", block(MAIN, "update_knowledge"),
+                     ["def update_knowledge", "item = load_one", "with transaction", ("item.title", "item.category ="), "db.flush()"],
+                     marks=("item.title", "item.content", "item.category =")),
           resp(API["put_b"]) + table(["id", "title", "content", "category"], [[e(v) for v in put_row]],
                                      caption=f"SQL · WHERE k.id = {B}", classes=["hit"]),
           f"객체의 값을 바꾸면 Session이 UPDATE를 만든다. id {B}와 지식 수는 그대로다.",
@@ -408,7 +448,7 @@ s12 = step(12, "실패한 요청은 DB를 바꾸지 않는다",
            table(["", "knowledge", "categories"], [
                ["실패 요청 3개 전", fb["knowledge"], fb["categories"]],
                ["실패 요청 3개 뒤", fa["knowledge"], fa["categories"]],
-           ], caption=f'수가 그대로 · brandnew 분류 {F["brandnew"]}건', num=(1, 2), classes=["", "hit"]),
+           ], num=(1, 2), classes=["", "hit"]),
            "422는 입력만 보고 거절(DB까지 가지 않음), 404는 찾아봤는데 없음. 어느 쪽도 DB를 바꾸지 않는다.",
            left_label="요청")
 out.append(section("tx", [s10, s11, s12]))
@@ -423,7 +463,8 @@ s13 = step(13, "ORM만 바꾸면 · DB는 따라오지 않는다",
            "클래스에 열을 적어도 실제 테이블은 그대로다. 테이블 구조를 바꾸는 일은 Migration이 한다.")
 cols2 = M["cols_2"]["rows"]
 s14 = step(14, "Revision 적용 · Alembic",
-           pane("migrations/versions/002_source.py", MIG_SRC.replace("branch_labels = None\ndepends_on = None\n", ""),
+           short_pane("migrations/versions/002_source.py", MIG_SRC.replace("branch_labels = None\ndepends_on = None\n", ""),
+                ["revision =", "down_revision", "def upgrade", "op.add_column", "def downgrade", "op.drop_column"],
                 marks=("op.add_column", "op.drop_column", "down_revision")),
            table(["명령", "결과"], [
                ["<code>alembic current</code>", "(적용된 것 없음)"],
@@ -435,7 +476,7 @@ s14 = step(14, "Revision 적용 · Alembic",
            ], classes=["", "", "", "hit", "", ""])
            + table(["column_name", "data_type", "max_length", "is_nullable"],
                    [[e(c) for c in [r[0], r[1], r[2], r[3]]] for r in cols2 if r[0] == "source"],
-                   caption="upgrade head 뒤 knowledge에 생긴 열", classes=["hit"]),
+                   classes=["hit"]),
            "구조 변경을 Revision 파일로 남기고 연습 DB에 적용한다. 새 열은 NULL 허용으로 추가해야 기존 행이 깨지지 않는다.",
            todo=["M01", "M02"])
 CHECK_SQL = f"""SELECT k.id, k.title, k.content, c.name AS category
@@ -454,9 +495,9 @@ out.append(section("mig", [s13, s14, s15]))
 # ── 종합 ──
 after = {x["id"]: x for x in API["list_after_restart"]["response"]}
 a_id = P["a"]
-out.append(f"""<section id="summary" aria-labelledby="summary-title">
-  <div class="section-head"><h2 id="summary-title">종합 <small>일일프로젝트 · 5교시</small></h2>
-  <p>시작 N = {P["N"]} → POST A·B·C → PUT B → 실패 요청 3개 → DELETE C → 서버를 껐다가 다시 켠 뒤 확인</p></div>
+out.append(f"""<section id="summary" class="part" aria-labelledby="summary-title">
+  {part_head(5, "summary", "종합", "일일프로젝트 · 5교시", [])}
+  <p class="sub">시작 N = {P["N"]} → POST A·B·C → PUT B → 실패 요청 3개 → DELETE C → 서버를 껐다가 다시 켠 뒤 확인</p>
   {table(["지식", "한 일", "재시작 뒤 API", "SQL"], [
       [f"A · id {a_id}", "유지", f'200 · {e(after[a_id]["title"])}', "있음"],
       [f"B · id {B}", "수정", f'200 · {e(after[B]["content"])}', "있음"],

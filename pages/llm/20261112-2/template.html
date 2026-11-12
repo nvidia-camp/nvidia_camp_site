@@ -243,6 +243,30 @@ details dd { margin: 0; }
 .here li + li { margin-left: 0.7rem; }
 .here li + li::before { content: "›"; position: absolute; left: -0.6rem; color: var(--color-muted); font-weight: 400; opacity: 1; }
 
+
+/* 구역 머리 띠 */
+.part { gap: 1.25rem; }
+.part-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.4rem 1rem; align-items: center; background: var(--color-primary); color: var(--on-primary); border-radius: var(--radius-card); padding: 1rem 1.25rem; }
+.part-no { grid-row: span 2; display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 50%; background: var(--on-primary); color: var(--color-primary); font-size: 1.4rem; font-weight: 800; }
+.part-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; }
+.part-title h2 { color: inherit; font-size: 1.55rem; }
+.part-title span { font-size: 0.85rem; opacity: 0.8; font-weight: 600; }
+.part-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; }
+.part-steps:empty { display: none; }
+.part-steps a { color: inherit; text-decoration: none; font-weight: 600; font-size: 0.92rem; opacity: 0.92; }
+.part-steps a:hover { text-decoration: underline; opacity: 1; }
+.part-steps a span { display: inline-grid; place-items: center; min-width: 1.35rem; height: 1.35rem; margin-right: 0.3rem; border-radius: 0.35rem; border: 1px solid currentColor; font-size: 0.72rem; }
+.part-head:has(.part-steps:empty) .part-no { grid-row: auto; }
+
+/* 층 태그 */
+.ltags { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-left: auto; }
+.ltag { font-size: 0.72rem; font-weight: 700; padding: 0.05rem 0.5rem; border-radius: 0.4rem; background: var(--ly-bg); color: var(--ly-fg); border: 1px solid var(--ly-fg); white-space: nowrap; }
+
+/* 전체 코드 접기 */
+details.full { background: none; border: 0; padding: 0; }
+details.full summary { font-size: 0.82rem; font-weight: 600; color: var(--color-primary); padding: 0.3rem 0; }
+details.full[open] summary { margin-bottom: 0.4rem; }
+
 @media (max-width: 56rem) {
   .fwire { grid-template-columns: minmax(0, 1fr); }
   .farrow { max-width: none; }
@@ -250,6 +274,10 @@ details dd { margin: 0; }
   .two { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 44rem) {
+  .ltags { margin-left: 0; width: 100%; }
+  .part-head { padding: 0.9rem 1rem; }
+  .part-no { width: 2.3rem; height: 2.3rem; font-size: 1.15rem; grid-row: auto; }
+  .part-steps { grid-column: 1 / -1; }
   .lift { grid-template-columns: minmax(0, 1fr); }
   .lift-head, .wire { display: none; }
   .lbox, .down, .up { grid-column: 1; }
