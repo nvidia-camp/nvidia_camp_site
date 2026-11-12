@@ -132,6 +132,11 @@ def no_comments(src):
     return "\n".join(l for l in src.split("\n") if not l.strip().startswith("#"))
 
 
+def webp(name, w, h):
+    data = base64.b64encode((HERE / "img" / f"{name}.webp").read_bytes()).decode("ascii")
+    return f'<img src="data:image/webp;base64,{data}" width="{w}" height="{h}"'
+
+
 def img(rel):
     data = base64.b64encode((HERE / "capture" / rel).read_bytes()).decode("ascii")
     return f"data:image/png;base64,{data}"
@@ -160,7 +165,7 @@ out = [f"""<header class="head">
 
 # ── 큰 그림: 연결 지도 ──
 LAYERS = [
-    ("cli", "/docs", "브라우저에서 요청을 보내고 응답을 받는다", [("브라우저", "127.0.0.1:8000/docs")], [6]),
+    ("cli", "/docs", "요청을 보내고 응답을 받는다. /docs 대신 Postman 같은 도구로 보내도 된다", [("브라우저", "127.0.0.1:8000/docs")], [4, 6]),
     ("api", "FastAPI", "주소를 경로 함수에 연결하고, 입력을 검사하고, 응답 모양을 정한다",
      [("main.py", "@app.post(…)"), ("schemas.py", "KnowledgeWrite · KnowledgeRead")], [6, 7, 12]),
     ("orm", "ORM Model", "테이블 한 행 = Python 객체 하나. 분류는 이름과 번호를 서로 바꾼다",
@@ -248,12 +253,12 @@ out.append(f"""<section id="big" aria-labelledby="big-title">
 
 
 # ── 단계 카드 ──
-STEP_LAYERS = {1: "eng db", 2: "ses", 3: "orm db", 4: "api orm ses", 5: "orm ses", 6: "cli api orm ses", 7: "api",
+STEP_LAYERS = {1: "eng db", 2: "ses", 3: "orm db", 4: "cli api orm ses", 5: "orm ses", 6: "cli api orm ses", 7: "api",
         8: "api orm ses", 9: "api ses", 10: "ses eng", 11: "ses", 12: "cli api", 13: "orm db", 14: "db", 15: "cli db"}
 STEP_LAYERS = {k: v.split() for k, v in STEP_LAYERS.items()}
 
 
-def step(no, title, left, right, key, todo=None, given=False, left_label="코드"):
+def step(no, title, left, right, key, todo=None, given=False, left_label="코드", extra=""):
     keys = STEP_LAYERS[no]
     badge = "".join(f'<span class="todo">{t}</span>' for t in (todo or []))
     if given:
@@ -264,6 +269,7 @@ def step(no, title, left, right, key, todo=None, given=False, left_label="코드
   {here(keys)}
   <p class="mean"><b>핵심</b>{key}</p>
   <div class="two"><div><p class="label">{left_label}</p>{left}</div>{right_html}</div>
+  {extra}
 </article>"""
 
 
@@ -320,7 +326,11 @@ s4 = step(4, "첫 조회 · SQL로 넣은 지식이 API에 보인다",
                 caption=f"GET /api/knowledge → {API['list']['status']} · 오전 DB의 {len(lst)}건 그대로")
           + f'<p class="sub"><code>?category=learning</code> → id {", ".join(str(x["id"]) for x in API["filter_learning"]["response"])} · 없는 분류 → <code>[]</code></p>',
           "<code>select</code>로 만든 SQL을 Session이 실행하고, 결과는 <code>Knowledge</code> 객체로 온다. <b>어제 SQL로 넣은 실제 행</b>이 보이면 연결된 것이다.",
-          todo=["B03"])
+          todo=["B03"],
+          extra='<div class="extra"><p class="label">같은 요청을 Postman으로 · 수업 중 실제 화면</p>'
+                + webp("postman_list", 884, 726) + ' alt="Postman에서 GET /api/knowledge를 보내 200 OK와 지식 목록 JSON을 받은 화면">'
+                + '<p class="sub">/docs 대신 Postman 같은 도구로 보내도 결과는 같다. 요청을 Collection으로 저장해 두고 다시 보낼 수 있다. '
+                + '화면의 DB는 실습을 진행한 뒤라 행이 더 많다.</p></div>')
 out.append(section("connect", [s1, s2, s3, s4]))
 
 cats = CAP["categories_after_post"]["rows"]
