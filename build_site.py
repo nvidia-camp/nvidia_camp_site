@@ -70,6 +70,10 @@ SETUP = {
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
 }
+# Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.
+DAY_SUBPAGES = {
+    "llm/20261112": [("practice", "오전 실습 가이드")],
+}
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
 
@@ -295,6 +299,8 @@ def day_card(d, up):
         links.append(f'<a href="{href}{html.escape(pdf)}">PDF</a>')
     if d["link"]:
         links.append(f'<a href="{html.escape(d["link"])}" target="_blank" rel="noopener">강의 자료 ↗</a>')
+    for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
+        links.append(f'<a href="{href}{sub}/">{html.escape(label)}</a>')
     row = f'<p class="links-row">{"".join(links)}</p>' if links else ""
     return (f'<div class="card"><a href="{href}">'
             f'<p class="meta"><b>Day{d["n"]}</b><span>{md(d["date"])}</span></p>'
@@ -426,6 +432,9 @@ def main():
         nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
                        pdf=pdf_of(d["src"]), prev=prev, next_=nxt, lecture=d["link"])
         copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav)
+        for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
+            copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
+                      nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label))
 
     print("과목")
     for key, ds in subjects:

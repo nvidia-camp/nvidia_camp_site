@@ -1,7 +1,25 @@
 {
   "outputDirectory": "public",
   "redirects": [
-    { "source": "/setup/psql", "destination": "/setup/postgresql/psql/", "permanent": true },
-    { "source": "/setup/psql/", "destination": "/setup/postgresql/psql/", "permanent": true }
+    {
+      "source": "/setup/psql",
+      "destination": "/setup/postgresql/psql/",
+      "permanent": true
+    },
+    {
+      "source": "/setup/psql/",
+      "destination": "/setup/postgresql/psql/",
+      "permanent": true
+    },
+    {
+      "source": "/llm/20261112-2",
+      "destination": "/llm/20261112/",
+      "permanent": true
+    },
+    {
+      "source": "/llm/20261112-2/",
+      "destination": "/llm/20261112/",
+      "permanent": true
+    }
   ]
 }
