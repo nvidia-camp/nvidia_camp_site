@@ -128,6 +128,10 @@ def table(cols, rows, caption=None, classes=None, num=()):
     return f'<div class="table-wrap"><table>{cap}<thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
+def no_comments(src):
+    return "\n".join(l for l in src.split("\n") if not l.strip().startswith("#"))
+
+
 def img(rel):
     data = base64.b64encode((HERE / "capture" / rel).read_bytes()).decode("ascii")
     return f"data:image/png;base64,{data}"
@@ -223,12 +227,6 @@ GROUPS = [
     ("tx", "트랜잭션", "Transaction", "3교시", [(10, "flush와 commit"), (11, "함께 확정"), (12, "실패한 요청")]),
     ("mig", "Migration", "Alembic", "4교시", [(13, "ORM만 바꾸면"), (14, "Revision 적용"), (15, "같은 id로 확인")]),
 ]
-map_html = "".join(
-    f'<li><span class="grp">{e(n)} <small>{e(en)} · {e(per)}</small></span><span class="links">'
-    + "".join(f'<a href="#s{no}"><span>{no}</span>{e(t)}</a>' for no, t in items) + "</span></li>"
-    for _, n, en, per, items in GROUPS) + \
-    '<li><span class="grp">종합 <small>일일프로젝트 · 5교시</small></span><span class="links"><a href="#summary">A 유지 · B 수정 · C 삭제</a></span></li>'
-
 out.append(f"""<section id="big" aria-labelledby="big-title">
   <div class="section-head"><h2 id="big-title">큰 그림</h2></div>
   <ol class="band">
@@ -237,12 +235,7 @@ out.append(f"""<section id="big" aria-labelledby="big-title">
     <li class="now"><span>오후 · 오늘</span>둘을 연결</li>
     <li><span>다음</span>LLM · RAG의 원본 지식</li>
   </ol>
-  {table(["", "오전", "오후"], [
-      ["주소 · Method · 입력 · 응답", "<code>/api/knowledge</code> 다섯 개", "<b>그대로</b>"],
-      ["저장하는 곳", "<code>data.json</code> 파일", "PostgreSQL <code>day19_crud_b</code>의 두 테이블"],
-      ["id를 정하는 쪽", "코드의 <code>next_id</code>", "<b>DB</b> (IDENTITY)"],
-      ["분류(category)", "문자열 그대로 저장", "문자열 → <code>categories</code>의 id(<code>category_id</code>)로 바꿔 저장"],
-  ], caption="오전과 오후, 바뀐 것은 저장하는 곳 하나")}
+  <p class="lead">주소·입력·응답은 오전 그대로입니다. 저장하는 곳만 <code>data.json</code> → PostgreSQL로 바뀝니다.</p>
   <div class="fig">
     <p class="fig-title">연결 지도 · POST 한 번이 DB 행이 되기까지 <small>실제 값</small></p>
     {lift_html}
@@ -251,8 +244,6 @@ out.append(f"""<section id="big" aria-labelledby="big-title">
     <p class="fig-title">이 연결을 만드는 파일 · 설정이 이어지는 순서</p>
     {files_html}
   </div>
-  <p class="label">오늘의 단계</p>
-  <ul class="map">{map_html}</ul>
 </section>""")
 
 
@@ -262,7 +253,7 @@ STEP_LAYERS = {1: "eng db", 2: "ses", 3: "orm db", 4: "api orm ses", 5: "orm ses
 STEP_LAYERS = {k: v.split() for k, v in STEP_LAYERS.items()}
 
 
-def step(no, title, mean, left, right, key, todo=None, given=False, left_label="코드"):
+def step(no, title, left, right, key, todo=None, given=False, left_label="코드"):
     keys = STEP_LAYERS[no]
     badge = "".join(f'<span class="todo">{t}</span>' for t in (todo or []))
     if given:
@@ -271,16 +262,15 @@ def step(no, title, mean, left, right, key, todo=None, given=False, left_label="
     return f"""<article class="step" id="s{no}">
   <div class="step-head"><span class="no">{no}</span><h3>{title}</h3>{badge}</div>
   {here(keys)}
-  <p class="mean"><b>뜻</b>{mean}</p>
+  <p class="mean"><b>핵심</b>{key}</p>
   <div class="two"><div><p class="label">{left_label}</p>{left}</div>{right_html}</div>
-  <p class="key">{key}</p>
 </article>"""
 
 
-def section(gid, steps_html, lead):
+def section(gid, steps_html):
     _, name, en, per, _ = next(g for g in GROUPS if g[0] == gid)
     return f"""<section id="{gid}" aria-labelledby="{gid}-title">
-  <div class="section-head"><h2 id="{gid}-title">{e(name)}<small>{e(en)} · {e(per)}</small></h2><p>{lead}</p></div>
+  <div class="section-head"><h2 id="{gid}-title">{e(name)}<small>{e(en)} · {e(per)}</small></h2></div>
   <div class="steps">{"".join(steps_html)}</div>
 </section>"""
 
@@ -299,14 +289,12 @@ engine_src = "\n".join(l for l in DB.split("\n") if l.startswith(("engine", "Ses
 api_b, sql_b = API["get_b"]["response"], CAP["sql_b_category_id"]["rows"][0]
 
 s1 = step(1, "접속 설정 · <code>.env</code>와 <code>URL.create</code>",
-          "접속 정보(주소·포트·DB 이름·계정·비밀번호)를 코드 밖 <code>.env</code> 파일에 두고, 코드는 그 값을 읽어 접속 주소를 만든다.",
           pane(".env", ENV, lang="text") + pane("app/settings.py", block(SETTINGS, "Settings"), marks=("URL.create",)),
           pane("터미널", RUN, lang="text") + resp(API["health"], "GET /health"),
-          "비밀번호를 문자열로 이어 붙이지 않고 <code>URL.create</code>에 조각으로 넘긴다. <code>.env</code>의 DB 이름이 pgAdmin에서 본 DB와 같아야 같은 데이터를 본다.",
+          "접속 정보는 <code>.env</code>에 두고 <code>URL.create</code>로 주소를 만든다. <code>.env</code>의 DB 이름이 pgAdmin에서 본 DB와 같아야 같은 데이터를 본다.",
           todo=["B01"])
 s2 = step(2, "Session · 요청마다 하나 열고, 끝나면 닫는다",
-          "Dependency(<code>Depends</code>)는 “이 함수를 부르기 전에 먼저 준비할 것”이다. <code>get_db()</code>가 Session을 열어 넘겨주고, 응답이 나가면 닫는다.",
-          pane("app/db.py", engine_src + "\n\n\n" + get_db_src, marks=("yield db",)),
+          pane("app/db.py", no_comments(engine_src + "\n\n\n" + get_db_src), marks=("yield db",)),
           table(["순서", "일어나는 일"], [
               ["1", "요청이 들어온다"],
               ["2", "<code>with SessionLocal() as db</code> → 이 요청 전용 Session"],
@@ -314,42 +302,38 @@ s2 = step(2, "Session · 요청마다 하나 열고, 끝나면 닫는다",
               ["4", "함수가 끝나고 응답이 나간다"],
               ["5", "<code>with</code>가 끝나며 Session을 닫는다"],
           ], caption="요청 하나에서 Session의 일생"),
-          "Engine은 앱에 하나, Session은 요청마다 하나. 닫는 것(close)은 저장(commit)이 아니다.",
+          "<code>Depends(get_db)</code>가 요청마다 Session을 하나 열어 넘기고, 응답이 나가면 닫는다. 닫는 것(close)은 저장(commit)이 아니다.",
           todo=["B02"])
 s3 = step(3, "ORM Model · 테이블을 클래스로",
-          "어제 SQL로 만든 두 테이블을 Python 클래스로 적는다. 클래스를 적는다고 테이블이 새로 생기지는 않는다. 이미 있는 테이블을 읽는 설계도다.",
           pane("app/models.py", block(MODELS, "Category") + "\n\n\n" + block(MODELS, "Knowledge"), marks=("category_id", "relationship")),
           table(["", "API 응답 (외부)", "DB 행 (내부)"], [
               ["id", f"<code>{api_b['id']}</code>", f"<code>{sql_b[0]}</code>"],
               ["title", e(api_b["title"]), e(sql_b[1])],
               ["분류", f'<code>"category": "{e(api_b["category"])}"</code>', f"<code>category_id = {sql_b[2]}</code>"],
           ], caption=f"같은 지식 id {B}를 두 쪽에서 본 모습", classes=["", "", "hit"]),
-          "API는 분류를 <b>이름</b>으로, DB는 <b>번호</b>로 다룬다. 이 둘을 바꿔 주는 일이 오늘 코드의 절반이다.",
+          "클래스는 이미 있는 테이블을 읽는 설계도다. API는 분류를 <b>이름</b>으로, DB는 <b>번호</b>로 다룬다.",
           given=True)
 lst = API["list"]["response"]
 s4 = step(4, "첫 조회 · SQL로 넣은 지식이 API에 보인다",
-          "<code>select(Knowledge)</code>로 SQL을 만들고 Session으로 실행한다. 결과는 행이 아니라 <code>Knowledge</code> 객체로 돌아온다.",
           pane("app/main.py", block(MAIN, "to_read") + "\n\n\n" + block(MAIN, "list_knowledge"), marks=("select(", "db.scalars")),
           table(["id", "title", "category"], [[x["id"], e(x["title"]), e(x["category"])] for x in lst],
                 caption=f"GET /api/knowledge → {API['list']['status']} · 오전 DB의 {len(lst)}건 그대로")
           + f'<p class="sub"><code>?category=learning</code> → id {", ".join(str(x["id"]) for x in API["filter_learning"]["response"])} · 없는 분류 → <code>[]</code></p>',
-          "완료 기준은 /docs의 예시가 아니라 <b>어제 SQL로 넣은 실제 행</b>이 API에 보이는 것이다.",
+          "<code>select</code>로 만든 SQL을 Session이 실행하고, 결과는 <code>Knowledge</code> 객체로 온다. <b>어제 SQL로 넣은 실제 행</b>이 보이면 연결된 것이다.",
           todo=["B03"])
-out.append(section("connect", [s1, s2, s3, s4], "앱이 DB에 접속하고, 요청마다 작업 공간을 열고, 테이블을 클래스로 읽어 첫 목록을 보여 주기까지."))
+out.append(section("connect", [s1, s2, s3, s4]))
 
 cats = CAP["categories_after_post"]["rows"]
 s5 = step(5, "분류 연결 · 이름으로 찾고, 없으면 만든다",
-          "<code>add</code>는 Session에 올려 두기, <code>flush</code>는 SQL을 DB에 보내 번호(id) 받기, <code>commit</code>은 확정. 10단계에서 실제로 비교한다.",
           pane("app/main.py", block(MAIN, "get_or_create_category"), marks=("db.flush()",)),
           table(["id", "name", ""], [[r[0], f"<code>{e(r[1])}</code>",
                                       '<span class="tag ok">B가 새로 만듦</span>' if r[1] == "policy" else
                                       ('<span class="tag keep">A가 재사용</span>' if r[1] == "learning" else "")] for r in cats],
                 caption="POST A(learning) · B(policy) 뒤 categories", classes=["hit" if r[1] == "policy" else "" for r in cats]),
-          "API는 분류명만 받는다. 번호는 이 함수가 찾아 주거나 새로 받아 온다.",
+          "<code>add</code>는 Session에 올리기, <code>flush</code>는 SQL을 보내 id 받기, <code>commit</code>은 확정. 분류 번호는 이 함수가 찾거나 새로 받아 온다.",
           todo=["B04"])
 post_row = CAP["sql_b_after_post"]["rows"][0]
 s6 = step(6, "POST · 저장하고 201",
-          "지식 객체를 Session에 올리고(<code>add</code>), flush로 DB가 정한 id를 받고, 확정한 뒤 응답한다.",
           pane("app/main.py", block(MAIN, "create_knowledge"), marks=("db.add", "db.flush()", "with transaction")),
           '<div class="shots">'
           + f'<img src="{img(API["post_b"]["shots"][0])}" alt="/docs에서 POST Body를 입력한 화면" width="582" height="295">'
@@ -357,30 +341,27 @@ s6 = step(6, "POST · 저장하고 201",
           + "</div>"
           + table(["id", "title", "content", "category"], [[e(v) for v in post_row]],
                   caption=f"SQL · WHERE k.id = {B}  →  응답과 같은 행", classes=["hit"]),
-          "오전의 <code>next_id</code>가 사라졌다. id는 DB가 정한다. 응답의 id로 SQL을 실행하면 같은 행이 나온다.",
+          "id는 DB가 정한다(오전의 <code>next_id</code>는 없다). 응답의 id로 SQL을 실행하면 같은 행이 나온다.",
           todo=["B06"])
 s7 = step(7, "GET 상세 · 없으면 404",
-          "id로 하나를 찾는다. 없으면 <code>HTTPException</code>으로 404를 돌려준다.",
           pane("app/main.py", block(MAIN, "load_one") + "\n\n\n" + block(MAIN, "read_knowledge"), marks=("raise HTTPException",)),
           '<div class="resps">' + resp(API["get_b"]) + resp(API["get_missing"]) + resp(API["get_not_int"], trim=90) + "</div>",
           "없는 번호는 404, 숫자가 아닌 값은 FastAPI가 먼저 422로 거절한다.",
           todo=["B05"])
 put_row = CAP["sql_b_after_put"]["rows"][0]
 s8 = step(8, "PUT · id는 그대로, 세 필드를 바꾼다",
-          "찾은 객체의 값을 바꾸면 Session이 알아서 UPDATE 문을 만든다. SQL을 직접 쓰지 않는다.",
           pane("app/main.py", block(MAIN, "update_knowledge"), marks=("item.title", "item.content", "item.category =")),
           resp(API["put_b"]) + table(["id", "title", "content", "category"], [[e(v) for v in put_row]],
                                      caption=f"SQL · WHERE k.id = {B}", classes=["hit"]),
-          f"id {B}는 그대로, 본문과 분류가 바뀌었다. 지식 수도 그대로다.",
+          f"객체의 값을 바꾸면 Session이 UPDATE를 만든다. id {B}와 지식 수는 그대로다.",
           todo=["B07"])
 s9 = step(9, "DELETE · 본문 없는 204",
-          "<code>db.delete(item)</code>는 삭제 표시만 한다. 실제 삭제는 commit 때 일어난다.",
           pane("app/main.py", block(MAIN, "delete_knowledge"), marks=("db.delete",)),
           '<div class="resps">' + resp(API["delete_c"]) + resp(API["get_c"]) + "</div>"
           + f'<p class="sub">SQL · <code>WHERE id = {C}</code> → {CAP["sql_c_after_delete"]["rows"][0][0]}행</p>',
-          "삭제 뒤 같은 id는 API에서 404, DB에서 0행이다.",
+          "<code>db.delete</code>는 삭제 표시, 실제 삭제는 commit 때. 삭제 뒤 API는 404, DB는 0행이다.",
           todo=["B08"])
-out.append(section("crud", [s5, s6, s7, s8, s9], "오전의 다섯 API가 그대로 PostgreSQL을 읽고 쓰도록. 분류는 이름 ⇄ 번호를 바꿔 저장한다."))
+out.append(section("crud", [s5, s6, s7, s8, s9]))
 
 FLUSH_DEMO = """db = SessionLocal()
 item = Knowledge(title="flush 확인", content="아직 확정 전", category_id=1)
@@ -389,17 +370,15 @@ db.flush()
 db.commit()
 # 단계마다 다른 연결에서 SELECT count(*) FROM knowledge"""
 s10 = step(10, "flush와 commit · 언제 다른 요청에게 보이나",
-           "flush는 SQL을 DB에 보내기만 하고, commit은 확정한다. 확정 전 변경은 이 Session 안에서만 보인다.",
            pane("실험 · 같은 앱 코드로", FLUSH_DEMO, marks=("db.flush()", "db.commit()")),
            table(["이 Session에서", "item.id", "다른 연결이 본 knowledge 수"], [
                ["<code>db.add(item)</code>", "None (아직 없음)", S["add"]["other"]],
                ["<code>db.flush()</code>", S["flush"]["id"], f'<span class="big">{S["flush"]["other"]}</span> 아직 안 보임'],
                ["<code>db.commit()</code>", S["commit"]["id"], f'<span class="big">{S["commit"]["other"]}</span> 이제 보임'],
            ], classes=["", "", "hit"]),
-           "flush 뒤에 id가 생겨도 아직 확정이 아니다. 그래서 201 응답은 commit이 성공한 뒤에 보낸다.")
+           "flush 뒤에 id가 생겨도 commit 전에는 다른 요청에게 보이지 않는다. 그래서 201은 commit 뒤에 보낸다.")
 T, SP = S["together"], S["split"]
 s11 = step(11, "함께 확정 · 새 분류만 남는 반쪽 저장을 막는다",
-           "트랜잭션은 함께 성공해야 하는 변경을 한 묶음으로 다루는 것이다. 어제 배운 BEGIN·COMMIT·ROLLBACK이 코드에서는 이 함수다.",
            pane("app/db.py", block(DB, "transaction"), marks=("db.commit()", "db.rollback()")),
            table(["저장 방식", "지식 저장", "새 분류"], [
                ["분류 먼저 commit → 그다음 지식", '<span class="tag bad">실패</span>',
@@ -407,34 +386,33 @@ s11 = step(11, "함께 확정 · 새 분류만 남는 반쪽 저장을 막는다
                ["<code>with transaction(db):</code> 안에서 함께", '<span class="tag bad">실패</span>',
                 f'<span class="tag ok">{T["category_left"]}건</span> 함께 취소'],
            ], caption="새 분류를 만든 뒤 지식 저장이 DB 규칙(본문 2,000자 이하)에 걸려 실패하게 했다", classes=["bad", "hit"]),
-           "함께 맞아야 하는 변경은 commit 한 번으로 묶는다. 하나라도 실패하면 rollback으로 전부 취소된다.",
+           "어제의 COMMIT·ROLLBACK이 코드에서는 이 함수다. 함께 맞아야 하는 변경은 한 번에 확정하고, 하나라도 실패하면 전부 취소한다.",
            todo=["B09"])
 fb, fa = F["before"], F["after"]
 s12 = step(12, "실패한 요청은 DB를 바꾸지 않는다",
-           "422는 FastAPI가 입력만 보고 거절한 것(DB까지 가지 않음), 404는 찾아봤는데 없어서 멈춘 것이다.",
-           '<div class="resps">' + resp(API["post_empty"], "POST · content 빈 문자열", trim=90)
-           + resp(API["put_partial"], f"PUT /{B} · content만 보냄", trim=90)
-           + resp(API["put_missing_newcat"], "PUT /9999 · 새 분류 brandnew") + "</div>",
+           table(["보낸 것", "응답"], [
+               ['POST · <code>content</code> 빈 문자열', f'<b>{API["post_empty"]["status"]}</b> 입력 거절'],
+               [f'PUT <code>/{B}</code> · <code>content</code>만 보냄', f'<b>{API["put_partial"]["status"]}</b> 입력 거절'],
+               ['PUT <code>/9999</code> · 새 분류 <code>brandnew</code>', f'<b>{API["put_missing_newcat"]["status"]}</b> 대상 없음'],
+           ]),
            table(["", "knowledge", "categories"], [
                ["실패 요청 3개 전", fb["knowledge"], fb["categories"]],
                ["실패 요청 3개 뒤", fa["knowledge"], fa["categories"]],
            ], caption=f'수가 그대로 · brandnew 분류 {F["brandnew"]}건', num=(1, 2), classes=["", "hit"]),
-           "실패한 요청 뒤에도 지식과 분류는 그대로다. PUT은 먼저 대상을 찾으므로, 없는 id에는 새 분류도 만들지 않는다.",
+           "422는 입력만 보고 거절(DB까지 가지 않음), 404는 찾아봤는데 없음. 어느 쪽도 DB를 바꾸지 않는다.",
            left_label="요청")
-out.append(section("tx", [s10, s11, s12], "저장이 언제 확정되는지, 실패하면 무엇이 취소되는지. 실제 실행으로 비교한다."))
+out.append(section("tx", [s10, s11, s12]))
 
 ORM_DEMO = """# models.py의 Knowledge에 한 줄만 더했다 (DB는 그대로)
 source: Mapped[str | None] = mapped_column(String(120))
 
 db.scalars(select(Knowledge)).all()"""
 s13 = step(13, "ORM만 바꾸면 · DB는 따라오지 않는다",
-           "ORM Model은 이미 있는 테이블을 읽는 설계도다. 클래스에 열을 적어도 실제 테이블에는 열이 생기지 않는다.",
            pane("실험", ORM_DEMO, marks=("source:",)),
            f'<div class="resp"><div class="resp-bar"><span>조회 결과</span><b>실패</b></div><pre>{e(CAP["orm_only"]["message"])}</pre></div>',
-           "테이블 구조를 바꾸는 일은 따로 해야 한다. 그 일을 기록하고 적용하는 것이 Migration이다.")
+           "클래스에 열을 적어도 실제 테이블은 그대로다. 테이블 구조를 바꾸는 일은 Migration이 한다.")
 cols2 = M["cols_2"]["rows"]
 s14 = step(14, "Revision 적용 · Alembic",
-           "Migration은 테이블 구조 변경을 순서 있는 파일(Revision)로 남기고 DB에 적용하는 것이다. Alembic은 SQLAlchemy용 Migration 도구다. 주 DB는 두고 연습 DB <code>day19_migration_b</code>에서만 한다.",
            pane("migrations/versions/002_source.py", MIG_SRC.replace("branch_labels = None\ndepends_on = None\n", ""),
                 marks=("op.add_column", "op.drop_column", "down_revision")),
            table(["명령", "결과"], [
@@ -446,10 +424,9 @@ s14 = step(14, "Revision 적용 · Alembic",
                ["<code>alembic downgrade 001_initial</code>", f'<code>source</code> 열 삭제, 행 {len(M["rows_3"]["rows"])}건 유지'],
            ], classes=["", "", "", "hit", "", ""])
            + table(["column_name", "data_type", "max_length", "is_nullable"],
-                   [[e(c) for c in [r[0], r[1], r[2] if r[2] else "", r[3]]] for r in cols2],
-                   caption="upgrade head 뒤 knowledge의 열 (information_schema.columns)",
-                   classes=["hit" if r[0] == "source" else "same" for r in cols2]),
-           "새 열은 NULL 허용으로 추가해야 기존 행이 깨지지 않는다. downgrade는 그 열과 안의 값을 함께 지운다.",
+                   [[e(c) for c in [r[0], r[1], r[2], r[3]]] for r in cols2 if r[0] == "source"],
+                   caption="upgrade head 뒤 knowledge에 생긴 열", classes=["hit"]),
+           "구조 변경을 Revision 파일로 남기고 연습 DB에 적용한다. 새 열은 NULL 허용으로 추가해야 기존 행이 깨지지 않는다.",
            todo=["M01", "M02"])
 CHECK_SQL = f"""SELECT k.id, k.title, k.content, c.name AS category
 FROM knowledge AS k
@@ -457,13 +434,12 @@ JOIN categories AS c ON c.id = k.category_id
 -- {B}는 POST 응답에서 받은 id
 WHERE k.id = {B};"""
 s15 = step(15, "같은 id로 확인 · API와 DB가 같은 행을 보는가",
-           "API가 성공했다는 응답만 믿지 않는다. 응답의 id로 DB를 직접 조회해 같은 값인지 본다.",
            pane("SQL", CHECK_SQL, lang="sql", marks=("WHERE",)),
            resp(API["get_b"], f"GET /api/knowledge/{B}")
            + table(["id", "title", "content", "category"], [[e(v) for v in put_row]], caption="SQL 결과", classes=["hit"]),
-           "API 응답과 SQL 결과가 같은 id·같은 값일 때 연결이 끝난 것이다.",
+           "응답의 id로 DB를 직접 조회해 같은 값이면 연결이 끝난 것이다.",
            todo=["B11"])
-out.append(section("mig", [s13, s14, s15], "테이블 구조를 바꾸는 일과, API 결과를 DB로 확인하는 일."))
+out.append(section("mig", [s13, s14, s15]))
 
 # ── 종합 ──
 after = {x["id"]: x for x in API["list_after_restart"]["response"]}
