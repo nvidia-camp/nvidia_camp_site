@@ -42,3 +42,4 @@
 | 2026-11-11 | llm/20261112 | 수준 이름을 영어로 통일: 탭 basic · intermediate · advanced, 패널 설명·그래프 제목·안내문도 같은 표기 | main만 |
 | 2026-11-11 | llm/20261112 · 20261112-2 | 사용자 요청으로 배포 (main:deploy fast-forward, 28fd3fd). 시트의 Day19는 아직 한 줄: lectures.json 19-1·19-2 분리는 시트 반영 전 임시 | 배포 |
 | 2026-11-12 | llm/20261112-2 | Day19-2 오후 FastAPI–PostgreSQL 연동 페이지: 큰 그림(오전·오후 비교, 요청 하나가 DB 행이 되는 7단계를 실제 값으로, 처음 나오는 이름 넷), 연결·CRUD·트랜잭션·Migration 15단계(뜻·코드·실제 결과·핵심), 종합(A·B·C, 재시작 뒤 N+2). code/app = basic 완성본 축약, capture.py가 이 코드를 PostgreSQL 17.10에 연결해 실측(/docs POST 화면 포함). 1280·768·375px·다크 확인 | main만 |
+| 2026-11-12 | llm/20261112-2 | 연결을 도식화: 큰 그림의 7줄 목록·이름 카드 넷을 "연결 지도"(/docs → FastAPI → ORM Model → Session → Engine·Psycopg → PostgreSQL 여섯 층, 왼쪽 내려가는 요청·오른쪽 올라오는 응답을 실제 값으로, 층마다 파일·단계 링크)와 "파일 연결"(.env → settings.py → db.py → main.py)로 바꿈. 단계 카드마다 "지금 여기" 띠(그 단계가 다루는 층 표시). 1280·768·375px·다크 확인 | main만 |

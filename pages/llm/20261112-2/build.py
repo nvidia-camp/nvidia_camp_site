@@ -154,33 +154,68 @@ out = [f"""<header class="head">
   </div>
 </header>"""]
 
-# ── 큰 그림 ──
-route = [
-    ("l-api", "요청", "지식 담당자가 /docs에서 POST를 보낸다",
-     f'POST /api/knowledge<br>{e(json.dumps(body_b, ensure_ascii=False))}', "s6"),
-    ("l-api", "FastAPI", "<code>KnowledgeWrite</code>가 세 필드를 검사한다. 빈 값·길이 초과면 여기서 422, DB까지 가지 않는다", None, "s12"),
-    ("l-ses", "Session", "<code>get_db()</code>가 이 요청 전용 Session을 열어 함수에 넘긴다", None, "s2"),
-    ("l-orm", "ORM", '분류 "policy"를 찾는다 → 없다 → 새로 추가하고 flush. 지식도 추가하고 flush. DB가 번호를 정해 준다',
-     f'Category "policy" → id <b>{cat_b}</b><br>Knowledge "가상환경 정책" → id <b>{B}</b>, category_id <b>{cat_b}</b>', "s5"),
-    ("l-db", "commit", "두 INSERT를 한 번에 확정한다. 이제 다른 요청에게도 보인다", None, "s11"),
-    ("l-api", "응답", "확정이 끝난 뒤에 201을 돌려준다. DB의 번호 대신 분류명을 넣어서",
-     f'201 {{"title": "가상환경 정책", …, "category": "policy", "id": <b>{B}</b>}}', "s6"),
-    ("l-db", "확인", "응답에서 받은 id로 SQL을 실행해 같은 행인지 본다",
-     f'SELECT … WHERE k.id = {B}  →  {B} | 가상환경 정책 | … | policy', "s15"),
+# ── 큰 그림: 연결 지도 ──
+LAYERS = [
+    ("cli", "/docs", "브라우저에서 요청을 보내고 응답을 받는다", [("브라우저", "127.0.0.1:8000/docs")], [6]),
+    ("api", "FastAPI", "주소를 경로 함수에 연결하고, 입력을 검사하고, 응답 모양을 정한다",
+     [("main.py", "@app.post(…)"), ("schemas.py", "KnowledgeWrite · KnowledgeRead")], [6, 7, 12]),
+    ("orm", "ORM Model", "테이블 한 행 = Python 객체 하나. 분류는 이름과 번호를 서로 바꾼다",
+     [("models.py", "Category · Knowledge")], [3, 5]),
+    ("ses", "Session", "요청 하나의 작업 공간. 객체를 모으고(add), SQL로 보내고(flush), 확정한다(commit)",
+     [("db.py", "get_db() · transaction()")], [2, 10, 11]),
+    ("eng", "Engine · Psycopg", "DB 연결을 만들어 두고 빌려준다. Psycopg(Driver)가 SQL을 실제로 보낸다",
+     [("db.py", "create_engine(…)"), ("settings.py", "URL.create(…) ← .env")], [1]),
+    ("db", "PostgreSQL", "DB day19_crud_b · 테이블 categories, knowledge", [("DB", "localhost:5432")], [14, 15]),
 ]
-route_html = "".join(
-    f'<li><span class="layer {cls}">{e(layer)}</span><div class="what"><p>{what}</p>'
-    + (f'<span class="val">{val}</span>' if val else "")
-    + f'<a href="#{link}">자세히 ↓</a></div></li>'
-    for cls, layer, what, val, link in route)
+LAYER_NAME = {k: n for k, n, *_ in LAYERS}
+# 층 사이에서 오가는 것 (내려가는 요청, 올라오는 응답) · 실제 값
+WIRES = [
+    (f'<code>POST /api/knowledge</code><br>title · content · category <code>"policy"</code>',
+     f'<code>201</code> {{…, "category": "policy", "id": <b>{B}</b>}}'),
+    ('<code>Knowledge(title=…, category=…)</code><br>객체를 만든다',
+     f'<code>to_read(item)</code><br>category_id {cat_b} → <code>"policy"</code>'),
+    ("<code>db.add(item)</code><br>Session에 올린다", f"<code>item.id = {B}</code><br>번호가 객체에 채워진다"),
+    (f'flush: <code>INSERT</code> 분류 · 지식<br>commit: 둘을 함께 확정', f'DB가 정한 id<br>분류 <b>{cat_b}</b> · 지식 <b>{B}</b>'),
+    ("연결 하나를 빌려<br>SQL을 보낸다", "저장된 두 행"),
+]
 
-names = [
-    ("Engine", "DB 연결을 만들고 재사용하는 기반. 앱에 하나만 둔다", "create_engine(...)"),
-    ("Driver (Psycopg)", "Python과 PostgreSQL 사이에서 실제로 통신하는 라이브러리", '"postgresql+psycopg"'),
-    ("ORM Model", "테이블 하나를 Python 클래스 하나로 적은 것. 행 하나 = 객체 하나", "class Knowledge(Base)"),
-    ("Session", "요청 하나의 DB 작업 공간. 변경을 모았다가 확정(commit)하거나 취소(rollback)한다", "Depends(get_db)"),
+
+def layer_box(key, name, meaning, files, steps):
+    fl = "".join(f'<li><b>{e(f)}</b><code>{e(c)}</code></li>' for f, c in files)
+    links = " ".join(f'<a href="#s{n}">{n}</a>' for n in steps)
+    return (f'<div class="lbox ly-{key}"><div class="lbox-top"><span class="lname">{e(name)}</span>'
+            f'<span class="lsteps">단계 {links}</span></div><p>{e(meaning)}</p><ul class="lfiles">{fl}</ul></div>')
+
+
+lift = ['<div class="lift-head"><span>요청 ↓ 내려간다</span><span></span><span>↑ 응답이 올라온다</span></div>']
+for i, layer in enumerate(LAYERS):
+    lift.append(layer_box(*layer))
+    if i < len(WIRES):
+        down, up = WIRES[i]
+        lift.append(f'<p class="down"><span class="dir">요청 ↓</span>{down}</p><span class="wire" aria-hidden="true"></span>'
+                    f'<p class="up"><span class="dir">응답 ↑</span>{up}</p>')
+lift_html = f'<div class="lift">{"".join(lift)}</div>'
+
+FILES = [
+    (".env", "DB_NAME=day19_crud_b<br>DB_USER · DB_PASSWORD …", "접속 정보 다섯 값", 1),
+    ("settings.py", "Settings()<br>URL.create(…)", "다섯 값으로 접속 주소를 만든다", 1),
+    ("db.py", "engine = create_engine(url)<br>get_db() → Session", "연결 기반 하나 + 요청마다 Session", 2),
+    ("main.py", "db: Session = Depends(get_db)", "경로 함수가 db를 받아 쓴다", 2),
 ]
-names_html = "".join(f'<div class="name"><b>{e(n)}</b><p>{e(m)}</p><code>{e(c)}</code></div>' for n, m, c in names)
+ARROWS = ["값을 읽는다", "URL을 넘긴다", "Session을 넘긴다"]
+wire = []
+for i, (f, code, what, no) in enumerate(FILES):
+    wire.append(f'<a class="fnode" href="#s{no}"><b>{e(f)}</b><code>{code}</code><span>{e(what)}</span></a>')
+    if i < len(ARROWS):
+        wire.append(f'<span class="farrow">{e(ARROWS[i])}</span>')
+files_html = f'<div class="fwire">{"".join(wire)}</div>'
+
+
+def here(keys):
+    """단계 카드 머리의 '지금 여기' 띠: 연결 지도의 여섯 층 중 이 단계가 다루는 층을 칠한다."""
+    items = "".join(f'<li class="ly-{k}{" on" if k in keys else ""}">{e(n)}</li>' for k, n, *_ in LAYERS)
+    return f'<div class="here"><span>지금 여기</span><ol>{items}</ol></div>'
+
 
 GROUPS = [
     ("connect", "연결", "Engine · Session", "1교시", [(1, "접속 설정"), (2, "Session"), (3, "ORM Model"), (4, "첫 조회")]),
@@ -208,23 +243,34 @@ out.append(f"""<section id="big" aria-labelledby="big-title">
       ["id를 정하는 쪽", "코드의 <code>next_id</code>", "<b>DB</b> (IDENTITY)"],
       ["분류(category)", "문자열 그대로 저장", "문자열 → <code>categories</code>의 id(<code>category_id</code>)로 바꿔 저장"],
   ], caption="오전과 오후, 바뀐 것은 저장하는 곳 하나")}
-  <p class="label">요청 하나가 DB 행이 되기까지 · 실제 값</p>
-  <ol class="route">{route_html}</ol>
-  <p class="label">오늘 처음 나오는 이름 넷 · 서로 다른 일을 한다</p>
-  <div class="names">{names_html}</div>
+  <div class="fig">
+    <p class="fig-title">연결 지도 · POST 한 번이 DB 행이 되기까지 <small>실제 값</small></p>
+    {lift_html}
+  </div>
+  <div class="fig">
+    <p class="fig-title">이 연결을 만드는 파일 · 설정이 이어지는 순서</p>
+    {files_html}
+  </div>
   <p class="label">오늘의 단계</p>
   <ul class="map">{map_html}</ul>
 </section>""")
 
 
 # ── 단계 카드 ──
+STEP_LAYERS = {1: "eng db", 2: "ses", 3: "orm db", 4: "api orm ses", 5: "orm ses", 6: "cli api orm ses", 7: "api",
+        8: "api orm ses", 9: "api ses", 10: "ses eng", 11: "ses", 12: "cli api", 13: "orm db", 14: "db", 15: "cli db"}
+STEP_LAYERS = {k: v.split() for k, v in STEP_LAYERS.items()}
+
+
 def step(no, title, mean, left, right, key, todo=None, given=False, left_label="코드"):
+    keys = STEP_LAYERS[no]
     badge = "".join(f'<span class="todo">{t}</span>' for t in (todo or []))
     if given:
         badge += '<span class="given">제공 코드 · 읽기만</span>'
     right_html = f'<div><p class="label">실제 결과</p>{right}</div>' if right else ""
     return f"""<article class="step" id="s{no}">
   <div class="step-head"><span class="no">{no}</span><h3>{title}</h3>{badge}</div>
+  {here(keys)}
   <p class="mean"><b>뜻</b>{mean}</p>
   <div class="two"><div><p class="label">{left_label}</p>{left}</div>{right_html}</div>
   <p class="key">{key}</p>
