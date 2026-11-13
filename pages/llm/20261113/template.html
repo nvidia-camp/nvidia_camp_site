@@ -81,6 +81,8 @@ section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
 .dg .c2 rect.n { fill: var(--p2-bg); stroke: var(--p2-fg); }
 .dg .c2 .t, .dg .c2 .bd { fill: var(--p2-fg); }
 .dg .lnk:hover rect.n { stroke-width: 3; }
+.dg .hubring { fill: none; stroke: var(--color-primary); stroke-width: 2; stroke-dasharray: 3 4; }
+.dg .hubl { font-size: 12px; font-weight: 800; fill: var(--color-primary); }
 .dg .bnd { fill: none; stroke: var(--color-primary); stroke-width: 1.5; opacity: .55; }
 .dg .e { fill: none; stroke: var(--color-muted); stroke-width: 2; }
 .dg .e.d { stroke-dasharray: 6 4; }
@@ -221,10 +223,10 @@ details dd { margin: 0; }
     <div class="scroll">{{MAP}}</div>
     <div class="legend"><span><i></i>지난 수업에 만든 것</span><span><i class="now"></i>오늘</span><span><i class="dash"></i>이후 수업</span><span><i class="c2"></i>그림 2로</span><span><b class="pinl">1</b>답이 틀어질 수 있는 곳</span></div>
     <div class="panel" aria-live="polite">
-      <div data-show="all"><b>전체</b><p>LLM 상자 하나만 모델이고 둘레의 상자는 모두 애플리케이션이 맡는다. 위 버튼으로 하려는 일을 고르면 그 일이 지나가는 길만 남는다.</p></div>
+      <div data-show="all"><b>전체</b><p>가운데 LLM이 판단과 문장 생성을 맡으며 세 가지 일이 모두 이곳을 거친다. LLM이 고른 행동도 실제 실행은 권한 확인을 통과한 Tool API에서만 일어난다. LLM은 외부 API로 부르는 모델이라 점선 테두리로 따로 표시했다.</p></div>
       <div data-show="sum" hidden><b>글 요약·정리</b><p class="route">사용자 → FastAPI → Context 조립 → LLM → 답</p><p>모델 혼자 할 수 있는 일이다. 결과는 내용이 맞는지와 JSON 같은 형식이 맞는지를 본다.</p></div>
       <div data-show="rag" hidden><b>사내 규정에 근거한 답변</b><p class="route">PostgreSQL → 벡터 인덱스 → Retriever → Context 조립 → LLM → 답</p><p>모델은 학습이 끝난 뒤에 바뀐 사내 문서를 모른다. Retriever가 찾은 문서 발췌를 질문과 함께 Context에 넣어 보내고 답에 붙은 출처가 최신 문서인지 확인한다.</p></div>
-      <div data-show="agt" hidden><b>시스템 상태 조회·변경</b><p class="route">FastAPI → Agent ⇄ LLM, Agent → 권한 확인 → Tool API</p><p>LLM은 다음에 할 행동을 제안하는 데까지 맡는다. 실행은 Backend가 권한과 승인을 확인한 Tool API로만 이루어지고 무엇을 실행했는지 기록이 남는다.</p></div>
+      <div data-show="agt" hidden><b>시스템 상태 조회·변경</b><p class="route">FastAPI → Agent ⇄ LLM, Agent → 권한 확인 → Tool API → 실행 결과 → Agent</p><p>Agent는 LLM에게 다음 행동을 묻고 그 행동을 권한 확인에 넘긴다. 허용된 Tool API만 실행되며 결과는 다시 Agent를 거쳐 LLM에 들어가 다음 판단으로 이어진다. 이 고리가 끝날 때까지 실행 기록이 남는다.</p></div>
     </div>
     <ul class="pins" aria-label="답이 틀어질 수 있는 곳">
       <li><b>1</b><span><strong>Context 조립</strong> · 질문의 의도나 필요한 조건이 빠진 채 모델에 들어간다</span></li>
