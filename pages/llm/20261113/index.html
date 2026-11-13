@@ -9,14 +9,13 @@
   --color-primary: #142849; --color-heading: #1C2B40; --color-text: #222F44; --color-muted: #52667E;
   --color-canvas: #F9FBFE; --color-surface: #FFFFFF; --color-soft: #F0F6FD; --color-border: #D8E4F2;
   --on-primary: #FFFFFF;
-  /* 교시 색: 언제나 교시 번호·이름과 함께 쓴다 */
   --p2-bg: #E9F3FC; --p2-fg: #245C9C;
   --p3-bg: #F1ECFA; --p3-fg: #5B3F8C;
   --p4-bg: #FFF3D8; --p4-fg: #7A4F0E;
   --p6-bg: #E9F5EE; --p6-fg: #2E6B45;
   --p7-bg: #FBEDE6; --p7-fg: #8A4B2A;
   --heat: #245C9C;
-  --hatch: repeating-linear-gradient(135deg, transparent 0 5px, rgba(82, 102, 126, .18) 5px 7px);
+  --hatch-line: rgba(82, 102, 126, .35);
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
   --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
   --radius-card: 1rem; --radius-control: .75rem;
@@ -27,7 +26,7 @@
     --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
     --p2-bg: #1C3352; --p2-fg: #A9CDF5; --p3-bg: #2B2342; --p3-fg: #CDB8F2; --p4-bg: #3A2E14; --p4-fg: #F2D28B;
     --p6-bg: #183526; --p6-fg: #9BD8B2; --p7-bg: #3A2219; --p7-fg: #F0B79A;
-    --heat: #7FB0EE; --hatch: repeating-linear-gradient(135deg, transparent 0 5px, rgba(157, 173, 196, .22) 5px 7px);
+    --heat: #7FB0EE; --hatch-line: rgba(157, 173, 196, .4);
     color-scheme: dark;
   }
 }
@@ -36,7 +35,7 @@
   --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
   --p2-bg: #1C3352; --p2-fg: #A9CDF5; --p3-bg: #2B2342; --p3-fg: #CDB8F2; --p4-bg: #3A2E14; --p4-fg: #F2D28B;
   --p6-bg: #183526; --p6-fg: #9BD8B2; --p7-bg: #3A2219; --p7-fg: #F0B79A;
-  --heat: #7FB0EE; --hatch: repeating-linear-gradient(135deg, transparent 0 5px, rgba(157, 173, 196, .22) 5px 7px);
+  --heat: #7FB0EE; --hatch-line: rgba(157, 173, 196, .4);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -45,542 +44,295 @@ body { margin: 0; background: var(--color-canvas); color: var(--color-text); fon
 main { max-width: 72rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 3.5rem; }
 h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
 h1 { font-size: clamp(1.75rem, 4vw, 2.3rem); letter-spacing: -.02em; }
-h2 { font-size: 1.4rem; }
-h3 { font-size: 1.08rem; }
+h2 { font-size: 1.45rem; }
+h2 small { font-size: .85rem; font-weight: 700; color: var(--color-muted); margin-left: .5rem; }
+h3 { font-size: 1.02rem; }
 p { margin: 0; }
 a { color: var(--color-primary); }
 code { font-family: var(--font-code); font-size: .88em; background: var(--color-soft); color: var(--color-heading); padding: .05rem .35rem; border-radius: .35rem; }
-section { display: grid; gap: 1.1rem; min-width: 0; scroll-margin-top: 1rem; }
-.c2 { --g-bg: var(--p2-bg); --g-fg: var(--p2-fg); }
-.c3 { --g-bg: var(--p3-bg); --g-fg: var(--p3-fg); }
-.c4 { --g-bg: var(--p4-bg); --g-fg: var(--p4-fg); }
-.c6 { --g-bg: var(--p6-bg); --g-fg: var(--p6-fg); }
-.c7 { --g-bg: var(--p7-bg); --g-fg: var(--p7-fg); }
-.pg { font-size: .75rem; font-weight: 700; color: var(--color-muted); white-space: nowrap; }
+section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
 .note { font-size: .85rem; color: var(--color-muted); }
-.key { font-weight: 600; color: var(--color-heading); border-left: 4px solid var(--g-fg, var(--color-primary)); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .6rem .95rem; }
-.key .pg { margin-left: .4rem; }
-
-/* 머리말 */
-.head { display: grid; gap: .6rem; }
+.lead { font-size: 1.05rem; max-width: 50rem; }
+.head { display: grid; gap: .7rem; }
 .eyebrow { font-size: .875rem; font-weight: 700; color: var(--color-muted); }
-.band { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; }
-.band li { position: relative; padding: .45rem .85rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); font-weight: 600; line-height: 1.4; font-size: .95rem; }
-.band li span { display: block; font-size: .72rem; font-weight: 700; color: var(--color-muted); }
-.band li.now { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); }
-.band li.now span { color: inherit; opacity: .8; }
-.band li.later { border-style: dashed; }
-.band li + li::before { content: "→"; position: absolute; left: -1.1rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 700; }
+.jump { display: flex; flex-wrap: wrap; gap: .4rem .6rem; }
+.jump a { font-size: .88rem; font-weight: 700; text-decoration: none; color: var(--color-heading); border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: .2rem .8rem; }
+.jump a:hover { border-color: var(--color-primary); }
+.fig { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.3rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; }
+.says { display: grid; gap: .35rem; max-width: 52rem; }
+.says p { font-size: .97rem; }
 
-/* 그림 공통 */
-.fig { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.3rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; scroll-margin-top: 1rem; align-content: start; }
-.fig-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .7rem; }
-.fig-head h3 small { font-weight: 600; font-size: .8rem; color: var(--color-muted); margin-left: .3rem; }
+/* SVG 공통 */
+.dg { display: block; width: 100%; height: auto; font-family: var(--font-body); }
+.dg text { fill: var(--color-text); }
+.dg .t { font-size: 15px; font-weight: 700; fill: var(--color-heading); }
+.dg .s { font-size: 12.5px; fill: var(--color-muted); }
+.dg .bt { font-size: 15px; font-weight: 800; fill: var(--color-primary); }
+.dg .bd { font-size: 11px; font-weight: 800; fill: var(--color-muted); }
+.dg .hl { font-size: 12px; font-weight: 700; fill: var(--color-heading); font-family: var(--font-code); }
+.dg .hv { font-size: 12px; font-family: var(--font-code); fill: var(--color-heading); }
+.dg .hv.hi { fill: var(--on-primary); font-weight: 700; }
+.dg .hv.off { fill: var(--p7-fg); font-weight: 700; }
+.dg rect.n { fill: var(--color-surface); stroke: var(--color-border); stroke-width: 2; }
+.dg .done rect.n { stroke: var(--color-muted); stroke-width: 1.5; }
+.dg .later rect.n { stroke-dasharray: 6 4; fill: var(--color-canvas); stroke: var(--color-muted); stroke-width: 1.5; }
+.dg .now rect.n { fill: var(--color-primary); stroke: var(--color-primary); }
+.dg .now .t, .dg .now .s, .dg .now .bd { fill: var(--on-primary); }
+.dg .c2 rect.n { fill: var(--p2-bg); stroke: var(--p2-fg); }
+.dg .c2 .t, .dg .c2 .bd { fill: var(--p2-fg); }
+.dg .lnk:hover rect.n { stroke-width: 3; }
+.dg .bnd { fill: none; stroke: var(--color-primary); stroke-width: 1.5; opacity: .55; }
+.dg .e { fill: none; stroke: var(--color-muted); stroke-width: 2; }
+.dg .e.d { stroke-dasharray: 6 4; }
+.mk { fill: var(--color-muted); }
+.dg .el { font-size: 12.5px; font-weight: 700; fill: var(--color-heading); paint-order: stroke; stroke: var(--color-surface); stroke-width: 5px; stroke-linejoin: round; }
+.dg .pin circle { fill: var(--p7-fg); }
+.dg .pin text { fill: var(--color-surface); font-size: 13px; font-weight: 800; }
+.dg .stack { fill: var(--color-surface); stroke: var(--p4-fg); stroke-width: 1; opacity: .5; }
+.dg .blk { fill: var(--color-surface); stroke: var(--p4-fg); stroke-width: 2; }
+.dg .att { fill: var(--p4-bg); stroke: var(--p4-fg); stroke-width: 1.5; }
+.dg .sub { fill: var(--color-soft); stroke: var(--color-border); }
+.dg .res { fill: none; stroke: var(--p4-fg); stroke-width: 1.6; }
+.dg .n2 { fill: var(--p6-bg); stroke: var(--p6-fg); stroke-width: 1.5; }
+.dg .note { fill: var(--p7-bg); stroke: var(--p7-fg); stroke-width: 1; stroke-dasharray: 4 3; }
+.dg .hm { stroke: var(--color-border); }
+.dg .hm.off { fill: url(#hatch); }
+.dg .track { fill: var(--color-soft); }
+.dg .barf { fill: var(--heat); }
+.dg .loop .e { stroke: var(--p6-fg); stroke-width: 2.4; }
+.hb { fill: var(--color-canvas); }
+.hl2 { stroke: var(--hatch-line); stroke-width: 2.5; }
+.dg .pp { transition: opacity .2s; }
+.mapfig[data-path="sum"] .pp:not(.p-sum), .mapfig[data-path="rag"] .pp:not(.p-rag), .mapfig[data-path="agt"] .pp:not(.p-agt) { opacity: .13; }
 
-/* 오늘의 구조 */
-.parts { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1.35fr); gap: 1.6rem; }
-.part { position: relative; display: grid; gap: .45rem; align-content: start; padding: 1.1rem 1.2rem; border-radius: var(--radius-card); text-decoration: none; color: inherit; border: 2px solid var(--g-fg); background: var(--g-bg); }
-.part.mid { background: var(--color-surface); border-width: 1px; border-color: var(--color-border); }
-.part:hover { box-shadow: 0 0 0 2px var(--g-fg); }
-.part:not(:last-child)::after { content: "→"; position: absolute; right: -1.3rem; top: 50%; transform: translateY(-50%); font-weight: 800; font-size: 1.1rem; color: var(--color-muted); }
-.part .q { font-size: .8rem; font-weight: 800; color: var(--g-fg); }
-.part.mid .q { color: var(--color-muted); }
-.part b { font-size: 1.15rem; color: var(--color-heading); line-height: 1.35; }
-.part.mid b { font-size: 1rem; }
-.part ul { margin: 0; padding-left: 1.1rem; font-size: .88rem; display: grid; gap: .1rem; }
-
-/* 시스템 속 LLM */
-.sys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.2rem 1.8rem; }
-.node { position: relative; border: 2px solid var(--color-border); border-radius: var(--radius-control); padding: .65rem .85rem; display: grid; gap: .15rem; align-content: start; background: var(--color-surface); min-width: 0; }
-.node b { color: var(--color-heading); }
-.node span { font-size: .85rem; }
-.node em { font-style: normal; justify-self: start; font-size: .72rem; font-weight: 700; border-radius: .4rem; padding: 0 .4rem; background: var(--color-soft); color: var(--color-muted); }
-.node.now { background: var(--color-primary); border-color: var(--color-primary); }
-.node.now b, .node.now span { color: var(--on-primary); }
-.node.now em { background: var(--on-primary); color: var(--color-primary); }
-.node.later { border-style: dashed; background: var(--color-canvas); }
-.sys .r1:not(:nth-child(4))::after { content: "→"; position: absolute; right: -1.45rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--color-muted); }
-.sys .r2 { grid-row: 2; }
-.sys .r2::before { content: attr(data-up); position: absolute; left: 50%; top: -1.95rem; transform: translateX(-50%); font-size: .75rem; font-weight: 700; color: var(--color-muted); white-space: nowrap; }
-.legend { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; font-size: .8rem; color: var(--color-muted); }
-.legend i { display: inline-block; width: 1.4rem; height: .85rem; border: 2px solid var(--color-border); border-radius: .25rem; vertical-align: -2px; margin-right: .35rem; }
+/* 그림 1 조작 */
+.paths { display: flex; flex-wrap: wrap; gap: .4rem; }
+.paths button { font: 700 .88rem var(--font-body); color: var(--color-heading); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: .6rem; padding: .35rem .8rem; cursor: pointer; }
+.paths button[aria-pressed="true"] { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); }
+.paths button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.scroll { overflow-x: auto; }
+.scroll .map-svg { min-width: 66rem; }
+.swipe { display: none; font-size: .8rem; color: var(--color-muted); }
+.legend { display: flex; flex-wrap: wrap; gap: .35rem 1.2rem; font-size: .82rem; color: var(--color-muted); align-items: center; }
+.legend i { display: inline-block; width: 1.5rem; height: .9rem; border: 2px solid var(--color-muted); border-radius: .25rem; vertical-align: -2px; margin-right: .35rem; }
+.legend i.dash { border-style: dashed; }
 .legend i.now { background: var(--color-primary); border-color: var(--color-primary); }
-.legend i.later { border-style: dashed; }
-.nest { display: grid; }
-.box-ai, .box-llm { border: 1px solid var(--color-border); border-radius: .7rem; padding: .4rem .7rem .65rem; display: grid; gap: .35rem; font-size: .85rem; }
-.box-ai { background: var(--color-canvas); }
-.box-llm { background: var(--color-soft); border-color: var(--color-primary); }
-.nest b { color: var(--color-heading); margin-right: .35rem; }
+.legend i.c2 { background: var(--p2-bg); border-color: var(--p2-fg); }
+.legend b.pinl { display: inline-grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--p7-fg); color: var(--color-surface); font-size: .7rem; margin-right: .3rem; }
+.panel { border-left: 4px solid var(--color-primary); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; display: grid; gap: .25rem; }
+.panel b { color: var(--color-heading); }
+.panel .route { font: .82rem var(--font-code); color: var(--color-muted); }
+.pins { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem 1.2rem; font-size: .9rem; }
+.pins li { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr); gap: .4rem; align-items: baseline; }
+.pins li > b { display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--p7-fg); color: var(--color-surface); font-size: .78rem; }
+.pins strong { color: var(--color-heading); }
 
-/* 교시 머리 띠 */
-.zhead { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; border-radius: var(--radius-card); padding: 1rem 1.25rem; background: var(--color-primary); color: var(--on-primary); }
-.zhead .zn { font-size: .85rem; font-weight: 800; background: var(--g-bg); color: var(--g-fg); border-radius: .5rem; padding: .15rem .6rem; white-space: nowrap; }
-.zhead h2 { color: inherit; font-size: 1.35rem; }
-.zhead.small h2 { font-size: 1.15rem; }
-.mm { margin-left: auto; display: flex; flex-wrap: wrap; gap: .25rem; }
-.mm a { font-size: .74rem; font-weight: 700; padding: .1rem .5rem; border-radius: .35rem; color: inherit; opacity: .6; text-decoration: none; border: 1px solid transparent; }
-.mm a.on { opacity: 1; background: var(--g-bg); color: var(--g-fg); }
-.mm a:not(.on):hover { opacity: 1; border-color: currentColor; }
-.cards { display: grid; gap: 1rem; }
-.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.4rem; align-items: start; }
-.two > div { display: grid; gap: .5rem; min-width: 0; align-content: start; }
-.lbl { font-size: .8rem; font-weight: 800; color: var(--color-muted); }
-
-/* Token */
-.sent { font-size: 1.1rem; font-weight: 700; color: var(--color-heading); }
+/* 그림 2 Context Window */
+.cw { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; gap: 0; align-items: stretch; }
+.cw-box { border: 3px solid var(--color-primary); border-radius: .8rem 0 0 .8rem; padding: .5rem; display: grid; gap: .45rem; }
+.cw-box > .cap { font-size: .82rem; font-weight: 800; color: var(--color-primary); }
+.segs { display: flex; gap: .35rem; }
+.seg { flex: var(--n) 1 0; min-width: 6.4rem; border-radius: .5rem; padding: .55rem .6rem; display: grid; gap: .1rem; align-content: start; background: var(--sb); border: 1px solid var(--sf); }
+.seg b { color: var(--color-heading); font-size: .9rem; line-height: 1.3; }
+.seg .num { font: 800 1.1rem var(--font-code); color: var(--sf); }
+.seg small { font-size: .76rem; color: var(--color-text); line-height: 1.4; }
+.seg.big { box-shadow: inset 0 0 0 2px var(--sf); }
+.seg.out { border-style: dashed; }
+.over { border: 3px dashed var(--p7-fg); border-left: none; border-radius: 0 .8rem .8rem 0; background: repeating-linear-gradient(135deg, var(--p7-bg) 0 6px, transparent 6px 11px); display: grid; align-content: center; justify-items: center; text-align: center; padding: .5rem; gap: .2rem; }
+.over b { color: var(--p7-fg); font-size: .88rem; }
+.over small { font-size: .74rem; color: var(--color-text); }
+.sub-h { font-weight: 800; color: var(--color-heading); font-size: .98rem; display: flex; flex-wrap: wrap; gap: .3rem .7rem; align-items: baseline; }
+.sub-h small { font-size: .78rem; color: var(--color-muted); font-weight: 700; }
+.expand { border-top: 2px dashed var(--color-border); padding-top: 1rem; display: grid; gap: .6rem; }
+.sent { font-size: 1.08rem; font-weight: 700; color: var(--color-heading); }
 .tks { display: flex; flex-wrap: wrap; gap: .3rem; }
 .tk { display: grid; text-align: center; border: 1px solid var(--p2-fg); border-radius: .45rem; overflow: hidden; min-width: 2.6rem; }
 .tk b { font-family: var(--font-code); font-size: .9rem; padding: .15rem .4rem; background: var(--p2-bg); color: var(--p2-fg); }
 .tk i { font-style: normal; font-family: var(--font-code); font-size: .72rem; padding: .1rem .35rem; color: var(--color-heading); }
 .tk.sp { border-style: dashed; border-color: var(--color-muted); }
 .tk.sp b { background: var(--color-soft); color: var(--color-muted); }
-.stats { display: flex; flex-wrap: wrap; gap: .4rem 1.6rem; font-size: .9rem; }
-.stats b { font-size: 1.25rem; color: var(--color-heading); font-variant-numeric: tabular-nums; }
-.bullets { margin: 0; padding-left: 1.1rem; display: grid; gap: .2rem; font-size: .9rem; }
-
-/* Context 예산 */
-.budget { display: flex; height: 3.4rem; border-radius: .6rem; overflow: hidden; border: 1px solid var(--color-border); }
-.budget > div { display: grid; place-content: center; text-align: center; font-size: .78rem; line-height: 1.25; color: var(--color-heading); border-right: 2px solid var(--color-surface); min-width: 0; overflow: hidden; }
-.budget > div b { font-family: var(--font-code); font-size: .85rem; }
-.budget .hl { outline: 3px solid var(--p4-fg); outline-offset: -3px; }
-.bleg { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; font-size: .86rem; }
-.bleg span::before { content: ""; display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; background: var(--c); margin-right: .35rem; vertical-align: -1px; border: 1px solid var(--color-border); }
-.bleg span.sum::before { display: none; }
-.bleg b { font-family: var(--font-code); color: var(--color-heading); }
-.why { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
-.why > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .65rem .8rem; display: grid; gap: .2rem; align-content: start; font-size: .88rem; }
-.why b { color: var(--color-heading); }
-
-/* Padding 표 */
+.stats { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; font-size: .9rem; }
+.stats b { font-size: 1.2rem; color: var(--color-heading); }
 .table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; font-size: .9rem; }
+table { border-collapse: collapse; }
 .pad th { text-align: right; font: 600 .74rem var(--font-code); color: var(--color-muted); padding: .2rem .6rem .2rem 0; white-space: nowrap; }
 .pad td { font: .78rem var(--font-code); text-align: center; padding: .25rem .4rem; border: 1px solid var(--color-border); min-width: 3.1rem; white-space: nowrap; }
 .pad tr.grp-top td { background: var(--p2-bg); color: var(--p2-fg); font-weight: 700; }
-.pad tr.grp-top th, .pad tr.grp-top td { border-top-width: 3px; }
 .pad td.spc { background: var(--color-soft) !important; color: var(--color-muted) !important; }
-.pad td.padc { background: var(--hatch), var(--color-canvas) !important; color: var(--color-muted) !important; }
+.pad td.padc { background: repeating-linear-gradient(135deg, var(--color-canvas) 0 5px, var(--color-soft) 5px 8px) !important; color: var(--color-muted) !important; }
 .pad td.m1 { font-weight: 800; color: var(--p6-fg); }
-.pad td.m0 { color: var(--p7-fg); background: var(--hatch); }
+.pad td.m0 { color: var(--p7-fg); font-weight: 800; }
 
-/* 흐름 */
-.flow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); column-gap: 1.5rem; row-gap: .6rem; }
-.gbar { grid-row: 1; display: flex; justify-content: space-between; gap: .4rem; background: var(--g-bg); color: var(--g-fg); border-radius: .5rem; padding: .25rem .6rem; font-size: .78rem; font-weight: 800; }
-.st { grid-row: 2; position: relative; display: grid; gap: .3rem; align-content: start; padding: .65rem .7rem .75rem; background: var(--color-surface); border: 1px solid var(--color-border); border-top: 5px solid var(--g-fg); border-radius: var(--radius-control); min-width: 0; }
-.st:not(.last)::after { content: "→"; position: absolute; right: -1.3rem; top: 2rem; font-weight: 800; color: var(--color-muted); }
-.st b { font-size: .98rem; color: var(--color-heading); line-height: 1.3; }
-.st .m { font-size: .8rem; line-height: 1.45; }
-.st .v { font-family: var(--font-code); font-size: .74rem; line-height: 1.45; color: var(--color-heading); background: var(--color-soft); border-radius: .4rem; padding: .2rem .4rem; overflow-wrap: anywhere; }
-.st .tagm { display: none; }
-.loop { grid-row: 3; grid-column: 2 / -1; position: relative; height: 2.4rem; margin: 0 3.2rem; border: 2px dashed var(--color-muted); border-top: none; border-radius: 0 0 1rem 1rem; }
-.loop::before { content: "▲"; position: absolute; left: -.55rem; top: -.85rem; font-size: .8rem; color: var(--color-muted); }
-.loop span { position: absolute; left: 50%; bottom: -.8rem; transform: translateX(-50%); background: var(--color-surface); padding: 0 .6rem; font-size: .82rem; font-weight: 700; color: var(--color-heading); white-space: nowrap; }
+/* 그림 3 */
+.dg.narrow { display: none; max-width: 24rem; margin-inline: auto; }
+.mob { display: none; }
 
-/* 3~6교시 묶음 */
-.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
-.nb { position: relative; display: grid; gap: .05rem; padding: .45rem .7rem; border: 1px solid var(--color-border); border-radius: .6rem; background: var(--color-canvas); font-weight: 700; color: var(--color-heading); font-size: .9rem; line-height: 1.35; }
-.nb small { font-weight: 500; font-size: .76rem; color: var(--color-muted); }
-.nb.io { background: transparent; border-style: dashed; font-weight: 600; }
-.nb.att { border: 2px solid var(--p4-fg); background: var(--p4-bg); }
-.blk { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .6rem 1.5rem; }
-.res { position: relative; display: flex; align-items: center; gap: 1.5rem; padding-top: 1.5rem; }
-.res::before { content: ""; position: absolute; top: .5rem; left: -.75rem; right: 2.6rem; height: .8rem; border: 2px solid var(--p4-fg); border-bottom: none; border-radius: .5rem .5rem 0 0; }
-.res::after { content: "▼"; position: absolute; top: 1.05rem; right: 2.25rem; font-size: .6rem; color: var(--p4-fg); }
-.res > i { position: absolute; top: -.1rem; left: 35%; transform: translateX(-50%); font-style: normal; font-size: .7rem; font-weight: 800; color: var(--p4-fg); background: var(--color-surface); padding: 0 .3rem; white-space: nowrap; }
-.blk > .nb.io:first-child::after, .res > .nb:first-of-type::after, .blk > .res:not(:last-child) > .nb:last-of-type::after { content: "→"; position: absolute; right: -1.2rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; }
-.steps { display: flex; flex-wrap: wrap; gap: .35rem .9rem; font: .82rem var(--font-code); color: var(--color-heading); }
-.steps span { position: relative; background: var(--color-soft); border-radius: .35rem; padding: .1rem .45rem; }
-.steps span:not(:last-child)::after { content: "→"; position: absolute; right: -.8rem; color: var(--color-muted); }
-.mxs { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 1.2rem; }
-.mx { margin: 0; display: grid; gap: .3rem; }
-.mx figcaption { font-size: .78rem; font-weight: 800; color: var(--color-heading); }
-.mx table { font: .8rem var(--font-code); }
-.mx th { font-size: .7rem; color: var(--color-muted); padding: .15rem .35rem; font-weight: 700; }
-.mx td { width: 3rem; height: 2rem; text-align: center; border: 1px solid var(--color-border); color: var(--color-heading); }
-.mx td.heat { background: color-mix(in srgb, var(--heat) calc(var(--w) * 85%), var(--color-surface)); }
-.mx td.heat.hi { color: var(--on-primary); font-weight: 700; }
-:root[data-theme="dark"] .mx td.heat.hi { color: #0E1626; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mx td.heat.hi { color: #0E1626; } }
-.mx td.off { background: var(--hatch), var(--color-canvas); color: var(--p7-fg); font-weight: 700; }
-.bars { display: grid; gap: .35rem; }
-.bar { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr) 3.2rem; gap: .5rem; align-items: center; font: .82rem var(--font-code); }
-.bar i { height: 1rem; background: linear-gradient(var(--heat), var(--heat)) 0 0 / var(--p) 100% no-repeat, var(--color-soft); border-radius: .25rem; }
-.bar b { text-align: right; color: var(--color-heading); }
-.bars.logit .bar i { background: linear-gradient(var(--p4-fg), var(--p4-fg)) 0 0 / var(--p) 100% no-repeat, var(--color-soft); }
-.tbl { width: 100%; }
+/* 검사 표 */
+.tbl { width: 100%; font-size: .93rem; }
 .tbl th { text-align: left; font-size: .8rem; color: var(--color-muted); padding: .45rem .7rem; border-bottom: 2px solid var(--color-border); white-space: nowrap; }
-.tbl td { padding: .5rem .7rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
-.tbl td:first-child { font-weight: 700; color: var(--color-heading); white-space: nowrap; }
-
-/* 7교시 */
-.lim { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .6rem; }
-.lim > div { border: 1px solid var(--color-border); border-top: 4px solid var(--p7-fg); border-radius: .6rem; padding: .55rem .75rem; display: grid; gap: .15rem; font-size: .86rem; align-content: start; }
-.lim b { color: var(--color-heading); }
-.uses { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); border: 1px solid var(--color-border); border-radius: var(--radius-control); overflow: hidden; }
-.uses > div { padding: .75rem .9rem; border-bottom: 1px solid var(--color-border); display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.3rem; min-width: 0; }
-.uses > .hd { background: var(--color-soft); font-size: .8rem; font-weight: 800; color: var(--color-muted); padding: .45rem .9rem; }
-.uses > .task { font-weight: 700; color: var(--color-heading); }
-.uses > .chk { font-size: .9rem; }
-.uses > .chk b { color: var(--p7-fg); }
-.uses .nb { font-size: .86rem; }
-.uses .nb:not(:last-child)::after { content: "→"; position: absolute; right: -1.15rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; }
-.uses .nb.llm { border-color: var(--color-primary); background: var(--color-soft); }
-.uses .nb.ret { border-color: var(--p2-fg); background: var(--p2-bg); }
-.uses .nb.agt { border-color: var(--p7-fg); background: var(--p7-bg); }
-.uses > div:nth-last-child(-n+3) { border-bottom: none; }
-.rag { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .7rem 1.5rem; }
-.rag .nb { min-height: 3.8rem; align-content: center; }
-.rag .nb:not(:nth-child(5))::after { content: "→"; position: absolute; right: -1.2rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; }
-.fail { grid-row: 2; display: grid; gap: .15rem; align-content: start; border: 1px solid var(--p7-fg); background: var(--p7-bg); border-radius: .55rem; padding: .45rem .6rem; font-size: .84rem; }
-.fail b { color: var(--p7-fg); font-size: .8rem; }
-.fail.empty { visibility: hidden; }
-.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
-.cols2 > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .7rem .9rem; display: grid; gap: .35rem; align-content: start; }
-.cols2 ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; display: grid; gap: .15rem; }
+.tbl td { padding: .55rem .7rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.tbl td:first-child { font-weight: 800; color: var(--color-heading); white-space: nowrap; }
 
 details { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1rem 1.25rem; }
 summary { cursor: pointer; font-weight: 700; color: var(--color-heading); }
-details dl { margin: .9rem 0 0; display: grid; grid-template-columns: 12rem minmax(0, 1fr); gap: .6rem 1rem; font-size: .92rem; }
+details dl { margin: .9rem 0 0; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: .6rem 1rem; font-size: .93rem; }
 details dt { font-weight: 700; color: var(--color-heading); }
 details dd { margin: 0; }
-.foot { display: grid; gap: .5rem; font-size: .875rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1.25rem; }
-.foot ul { margin: 0; padding-left: 1.1rem; }
+.foot { display: grid; gap: .45rem; font-size: .875rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1.25rem; }
 
-@media (max-width: 960px) {
-  .flow { grid-template-columns: minmax(0, 1fr); row-gap: 1.6rem; }
-  .gbar { display: none; }
-  .st { grid-row: auto; }
-  .st .tagm { display: inline-block; justify-self: start; font-size: .7rem; font-weight: 800; color: var(--g-fg); background: var(--g-bg); border-radius: .35rem; padding: 0 .4rem; }
-  .st:not(.last)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -1.5rem; transform: translateX(-50%); }
-  .loop { grid-row: auto; grid-column: 1; height: auto; margin: 0; border: 2px dashed var(--color-muted); border-radius: var(--radius-control); padding: .6rem .8rem; }
-  .loop::before { content: "↺"; position: static; font-size: 1rem; margin-right: .4rem; }
-  .loop span { position: static; transform: none; padding: 0; white-space: normal; }
-  .grid2 { grid-template-columns: minmax(0, 1fr); }
-  .rag { grid-template-columns: minmax(0, 1fr); }
-  .rag .nb, .fail { grid-row: auto; }
-  .rag .nb:not(:nth-child(5))::after { content: none; }
-  .fail.empty { display: none; }
-  .rag > :nth-child(1) { order: 1; } .rag > :nth-child(6) { order: 2; } .rag > :nth-child(2) { order: 3; } .rag > :nth-child(7) { order: 4; }
-  .rag > :nth-child(3) { order: 5; } .rag > :nth-child(4) { order: 7; } .rag > :nth-child(9) { order: 8; } .rag > :nth-child(5) { order: 9; } .rag > :nth-child(10) { order: 10; }
-  .fail { margin: -.4rem 0 .3rem 1.2rem; }
-  .uses { grid-template-columns: minmax(0, 1fr); }
-  .uses > .hd { display: none; }
-  .uses > .task { background: var(--color-soft); border-top: 1px solid var(--color-border); }
-  .uses > div:nth-last-child(-n+3) { border-bottom: 1px solid var(--color-border); }
-  .uses > div:last-child { border-bottom: none; }
-}
 @media (max-width: 760px) {
   main { padding: 1.5rem 1rem 3.5rem; gap: 2.8rem; }
-  .parts { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }
-  .part:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -1.5rem; transform: translateX(-50%); }
-  .sys { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
-  .sys .r2 { grid-row: auto; grid-column: auto !important; margin-left: 1.2rem; }
-  .sys .r1:not(:nth-child(4))::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -1.3rem; transform: translateX(-50%); }
-  .sys .r2::before { position: static; transform: none; display: block; white-space: normal; }
-  .two, .cols2, .why, .lim { grid-template-columns: minmax(0, 1fr); }
-  .mm { margin-left: 0; }
-  .blk, .res { flex-direction: column; align-items: stretch; }
-  .blk { row-gap: 1.4rem; }
-  .res { padding-top: 0; padding-left: 1.6rem; gap: 1.4rem; }
-  .res::before { top: .9rem; bottom: 1rem; left: .2rem; right: auto; width: .9rem; height: auto; border: 2px solid var(--p4-fg); border-right: none; border-radius: .5rem 0 0 .5rem; }
-  .res::after { content: "▶"; top: auto; bottom: .62rem; right: auto; left: .95rem; }
-  .res > i { display: none; }
-  .blk > .nb.io:first-child::after, .res > .nb:first-of-type::after, .blk > .res:not(:last-child) > .nb:last-of-type::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -1.2rem; transform: translateX(-50%); }
-  .uses .nb:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -1.15rem; transform: translateX(-50%); }
-  .uses > .use { flex-direction: column; align-items: stretch; row-gap: 1.3rem; }
+  .swipe { display: block; }
+  .pins { grid-template-columns: minmax(0, 1fr); }
+  .cw { grid-template-columns: minmax(0, 1fr); }
+  .cw-box { border-radius: .8rem .8rem 0 0; }
+  .segs { flex-direction: column; }
+  .seg { min-width: 0; flex: none; grid-template-columns: 6.5rem 3.6rem minmax(0, 1fr); align-items: baseline; gap: .5rem; }
+  .over { border: 3px dashed var(--p7-fg); border-top: none; border-radius: 0 0 .8rem .8rem; padding: .7rem; }
+  .dg.wide { display: none; }
+  .dg.narrow { display: block; }
+  .mob { display: block; }
   details dl { grid-template-columns: minmax(0, 1fr); gap: .2rem; }
   details dd { margin-bottom: .6rem; }
 }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker><pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" class="hb"/><line x1="0" y1="0" x2="0" y2="7" class="hl2"/></pattern></defs></svg>
 <main>
 
 <header class="head">
   <p class="eyebrow">Day20 · 2026-11-13(금) · 생성형 AI·LLM 및 RAG 엔지니어링 4/18</p>
   <h1>LLM · Transformer</h1>
-  <ol class="band" aria-label="수업 순서">
-    <li>FastAPI<span>11/10</span></li>
-    <li>PostgreSQL<span>11/11</span></li>
-    <li>FastAPI–PostgreSQL 연동<span>11/12</span></li>
-    <li class="now">LLM<span>11/13 오늘</span></li>
-    <li class="later">Prompt<span>11/16</span></li>
-    <li class="later">LLM API<span>11/17</span></li>
-    <li class="later">Embedding·Vector DB<span>11/18</span></li>
-    <li class="later">Chunking<span>11/19</span></li>
-    <li class="later">Basic RAG<span>11/20</span></li>
-  </ol>
+  <p class="lead">LLM이 문장을 받아 다음 Token을 고르는 과정과 그 LLM을 서비스에 붙일 때 어디서 무엇을 확인하는지를 배웠다. 하루 내용을 그림 세 장에 담았다.</p>
+  <nav class="jump" aria-label="그림 이동"><a href="#map">1 · 시스템 지도</a><a href="#cw">2 · Context Window</a><a href="#llm">3 · LLM 안</a><a href="#check">답 검사</a></nav>
 </header>
 
 <section id="map" aria-labelledby="map-h">
-  <h2 id="map-h">오늘의 구조</h2>
-  <div class="parts">
-    <a class="part c2" href="#p2">
-      <span class="q">2교시 · 모델에 들어가는 것</span>
-      <b>Tokenizer · Token ID · Context Window</b>
-      <ul><li>문장 → Token → Token ID</li><li>한 요청의 Token 예산 = Context Window</li><li>Padding · Truncation · attention_mask</li></ul>
-    </a>
-    <a class="part mid c4" href="#p36">
-      <span class="q">3~6교시 · 모델 안의 계산</span>
-      <b>Embedding · Transformer · Self-Attention · Logit</b>
-      <ul><li>Token ID → 벡터 → Block × N</li><li>Attention: Q·K·V, Mask, Softmax</li><li>Logit → 다음 Token, 반복</li></ul>
-    </a>
-    <a class="part c7" href="#p7">
-      <span class="q">7교시 · 나온 답의 한계와 검증</span>
-      <b>모델 한계 · 검증 · RAG/Agent 경계</b>
-      <ul><li>문제마다 LLM · RAG · Agent 중 무엇을 붙이나</li><li>답이 틀리는 네 위치</li><li>형식·근거·정확성·재현성·안전성 평가</li></ul>
-    </a>
+  <h2 id="map-h">1 · 시스템 지도<small>1교시 · 7교시</small></h2>
+  <div class="fig mapfig" data-path="all">
+    <div class="paths" role="group" aria-label="하려는 일에 따라 경로 보기">
+      <button type="button" data-p="all" aria-pressed="true">전체</button>
+      <button type="button" data-p="sum" aria-pressed="false">글 요약·정리</button>
+      <button type="button" data-p="rag" aria-pressed="false">사내 규정에 근거한 답변</button>
+      <button type="button" data-p="agt" aria-pressed="false">시스템 상태 조회·변경</button>
+    </div>
+    <p class="swipe">← 그림을 옆으로 밀어서 보기</p>
+    <div class="scroll"><svg class="dg map-svg" viewBox="0 -24 1140 568" role="img" aria-label="시스템 지도: 사용자, FastAPI, Context 조립, LLM, PostgreSQL, 벡터 인덱스, Retriever, Agent, 권한 확인, Tool API의 연결"><rect class="bnd" x="150" y="24" width="700" height="500" rx="16"/><text class="bt" x="170" y="52" text-anchor="start">애플리케이션 · Backend</text><text class="s" x="170" y="72" text-anchor="start">우리가 만드는 서비스</text><g class="pp p-sum p-rag p-agt "><path class="e" d="M 120 232 L 180 232" marker-end="url(#ar)"/><text class="el" x="150" y="224" text-anchor="middle">질문</text></g><g class="pp p-sum p-rag p-agt "><path class="e" d="M 180 258 L 120 258" marker-end="url(#ar)"/><text class="el" x="150" y="276" text-anchor="middle">응답</text></g><g class="pp p-sum p-rag "><path class="e" d="M 330 232 L 430 232" marker-end="url(#ar)"/><text class="el" x="380" y="224" text-anchor="middle">질문</text></g><g class="pp p-sum p-rag "><path class="e" d="M 620 232 L 900 232" marker-end="url(#ar)"/><text class="el" x="760" y="224" text-anchor="middle">Context (Token)</text></g><g class="pp p-sum p-rag "><path class="e" d="M 1010 282 L 1010 318 L 300 318 L 300 274" marker-end="url(#ar)"/><text class="el" x="820" y="336" text-anchor="middle">생성한 답</text></g><g class="pp p-rag "><path class="e" d="M 240 274 L 240 344" marker-end="url(#ar)" marker-start="url(#ar)"/><text class="el" x="232" y="314" text-anchor="end">조회·수정</text></g><g class="pp p-rag "><path class="e d" d="M 255 404 L 255 448" marker-end="url(#ar)"/><text class="el" x="265" y="432" text-anchor="start">Chunk로 나눠 저장</text></g><g class="pp p-rag "><path class="e d" d="M 330 476 L 430 476" marker-end="url(#ar)"/><text class="el" x="380" y="468" text-anchor="middle">가까운 Chunk</text></g><g class="pp p-rag "><path class="e d" d="M 500 274 L 500 448" marker-end="url(#ar)"/><text class="el" x="492" y="392" text-anchor="end">질문</text></g><g class="pp p-rag "><path class="e d" d="M 560 448 L 560 274" marker-end="url(#ar)"/><text class="el" x="568" y="392" text-anchor="start">문서 발췌</text></g><g class="pp p-agt "><path class="e d" d="M 255 214 L 255 94 L 360 94" marker-end="url(#ar)"/><text class="el" x="305" y="86" text-anchor="middle">업무 요청</text></g><g class="pp p-agt "><path class="e d" d="M 430 64 L 430 6 L 1010 6 L 1010 206" marker-end="url(#ar)" marker-start="url(#ar)"/><text class="el" x="720" y="-2" text-anchor="middle">다음 행동을 제안받음</text></g><g class="pp p-agt "><path class="e d" d="M 500 94 L 540 94" marker-end="url(#ar)"/></g><text class="el pp p-agt" x="520" y="146" text-anchor="middle">실행 요청</text><g class="pp p-agt "><path class="e d" d="M 670 94 L 710 94" marker-end="url(#ar)"/></g><text class="el pp p-agt" x="690" y="146" text-anchor="middle">허용될 때만</text><g class="nd  pp p-sum p-rag p-agt"><rect class="n" x="16" y="214" width="104" height="60" rx="10"/><text class="t" x="28" y="240">사용자</text><text class="s" x="28" y="260">질문하는 사람</text></g><g class="nd done pp p-sum p-rag p-agt"><rect class="n" x="180" y="214" width="150" height="60" rx="10"/><text class="t" x="192" y="240">FastAPI</text><text class="s" x="192" y="260">요청·응답·검증</text><text class="bd" x="320" y="232" text-anchor="end">11/10</text></g><a href="#cw" class="lnk"><g class="nd c2 pp p-sum p-rag"><rect class="n" x="430" y="214" width="190" height="60" rx="10"/><text class="t" x="442" y="240">Context 조립</text><text class="s" x="442" y="260">지시·대화·근거·질문</text><text class="bd" x="610" y="232" text-anchor="end">그림 2</text></g></a><g class="nd done pp p-rag"><rect class="n" x="180" y="344" width="150" height="60" rx="10"/><text class="t" x="192" y="370">PostgreSQL</text><text class="s" x="192" y="390">원본 지식</text><text class="bd" x="320" y="362" text-anchor="end">11/11</text></g><g class="nd later pp p-rag"><rect class="n" x="180" y="448" width="150" height="56" rx="10"/><text class="t" x="192" y="474">벡터 인덱스</text><text class="s" x="192" y="494">Embedding 저장</text><text class="bd" x="320" y="466" text-anchor="end">11/18~19</text></g><g class="nd later pp p-rag"><rect class="n" x="430" y="448" width="190" height="56" rx="10"/><text class="t" x="442" y="474">Retriever</text><text class="s" x="442" y="494">가까운 문서 찾기</text><text class="bd" x="610" y="466" text-anchor="end">11/20</text></g><g class="nd later pp p-agt"><rect class="n" x="360" y="64" width="140" height="60" rx="10"/><text class="t" x="372" y="90">Agent</text><text class="s" x="372" y="110">도구·단계 실행</text><text class="bd" x="490" y="82" text-anchor="end">이후</text></g><g class="nd later pp p-agt"><rect class="n" x="540" y="64" width="130" height="60" rx="10"/><text class="t" x="552" y="90">권한 확인</text><text class="s" x="552" y="110">Backend · 승인</text></g><g class="nd later pp p-agt"><rect class="n" x="710" y="64" width="130" height="60" rx="10"/><text class="t" x="722" y="90">Tool API</text><text class="s" x="722" y="110">업무 시스템</text><text class="bd" x="830" y="82" text-anchor="end">이후</text></g><a href="#llm" class="lnk"><g class="nd now pp p-sum p-rag p-agt"><rect class="n" x="900" y="206" width="220" height="76" rx="10"/><text class="t" x="912" y="232">LLM</text><text class="s" x="912" y="252">다음 Token을 반복 생성</text><text class="s" x="912" y="270">그림 3</text><text class="bd" x="1110" y="224" text-anchor="end">11/13 오늘</text></g></a><g class="pin"><circle cx="620" cy="274" r="12"/><text x="620" y="278.5" text-anchor="middle">1</text></g><g class="pin"><circle cx="620" cy="504" r="12"/><text x="620" y="508.5" text-anchor="middle">2</text></g><g class="pin"><circle cx="1120" cy="244" r="12"/><text x="1120" y="248.5" text-anchor="middle">3</text></g><g class="pin"><circle cx="700" cy="318" r="12"/><text x="700" y="322.5" text-anchor="middle">4</text></g></svg></div>
+    <div class="legend"><span><i></i>지난 수업에 만든 것</span><span><i class="now"></i>오늘</span><span><i class="dash"></i>이후 수업</span><span><i class="c2"></i>그림 2로</span><span><b class="pinl">1</b>답이 틀어질 수 있는 곳</span></div>
+    <div class="panel" aria-live="polite">
+      <div data-show="all"><b>전체</b><p>LLM 상자 하나만 모델이고 둘레의 상자는 모두 애플리케이션이 맡는다. 위 버튼으로 하려는 일을 고르면 그 일이 지나가는 길만 남는다.</p></div>
+      <div data-show="sum" hidden><b>글 요약·정리</b><p class="route">사용자 → FastAPI → Context 조립 → LLM → 답</p><p>모델 혼자 할 수 있는 일이다. 결과는 내용이 맞는지와 JSON 같은 형식이 맞는지를 본다.</p></div>
+      <div data-show="rag" hidden><b>사내 규정에 근거한 답변</b><p class="route">PostgreSQL → 벡터 인덱스 → Retriever → Context 조립 → LLM → 답</p><p>모델은 학습이 끝난 뒤에 바뀐 사내 문서를 모른다. Retriever가 찾은 문서 발췌를 질문과 함께 Context에 넣어 보내고 답에 붙은 출처가 최신 문서인지 확인한다.</p></div>
+      <div data-show="agt" hidden><b>시스템 상태 조회·변경</b><p class="route">FastAPI → Agent ⇄ LLM, Agent → 권한 확인 → Tool API</p><p>LLM은 다음에 할 행동을 제안하는 데까지 맡는다. 실행은 Backend가 권한과 승인을 확인한 Tool API로만 이루어지고 무엇을 실행했는지 기록이 남는다.</p></div>
+    </div>
+    <ul class="pins" aria-label="답이 틀어질 수 있는 곳">
+      <li><b>1</b><span><strong>Context 조립</strong> · 질문의 의도나 필요한 조건이 빠진 채 모델에 들어간다</span></li>
+      <li><b>2</b><span><strong>Retriever</strong> · 관련 문서를 못 찾거나 옛 버전을 가져온다</span></li>
+      <li><b>3</b><span><strong>LLM</strong> · 근거에 없는 내용을 그럴듯하게 지어낸다 (Hallucination)</span></li>
+      <li><b>4</b><span><strong>생성한 답</strong> · JSON 모양은 맞는데 내용이 틀린다</span></li>
+    </ul>
   </div>
 </section>
 
-<section id="p1" aria-labelledby="p1-h">
+<section id="cw" aria-labelledby="cw-h">
+  <h2 id="cw-h">2 · Context Window<small>2교시</small></h2>
   <div class="fig">
-    <div class="fig-head"><h3 id="p1-h">AI Agent 전체 시스템에서 LLM의 위치<small>1교시</small></h3><span class="pg">p.3</span></div>
-    <div class="sys">
-      <div class="node r1"><em>사람</em><b>사용자</b><span>증상·업무 질문</span></div>
-      <div class="node r1"><em>11/10</em><b>FastAPI</b><span>요청·응답·검증</span></div>
-      <div class="node later r1"><em>이후</em><b>Agent 처리</b><span>분기·상태·승인 또는 다음 행동을 제안</span></div>
-      <div class="node now r1"><em>11/13 오늘</em><b>LLM</b><span>문맥을 읽고 다음 Token 생성</span></div>
-      <div class="node r2" style="grid-column:2" data-up="↕ FastAPI가 원본 조회·수정"><em>11/11~12</em><b>PostgreSQL</b><span>원본 지식</span></div>
-      <div class="node later r2" style="grid-column:3" data-up="↕ Agent가 허용된 API 실행"><em>이후</em><b>Tool</b><span>허용된 API · 권한·승인·기록</span></div>
-      <div class="node later r2" style="grid-column:4" data-up="↑ 근거를 LLM의 Context로"><em>11/18~20</em><b>RAG</b><span>원본 문서 / 검색용 벡터 인덱스</span></div>
-    </div>
-    <div class="legend"><span><i></i>지난 수업</span><span><i class="now"></i>오늘</span><span><i class="later"></i>이후 수업</span></div>
-    <p class="key">RAG 근거는 LLM의 Context로 들어가고, Tool 실행은 Backend가 권한을 확인한다.<span class="pg">p.3</span></p>
-    <div class="nest" aria-label="용어 관계 p.19">
-      <div class="box-ai"><span><b>AI</b>언어·시각·판단 등 넓은 지능적 작업을 수행하는 기술</span>
-        <div class="box-ai" style="background:var(--color-surface)"><span><b>생성형 AI</b>학습한 패턴을 활용해 텍스트·이미지·음성 등을 생성</span>
-          <div class="box-llm"><span><b>LLM</b>언어 Token의 통계적 관계를 학습한 대규모 언어 모델 · 대규모 사전학습 뒤 여러 작업에 쓰는 Foundation Model의 하나</span></div>
+    <div class="cw">
+      <div class="cw-box">
+        <span class="cap">Context Window · 한 번 요청할 때 모델이 볼 수 있는 Token 한도</span>
+        <div class="segs">
+          <div class="seg" style="--n:300;--sb:var(--p2-bg);--sf:var(--p2-fg)"><b>System 지시</b><span class="num">300</span><small>개발자가 쓴 지시</small></div>
+          <div class="seg" style="--n:1200;--sb:var(--p3-bg);--sf:var(--p3-fg)"><b>이전 대화</b><span class="num">1,200</span><small>지난 대화 기록</small></div>
+          <div class="seg big" style="--n:2000;--sb:var(--p4-bg);--sf:var(--p4-fg)"><b>검색 근거</b><span class="num">2,000</span><small>Retriever가 찾은 문서 발췌</small></div>
+          <div class="seg" style="--n:150;--sb:var(--color-soft);--sf:var(--color-muted)"><b>질문</b><span class="num">150</span><small>사용자</small></div>
+          <div class="seg out" style="--n:850;--sb:var(--p6-bg);--sf:var(--p6-fg)"><b>출력 예약</b><span class="num">850</span><small>모델이 답을 쓸 자리</small></div>
         </div>
       </div>
+      <div class="over"><b>넘친 Token</b><small>Truncation으로 잘려 모델에 들어가지 못함</small></div>
     </div>
-  </div>
-</section>
+    <div class="says">
+      <p>지시와 대화, 문서, 질문에 모델이 쓸 답까지 모두 이 한도 안에서 Token을 나눠 쓴다. 검색 근거를 늘리면 다른 칸이 그만큼 줄어들고 한도를 넘친 Token은 잘려서 모델이 끝내 보지 못한다.</p>
+      <p>Token 수는 API 요금과 응답 시간으로 그대로 이어진다.</p>
+      <p class="note">칸의 숫자는 강의의 예시(p.33)이고 실제 한도는 모델마다 다르다.</p>
+    </div>
 
-<section id="p2" class="c2" aria-labelledby="p2-h">
-  <div class="zhead"><span class="zn">2교시</span><h2 id="p2-h">Tokenizer · Token ID · Context Window</h2>
-    <nav class="mm" aria-label="교시 이동"><a href="#p1">1교시</a><a class="on" href="#p2">2교시</a><a href="#p36">3~6교시</a><a href="#p7">7교시</a></nav></div>
-  <div class="cards">
-
-    <article class="fig" id="c-tok">
-      <div class="fig-head"><h3>문자열은 Tokenizer를 거쳐 정수 ID가 된다</h3><span class="pg">p.27~29</span></div>
+    <div class="expand">
+      <p class="sub-h">질문 한 줄을 Token으로 펼치면<small>p.29 코드 실행</small></p>
       <p class="sent">실습 파일은 개인 폴더에 보관합니다.</p>
       <div class="tks" aria-label="Token과 Token ID"><span class="tk sp"><b>[CLS]</b><i>101</i></span><span class="tk"><b>실</b><i>9489</i></span><span class="tk"><b>##습</b><i>119081</i></span><span class="tk"><b>파</b><i>9901</i></span><span class="tk"><b>##일</b><i>18392</i></span><span class="tk"><b>##은</b><i>10892</i></span><span class="tk"><b>개</b><i>8857</i></span><span class="tk"><b>##인</b><i>12030</i></span><span class="tk"><b>폴</b><i>9931</i></span><span class="tk"><b>##더</b><i>54141</i></span><span class="tk"><b>##에</b><i>10530</i></span><span class="tk"><b>보</b><i>9356</i></span><span class="tk"><b>##관</b><i>20595</i></span><span class="tk"><b>##합</b><i>33188</i></span><span class="tk"><b>##니다</b><i>48345</i></span><span class="tk"><b>.</b><i>119</i></span><span class="tk sp"><b>[SEP]</b><i>102</i></span></div>
-      <div class="stats"><span>글자 <b>20</b>개</span><span>→ Token <b>17</b>개</span><span>Vocabulary <b>119,547</b>개</span></div>
-      <ul class="bullets">
-        <li>칩 위는 Token, 아래는 Token ID. <code>##</code>은 앞 조각에 이어진다는 표시</li>
-        <li>점선 칩 <code>[CLS]</code>·<code>[SEP]</code>는 Special Token. 문장에 없던 Token이 붙어 개수에 들어간다</li>
-        <li>Token ID는 Vocabulary의 번호일 뿐, 크기에 의미가 없고 임베딩 벡터도 아니다</li>
-      </ul>
-      <p class="key">Token은 언어 모델이 다루는 분할 단위이며 띄어쓰기 단어와 반드시 같지 않다. 같은 문장의 Token 수가 모델별로 달라질 수 있다.<span class="pg">p.27</span></p>
-      <p class="note">p.29 코드(bert-base-multilingual-cased)를 실행한 결과.</p>
-    </article>
+      <div class="stats"><span>글자 <b>20</b>개</span><span>→ Token <b>17</b>개</span></div>
+      <p class="note">칩 위가 Token, 아래 숫자가 Token ID(어휘표의 번호)다. <code>##</code>은 앞 조각에 이어 붙는 조각이고 점선 <code>[CLS]</code>·<code>[SEP]</code>는 Tokenizer가 앞뒤에 덧붙인 Special Token이다. 같은 문장도 Tokenizer마다 다르게 잘린다.</p>
+    </div>
 
-    <article class="fig" id="c-ctx">
-      <div class="fig-head"><h3>Context Window는 한 요청에서 모델이 참조하는 Token 범위</h3><span class="pg">p.32~33</span></div>
-      <div class="budget" role="img" aria-label="예시 예산 합계 4,500 Token">
-        <div style="flex:300;background:var(--p2-bg)"><b>300</b></div>
-        <div style="flex:1200;background:var(--p3-bg)">이전 대화<b>1,200</b></div>
-        <div class="hl" style="flex:2000;background:var(--p4-bg)">검색 근거<b>2,000</b></div>
-        <div style="flex:150;background:var(--color-soft)"></div>
-        <div style="flex:850;background:var(--p6-bg)">출력 예약<b>850</b></div>
-      </div>
-      <div class="bleg">
-        <span style="--c:var(--p2-bg)">System + 지시 <b>300</b></span>
-        <span style="--c:var(--p3-bg)">이전 대화 <b>1,200</b></span>
-        <span style="--c:var(--p4-bg)">검색 근거 <b>2,000</b></span>
-        <span style="--c:var(--color-soft)">User 질문 <b>150</b></span>
-        <span style="--c:var(--p6-bg)">출력에 예약 <b>850</b></span>
-        <span class="sum">합계 <b>4,500</b> Token</span>
-      </div>
-      <p class="key">시스템 지시·질문·대화 이력·검색 근거·출력까지 예산의 일부가 된다. Context Window ≠ 영구 Memory, "많이 넣을수록 좋다"도 아님.<span class="pg">p.32</span></p>
-      <div class="why">
-        <div><b>검색 근거도 예산을 쓴다</b><span>11/20 RAG에서 넣는 문서 발췌가 이 칸이다. 근거는 Token 예산에 포함되고 출처도 응답에서 확인해야 한다(p.83)</span></div>
-        <div><b>넘치면 잘린다</b><span>Truncation은 Token을 잘라내는 것이며 요약이 아니다. 정보가 손실될 수 있다(p.37)</span></div>
-        <div><b>Token 수 = 시간·비용·품질</b><span>길이는 응답 시간에, API 요금은 입력·출력 Token 수에 걸린다. 너무 긴 문맥은 잡음·근거 누락을 부른다(p.35)</span></div>
-      </div>
-      <p class="note">표는 p.33의 산술 예시이며 실제 모델의 최대 길이나 과금 정책을 뜻하지 않는다.</p>
-    </article>
-
-    <article class="fig" id="c-pad">
-      <div class="fig-head"><h3>Padding·Truncation·Attention Mask를 분리한다</h3><span class="pg">p.31 · p.34</span></div>
-      <div class="table-wrap"><table class="pad"><tbody><tr class="grp-top"><th scope="row">문장 1 Token</th><td class="spc">[CLS]</td><td class="">AI</td><td class="spc">[SEP]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td></tr><tr><th scope="row">input_ids</th><td class="">101</td><td class="">62405</td><td class="">102</td><td class="padc">0</td><td class="padc">0</td><td class="padc">0</td><td class="padc">0</td><td class="padc">0</td><td class="padc">0</td></tr><tr><th scope="row">attention_mask</th><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td></tr><tr class="grp-top"><th scope="row">문장 2 Token</th><td class="spc">[CLS]</td><td class="">Fast</td><td class="">##AP</td><td class="">##I</td><td class="">##와</td><td class="">Post</td><td class="">##gre</td><td class="">##SQL</td><td class="spc">[SEP]</td></tr><tr><th scope="row">input_ids</th><td class="">101</td><td class="">28191</td><td class="">38423</td><td class="">11281</td><td class="">12638</td><td class="">14539</td><td class="">26095</td><td class="">95500</td><td class="">102</td></tr><tr><th scope="row">attention_mask</th><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td></tr></tbody></table></div>
-      <ul class="bullets">
-        <li><b>Padding</b>: 길이가 다른 문장을 한 배치로 맞춤. "AI" 뒤에 <code>[PAD]</code> 6개 → input_ids shape (2, 9)</li>
-        <li><b>Truncation</b>: <code>max_length=12</code>를 넘는 Token은 잘린다. 이 예는 9개라 잘리지 않았다</li>
-        <li><b>attention_mask</b>: 실제 Token은 1, PAD는 0</li>
-      </ul>
-      <p class="key">마스크는 Padding 위치 확인이며 Causal Mask와는 다르다.<span class="pg">p.34</span></p>
-      <p class="note">p.34 코드를 실행한 결과. Causal Mask는 아래 3~6교시의 Attention 행렬에서.</p>
-    </article>
+    <div class="expand">
+      <p class="sub-h">여러 문장을 한 번에 넣을 때<small>p.34 코드 실행</small></p>
+      <div class="table-wrap"><table class="pad"><tbody><tr class="grp-top"><th scope="row">문장 1</th><td class="spc">[CLS]</td><td class="">AI</td><td class="spc">[SEP]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td><td class="padc">[PAD]</td></tr><tr><th scope="row">attention_mask</th><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td><td class="m0">0</td></tr><tr class="grp-top"><th scope="row">문장 2</th><td class="spc">[CLS]</td><td class="">Fast</td><td class="">##AP</td><td class="">##I</td><td class="">##와</td><td class="">Post</td><td class="">##gre</td><td class="">##SQL</td><td class="spc">[SEP]</td></tr><tr><th scope="row">attention_mask</th><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td><td class="m1">1</td></tr></tbody></table></div>
+      <p class="note">짧은 문장 뒤를 <code>[PAD]</code>로 채워 길이를 맞추고 그 칸의 attention_mask를 0으로 둔다. Attention은 0인 칸을 계산에서 뺀다.</p>
+    </div>
   </div>
 </section>
 
-<section id="p36" class="c4" aria-labelledby="p36-h">
-  <div class="zhead small"><span class="zn">3~6교시</span><h2 id="p36-h">Embedding · Transformer · Self-Attention · Logit</h2>
-    <nav class="mm" aria-label="교시 이동"><a href="#p1">1교시</a><a href="#p2">2교시</a><a class="on" href="#p36">3~6교시</a><a href="#p7">7교시</a></nav></div>
-
+<section id="llm" aria-labelledby="llm-h">
+  <h2 id="llm-h">3 · LLM 안<small>3~6교시</small></h2>
   <div class="fig">
-    <div class="fig-head"><h3>질문 하나가 Token 출력이 되기까지</h3><span class="pg">p.5</span></div>
-    <div class="flow">
-      <span class="gbar c2" style="grid-column:1 / 4">2교시 <span>Tokenizer</span></span>
-      <span class="gbar c3" style="grid-column:4">3교시 <span>Embedding</span></span>
-      <span class="gbar c4" style="grid-column:5">4·5교시 <span>Transformer</span></span>
-      <span class="gbar c6" style="grid-column:6 / 8">6교시 <span>Logit</span></span>
-      <div class="st c2"><span class="tagm">2교시</span><b>문자열</b><span class="m">질문 + 근거 + 시스템 지시</span></div>
-      <div class="st c2"><span class="tagm">2교시</span><b>Token</b><span class="v">[CLS] 실 ##습 파 ##일 ##은 …</span></div>
-      <div class="st c2"><span class="tagm">2교시</span><b>Token ID</b><span class="m">정수 인덱스</span><span class="v">101 9489 119081 9901 18392 …</span></div>
-      <div class="st c3"><span class="tagm">3교시</span><b>Embedding</b><span class="m">ID마다 연속 벡터, 위치 정보 반영</span></div>
-      <div class="st c4"><span class="tagm">4·5교시</span><b>Transformer Block × N</b><span class="m">문맥 계산. shape (B, T, D) 유지</span></div>
-      <div class="st c6"><span class="tagm">6교시</span><b>LM Head → Logit</b><span class="m">Vocabulary 전체 후보의 점수</span></div>
-      <div class="st c6 last"><span class="tagm">6교시</span><b>Softmax → Token 선택</b><span class="m">확률로 바꾸고 하나를 고른다</span></div>
-      <div class="loop"><span>출력 Token은 문맥 끝에 다시 붙고, 종료 조건까지 다음 Token 예측을 반복한다</span></div>
-    </div>
-    <p class="key">Token ID는 임베딩 벡터가 아니며, Logit은 아직 확률이 아닌 점수다.<span class="pg">p.5</span></p>
-  </div>
-
-  <div class="grid2">
-    <div class="fig">
-      <div class="fig-head"><h3>Transformer Block의 핵심 구성요소</h3><span class="pg">4교시 · p.50 · p.52</span></div>
-      <div class="blk">
-        <span class="nb io">입력 x</span>
-        <div class="res"><i>Residual</i><span class="nb att">Self-Attention<small>Token 사이 문맥을 섞음</small></span><span class="nb">Add &amp; Norm<small>x + f(x)</small></span></div>
-        <div class="res"><i>Residual</i><span class="nb">FFN<small>Token마다 비선형 변환</small></span><span class="nb">Add &amp; Norm<small>다음 Block</small></span></div>
-      </div>
-      <p class="key">Attention 이외에 FFN·Residual·Norm이 필요하다.<span class="pg">p.6</span></p>
-      <p class="note">LLM(Decoder-only)은 Causal Attention, 문장 표현용 Encoder는 양방향(p.49).</p>
-    </div>
-
-    <div class="fig">
-      <div class="fig-head"><h3>Causal Attention 가중치를 숫자로 확인</h3><span class="pg">5교시 · p.61~63</span></div>
-      <div class="steps"><span>Q @ K.T</span><span>/ √d_k</span><span>+ Mask</span><span>softmax</span><span>@ V</span></div>
-      <div class="mxs"><figure class="mx"><figcaption>Weight · Causal Mask 적용</figcaption><table><thead><tr><th></th><th scope='col'>t1</th><th scope='col'>t2</th><th scope='col'>t3</th></tr></thead><tbody><tr><th scope='row'>t1</th><td class="heat hi" style="--w:1.000">1.00</td><td class="off">0</td><td class="off">0</td></tr><tr><th scope='row'>t2</th><td class="heat" style="--w:0.330">0.33</td><td class="heat hi" style="--w:0.670">0.67</td><td class="off">0</td></tr><tr><th scope='row'>t3</th><td class="heat" style="--w:0.248">0.25</td><td class="heat" style="--w:0.248">0.25</td><td class="heat hi" style="--w:0.503">0.50</td></tr></tbody></table></figure><div class="note" style="max-width:15rem">행 = Query(현재 위치), 열 = Key. 각 행의 합은 1, 미래 위치는 0. t1은 자기 자신만, t3는 앞쪽 2개와 자신을 함께 참고한다.</div></div>
-      <p class="key">Mask가 미래 정보를 가리고, Softmax가 가중치를 만들며, V의 합성으로 출력이 된다.<span class="pg">p.8</span></p>
-      <p class="note">Q·K 비교는 참고 비율을, V는 실제 섞이는 정보를 정한다(p.7). p.62 코드 실행.</p>
-    </div>
-
-    <div class="fig">
-      <div class="fig-head"><h3>마지막 Hidden State에서 어휘 전체 Logit을 얻는다</h3><span class="pg">6교시 · p.73~74</span></div>
-      <div class="two">
-        <div><p class="lbl">Logit</p><div class="bars logit"><div class="bar"><span>A</span><i style="--p:100.0%"></i><b>2.0</b></div><div class="bar"><span>B</span><i style="--p:50.0%"></i><b>1.0</b></div><div class="bar"><span>C</span><i style="--p:0.0%"></i><b>0</b></div></div></div>
-        <div><p class="lbl">Softmax 확률 (합 1)</p><div class="bars"><div class="bar"><span>A</span><i style="--p:66.5%"></i><b>0.665</b></div><div class="bar"><span>B</span><i style="--p:24.5%"></i><b>0.245</b></div><div class="bar"><span>C</span><i style="--p:9.0%"></i><b>0.090</b></div></div></div>
-      </div>
-      <p class="key">Logit은 확률이 아닌 점수다. 확률로 보려면 Softmax가 필요하다.<span class="pg">p.73</span></p>
-      <p class="note">Temperature를 낮추면(0.5) A가 0.867로 몰리고, 높이면(2.0) 0.506로 완만해진다. 사실성이 올라가지는 않는다(p.74~75).</p>
-    </div>
-
-    <div class="fig">
-      <div class="fig-head"><h3>학습과 추론은 모델 파라미터를 다루는 방식이 다르다</h3><span class="pg">6교시 · p.70</span></div>
-      <div class="table-wrap"><table class="tbl"><thead><tr><th></th><th>Training · 학습</th><th>Inference · 추론</th></tr></thead><tbody>
-        <tr><td>Logit 다음</td><td>정답 Token과 Loss 계산</td><td>디코딩으로 다음 Token 선택</td></tr>
-        <tr><td>그다음</td><td><code>backward()</code> → <code>optimizer.step()</code></td><td>선택한 Token을 붙여 반복</td></tr>
-        <tr><td>가중치</td><td>업데이트</td><td>고정 · KV Cache 사용 가능</td></tr>
-      </tbody></table></div>
-      <p class="key">학습은 가중치 변경, 추론은 다음 Token 선택.<span class="pg">p.78</span></p>
+    <svg class="dg wide" viewBox="0 0 1140 450" role="img" aria-label="LLM 안: Token ID, Embedding, Transformer Block, LM Head, Softmax와 반복 고리"><rect class="bnd" x="14" y="20" width="1112" height="376" rx="16"/><text class="bt" x="32" y="48" text-anchor="start">LLM</text><text class="s" x="32" y="68" text-anchor="start">모델 안에서 일어나는 계산</text><rect class="note" x="810" y="36" width="306" height="96" rx="10"/><text class="t" x="824" y="60" text-anchor="start">학습할 때만</text><text class="s" x="824" y="82" text-anchor="start">Logit과 정답 Token으로 Loss를 구하고</text><text class="s" x="824" y="102" text-anchor="start">backward() · optimizer.step()으로</text><text class="s" x="824" y="122" text-anchor="start">가중치를 고친다. 추론 때는 가중치 고정</text><g class=" "><path class="e d" d="M 875 180 L 875 134" marker-end="url(#ar)"/></g><rect class="stack" x="416" y="58" width="360" height="300" rx="12"/><rect class="stack" x="408" y="66" width="360" height="300" rx="12"/><rect class="blk" x="400" y="74" width="360" height="300" rx="12"/><text class="t" x="414" y="98" text-anchor="start">Transformer Block × N</text><text class="bd" x="748" y="98" text-anchor="end">4·5교시</text><rect class="att" x="420" y="110" width="320" height="140" rx="8"/><text class="t" x="432" y="134" text-anchor="start">Self-Attention</text><text class="s" x="432" y="160" text-anchor="start">Q·K를 비교해 참고 비율</text><text class="s" x="432" y="181" text-anchor="start">미래 칸은 Mask로 0</text><text class="s" x="432" y="202" text-anchor="start">행마다 합이 1</text><text class="s" x="432" y="223" text-anchor="start">V를 그 비율로 섞음</text><text class="hl" x="631.0" y="136" text-anchor="middle">t1</text><text class="hl" x="669.0" y="136" text-anchor="middle">t2</text><text class="hl" x="707.0" y="136" text-anchor="middle">t3</text><text class="hl" x="606" y="162.0" text-anchor="end">t1</text><text class="hl" x="606" y="194.0" text-anchor="end">t2</text><text class="hl" x="606" y="226.0" text-anchor="end">t3</text><rect class="hm" x="612" y="142" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 85%, var(--color-surface))"/><text class="hv hi" x="631.0" y="162.0" text-anchor="middle">1.00</text><rect class="hm off" x="650" y="142" width="38" height="32"/><text class="hv off" x="669.0" y="162.0" text-anchor="middle">0</text><rect class="hm off" x="688" y="142" width="38" height="32"/><text class="hv off" x="707.0" y="162.0" text-anchor="middle">0</text><rect class="hm" x="612" y="174" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 28%, var(--color-surface))"/><text class="hv" x="631.0" y="194.0" text-anchor="middle">0.33</text><rect class="hm" x="650" y="174" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 57%, var(--color-surface))"/><text class="hv hi" x="669.0" y="194.0" text-anchor="middle">0.67</text><rect class="hm off" x="688" y="174" width="38" height="32"/><text class="hv off" x="707.0" y="194.0" text-anchor="middle">0</text><rect class="hm" x="612" y="206" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 21%, var(--color-surface))"/><text class="hv" x="631.0" y="226.0" text-anchor="middle">0.25</text><rect class="hm" x="650" y="206" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 21%, var(--color-surface))"/><text class="hv" x="669.0" y="226.0" text-anchor="middle">0.25</text><rect class="hm" x="688" y="206" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 43%, var(--color-surface))"/><text class="hv hi" x="707.0" y="226.0" text-anchor="middle">0.50</text><rect class="sub" x="420" y="258" width="320" height="28" rx="6"/><text class="s" x="580" y="277.0" text-anchor="middle">+ Residual · LayerNorm</text><rect class="sub" x="420" y="294" width="320" height="34" rx="6"/><text class="s" x="580" y="316.0" text-anchor="middle">FFN · Token마다 따로 변환</text><rect class="sub" x="420" y="336" width="320" height="28" rx="6"/><text class="s" x="580" y="355.0" text-anchor="middle">+ Residual · LayerNorm</text><path class="res" d="M 740 118 L 752 118 L 752 272 L 744 272" marker-end="url(#ar)"/><path class="res" d="M 740 300 L 752 300 L 752 350 L 744 350" marker-end="url(#ar)"/><g class="nd  "><rect class="n" x="30" y="180" width="130" height="80" rx="10"/><text class="t" x="42" y="206">Token ID</text><text class="s" x="42" y="226">101 9489 …</text><text class="bd" x="150" y="198" text-anchor="end">2교시</text></g><g class="nd  "><rect class="n" x="200" y="180" width="140" height="80" rx="10"/><text class="t" x="212" y="206">Embedding</text><text class="s" x="212" y="226">ID마다 벡터 하나</text><text class="bd" x="330" y="198" text-anchor="end">3교시</text></g><g class="nd  "><rect class="n" x="810" y="180" width="130" height="80" rx="10"/><text class="t" x="822" y="206">LM Head</text><text class="s" x="822" y="226">어휘 전체 점수</text><text class="bd" x="930" y="198" text-anchor="end">6교시</text></g><rect class="n2" x="990" y="150" width="130" height="150" rx="10"/><text class="t" x="1002" y="174" text-anchor="start">Softmax</text><text class="hl" x="1002" y="201" text-anchor="start">A</text><rect class="track" x="1018" y="190" width="54" height="13" rx="3"/><rect class="barf" x="1018" y="190" width="35.9" height="13" rx="3"/><text class="hl" x="1114" y="201" text-anchor="end">0.665</text><text class="hl" x="1002" y="227" text-anchor="start">B</text><rect class="track" x="1018" y="216" width="54" height="13" rx="3"/><rect class="barf" x="1018" y="216" width="13.2" height="13" rx="3"/><text class="hl" x="1114" y="227" text-anchor="end">0.245</text><text class="hl" x="1002" y="253" text-anchor="start">C</text><rect class="track" x="1018" y="242" width="54" height="13" rx="3"/><rect class="barf" x="1018" y="242" width="4.9" height="13" rx="3"/><text class="hl" x="1114" y="253" text-anchor="end">0.090</text><text class="hl" x="1002" y="286" text-anchor="start">→ A 선택</text><g class=" "><path class="e" d="M 160 220 L 200 220" marker-end="url(#ar)"/><text class="el" x="180" y="210" text-anchor="middle">(T)</text></g><g class=" "><path class="e" d="M 340 220 L 400 220" marker-end="url(#ar)"/><text class="el" x="370" y="210" text-anchor="middle">(T, D)</text></g><g class=" "><path class="e" d="M 760 220 L 810 220" marker-end="url(#ar)"/><text class="el" x="785" y="210" text-anchor="middle">(T, D)</text></g><g class=" "><path class="e" d="M 940 220 L 990 220" marker-end="url(#ar)"/><text class="el" x="965" y="210" text-anchor="middle">Logit</text></g><g class=" loop"><path class="e" d="M 1055 300 L 1055 432 L 95 432 L 95 260" marker-end="url(#ar)"/><text class="el" x="575" y="424" text-anchor="middle">고른 Token을 문장 끝에 붙여 다시 입력 · EOS가 나올 때까지</text></g></svg><svg class="dg narrow" viewBox="0 0 360 990" role="img" aria-label="LLM 안: Token ID, Embedding, Transformer Block, LM Head, Softmax와 반복 고리"><rect class="bnd" x="10" y="20" width="318" height="958" rx="16"/><text class="bt" x="24" y="46" text-anchor="start">LLM</text><g class="nd  "><rect class="n" x="50" y="66" width="240" height="64" rx="10"/><text class="t" x="62" y="92">Token ID</text><text class="s" x="62" y="112">101 9489 …</text><text class="bd" x="280" y="84" text-anchor="end">2교시</text></g><g class=" "><path class="e" d="M 170 130 L 170 170" marker-end="url(#ar)"/><text class="el" x="180" y="155" text-anchor="start">(T)</text></g><g class="nd  "><rect class="n" x="50" y="170" width="240" height="64" rx="10"/><text class="t" x="62" y="196">Embedding</text><text class="s" x="62" y="216">ID마다 벡터 하나</text><text class="bd" x="280" y="188" text-anchor="end">3교시</text></g><g class=" "><path class="e" d="M 170 234 L 170 278" marker-end="url(#ar)"/><text class="el" x="180" y="260" text-anchor="start">(T, D)</text></g><rect class="stack" x="42" y="266" width="270" height="392" rx="12"/><rect class="stack" x="36" y="272" width="270" height="392" rx="12"/><rect class="blk" x="30" y="278" width="270" height="392" rx="12"/><text class="t" x="42" y="302" text-anchor="start">Transformer Block × N</text><text class="bd" x="290" y="302" text-anchor="end">4·5교시</text><rect class="att" x="44" y="314" width="232" height="226" rx="8"/><text class="t" x="56" y="338" text-anchor="start">Self-Attention</text><text class="s" x="56" y="360" text-anchor="start">Q·K를 비교해 참고 비율</text><text class="s" x="56" y="380" text-anchor="start">미래 칸은 Mask로 0</text><text class="hl" x="129.0" y="402" text-anchor="middle">t1</text><text class="hl" x="167.0" y="402" text-anchor="middle">t2</text><text class="hl" x="205.0" y="402" text-anchor="middle">t3</text><text class="hl" x="104" y="428.0" text-anchor="end">t1</text><text class="hl" x="104" y="460.0" text-anchor="end">t2</text><text class="hl" x="104" y="492.0" text-anchor="end">t3</text><rect class="hm" x="110" y="408" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 85%, var(--color-surface))"/><text class="hv hi" x="129.0" y="428.0" text-anchor="middle">1.00</text><rect class="hm off" x="148" y="408" width="38" height="32"/><text class="hv off" x="167.0" y="428.0" text-anchor="middle">0</text><rect class="hm off" x="186" y="408" width="38" height="32"/><text class="hv off" x="205.0" y="428.0" text-anchor="middle">0</text><rect class="hm" x="110" y="440" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 28%, var(--color-surface))"/><text class="hv" x="129.0" y="460.0" text-anchor="middle">0.33</text><rect class="hm" x="148" y="440" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 57%, var(--color-surface))"/><text class="hv hi" x="167.0" y="460.0" text-anchor="middle">0.67</text><rect class="hm off" x="186" y="440" width="38" height="32"/><text class="hv off" x="205.0" y="460.0" text-anchor="middle">0</text><rect class="hm" x="110" y="472" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 21%, var(--color-surface))"/><text class="hv" x="129.0" y="492.0" text-anchor="middle">0.25</text><rect class="hm" x="148" y="472" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 21%, var(--color-surface))"/><text class="hv" x="167.0" y="492.0" text-anchor="middle">0.25</text><rect class="hm" x="186" y="472" width="38" height="32" style="fill:color-mix(in srgb, var(--heat) 43%, var(--color-surface))"/><text class="hv hi" x="205.0" y="492.0" text-anchor="middle">0.50</text><text class="s" x="56" y="530" text-anchor="start">행마다 합 1 · V를 그 비율로 섞음</text><rect class="sub" x="44" y="548" width="232" height="28" rx="6"/><text class="s" x="160" y="567.0" text-anchor="middle">+ Residual · LayerNorm</text><rect class="sub" x="44" y="584" width="232" height="34" rx="6"/><text class="s" x="160" y="606.0" text-anchor="middle">FFN · Token마다 변환</text><rect class="sub" x="44" y="626" width="232" height="28" rx="6"/><text class="s" x="160" y="645.0" text-anchor="middle">+ Residual · LayerNorm</text><path class="res" d="M 276 322 L 288 322 L 288 562 L 280 562" marker-end="url(#ar)"/><path class="res" d="M 276 590 L 288 590 L 288 640 L 280 640" marker-end="url(#ar)"/><g class=" "><path class="e" d="M 170 670 L 170 712" marker-end="url(#ar)"/><text class="el" x="180" y="694" text-anchor="start">(T, D)</text></g><g class="nd  "><rect class="n" x="50" y="712" width="240" height="64" rx="10"/><text class="t" x="62" y="738">LM Head</text><text class="s" x="62" y="758">어휘 전체 점수 (Logit)</text><text class="bd" x="280" y="730" text-anchor="end">6교시</text></g><g class=" "><path class="e" d="M 170 776 L 170 816" marker-end="url(#ar)"/><text class="el" x="180" y="800" text-anchor="start">Logit</text></g><rect class="n2" x="50" y="816" width="240" height="146" rx="10"/><text class="t" x="62" y="840" text-anchor="start">Softmax</text><text class="hl" x="62" y="867" text-anchor="start">A</text><rect class="track" x="78" y="856" width="150" height="13" rx="3"/><rect class="barf" x="78" y="856" width="99.8" height="13" rx="3"/><text class="hl" x="282" y="867" text-anchor="end">0.665</text><text class="hl" x="62" y="893" text-anchor="start">B</text><rect class="track" x="78" y="882" width="150" height="13" rx="3"/><rect class="barf" x="78" y="882" width="36.7" height="13" rx="3"/><text class="hl" x="282" y="893" text-anchor="end">0.245</text><text class="hl" x="62" y="919" text-anchor="start">C</text><rect class="track" x="78" y="908" width="150" height="13" rx="3"/><rect class="barf" x="78" y="908" width="13.5" height="13" rx="3"/><text class="hl" x="282" y="919" text-anchor="end">0.090</text><text class="hl" x="62" y="948" text-anchor="start">→ A 선택</text><g class=" loop"><path class="e" d="M 290 890 L 340 890 L 340 98 L 290 98" marker-end="url(#ar)"/></g><text class="el" x="352" y="494" text-anchor="middle" transform="rotate(-90 352 494)">고른 Token을 붙여 다시 입력</text></svg>
+    <div class="says">
+      <p>Token ID는 Embedding 표에서 자기 행의 벡터를 꺼내는 번호로 쓰인다. 벡터 묶음은 Block을 N번 지나는 동안 모양 (T, D)를 그대로 유지한다.</p>
+      <p>Block 안의 표는 행이 지금 위치, 열이 참고하는 위치다. t3는 앞의 t1·t2와 자기 자신을 0.25 · 0.25 · 0.50 비율로 섞고 아직 오지 않은 칸은 Causal Mask 때문에 0으로 남는다.</p>
+      <p>LM Head가 낸 Logit [2.0, 1.0, 0.0]은 후보별 점수이며 Softmax를 거쳐 합이 1인 확률이 된다. 고른 Token을 문장 끝에 붙이면 맨 앞부터 계산이 다시 돈다.</p>
+      <p class="mob">학습할 때만 Logit과 정답 Token으로 Loss를 구해 <code>backward()</code>·<code>optimizer.step()</code>으로 가중치를 고친다. 추론 때는 가중치를 고정해 둔다.</p>
+      <p class="note">Attention 표와 확률은 p.62·p.74 코드를 실행한 값이다.</p>
     </div>
   </div>
 </section>
 
-<section id="p7" class="c7" aria-labelledby="p7-h">
-  <div class="zhead"><span class="zn">7교시</span><h2 id="p7-h">모델 한계 · 검증 · RAG/Agent 경계</h2>
-    <nav class="mm" aria-label="교시 이동"><a href="#p1">1교시</a><a href="#p2">2교시</a><a href="#p36">3~6교시</a><a class="on" href="#p7">7교시</a></nav></div>
-  <div class="cards">
-
-    <article class="fig" id="c-uses">
-      <div class="fig-head"><h3>현업에서는 어떤 문제에 무엇을 붙이는가</h3><span class="pg">p.10 · p.82</span></div>
-      <div class="uses">
-        <div class="hd">하려는 일</div><div class="hd">붙이는 것</div><div class="hd">검증할 것</div>
-        <div class="task">문장 요약·정리</div>
-        <div class="use"><span class="nb llm">LLM 생성</span></div>
-        <div class="chk"><b>내용·형식</b> 검증</div>
-        <div class="task">사내 규정에 근거한 답변</div>
-        <div class="use"><span class="nb ret">Retriever<small>근거 검색</small></span><span class="nb llm">LLM<small>생성</small></span></div>
-        <div class="chk"><b>출처·최신성</b> 검증</div>
-        <div class="task">실제 시스템 상태 조회·변경</div>
-        <div class="use"><span class="nb agt">Agent</span><span class="nb">허용된 Tool API</span></div>
-        <div class="chk"><b>권한·승인·감사 기록</b></div>
-      </div>
-      <p class="key">RAG = 근거 검색 + 생성 / Agent = 상태·도구 실행을 포함한 처리 시스템. LLM은 답을 제안할 수 있지만, 실제 실행은 Backend가 권한을 판단해야 한다.<span class="pg">p.10</span></p>
-      <p class="note">RAG를 넣었다고 Agent가 자동 완성되지 않고, Fine-tuning이 사실성까지 보장하지 않는다(p.82).</p>
-    </article>
-
-    <article class="fig">
-      <div class="fig-head"><h3>LLM의 대표적인 한계 네 가지</h3><span class="pg">p.23</span></div>
-      <div class="lim">
-        <div><b>Hallucination</b><span>틀렸거나 근거 없는 내용을 그럴듯하게 생성</span></div>
-        <div><b>지식 시점</b><span>학습 이후의 변경·내부 문서는 자동 반영되지 않음</span></div>
-        <div><b>Context·비용</b><span>입력 길이·요금·응답시간·장비 자원의 제약</span></div>
-        <div><b>보안·권한</b><span>프롬프트만으로 권한 판단과 개인정보 보호가 완성되지 않음</span></div>
-      </div>
-      <p class="key">출력은 후보 답변이다. 정확성·권한·출처 검증은 애플리케이션에서 설계한다.<span class="pg">p.22</span></p>
-    </article>
-
-    <article class="fig">
-      <div class="fig-head"><h3>LLM의 답변이 틀릴 수 있는 네 위치</h3><span class="pg">p.80 · p.83</span></div>
-      <div class="rag">
-        <span class="nb">User Question</span>
-        <span class="nb">Retriever<small>관련 근거</small></span>
-        <span class="nb">Prompt + Context<small>근거도 Token 예산에 포함</small></span>
-        <span class="nb">LLM</span>
-        <span class="nb">Answer<small>Source</small></span>
-        <div class="fail"><b>입력·문맥</b>질문의 의도·필요한 제약이 빠짐</div>
-        <div class="fail"><b>검색·근거</b>관련 문서를 못 찾거나 오래된 버전 사용</div>
-        <div class="fail empty"></div>
-        <div class="fail"><b>생성·추론</b>근거 밖 내용을 보충·오해</div>
-        <div class="fail"><b>표현·평가</b>JSON 형식은 맞지만 내용이 틀림</div>
-      </div>
-      <p class="note">위 줄은 11/20 Basic RAG의 Retriever–Prompt–Generator 경로(p.83).</p>
-    </article>
-
-    <article class="fig">
-      <div class="fig-head"><h3>출력 품질은 한 개의 숫자로 끝나지 않는다</h3><span class="pg">p.81</span></div>
-      <div class="table-wrap"><table class="tbl"><thead><tr><th>평가 관점</th><th>검증할 질문</th><th>예시 증거</th></tr></thead><tbody>
-        <tr><td>형식</td><td>필수 필드·JSON 구조가 맞는가?</td><td>Schema 검증</td></tr>
-        <tr><td>근거</td><td>답변의 각 주장이 문서로 뒷받침되는가?</td><td>출처·인용</td></tr>
-        <tr><td>정확성</td><td>답변이 사실·계산과 일치하는가?</td><td>정답 세트</td></tr>
-        <tr><td>재현성</td><td>같은 모델·설정에서 동작을 설명할 수 있나?</td><td>버전·Seed·로그</td></tr>
-        <tr><td>안전성</td><td>비밀·권한·오염된 근거에 대응하나?</td><td>거부·승인 규칙</td></tr>
-      </tbody></table></div>
-      <p class="key">근거가 있다고 그 근거가 최신·정확하다는 뜻은 아니다.<span class="pg">p.81</span></p>
-      <p class="note">Pydantic 응답 검증은 형식 검증이며 사실성 검증과 다르다(p.87).</p>
-    </article>
-
-    <article class="fig">
-      <div class="fig-head"><h3>지식 관리 API에 LLM을 연결하면 무엇이 새로 생길까?</h3><span class="pg">p.84~85</span></div>
-      <div class="cols2">
-        <div><p class="lbl">이미 지난 3일에 있음</p><ul><li><code>/api/knowledge</code> CRUD</li><li>PostgreSQL 원본 지식·분류</li><li>HTTP 오류와 DB 트랜잭션</li><li>서버 재시작 후 저장 유지</li></ul></div>
-        <div><p class="lbl">이후 추가해야 함</p><ul><li>질문 처리용 LLM 호출</li><li>관련 지식 검색·Chunking·Vector DB</li><li>근거·사실성 평가와 출처 관리</li><li>필요 시 Agent 도구·권한·상태</li></ul></div>
-      </div>
-      <p class="key">원본 지식의 수정·삭제가 검색 인덱스에도 반영되도록 설계해야 한다.<span class="pg">p.85</span></p>
-      <p class="note">검색된 문서의 명령 문구를 시스템 지시로 신뢰하지 않는다(p.84).</p>
-    </article>
+<section id="check" aria-labelledby="check-h">
+  <h2 id="check-h">생성한 답을 검사하는 다섯 가지<small>7교시 · p.81</small></h2>
+  <div class="fig">
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>관점</th><th>보는 것</th><th>확인 방법</th></tr></thead><tbody>
+      <tr><td>형식</td><td>필수 필드와 JSON 구조가 맞나</td><td>Schema · Pydantic 검증</td></tr>
+      <tr><td>근거</td><td>답의 주장마다 받쳐 주는 문서가 있나</td><td>출처 · 인용</td></tr>
+      <tr><td>정확성</td><td>사실과 계산이 맞나</td><td>정답 세트</td></tr>
+      <tr><td>재현성</td><td>같은 모델·설정에서 같은 동작을 설명할 수 있나</td><td>버전 · Seed · 로그</td></tr>
+      <tr><td>안전성</td><td>비밀·권한·오염된 문서에 대응하나</td><td>거부 · 승인 규칙</td></tr>
+    </tbody></table></div>
+    <p class="says">형식 검사를 통과한 답도 내용은 틀릴 수 있어서 근거와 정확성은 따로 본다.</p>
   </div>
 </section>
 
 <details>
   <summary>더 알아보기 · 이 페이지에서 줄인 내용</summary>
   <dl>
-    <dt>Special Token</dt><dd>BOS·EOS·PAD·Chat Role. 표기·ID·사용 여부는 모델·Tokenizer마다 다르다(p.30).</dd>
-    <dt>shape (B, T, D)</dt><dd>Batch · Token 수 · feature. Block을 지나도 (2, 5, 8) 그대로, LM Head에서 (2, 5, 100)(p.39, p.51, p.54).</dd>
-    <dt>Sentence Embedding</dt><dd>문장 전체를 벡터 하나로. 의미 비교·검색에 쓰며 11/18 Vector DB로 이어진다(p.40, p.45).</dd>
-    <dt>Cosine Similarity</dt><dd>벡터의 방향 유사도. [1, 0]과 [0.8, 0.2]는 0.9701, [−1, 0]과는 −1. 높아도 정답·사실성을 보장하지 않는다(p.42~43).</dd>
-    <dt>Position</dt><dd>순서 정보를 벡터 계산에 반영. Sinusoidal · Learned Position · RoPE(p.41, p.55).</dd>
-    <dt>Encoder · Decoder</dt><dd>Encoder는 대체로 양방향(분류·검색), Decoder-only는 Causal(생성), Encoder–Decoder는 번역·요약(p.49).</dd>
-    <dt>Multi-Head Attention</dt><dd>Head별로 Q·K·V를 따로 투영해 결합. 현대 LLM은 GQA/MLA 등 변형도 쓴다(p.65).</dd>
-    <dt>Decoding</dt><dd>Greedy · Temperature · Top-k · Top-p(p.75).</dd>
-    <dt>KV Cache</dt><dd>이전 Token의 Key/Value 재사용. 사용자 장기 Memory가 아니다(p.77).</dd>
-    <dt>사전학습 뒤 활용</dt><dd>Prompting(가중치 그대로) · Instruction Tuning · Preference Alignment(p.72).</dd>
+    <dt>Special Token</dt><dd>시작·끝·빈칸·대화 역할(system·user·assistant)을 표시하는 Token. 모양과 번호는 모델마다 다르다(p.30).</dd>
+    <dt>Sentence Embedding · Cosine</dt><dd>문장 하나를 벡터 하나로 만들고 두 벡터의 방향이 얼마나 비슷한지 잰다. 11/18 Vector DB 검색의 바탕이 된다(p.40~45).</dd>
+    <dt>Position</dt><dd>같은 Token도 놓인 순서에 따라 다르게 계산되도록 위치 정보를 벡터에 더한다. Sinusoidal · Learned · RoPE(p.41, p.55).</dd>
+    <dt>Encoder · Decoder</dt><dd>Encoder는 문장 앞뒤를 모두 보고 표현을 만들고, 생성용 Decoder는 앞쪽만 보며 다음 Token을 고른다(p.49).</dd>
+    <dt>Multi-Head Attention</dt><dd>Head마다 참고 비율을 따로 계산해서 합친다(p.65).</dd>
+    <dt>Decoding</dt><dd>Greedy · Temperature · Top-k · Top-p. 확률에서 실제로 Token 하나를 고르는 규칙이다(p.74~75).</dd>
+    <dt>KV Cache</dt><dd>앞 Token의 Key·Value를 저장해 두었다가 다음 Token을 계산할 때 다시 쓴다. 한 번 생성하는 동안에만 쓰는 저장소다(p.77).</dd>
+    <dt>Prompting · Fine-tuning</dt><dd>입력만 바꿔 모델을 쓰는 방법과 가중치를 더 학습시키는 방법(p.72).</dd>
   </dl>
 </details>
 
 <footer class="foot">
-  <p><b>다음 수업 11/16</b> · Prompt 구조 → Zero/Few-shot → Context Engineering → JSON Schema·재시도(p.96)</p>
-  <ul>
-    <li><a href="https://arxiv.org/abs/1706.03762">Transformer 원 논문</a> · <a href="https://huggingface.co/docs/transformers/main_classes/tokenizer">Transformers Tokenizer</a> · <a href="https://huggingface.co/docs/transformers/main_classes/text_generation">Generation</a> · <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention">PyTorch Attention API</a></li>
-  </ul>
-  <p>제목과 강조 문장은 강의 슬라이드 원문, 숫자는 슬라이드 코드(p.29·34·43·54·62·74)를 실행한 값 · PyTorch 2.14.0 · Transformers 4.57.6 · sentence-transformers 5.7.0</p>
+  <p><b>다음 수업 11/16</b> · Prompt 구조, Zero/Few-shot, Context Engineering, JSON Schema와 재시도</p>
+  <p><a href="https://arxiv.org/abs/1706.03762">Transformer 원 논문</a> · <a href="https://huggingface.co/docs/transformers/main_classes/tokenizer">Transformers Tokenizer</a> · <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention">PyTorch Attention API</a></p>
+  <p>숫자는 강의 슬라이드의 코드(p.29·34·62·74)를 실행한 값 · PyTorch 2.14.0 · Transformers 4.57.6</p>
 </footer>
 
 </main>
+<script>
+(() => {
+  const fig = document.querySelector('.mapfig');
+  const btns = fig.querySelectorAll('.paths button');
+  btns.forEach(b => b.addEventListener('click', () => {
+    const p = b.dataset.p;
+    fig.dataset.path = p;
+    btns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    fig.querySelectorAll('.panel [data-show]').forEach(d => { d.hidden = d.dataset.show !== p; });
+  }));
+})();
+</script>
 </body>
 </html>
