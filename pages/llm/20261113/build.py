@@ -135,19 +135,21 @@ def system_map():
     s.append('<text class="el pp p-agt" x="992" y="242" text-anchor="middle">실행 요청</text>')
     s.append(edge([(1066, 310), (1066, 390)], "허용될 때만", (1058, 356), anchor="end", paths="agt", dashed=True))
     s.append(edge([(1004, 420), (940, 420), (940, 310)], "실행 결과", (972, 438), paths="agt", dashed=True))
-    s.append(edge([(235, 310), (235, 380)], "조회·수정", (227, 350), anchor="end", paths="rag", both=True))
-    s.append(edge([(235, 440), (235, 466)], "", paths="rag", dashed=True))
-    s.append('<text class="el pp p-rag" x="245" y="459" text-anchor="start">Chunk 저장</text>')
-    s.append(edge([(310, 494), (380, 494)], "가까운 Chunk", (345, 486), paths="rag", dashed=True))
-    s.append(edge([(405, 310), (405, 460)], "질문", (397, 400), anchor="end", paths="rag", dashed=True))
-    s.append(edge([(465, 460), (465, 310)], "문서 발췌", (473, 400), anchor="start", paths="rag", dashed=True))
+    s.append(edge([(235, 310), (235, 340)], "조회·수정", (227, 330), anchor="end", paths="rag", both=True))
+    s.append(edge([(245, 390), (245, 412)], "Chunk", (253, 406), anchor="start", paths="rag", dashed=True))
+    s.append(edge([(420, 310), (420, 412)], "질문", (412, 366), anchor="end", paths="rag", dashed=True))
+    s.append(edge([(245, 464), (245, 490)], "Chunk 벡터", (253, 482), anchor="start", paths="rag", dashed=True))
+    s.append(edge([(420, 464), (420, 490)], "질문 벡터", (428, 482), anchor="start", paths="rag", dashed=True))
+    s.append(edge([(320, 516), (380, 516)], "검색", (350, 508), paths="rag", dashed=True, both=True))
+    s.append(edge([(510, 490), (510, 310)], "문서 발췌", (518, 366), anchor="start", paths="rag", dashed=True))
     # 상자
     s.append(node(16, 250, 104, 60, "사용자", "질문하는 사람", paths="sum rag agt"))
     s.append(node(170, 250, 130, 60, "FastAPI", "요청·응답", "11/10", "done", "sum rag agt"))
     s.append(node(350, 250, 170, 60, "Context 조립", "지시·대화·근거·질문", "그림 2", "c2", "sum rag", href="#cw"))
-    s.append(node(170, 380, 150, 60, "PostgreSQL", "원본 지식", "11/11", "done", "rag"))
-    s.append(node(160, 466, 150, 56, "벡터 인덱스", "11/18~19 · 그림 3", "", "later", "rag", href="#emb"))
-    s.append(node(380, 460, 170, 56, "Retriever", "가까운 문서 · 그림 3", "11/20", "later", "rag", href="#emb"))
+    s.append(node(170, 340, 150, 50, "PostgreSQL", "원본 지식", "11/11", "done", "rag"))
+    s.append(node(170, 412, 300, 52, "Embedding 모델", "글 → 벡터 · 문서와 질문이 같은 모델을 거침", "그림 3", "emb", "rag", href="#emb"))
+    s.append(node(170, 490, 150, 52, "벡터 인덱스", "벡터 저장 · 11/18", "", "later", "rag"))
+    s.append(node(380, 490, 170, 52, "Retriever", "가까운 Chunk 찾기", "11/20", "later", "rag"))
     s.append(node(860, 250, 120, 60, "Agent", "단계 진행", "이후", "later", "agt"))
     s.append(node(1004, 250, 120, 60, "권한 확인", "Backend · 승인", "", "later", "agt"))
     s.append(node(1004, 390, 120, 60, "Tool API", "업무 시스템", "이후", "later", "agt"))
@@ -156,9 +158,9 @@ def system_map():
     s.append(node(580, 222, 200, 116, "LLM", "판단 · 문장 생성", "11/13 오늘", "now", "sum rag agt", href="#llm", sub2="다음 Token 반복 · 그림 4"))
     s.append(text(680, 366, "모델 · 외부 API로 호출", "hubl", "middle"))
     # 답이 틀어질 수 있는 곳 (p.80)
-    s += [pin(520, 310, "1"), pin(550, 516, "2"), pin(780, 222, "3"), pin(380, 190, "4")]
+    s += [pin(520, 310, "1"), pin(550, 542, "2"), pin(780, 222, "3"), pin(380, 190, "4")]
     return (f'<svg class="dg map-svg" viewBox="0 100 1140 460" role="img" '
-            f'aria-label="시스템 지도: 가운데 LLM을 중심으로 FastAPI, Context 조립, Retriever, PostgreSQL, 벡터 인덱스, Agent, 권한 확인, Tool API가 연결된 구조">{"".join(s)}</svg>')
+            f'aria-label="시스템 지도: 가운데 LLM을 중심으로 FastAPI, Context 조립, Embedding 모델, Retriever, PostgreSQL, 벡터 인덱스, Agent, 권한 확인, Tool API가 연결된 구조">{"".join(s)}</svg>')
 
 
 

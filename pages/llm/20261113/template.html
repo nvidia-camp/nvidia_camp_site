@@ -80,6 +80,8 @@ section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
 .dg .now .t, .dg .now .s, .dg .now .bd { fill: var(--on-primary); }
 .dg .c2 rect.n { fill: var(--p2-bg); stroke: var(--p2-fg); }
 .dg .c2 .t, .dg .c2 .bd { fill: var(--p2-fg); }
+.dg .emb rect.n { fill: var(--p3-bg); stroke: var(--p3-fg); }
+.dg .emb .t, .dg .emb .bd { fill: var(--p3-fg); }
 .dg .lnk:hover rect.n { stroke-width: 3; }
 .dg .hubring { fill: none; stroke: var(--color-primary); stroke-width: 2; stroke-dasharray: 3 4; }
 .dg .hubl { font-size: 12px; font-weight: 800; fill: var(--color-primary); }
@@ -120,6 +122,7 @@ section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
 .legend i.dash { border-style: dashed; }
 .legend i.now { background: var(--color-primary); border-color: var(--color-primary); }
 .legend i.c2 { background: var(--p2-bg); border-color: var(--p2-fg); }
+.legend i.e3 { background: var(--p3-bg); border-color: var(--p3-fg); }
 .legend b.pinl { display: inline-grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--p7-fg); color: var(--color-surface); font-size: .7rem; margin-right: .3rem; }
 .panel { border-left: 4px solid var(--color-primary); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; display: grid; gap: .25rem; }
 .panel b { color: var(--color-heading); }
@@ -257,11 +260,11 @@ details dd { margin: 0; }
     </div>
     <p class="swipe">← 그림을 옆으로 밀어서 보기</p>
     <div class="scroll">{{MAP}}</div>
-    <div class="legend"><span><i></i>지난 수업에 만든 것</span><span><i class="now"></i>오늘</span><span><i class="dash"></i>이후 수업</span><span><i class="c2"></i>그림 2로</span><span><b class="pinl">1</b>답이 틀어질 수 있는 곳</span></div>
+    <div class="legend"><span><i></i>지난 수업에 만든 것</span><span><i class="now"></i>오늘</span><span><i class="dash"></i>이후 수업</span><span><i class="c2"></i>그림 2로</span><span><i class="e3"></i>그림 3으로</span><span><b class="pinl">1</b>답이 틀어질 수 있는 곳</span></div>
     <div class="panel" aria-live="polite">
       <div data-show="all"><b>전체</b><p>가운데 LLM이 판단과 문장 생성을 맡으며 세 가지 일이 모두 이곳을 거친다. LLM이 고른 행동도 실제 실행은 권한 확인을 통과한 Tool API에서만 일어난다. LLM은 외부 API로 부르는 모델이라 점선 테두리로 따로 표시했다.</p></div>
       <div data-show="sum" hidden><b>글 요약·정리</b><p class="route">사용자 → FastAPI → Context 조립 → LLM → 답</p><p>모델 혼자 할 수 있는 일이다. 결과는 내용이 맞는지와 JSON 같은 형식이 맞는지를 본다.</p></div>
-      <div data-show="rag" hidden><b>사내 규정에 근거한 답변</b><p class="route">PostgreSQL → 벡터 인덱스 → Retriever → Context 조립 → LLM → 답</p><p>모델은 학습이 끝난 뒤에 바뀐 사내 문서를 모른다. Retriever가 찾은 문서 발췌를 질문과 함께 Context에 넣어 보내고 답에 붙은 출처가 최신 문서인지 확인한다.</p></div>
+      <div data-show="rag" hidden><b>사내 규정에 근거한 답변</b><p class="route">미리: PostgreSQL → Chunk → Embedding 모델 → 벡터 인덱스 · 질문이 오면: Context 조립 → Embedding 모델 → Retriever → Context 조립 → LLM → 답</p><p>모델은 학습이 끝난 뒤에 바뀐 사내 문서를 모른다. Retriever가 찾은 문서 발췌를 질문과 함께 Context에 넣어 보내고 답에 붙은 출처가 최신 문서인지 확인한다.</p></div>
       <div data-show="agt" hidden><b>시스템 상태 조회·변경</b><p class="route">FastAPI → Agent ⇄ LLM, Agent → 권한 확인 → Tool API → 실행 결과 → Agent</p><p>Agent는 LLM에게 다음 행동을 묻고 그 행동을 권한 확인에 넘긴다. 허용된 Tool API만 실행되며 결과는 다시 Agent를 거쳐 LLM에 들어가 다음 판단으로 이어진다. 이 고리가 끝날 때까지 실행 기록이 남는다.</p></div>
     </div>
     <ul class="pins" aria-label="답이 틀어질 수 있는 곳">
@@ -333,11 +336,11 @@ details dd { margin: 0; }
         <p class="note">그림 2에서 나온 Token ID마다 Embedding 표의 한 행을 꺼낸다. 이 묶음이 그대로 그림 4의 LLM에 들어간다.</p>
       </div>
       <div>
-        <p class="lane-h"><b>Sentence Embedding</b><small>검색 · 그림 1의 벡터 인덱스와 Retriever</small></p>
+        <p class="lane-h"><b>Sentence Embedding</b><small>검색 · 그림 1의 Embedding 모델</small></p>
         <p class="qline"><span>질문</span>{{E5_Q}}</p>
         {{EMB_ANG}}
         <div class="ranks">{{EMB_RANK}}</div>
-        <p class="note">질문과 문서를 같은 모델로 벡터 하나씩({{E5_DIM}}차원) 만든 뒤 방향을 비교한다. Retriever는 Cosine이 가장 큰 A를 골라 Context에 넣는다. 그림의 선 길이에는 의미가 없고 각도만 본다.</p>
+        <p class="note">질문과 문서를 같은 모델로 벡터 하나씩({{E5_DIM}}차원) 만든 뒤 방향을 비교한다. Retriever는 Cosine이 가장 큰 A를 골라 Context에 넣는다. 그림의 선 길이에는 의미가 없고 각도만 본다. 실제 서비스에서는 문서 벡터를 미리 만들어 벡터 인덱스에 저장해 두고 질문 벡터만 그때그때 만든다.</p>
       </div>
     </div>
     <div class="says">
