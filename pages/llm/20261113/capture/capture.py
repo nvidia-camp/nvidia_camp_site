@@ -47,6 +47,16 @@ vecs = model.encode(sents)
 OUT["p45"] = {"texts": sents, "shape": list(vecs.shape),
               "similarity": [[round(float(x), 4) for x in row] for row in model.similarity(vecs, vecs)]}
 
+# Embedding 그림: 강의 일일프로젝트 문서 A·B·C(p.89)와 질문 하나를 다국어 문장 임베딩으로 비교
+# (강의 p.45는 영어 전용 all-MiniLM-L6-v2라 한국어 비교에 다국어 모델을 쓴다)
+e5 = SentenceTransformer("intfloat/multilingual-e5-small")
+question = "실습 파일은 어디에 두나요?"
+docs = {"A": "실습 파일은 개인 폴더에 보관합니다.", "B": "프로젝트 폴더에서 서버를 실행합니다.", "C": "오류 메시지와 시도한 작업을 함께 적습니다."}
+qv = e5.encode(["query: " + question], normalize_embeddings=True)
+dv = e5.encode(["passage: " + t for t in docs.values()], normalize_embeddings=True)
+OUT["e5"] = {"model": "intfloat/multilingual-e5-small", "question": question, "docs": docs,
+             "dim": int(qv.shape[1]), "cosine": {k: round(float(x), 4) for k, x in zip(docs, (dv @ qv.T).ravel())}}
+
 # p.54 작은 TransformerEncoderLayer의 shape
 torch.manual_seed(42)
 layer = nn.TransformerEncoderLayer(d_model=8, nhead=2, dim_feedforward=16, batch_first=True, dropout=0.0)

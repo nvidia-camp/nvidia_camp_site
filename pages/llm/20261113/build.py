@@ -1,7 +1,7 @@
 """Day20 LLM·Transformer: template.html + 실행 기록(capture/capture.json) → index.html
 
-- 그림 1(시스템 지도)·그림 3(LLM 안)은 아래 코드가 SVG로 그린다. 좌표는 이 파일에 있다.
-- 화면의 숫자는 강의 슬라이드 코드(p.29·34·62·74)를 실행한 capture.json 에서 읽고,
+- 그림 1(시스템 지도)·그림 3(Embedding 방향)·그림 4(LLM 안)는 아래 코드가 SVG로 그린다. 좌표는 이 파일에 있다.
+- 화면의 숫자는 강의 슬라이드 코드(p.29·34·62·74)와 다국어 문장 임베딩(e5)을 실행한 capture.json 에서 읽고,
   expect()로 슬라이드 값(p.8·p.63 Weight, p.74)과 대조한다.
 기록을 새로 만들 때: cd capture && uv run --project ~/envs/dl python capture.py
 실행: python3 build.py
@@ -20,7 +20,7 @@ def expect(cond, msg):
     assert cond, msg
 
 
-P29, P34, P62, P74 = (CAP[k] for k in ("p29", "p34", "p62", "p74"))
+P29, P34, P62, P74, E5 = (CAP[k] for k in ("p29", "p34", "p62", "p74", "e5"))
 W = P62["weights"]
 PR = P74["probs"]["1.0"]
 expect([round(x, 2) for x in W[0]] == [1.0, 0.0, 0.0], "p.63 t1 row")
@@ -28,6 +28,7 @@ expect([round(x, 2) for x in W[1]] == [0.33, 0.67, 0.0], "p.63 t2 row")
 expect([round(x, 2) for x in W[2]] == [0.25, 0.25, 0.5], "p.63 t3 row")
 expect(all(abs(s - 1) < 1e-6 for s in P62["row_sums"]), "row sums")
 expect([round(x, 3) for x in PR] == [0.665, 0.245, 0.09], "p.74 T=1")
+expect(max(E5["cosine"], key=E5["cosine"].get) == "A", "e5: 질문과 가장 가까운 문서는 A")
 expect(P34["shape"][0] == 2 and P34["attention_mask"][0].count(0) == P34["tokens"][0].count("[PAD]"), "p.34 mask")
 
 SPECIAL = {"[CLS]", "[SEP]", "[PAD]"}
@@ -145,14 +146,14 @@ def system_map():
     s.append(node(170, 250, 130, 60, "FastAPI", "요청·응답", "11/10", "done", "sum rag agt"))
     s.append(node(350, 250, 170, 60, "Context 조립", "지시·대화·근거·질문", "그림 2", "c2", "sum rag", href="#cw"))
     s.append(node(170, 380, 150, 60, "PostgreSQL", "원본 지식", "11/11", "done", "rag"))
-    s.append(node(160, 466, 150, 56, "벡터 인덱스", "11/18~19", "", "later", "rag"))
-    s.append(node(380, 460, 170, 56, "Retriever", "가까운 문서 찾기", "11/20", "later", "rag"))
+    s.append(node(160, 466, 150, 56, "벡터 인덱스", "11/18~19 · 그림 3", "", "later", "rag", href="#emb"))
+    s.append(node(380, 460, 170, 56, "Retriever", "가까운 문서 · 그림 3", "11/20", "later", "rag", href="#emb"))
     s.append(node(860, 250, 120, 60, "Agent", "단계 진행", "이후", "later", "agt"))
     s.append(node(1004, 250, 120, 60, "권한 확인", "Backend · 승인", "", "later", "agt"))
     s.append(node(1004, 390, 120, 60, "Tool API", "업무 시스템", "이후", "later", "agt"))
     # 가운데 LLM: 테두리 고리로 '모델 · 외부 API'임을 따로 표시
     s.append('<rect class="hubring" x="572" y="214" width="216" height="132" rx="16"/>')
-    s.append(node(580, 222, 200, 116, "LLM", "판단 · 문장 생성", "11/13 오늘", "now", "sum rag agt", href="#llm", sub2="다음 Token 반복 · 그림 3"))
+    s.append(node(580, 222, 200, 116, "LLM", "판단 · 문장 생성", "11/13 오늘", "now", "sum rag agt", href="#llm", sub2="다음 Token 반복 · 그림 4"))
     s.append(text(680, 366, "모델 · 외부 API로 호출", "hubl", "middle"))
     # 답이 틀어질 수 있는 곳 (p.80)
     s += [pin(520, 310, "1"), pin(550, 516, "2"), pin(780, 222, "3"), pin(380, 190, "4")]
@@ -160,7 +161,37 @@ def system_map():
             f'aria-label="시스템 지도: 가운데 LLM을 중심으로 FastAPI, Context 조립, Retriever, PostgreSQL, 벡터 인덱스, Agent, 권한 확인, Tool API가 연결된 구조">{"".join(s)}</svg>')
 
 
-# ── 그림 3 · LLM 안 (넓은 화면) ───────────────────────────
+
+# ── 그림 3 · Embedding: 질문과 문서의 방향 ─────────────────
+def emb_angles():
+    import math
+    ox, oy = 20, 236
+    s = [f'<line class="ax" x1="{ox}" y1="{oy}" x2="300" y2="{oy}"/>', f'<line class="ax" x1="{ox}" y1="{oy}" x2="{ox}" y2="30"/>']
+    s.append(edge([(ox, oy), (ox + 270, oy)], "", cls="qv"))
+    s.append(text(ox + 296, oy + 5, "질문", "t", "start"))
+    lens = {"A": 270, "B": 200, "C": 245}
+    off = {"A": (8, 4, "start"), "B": (-6, -6, "end"), "C": (8, -2, "start")}
+    for k, c in E5["cosine"].items():
+        th = math.acos(c)
+        x, y = ox + lens[k] * math.cos(th), oy - lens[k] * math.sin(th)
+        s.append(edge([(ox, oy), (round(x, 1), round(y, 1))], "", cls="dv" + (" best" if k == "A" else "")))
+        dx, dy, an = off[k]
+        s.append(text(round(x + dx, 1), round(y + dy, 1), f"{k} {c:.2f}", "hl", an))
+    tha = math.acos(E5["cosine"]["A"])
+    r = 78
+    s.append(f'<path class="arc" d="M {ox + r} {oy} A {r} {r} 0 0 0 {ox + r * math.cos(tha):.1f} {oy - r * math.sin(tha):.1f}"/>')
+    s.append(text(ox + r + 8, oy - 12, f"{math.degrees(tha):.0f}°", "s"))
+    return (f'<svg class="dg ang" viewBox="0 0 360 262" role="img" aria-label="질문 벡터와 문서 A, B, C 벡터 사이의 각도. A가 가장 작다">{"".join(s)}</svg>')
+
+
+def emb_rank():
+    rows = sorted(E5["cosine"].items(), key=lambda kv: -kv[1])
+    out = []
+    for i, (k, c) in enumerate(rows):
+        out.append(f'<div class="rk{" top" if i == 0 else ""}"><b>{k}</b><span>{E(E5["docs"][k])}</span><i style="--p:{c * 100:.1f}%"></i><code>{c:.3f}</code></div>')
+    return "".join(out)
+
+# ── 그림 4 · LLM 안 (넓은 화면) ───────────────────────────
 def llm_wide():
     s = []
     s.append('<rect class="bnd" x="14" y="20" width="1112" height="376" rx="16"/>')
@@ -181,7 +212,7 @@ def llm_wide():
     s.append(text(748, 98, "4·5교시", "bd", "end"))
     s.append('<rect class="att" x="420" y="110" width="320" height="140" rx="8"/>')
     s.append(text(432, 134, "Self-Attention", "t"))
-    for i, line in enumerate(["Q·K를 비교해 참고 비율", "미래 칸은 Mask로 0", "행마다 합이 1", "V를 그 비율로 섞음"]):
+    for i, line in enumerate(["Q·K를 비교해 참고 비율", "미래 칸은 Mask로 0", "행마다 합이 1", "V를 그 비율로 섞으면", f"t3 → [{f(P62['out'][2][0])}, {f(P62['out'][2][1])}]"]):
         s.append(text(432, 160 + i * 21, line, "s"))
     s.append(heat(612, 142, 38, 32))
     for y, h, label in [(258, 28, "+ Residual · LayerNorm"), (294, 34, "FFN · Token마다 따로 변환"), (336, 28, "+ Residual · LayerNorm")]:
@@ -190,7 +221,7 @@ def llm_wide():
     s.append('<path class="res" d="M 740 118 L 752 118 L 752 272 L 744 272" marker-end="url(#ar)"/>')
     s.append('<path class="res" d="M 740 300 L 752 300 L 752 350 L 744 350" marker-end="url(#ar)"/>')
     # 상자와 선
-    s.append(node(30, 180, 130, 80, "Token ID", "101 9489 …", "2교시"))
+    s.append(node(30, 180, 130, 80, "Token ID", "101 9489 …", "2교시", sub2="T개 · 그림 2"))
     s.append(node(200, 180, 140, 80, "Embedding", "ID마다 벡터 하나", "3교시"))
     s.append(node(810, 180, 130, 80, "LM Head", "어휘 전체 점수", "6교시"))
     s.append('<rect class="n2" x="990" y="150" width="130" height="150" rx="10"/>')
@@ -206,7 +237,7 @@ def llm_wide():
             f'aria-label="LLM 안: Token ID, Embedding, Transformer Block, LM Head, Softmax와 반복 고리">{"".join(s)}</svg>')
 
 
-# ── 그림 3 · LLM 안 (좁은 화면) ───────────────────────────
+# ── 그림 4 · LLM 안 (좁은 화면) ───────────────────────────
 def llm_narrow():
     s = []
     s.append('<rect class="bnd" x="10" y="20" width="318" height="958" rx="16"/>')
@@ -225,7 +256,7 @@ def llm_narrow():
     s.append(text(56, 360, "Q·K를 비교해 참고 비율", "s"))
     s.append(text(56, 380, "미래 칸은 Mask로 0", "s"))
     s.append(heat(110, 408, 38, 32))
-    s.append(text(56, 530, "행마다 합 1 · V를 그 비율로 섞음", "s"))
+    s.append(text(56, 530, f"V를 섞으면 t3 → [{f(P62['out'][2][0])}, {f(P62['out'][2][1])}]", "s"))
     for y, h, label in [(548, 28, "+ Residual · LayerNorm"), (584, 34, "FFN · Token마다 변환"), (626, 28, "+ Residual · LayerNorm")]:
         s.append(f'<rect class="sub" x="44" y="{y}" width="232" height="{h}" rx="6"/>')
         s.append(text(160, y + h / 2 + 5, label, "s", "middle"))
@@ -268,6 +299,10 @@ fill = {
     "P29_CHARS": str(P29["chars"]),
     "P29_N": str(P29["n_tokens"]),
     "P34_TABLE": pad_table(),
+    "EMB_ANG": emb_angles(),
+    "EMB_RANK": emb_rank(),
+    "E5_Q": E(E5["question"]),
+    "E5_DIM": str(E5["dim"]),
     "ENV": f'PyTorch {CAP["env"]["torch"]} · Transformers {CAP["env"]["transformers"]}',
 }
 
