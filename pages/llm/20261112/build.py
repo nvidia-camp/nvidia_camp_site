@@ -181,7 +181,7 @@ cat_b = CAP["sql_b_category_id"]["rows"][0][2]
 # ── 머리말 ──
 out = [f"""<header class="head">
   <p class="eyebrow">Day19 · 11/12 · 생성형 AI·LLM 및 RAG 엔지니어링</p>
-  <h1>FastAPI–PostgreSQL 연동</h1>
+  <h1>FastAPI · PostgreSQL 연동</h1>
   <p class="lead">오전에 따로 만든 FastAPI와 PostgreSQL을 잇습니다. 이제 API로 지식을 하나 등록하면 DB에 행이 하나 생깁니다.</p>
   <div class="level">
     <span class="level-tag">basic</span>

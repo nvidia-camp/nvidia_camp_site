@@ -347,26 +347,6 @@ ICON_EXT = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
             '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>')
 ICON_ARROW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
               '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>')
-# 홈·과목 목록에 보이는 짧은 이름(강의 목차처럼). 없으면 페이지의 <h1>을 쓴다. 요약 페이지 안의 제목은 그대로 둔다.
-SHORT_TITLES = {
-    "dl/20261030": "학습 안정화 기법",
-    "dl/20261102": "CNN 입문",
-    "dl/20261102-2": "RNN · LSTM · Transformer",
-    "vision/20261104": "OpenCV 이미지 전처리",
-    "vision/20261105": "전이학습 이미지 분류",
-    "vision/20261106": "YOLO 객체 탐지",
-    "vision/20261109": "OCR · VLM 문서 AI",
-    "vision/all": "Vision 4일 종합",
-    "llm/20261110": "FastAPI 입문",
-    "llm/20261111": "PostgreSQL · SQL 기초",
-    "llm/20261112": "FastAPI · PostgreSQL 연동",
-}
-
-
-def short_title(path, src):
-    return SHORT_TITLES.get(path) or page_h1(src)
-
-
 def day_range(ds):
     """과목의 Day 범위. 같은 날 두 번째 회차 표시(-2)는 뺀다: Day9–11"""
     return f'Day{ds[0]["n"].split("-")[0]}–{ds[-1]["n"].split("-")[0]}'
@@ -459,11 +439,11 @@ def chapter_block(key, ds, up, link_head=True):
         pdf = pdf_of(src)
         btn = f'<a class="mini" href="{up}{key}/{html.escape(pdf)}">{ICON_DOC}PDF</a>' if pdf else ""
         rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
-                    f'<span class="t">{html.escape(short_title(f"{key}/all", src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
+                    f'<span class="t">{html.escape(page_h1(src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
     for d in reversed(ds):
         if d["src"]:
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-                        f'<span class="t">{html.escape(short_title(f"{d["key"]}/{d["ymd"]}", d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
+                        f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
         elif d["date"] <= today:   # 지난 날인데 요약이 아직 없으면 '요약 준비 중'
             rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span>'
@@ -477,7 +457,7 @@ def cover_card(days, subjects, today):
     n_done = len([d for d in ds if d["date"] <= today])
     made = [d for d in ds if d["src"]]
     if made:
-        go_href, go_text = f'{made[-1]["key"]}/{made[-1]["ymd"]}/', f'Day{made[-1]["n"]} · {short_title(f"{made[-1]["key"]}/{made[-1]["ymd"]}", made[-1]["src"])}'
+        go_href, go_text = f'{made[-1]["key"]}/{made[-1]["ymd"]}/', f'Day{made[-1]["n"]} · {page_h1(made[-1]["src"])}'
     else:
         go_href, go_text = f'#{key}', f'{ds[0]["short"]} 보기'
     return (f'<a class="cover" href="{go_href}"><span class="wm" aria-hidden="true">{CHAPTER[key]:02d}</span>'
@@ -523,7 +503,7 @@ def home_page(days, subjects, today):
     latest = made[-1] if made else None
     recent = "".join(
         f'<li class="{"on" if d is latest else ""}"><a href="{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-        f'<span class="t">{html.escape(short_title(f"{d["key"]}/{d["ymd"]}", d["src"]))}</span><span class="d">{md(d["date"])}</span>'
+        f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span>'
         f'<span class="go">{ICON_ARROW}</span></a></li>'
         for d in reversed(made[-4:]))
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
