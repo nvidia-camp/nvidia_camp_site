@@ -460,10 +460,14 @@ def chapter_block(key, ds, up, link_head=True):
         btn = f'<a class="mini" href="{up}{key}/{html.escape(pdf)}">{ICON_DOC}PDF</a>' if pdf else ""
         rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
                     f'<span class="t">{html.escape(short_title(f"{key}/all", src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
-    for d in reversed(made):
-        rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-                    f'<span class="t">{html.escape(short_title(f"{d["key"]}/{d["ymd"]}", d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
-                    f'<span class="lk">{day_links(d, up)}</span></li>')
+    for d in reversed(ds):
+        if d["src"]:
+            rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
+                        f'<span class="t">{html.escape(short_title(f"{d["key"]}/{d["ymd"]}", d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
+                        f'<span class="lk">{day_links(d, up)}</span></li>')
+        elif d["date"] <= today:   # 지난 날인데 요약이 아직 없으면 '요약 준비 중'
+            rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span>'
+                        f'<span class="d">{md(d["date"])}</span></span><span class="lk">{day_links(d, up)}</span></li>')
     return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
 
 
