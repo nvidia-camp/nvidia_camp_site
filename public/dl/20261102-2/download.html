@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day11-2 · Sequence 모델</title>
+<style>
+:root {
+  /* 새싹 공통 팔레트 */
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-accent: #4B74A6;
+  /* Day12 PDF p.3 전체 지도 색 */
+  --zone-input: #F0F6FD;   /* 업무 목표와 입력 자료 */
+  --zone-rnn: #E9F5EC;     /* RNN / LSTM */
+  --zone-tr: #F0F6FD;      /* Transformer Encoder */
+  --zone-ae: #FBF2DF;      /* 입력 재구성 */
+  --problem: #8A4B2A;
+  --problem-line: #C98A5E;
+  --problem-bg: #FDF6EF;
+
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "Malgun Gothic", monospace;
+  --text-small: 0.875rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
+  --radius-badge: 9999px;
+  --map-width: 90rem;
+  --reading-width: 45rem;
+}
+
+* { box-sizing: border-box; min-width: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--space-6); }
+body {
+  margin: 0; background: var(--color-canvas); color: var(--color-text);
+  font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: anywhere;
+}
+.skip { position: absolute; left: var(--space-4); top: -4rem; padding: var(--space-2) var(--space-4); background: var(--color-primary); color: #fff; border-radius: var(--radius-control); z-index: 10; }
+.skip:focus { top: var(--space-4); }
+.wrap { max-width: var(--map-width); margin-inline: auto; padding-inline: var(--space-8); }
+h1, h2, h3, h4 { color: var(--color-heading); font-weight: 700; margin: 0; }
+h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); line-height: 1.3; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; line-height: 1.4; }
+h3 { font-size: 1.125rem; line-height: 1.45; }
+h4 { font-size: 1rem; line-height: 1.45; }
+p { margin: 0; }
+a { color: var(--color-primary); text-underline-offset: 0.2em; }
+:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+code { font-family: var(--font-code); font-size: 0.92em; }
+b { color: var(--color-heading); }
+.muted { color: var(--color-muted); }
+.small { font-size: var(--text-small); line-height: 1.6; }
+
+/* ── 머리말 ─────────────────────── */
+header.top { padding-block: var(--space-12) var(--space-6); }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.badge { display: inline-block; padding: var(--space-1) var(--space-3); background: var(--color-soft); color: var(--color-primary); border-radius: var(--radius-badge); font-size: var(--text-small); font-weight: 600; line-height: 1.5; }
+.lede { margin-top: var(--space-3); max-width: 52rem; font-size: 1.125rem; }
+.howto { margin-top: var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); font-size: var(--text-small); color: var(--color-muted); }
+.howto b { color: var(--color-accent); }
+
+/* ── 지도 틀 ─────────────────────── */
+.frame { background: var(--zone-input); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-6); }
+.frame-title { color: var(--color-accent); font-weight: 700; font-size: 1.125rem; margin-bottom: var(--space-3); }
+
+/* 공통 입력 띠 */
+.input-bar { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4) var(--space-6); align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-4) var(--space-6); }
+.input-bar svg { width: 13rem; height: auto; display: block; }
+.input-bar .lines { display: flex; flex-direction: column; gap: var(--space-2); }
+.input-bar .key { font-size: 1.0625rem; font-weight: 700; color: var(--color-heading); }
+.input-bar .key small { font-weight: 600; color: var(--color-muted); font-size: var(--text-small); margin-left: var(--space-2); }
+.down-row { display: grid; grid-template-columns: 1fr 1.5rem minmax(0, 0.3fr); text-align: center; color: var(--color-accent); font-weight: 700; font-size: 1.25rem; line-height: 1; padding-block: var(--space-2); }
+.down-row span:nth-child(2) { visibility: hidden; }
+
+/* 지도 격자: 세로 = 모델 하나, 가로 = 같은 칸끼리 비교 */
+.map {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 8rem minmax(0,1fr) 8rem minmax(0,1fr) 1.5rem minmax(0,1fr);
+  grid-template-rows: repeat(12, auto);
+}
+.lane-title { grid-row: 1; padding: var(--space-2) var(--space-3) var(--space-3); font-weight: 700; color: var(--color-heading); }
+.lane-title .sub { display: block; font-size: var(--text-small); font-weight: 600; color: var(--color-muted); }
+.lane-title.pred { grid-column: 1 / 6; }
+.lane-title.ae { grid-column: 7; }
+.divider { grid-column: 6; grid-row: 1 / 13; justify-self: center; width: 0; border-left: 2px dashed #C9D6E6; }
+
+.card {
+  grid-row: 2 / 12; display: grid; grid-template-rows: subgrid;
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); overflow: hidden;
+}
+.card.rnn  { grid-column: 1; --zone: var(--zone-rnn); }
+.card.lstm { grid-column: 3; --zone: var(--zone-rnn); }
+.card.tr   { grid-column: 5; --zone: var(--zone-tr); }
+.card.ae   { grid-column: 7; --zone: var(--zone-ae); }
+.card > * { padding-inline: var(--space-4); }
+.card .head { background: var(--zone); border-bottom: 1px solid var(--color-border); padding-block: var(--space-3); display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-1) var(--space-2); }
+.card .head h3 { font-size: 1.25rem; }
+.card .head .when { font-size: 0.8125rem; font-weight: 700; color: var(--color-accent); }
+.card .fig { padding-block: var(--space-3) 0; }
+.card .fig svg { width: 100%; height: auto; display: block; max-height: 7.5rem; }
+.card .formula { font-family: var(--font-code); font-size: 0.9375rem; color: var(--color-heading); background: var(--color-soft); margin-inline: var(--space-4); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); text-align: center; align-self: start; margin-top: var(--space-3); }
+.card .idea { padding-block: var(--space-3) 0; font-weight: 700; color: var(--color-heading); line-height: 1.5; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); align-content: flex-start; padding-block: var(--space-3); }
+.chip { display: inline-flex; align-items: center; min-height: 2.25rem; padding: var(--space-1) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-badge); background: var(--color-surface); color: var(--color-primary); font-size: 0.8125rem; font-weight: 600; text-decoration: none; line-height: 1.35; }
+.chip:hover { background: var(--color-soft); border-color: var(--color-accent); }
+.chip.ext { border-style: dashed; }
+.cmp { border-top: 1px dashed var(--color-border); padding-block: var(--space-2); font-size: 0.875rem; line-height: 1.5; }
+.cmp .k { display: block; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; color: var(--color-accent); }
+.cmp code { font-size: 0.8125rem; }
+.cmp.lec { background: var(--zone); border-top: 1px solid var(--color-border); font-weight: 600; color: var(--color-heading); }
+
+/* 모델 사이 화살표 = 다음 모델로 넘어간 이유 */
+.why { grid-row: 3 / 6; align-self: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding-inline: var(--space-2); text-align: center; }
+.why.w1 { grid-column: 2; }
+.why.w2 { grid-column: 4; }
+.why .arrow { font-size: 2rem; line-height: 1; color: var(--problem-line); font-weight: 700; }
+.why .arrow::before { content: "→"; }
+.why .box { background: var(--problem-bg); border-left: 4px solid var(--problem-line); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: var(--space-2); font-size: 0.8125rem; line-height: 1.45; text-align: left; }
+.why .box .t { display: block; font-size: 0.6875rem; font-weight: 700; color: var(--problem); letter-spacing: 0.04em; }
+.why .chip { font-size: 0.75rem; min-height: 2rem; }
+
+/* 맨 아래 띠: 7교시 길이 비교 / 8교시 */
+.strip { grid-row: 12; margin-top: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-4); }
+.strip.pred { grid-column: 1 / 6; }
+.strip.ae { grid-column: 7; }
+.strip h4 { font-size: 0.9375rem; margin-bottom: var(--space-2); }
+.lenrow { display: grid; grid-template-columns: auto repeat(4, 1fr); gap: 1px; background: var(--color-border); border: 1px solid var(--color-border); border-radius: var(--radius-control); overflow: hidden; font-size: 0.875rem; text-align: center; }
+.lenrow span { background: var(--color-surface); padding: var(--space-1) var(--space-3); white-space: nowrap; }
+.lenrow .h { background: var(--color-soft); font-weight: 700; color: var(--color-heading); }
+.lenrow .rl { text-align: left; font-weight: 600; white-space: normal; }
+.lenrow .hot { font-weight: 700; color: var(--problem); }
+.strip .note { margin-top: var(--space-2); font-size: 0.8125rem; color: var(--color-muted); }
+
+/* ── 질문 목록 ───────────────────── */
+section.notes { padding-block: var(--space-12); }
+.notes-head p { margin-top: var(--space-2); max-width: var(--reading-width); }
+.g-in { --zone: var(--zone-input); }
+.g-rnn { --zone: var(--zone-rnn); }
+.g-tr { --zone: var(--zone-tr); }
+.g-ae { --zone: var(--zone-ae); }
+.qa-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); background: var(--zone); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-2) var(--space-4); font-size: 1.0625rem; }
+.qa-head span { font-size: 0.8125rem; color: var(--color-accent); }
+.qa-common { margin-top: var(--space-6); }
+.qa-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
+.qa-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-top: var(--space-6); align-items: start; }
+.qa-col { display: flex; flex-direction: column; gap: var(--space-3); }
+details.qa { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); scroll-margin-top: var(--space-6); }
+details.qa[open] { border-color: var(--color-accent); }
+details.qa > summary { list-style: none; cursor: pointer; padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-1); position: relative; padding-right: 2.5rem; }
+details.qa > summary::-webkit-details-marker { display: none; }
+details.qa > summary::after { content: "+"; position: absolute; right: var(--space-4); top: var(--space-3); font-weight: 700; color: var(--color-accent); font-size: 1.125rem; line-height: 1.4; }
+details.qa[open] > summary::after { content: "−"; }
+.qa .q, .pop .q { font-weight: 700; color: var(--color-heading); line-height: 1.45; }
+.qa .a, .pop .a { font-size: 0.9375rem; color: var(--color-text); line-height: 1.55; }
+.more { padding: 0 var(--space-4) var(--space-4); }
+.viz { background: var(--color-canvas); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: var(--space-3); }
+.vrow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); }
+.vrow + .vrow, .vrow + .bars, .bars + .vtitle { margin-top: var(--space-2); }
+.vlabel { font-size: 0.75rem; font-weight: 700; color: var(--color-muted); min-width: 4.25rem; }
+.vlabel:empty { visibility: hidden; }
+.vnote { font-size: 0.75rem; color: var(--color-muted); }
+.vtitle, .vcap { font-size: 0.75rem; color: var(--color-muted); margin-bottom: var(--space-1); }
+.vcap { margin: var(--space-2) 0 0; }
+.cells { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.cell { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; height: 2rem; padding: 0 0.4rem; border: 1px solid var(--color-accent); background: #E9F0F9; border-radius: 6px; font-size: 0.8125rem; font-weight: 600; color: var(--color-heading); white-space: nowrap; }
+.cell.hi { background: var(--color-accent); color: #fff; }
+.cell.pad { background: repeating-linear-gradient(45deg, #fff 0 4px, #E3EAF3 4px 8px); border-color: #ABB8C8; color: var(--color-muted); }
+.cell.wide { padding-inline: var(--space-3); }
+.op { font-weight: 700; color: var(--color-accent); }
+.calc { display: inline-block; font-family: var(--font-code); font-size: 0.8125rem; padding: 0.15rem 0.5rem; border-radius: 6px; background: #E9F5EC; color: var(--color-heading); }
+.calc.txt { font-family: var(--font-body); }
+.calc.bad { background: var(--problem-bg); color: var(--problem); }
+.bars { display: grid; gap: var(--space-1); }
+.bar-row { display: grid; grid-template-columns: 4.25rem 1fr 3rem; gap: var(--space-2); align-items: center; font-size: 0.8125rem; }
+.bar-row b { font-size: 0.8125rem; text-align: right; }
+.meter { height: 0.75rem; background: #E3EAF3; border-radius: var(--radius-badge); overflow: hidden; }
+.meter i { display: block; height: 100%; width: max(var(--w), 2px); background: var(--color-accent); border-radius: var(--radius-badge); }
+.meter.warn i { background: var(--problem-line); }
+.sq { display: inline-grid; grid-template-columns: repeat(var(--n), 0.5rem); gap: 2px; }
+.sq i { width: 0.5rem; height: 0.5rem; background: var(--color-accent); border-radius: 1px; }
+.ng { display: inline-grid; grid-template-columns: repeat(4, 0.875rem); gap: 2px; }
+.ng i { width: 0.875rem; height: 0.875rem; background: #E3EAF3; border-radius: 2px; }
+.ng i.on { background: var(--color-accent); }
+details.book { margin-top: var(--space-3); }
+details.book > summary { cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: var(--color-accent); }
+details.book .src { font-weight: 400; color: var(--color-muted); margin-left: var(--space-1); }
+.book-body { margin-top: var(--space-2); font-size: 0.875rem; line-height: 1.65; }
+.book-body p + p { margin-top: var(--space-2); }
+.ext-badge { display: inline-block; margin-top: var(--space-2); padding: 0 var(--space-2); border-radius: 6px; background: var(--problem-bg); color: var(--problem); font-size: 0.75rem; font-weight: 700; }
+
+.qn { display: inline-block; margin-right: 0.15rem; padding: 0 0.35rem; border-radius: 5px; background: var(--color-primary); color: #fff; font-size: 0.6875rem; font-weight: 700; line-height: 1.5; vertical-align: 0.1em; }
+.chip .qn { margin-right: 0.35rem; flex: none; white-space: nowrap; }
+.why .chip { white-space: nowrap; }
+.print-only { display: none; }
+
+/* ── PDF(세로 한 장) 모드: html.pdf ─ 모든 질문을 펼치고 모델별로 3열 */
+html.pdf .skip, html.pdf dialog, html.pdf .screen-only { display: none !important; }
+html.pdf .print-only { display: inline; }
+html.pdf { scroll-behavior: auto; }
+html.pdf details.qa > summary { cursor: default; padding-right: var(--space-4); }
+html.pdf details.qa > summary::after { display: none; }
+html.pdf details.qa { border-color: var(--color-border); }
+html.pdf details.book > summary { list-style: none; cursor: default; }
+html.pdf details.book > summary::-webkit-details-marker { display: none; }
+html.pdf .qa-cols { grid-template-columns: 1fr; gap: var(--space-8); }
+html.pdf .qa-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); align-items: start; }
+html.pdf .qa-col > .qa-head { grid-column: 1 / -1; }
+
+.analogy { margin-bottom: var(--space-3); font-size: 0.9375rem; color: var(--color-text); background: var(--zone-ae); border-radius: var(--radius-control); padding: var(--space-2) var(--space-3); }
+.codeline-n { margin-top: var(--space-3); font-size: 0.875rem; line-height: 1.65; }
+.analogy .lbl, .codeline-n .lbl { display: inline-block; margin-right: var(--space-2); padding: 0 var(--space-2); border-radius: 5px; font-size: 0.75rem; font-weight: 700; vertical-align: 0.05em; }
+.analogy .lbl { background: #fff; color: var(--problem); }
+.codeline-n .lbl { background: var(--color-soft); color: var(--color-accent); }
+.codeline-n code { background: var(--color-soft); padding: 0 0.25rem; border-radius: 4px; }
+
+/* ── 설명 창 ─────────────────────── */
+dialog.pop { width: min(36rem, calc(100vw - 2rem)); max-height: calc(100vh - 4rem); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 0; color: var(--color-text); box-shadow: 0 1rem 3rem rgba(20, 40, 73, 0.18); }
+dialog.pop::backdrop { background: rgba(20, 40, 73, 0.35); }
+.pop .bar { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6); background: var(--color-soft); border-bottom: 1px solid var(--color-border); }
+.pop .bar .tag { font-size: var(--text-small); font-weight: 700; color: var(--color-accent); }
+.pop .close { min-width: 2.75rem; min-height: 2.75rem; border: 0; border-radius: var(--radius-control); background: var(--color-primary); color: #fff; font: 600 0.9375rem var(--font-body); cursor: pointer; padding-inline: var(--space-3); }
+.pop .body { padding: var(--space-4) var(--space-6) var(--space-6); }
+.pop .body .q { display: block; font-size: 1.125rem; margin-bottom: var(--space-2); }
+.pop .body .a { display: block; margin-bottom: var(--space-3); }
+.pop .body .more { padding: 0; }
+
+footer { border-top: 1px solid var(--color-border); padding-block: var(--space-8) var(--space-12); font-size: var(--text-small); color: var(--color-muted); }
+footer p + p { margin-top: var(--space-2); }
+
+/* ── 좁은 화면: 세로로 쌓기 ───────── */
+@media (max-width: 64rem) {
+  .wrap { padding-inline: var(--space-4); }
+  .frame { padding: var(--space-4); }
+  .input-bar { grid-template-columns: 1fr; padding: var(--space-4); }
+  .input-bar svg { width: 100%; max-width: 15rem; }
+  .down-row { display: none; }
+  .map { display: block; }
+  .divider { display: none; }
+  .lane-title { padding: var(--space-6) 0 var(--space-3); }
+  .lane-title.ae { border-top: 2px dashed #C9D6E6; margin-top: var(--space-6); }
+  .card { display: flex; flex-direction: column; }
+  .card .formula { align-self: stretch; }
+  .why { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: var(--space-4) 0; }
+  .why .arrow::before { content: "↓"; }
+  .why .box { flex: 1 1 14rem; }
+  .strip { margin-top: var(--space-4); }
+  .qa-pair { grid-template-columns: 1fr; }
+  .qa-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lenrow { font-size: 0.8125rem; }
+  .lenrow { font-size: 0.75rem; grid-template-columns: minmax(5.5rem, 1fr) repeat(4, auto); }
+  .lenrow span { padding-inline: var(--space-1); }
+}
+@media (max-width: 40rem) {
+  .qa-cols { grid-template-columns: 1fr; }
+}
+@media print {
+  .skip, dialog { display: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#map">지도로 건너뛰기</a>
+
+<header class="top wrap">
+  <div class="meta">
+    <span class="badge">새싹 학습 노트</span>
+    <span class="badge">Day12 · 2026.11.02 · 순서 모델</span>
+    <span class="badge">수강생용 개념 지도</span>
+  </div>
+  <h1>Sequence 모델</h1>
+  <p class="lede"><b>RNN → LSTM → Transformer</b>는 "순서를 더 잘 읽기"로 이어지는 한 줄이고, <b>Autoencoder</b>는 목적이 다른 갈래입니다. 강의 PDF를 옆에 펴 두고, 막히는 쪽이 지도 어디에 있는지 찾아 읽어 보세요.</p>
+  <div class="howto">
+    <span><b>세로</b> 모델 하나</span>
+    <span><b>가로</b> 같은 칸끼리 비교 (강의 p.72 비교표)</span>
+    <span><b>주황 화살표</b> 다음 모델로 넘어간 이유</span>
+    <span><b>Q번호</b> 아래 질문 목록의 질문·그림·코드<span class="screen-only"> (누르면 바로 보기)</span></span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="frame" id="map">
+    <p class="frame-title">업무 목표와 입력 자료</p>
+
+    <!-- 공통 바탕 -->
+    <div class="input-bar">
+      <svg viewBox="0 0 220 120" role="img" aria-label="순서 Tensor 그림: 세 개의 순서(B=3)가 시점 6칸(T=6)으로 놓이고, 실제 길이 6·4·5에 맞춰 뒤쪽 칸은 Padding으로 채워짐">
+        <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#ABB8C8" stroke-width="2"/></pattern></defs>
+        <g font-family="sans-serif" font-size="11" fill="#52667E">
+          <text x="34" y="12">T · 시점 →</text>
+          <text x="2" y="58" transform="rotate(-90 8 58)">B ↓</text>
+        </g>
+        <g stroke="#4B74A6" stroke-width="1.2">
+          <!-- 행 1: 길이 6 -->
+          <rect x="24" y="20" width="22" height="22" fill="#E9F0F9"/><rect x="48" y="20" width="22" height="22" fill="#E9F0F9"/><rect x="72" y="20" width="22" height="22" fill="#E9F0F9"/><rect x="96" y="20" width="22" height="22" fill="#E9F0F9"/><rect x="120" y="20" width="22" height="22" fill="#E9F0F9"/><rect x="144" y="20" width="22" height="22" fill="#E9F0F9"/>
+          <!-- 행 2: 길이 4 -->
+          <rect x="24" y="46" width="22" height="22" fill="#E9F0F9"/><rect x="48" y="46" width="22" height="22" fill="#E9F0F9"/><rect x="72" y="46" width="22" height="22" fill="#E9F0F9"/><rect x="96" y="46" width="22" height="22" fill="#E9F0F9"/><rect x="120" y="46" width="22" height="22" fill="url(#hatch)" stroke="#ABB8C8"/><rect x="144" y="46" width="22" height="22" fill="url(#hatch)" stroke="#ABB8C8"/>
+          <!-- 행 3: 길이 5 -->
+          <rect x="24" y="72" width="22" height="22" fill="#E9F0F9"/><rect x="48" y="72" width="22" height="22" fill="#E9F0F9"/><rect x="72" y="72" width="22" height="22" fill="#E9F0F9"/><rect x="96" y="72" width="22" height="22" fill="#E9F0F9"/><rect x="120" y="72" width="22" height="22" fill="#E9F0F9"/><rect x="144" y="72" width="22" height="22" fill="url(#hatch)" stroke="#ABB8C8"/>
+        </g>
+        <g font-family="sans-serif" font-size="11" fill="#1C2B40">
+          <text x="174" y="35">6</text><text x="174" y="61">4</text><text x="174" y="87">5</text>
+          <text x="186" y="61" fill="#52667E" font-size="10">lengths</text>
+          <text x="24" y="112" fill="#52667E">칸 하나 = 특성 F개 · 빗금 = Padding</text>
+        </g>
+      </svg>
+      <div class="lines">
+        <p class="key">순서 Tensor <code>[B, T, F]</code><small>1교시 · 강의 p.4, 18–22</small></p>
+        <p><b>공통 원리: 모든 시점에 같은 가중치를 쓴다.</b> 그래서 길이가 달라도 같은 모델이 그대로 읽는다. 채운 칸(Padding)은 실제 값이 아니므로 모든 모델에서 따로 빼야 한다.</p>
+        <div class="chips" style="padding-block:0">
+          <a class="chip" href="#n-share"><span class="qn">Q1</span> 왜 같은 가중치를 쓰나</a>
+          <a class="chip" href="#n-pad"><span class="qn">Q2</span> Padding은 왜 빼나</a>
+        </div>
+      </div>
+    </div>
+    <div class="down-row" aria-hidden="true"><span>↓</span><span></span><span>↓</span></div>
+
+    <div class="map">
+      <p class="lane-title pred">① 다음 값 예측·분류<span class="sub">순서를 더 잘 읽으려는 한 줄의 발전</span></p>
+
+      <!-- RNN -->
+      <section class="card rnn" aria-labelledby="h-rnn">
+        <div class="head"><h3 id="h-rnn">RNN</h3><span class="when">2교시</span></div>
+        <div class="fig">
+          <svg viewBox="0 0 240 100" role="img" aria-label="RNN을 펼친 그림: 상태 h1에서 h4까지 같은 W로 차례로 이어지고, 각 시점의 입력 x가 아래에서 들어감">
+            <defs><marker id="ar-rnn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4B74A6"/></marker></defs>
+            <g stroke="#4B74A6" stroke-width="1.6" marker-end="url(#ar-rnn)">
+              <line x1="47" y1="42" x2="77" y2="42"/><line x1="107" y1="42" x2="137" y2="42"/><line x1="167" y1="42" x2="197" y2="42"/>
+              <line x1="32" y1="84" x2="32" y2="60"/><line x1="92" y1="84" x2="92" y2="60"/><line x1="152" y1="84" x2="152" y2="60"/><line x1="212" y1="84" x2="212" y2="60"/>
+            </g>
+            <g fill="#fff" stroke="#1C2B40" stroke-width="1.6">
+              <circle cx="32" cy="42" r="15"/><circle cx="92" cy="42" r="15"/><circle cx="152" cy="42" r="15"/><circle cx="212" cy="42" r="15"/>
+            </g>
+            <g font-family="sans-serif" font-size="12" fill="#1C2B40" text-anchor="middle">
+              <text x="32" y="46">h₁</text><text x="92" y="46">h₂</text><text x="152" y="46">h₃</text><text x="212" y="46">h₄</text>
+              <text x="32" y="97">x₁</text><text x="92" y="97">x₂</text><text x="152" y="97">x₃</text><text x="212" y="97">x₄</text>
+              <g fill="#4B74A6" font-size="11"><text x="62" y="34">W</text><text x="122" y="34">W</text><text x="182" y="34">W</text></g>
+              <text x="122" y="13" fill="#52667E" font-size="11">같은 W를 시점마다 반복</text>
+            </g>
+          </svg>
+        </div>
+        <p class="formula">h<sub>t</sub> = f(h<sub>t−1</sub>, x<sub>t</sub>)</p>
+        <p class="idea">같은 규칙을 시점마다 반복해 과거를 h 하나에 요약한다</p>
+        <div class="chips">
+          <a class="chip" href="#n-rnn-h"><span class="qn">Q3</span> h는 무엇을 담나</a>
+          <a class="chip" href="#n-rnn-out"><span class="qn">Q4</span> output vs h_n</a>
+        </div>
+        <p class="cmp"><span class="k">기억</span>h 하나 (크기 고정)</p>
+        <p class="cmp"><span class="k">계산</span>순차 · 시간 O(T)</p>
+        <p class="cmp"><span class="k">Shape</span><code>output [B,T,H]</code><br><code>h_n [L·D,B,H]</code></p>
+        <p class="cmp"><span class="k">정답 · 지표</span>다음 값·클래스 · MSE·Accuracy</p>
+        <p class="cmp lec"><span class="k">강의</span>p.23–33 · 코드 p.30</p>
+      </section>
+
+      <div class="why w1">
+        <span class="arrow" aria-hidden="true"></span>
+        <p class="box"><span class="t">문제</span>같은 W를 계속 곱해 먼 과거가 사라짐<br><b>0.9⁵⁰ ≈ 0.005</b></p>
+        <a class="chip" href="#n-vanish"><span class="qn">Q5</span> 왜 사라지나</a>
+      </div>
+
+      <!-- LSTM -->
+      <section class="card lstm" aria-labelledby="h-lstm">
+        <div class="head"><h3 id="h-lstm">LSTM</h3><span class="when">3교시</span></div>
+        <div class="fig">
+          <svg viewBox="0 -12 240 112" role="img" aria-label="LSTM을 펼친 그림: 위쪽에 Cell state c가 지나는 직선 경로가 있고, 시점마다 더하기로 새 정보가 합류하며, 아래에는 RNN처럼 h가 이어짐">
+            <defs><marker id="ar-lstm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4B74A6"/></marker></defs>
+            <line x1="8" y1="16" x2="232" y2="16" stroke="#4B74A6" stroke-width="5" stroke-linecap="round"/>
+            <g stroke="#4B74A6" stroke-width="1.4">
+              <line x1="32" y1="30" x2="32" y2="23"/><line x1="92" y1="30" x2="92" y2="23"/><line x1="152" y1="30" x2="152" y2="23"/><line x1="212" y1="30" x2="212" y2="23"/>
+            </g>
+            <g fill="#fff" stroke="#4B74A6" stroke-width="1.4">
+              <circle cx="32" cy="16" r="7"/><circle cx="92" cy="16" r="7"/><circle cx="152" cy="16" r="7"/><circle cx="212" cy="16" r="7"/>
+            </g>
+            <g font-family="sans-serif" font-size="11" fill="#4B74A6" text-anchor="middle" font-weight="700">
+              <text x="32" y="20">+</text><text x="92" y="20">+</text><text x="152" y="20">+</text><text x="212" y="20">+</text>
+            </g>
+            <g stroke="#4B74A6" stroke-width="1.6" marker-end="url(#ar-lstm)">
+              <line x1="47" y1="48" x2="77" y2="48"/><line x1="107" y1="48" x2="137" y2="48"/><line x1="167" y1="48" x2="197" y2="48"/>
+              <line x1="32" y1="88" x2="32" y2="66"/><line x1="92" y1="88" x2="92" y2="66"/><line x1="152" y1="88" x2="152" y2="66"/><line x1="212" y1="88" x2="212" y2="66"/>
+            </g>
+            <g fill="#fff" stroke="#1C2B40" stroke-width="1.6">
+              <circle cx="32" cy="48" r="15"/><circle cx="92" cy="48" r="15"/><circle cx="152" cy="48" r="15"/><circle cx="212" cy="48" r="15"/>
+            </g>
+            <g font-family="sans-serif" font-size="12" fill="#1C2B40" text-anchor="middle">
+              <text x="32" y="52">h₁</text><text x="92" y="52">h₂</text><text x="152" y="52">h₃</text><text x="212" y="52">h₄</text>
+              <text x="32" y="99">x₁</text><text x="92" y="99">x₂</text><text x="152" y="99">x₃</text><text x="212" y="99">x₄</text>
+            </g>
+            <text x="122" y="-2" font-family="sans-serif" font-size="11" fill="#4B74A6" text-anchor="middle">c · 더하기 경로 (Cell state)</text>
+          </svg>
+        </div>
+        <p class="formula">c<sub>t</sub> = f⊙c<sub>t−1</sub> + i⊙g</p>
+        <p class="idea">곱하지 말고 더해서 기억을 잇고, 남길 양은 Gate가 정한다</p>
+        <div class="chips">
+          <a class="chip" href="#n-gate"><span class="qn">Q6</span> 왜 더하기 · p.6 계산</a>
+          <a class="chip" href="#n-hc"><span class="qn">Q7</span> h와 c는 왜 둘</a>
+        </div>
+        <p class="cmp"><span class="k">기억</span>h + c (장기 기억 c 추가)</p>
+        <p class="cmp"><span class="k">계산</span>순차 · 시간 O(T)</p>
+        <p class="cmp"><span class="k">Shape</span><code>output [B,T,H]</code><br><code>(h_n, c_n)</code> 둘 다 <code>[L·D,B,H]</code></p>
+        <p class="cmp"><span class="k">정답 · 지표</span>다음 값 · MSE (실습: 과거 12개 → 다음 1개)</p>
+        <p class="cmp lec"><span class="k">강의</span>p.34–45 · 코드 p.41</p>
+      </section>
+
+      <div class="why w2">
+        <span class="arrow" aria-hidden="true"></span>
+        <p class="box"><span class="t">문제</span>여전히 한 줄로 순서대로<br><b>병렬 불가</b></p>
+        <a class="chip" href="#n-seqlimit"><span class="qn">Q8</span> 왜 Attention</a>
+      </div>
+
+      <!-- Transformer -->
+      <section class="card tr" aria-labelledby="h-tr">
+        <div class="head"><h3 id="h-tr">Transformer Encoder</h3><span class="when">5–6교시</span></div>
+        <div class="fig">
+          <svg viewBox="0 0 240 100" role="img" aria-label="Self-Attention 그림: 네 위치가 서로 모두 곡선으로 직접 연결되어 있고, 위치 4(Query)가 위치 1·2·3에 0.2·0.3·0.5 비율로 주목함(강의 p.9 숫자)">
+            <g fill="none" stroke="#C9D6E6" stroke-width="1.4">
+              <path d="M32 66 Q62 36 92 66"/><path d="M92 66 Q122 36 152 66"/><path d="M32 66 Q92 16 152 66"/>
+            </g>
+            <g fill="none" stroke="#4B74A6">
+              <path d="M32 66 Q122 -6 212 66" stroke-width="1.6"/>
+              <path d="M92 66 Q152 16 212 66" stroke-width="2.4"/>
+              <path d="M152 66 Q182 36 212 66" stroke-width="3.4"/>
+            </g>
+            <g fill="#fff" stroke="#1C2B40" stroke-width="1.6">
+              <circle cx="32" cy="70" r="15"/><circle cx="92" cy="70" r="15"/><circle cx="152" cy="70" r="15"/><circle cx="212" cy="70" r="15" stroke="#4B74A6" stroke-width="2.4"/>
+            </g>
+            <g font-family="sans-serif" font-size="12" fill="#1C2B40" text-anchor="middle">
+              <text x="32" y="74">1</text><text x="92" y="74">2</text><text x="152" y="74">3</text><text x="212" y="74">4</text>
+              <g fill="#4B74A6" font-size="11" font-weight="700"><text x="32" y="99">0.2</text><text x="92" y="99">0.3</text><text x="152" y="99">0.5</text><text x="212" y="99">Q</text></g>
+              <text x="122" y="12" fill="#52667E" font-size="11">모든 위치 쌍이 직접 연결</text>
+            </g>
+          </svg>
+        </div>
+        <p class="formula">출력 = Σ a·v<br>a = softmax(q·k/√d)</p>
+        <p class="idea">필요한 위치를 직접 골라 비율대로 섞는다</p>
+        <div class="chips">
+          <a class="chip" href="#n-attn"><span class="qn">Q9</span> Q·K·V · p.9 계산</a>
+          <a class="chip" href="#n-scale"><span class="qn">Q10</span> 왜 √d</a>
+          <a class="chip" href="#n-pos"><span class="qn">Q11</span> 왜 Position</a>
+          <a class="chip" href="#n-pad"><span class="qn">Q2</span> Mask</a>
+          <a class="chip" href="#n-layer"><span class="qn">Q12</span> 한 층 · LayerNorm</a>
+        </div>
+        <p class="cmp"><span class="k">기억</span>기억 대신 모든 위치를 직접 참조</p>
+        <p class="cmp"><span class="k">계산</span>병렬 · 점수 T² 개 <a href="#n-t2" class="chip" style="min-height:1.75rem;padding-block:0;margin-left:0.25rem"><span class="qn">Q13</span> T²</a></p>
+        <p class="cmp"><span class="k">Shape</span><code>[B,T,E] → [B,T,E]</code> 크기 유지<br>→ 평균 Pooling <code>[B,E]</code></p>
+        <p class="cmp"><span class="k">정답 · 지표</span>클래스·값 · Accuracy·AUC·MSE</p>
+        <p class="cmp lec"><span class="k">강의</span>p.59–75 · 코드 p.67, 75</p>
+      </section>
+
+      <div class="divider" aria-hidden="true"></div>
+
+      <p class="lane-title ae">② 입력 재구성<span class="sub">목적이 다른 갈래</span></p>
+
+      <!-- Autoencoder -->
+      <section class="card ae" aria-labelledby="h-ae">
+        <div class="head"><h3 id="h-ae">Autoencoder</h3><span class="when">4교시</span></div>
+        <div class="fig">
+          <svg viewBox="0 0 240 100" role="img" aria-label="Autoencoder 모래시계 그림: 입력 8칸이 4칸, 2칸으로 줄었다가 다시 4칸, 8칸으로 복원됨">
+            <g stroke="#1C2B40" stroke-width="1.4">
+              <rect x="20" y="12" width="22" height="72" fill="#FBF2DF"/>
+              <rect x="66" y="30" width="22" height="36" fill="#FBF2DF"/>
+              <rect x="112" y="39" width="22" height="18" fill="#4B74A6"/>
+              <rect x="158" y="30" width="22" height="36" fill="#FBF2DF"/>
+              <rect x="204" y="12" width="22" height="72" fill="#FBF2DF"/>
+            </g>
+            <g fill="none" stroke="#ABB8C8" stroke-width="1.2">
+              <path d="M42 12 L66 30 M42 84 L66 66 M88 30 L112 39 M88 66 L112 57 M134 39 L158 30 M134 57 L158 66 M180 30 L204 12 M180 66 L204 84"/>
+            </g>
+            <g font-family="sans-serif" font-size="11" fill="#1C2B40" text-anchor="middle">
+              <text x="31" y="97">x · 8</text><text x="77" y="97">4</text><text x="123" y="97">z · 2</text><text x="169" y="97">4</text><text x="215" y="97">x̂ · 8</text>
+              <text x="77" y="10" fill="#52667E">Encoder</text><text x="169" y="10" fill="#52667E">Decoder</text>
+            </g>
+          </svg>
+        </div>
+        <p class="formula">x → z(작게) → x̂ ≈ x</p>
+        <p class="idea">일부러 좁힌 통로로 복사하게 해서 주요 패턴을 배운다</p>
+        <div class="chips">
+          <a class="chip" href="#n-ae-branch"><span class="qn">Q14</span> 왜 따로 떨어져 있나</a>
+          <a class="chip" href="#n-ae-bottle"><span class="qn">Q15</span> 왜 가운데를 좁게</a>
+          <a class="chip" href="#n-ae-anom"><span class="qn">Q16</span> 오차 큼 = 이상 후보</a>
+        </div>
+        <p class="cmp"><span class="k">기억</span>시간축 없음 · Latent z에 압축</p>
+        <p class="cmp"><span class="k">계산</span>샘플마다 독립 · 입력 차원에 의존</p>
+        <p class="cmp"><span class="k">Shape</span><code>[B,8]→[B,2]→[B,8]</code><br>샘플별 오차 <code>[B]</code></p>
+        <p class="cmp"><span class="k">정답 · 지표</span>입력 자신 · 재구성 오차</p>
+        <p class="cmp lec"><span class="k">강의</span>p.46–58 · 코드 p.56</p>
+      </section>
+
+      <!-- 아래 띠 -->
+      <div class="strip pred">
+        <h4>7교시 · 길이 T를 늘리면 (강의 p.88 길이)</h4>
+        <div class="lenrow" role="table" aria-label="길이에 따른 계산량 비교">
+          <div role="row" style="display:contents"><span class="h rl" role="columnheader">T</span><span class="h" role="columnheader">16</span><span class="h" role="columnheader">32</span><span class="h" role="columnheader">64</span><span class="h" role="columnheader">128</span></div>
+          <div role="row" style="display:contents"><span class="rl" role="rowheader">RNN·LSTM 순차 단계</span><span role="cell">16</span><span role="cell">32</span><span role="cell">64</span><span role="cell">128</span></div>
+          <div role="row" style="display:contents"><span class="rl" role="rowheader">Attention 점수 T²</span><span class="hot" role="cell">256</span><span class="hot" role="cell">1,024</span><span class="hot" role="cell">4,096</span><span class="hot" role="cell">16,384</span></div>
+        </div>
+        <p class="note">길이 2배 → 순차 단계 2배, Attention 점수 4배. 다만 RNN은 단계를 나눠 돌릴 수 없고, Attention은 한꺼번에 계산한다. 실제 측정 시간은 장치·Batch·오버헤드에 따라 달라진다(강의 p.90).</p>
+      </div>
+      <div class="strip ae">
+        <h4>8교시 · 두 갈래 합치기</h4>
+        <p class="small">LSTM 예측 결과와 Autoencoder 재구성 결과는 <b>목적이 달라 표를 따로</b> 만든다. 두 지표를 평균 내지 않는다(강의 p.11, 52, 76).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 질문 목록 -->
+  <section class="notes" id="notes" aria-labelledby="h-notes">
+    <div class="notes-head">
+      <h2 id="h-notes">질문 목록</h2>
+      <p class="muted">질문과 한 줄 답만 훑어도 오늘의 "왜"가 정리됩니다.<span class="screen-only"> 누르면 그림과 "코드에서는"이 펼쳐집니다.</span><span class="print-only"> 질문마다 그림과 "코드에서는"을 함께 실었습니다. 지도의 Q번호를 누르면 해당 질문으로 이동합니다.</span></p>
+    </div>
+    <div class="qa-common g-in">
+      <h3 class="qa-head">공통 바탕<span>1교시</span></h3>
+      <div class="qa-pair"><details class="qa" id="n-share" data-q="Q1" data-tag="공통 바탕">
+  <summary><span class="q"><span class="qn">Q1</span> RNN은 왜 모든 시점에 같은 가중치를 쓰나?</span><span class="a">시점마다 다른 가중치를 쓰면 길이가 바뀔 때마다 새로 배워야 한다. 같은 가중치를 쓰면 길이가 4든 50이든 같은 모델로 읽는다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">따로</span><span class="cells"><span class="cell">W₁</span><span class="cell">W₂</span><span class="cell">W₃</span><span class="cell">W₄</span><span class="cell pad">W₅ ?</span></span><span class="vnote">길이 5는 못 읽음</span></div><div class="vrow"><span class="vlabel">같이</span><span class="cells"><span class="cell hi">W</span><span class="cell hi">W</span><span class="cell hi">W</span><span class="cell hi">W</span><span class="cell hi">W</span></span><span class="vnote">길이 상관없음</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>nn.RNN(input_size, hidden_size)</code>에는 길이 T를 정하는 인자가 없다. 그래서 길이가 다른 입력도 같은 모델에 넣는다 (p.28).</p>
+  </div>
+</details><details class="qa" id="n-pad" data-q="Q2" data-tag="공통 바탕">
+  <summary><span class="q"><span class="qn">Q2</span> Padding은 왜 계속 빼라고 하나?</span><span class="a">Padding은 길이를 맞추려고 채운 0이라 실제 값이 아니다. 계산에 섞이면 평균이나 마지막 값이 틀어진다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">순서</span><span class="cells"><span class="cell">3</span><span class="cell">1</span><span class="cell">4</span><span class="cell pad">0</span><span class="cell pad">0</span></span><span class="vnote">실제 길이 3 + Padding 2</span></div><div class="vrow"><span class="vlabel">✕</span><span class="cells"><span class="calc bad">(3+1+4+0+0) ÷ 5 = 1.6</span></span><span class="vnote">Padding까지 평균</span></div><div class="vrow"><span class="vlabel">○</span><span class="cells"><span class="calc ok">(3+1+4) ÷ 3 = 2.67</span></span><span class="vnote">실제 길이로 평균</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>RNN·LSTM은 <code>lengths</code>로 실제 마지막 시점을 고른다. Transformer는 <code>src_key_padding_mask</code>로 Padding을 가리고, 평균은 실제 길이로 나눈다 (p.67, 77).</p>
+  </div>
+</details></div>
+    </div>
+    <div class="qa-cols">
+<div class="qa-col g-rnn"><h3 class="qa-head">RNN<span>2교시</span></h3><details class="qa" id="n-rnn-h" data-q="Q3" data-tag="RNN">
+  <summary><span class="q"><span class="qn">Q3</span> Hidden state h에는 무엇이 들어 있나?</span><span class="a">지금까지 읽은 입력을 정해진 크기(hidden_size)로 요약한 값이다. 크기가 정해져 있어 다 담지 못하고, 예측에 필요한 것 위주로 남는다.</span></summary>
+  <div class="more">
+    <p class="analogy"><span class="lbl">비유</span>글을 읽으며 적는 메모 한 장. 칸이 정해져 있어 중요한 것만 적는다.</p><div class="viz"><div class="vrow"><span class="vlabel">입력</span><span class="cells"><span class="cell">x₁</span><span class="cell">x₂</span><span class="cell">x₃</span><span class="op">…</span><span class="cell">x₅₀</span></span><span class="vnote">길이 4든 50이든</span></div><div class="vrow"><span class="vlabel">h</span><span class="cells"><span class="cell hi wide">h · 16칸</span></span><span class="vnote">크기는 항상 hidden_size</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>nn.LSTM(1, 16)</code>의 16이 이 요약의 크기(hidden_size)다 (p.41).</p>
+  </div>
+</details><details class="qa" id="n-rnn-out" data-q="Q4" data-tag="RNN">
+  <summary><span class="q"><span class="qn">Q4</span> output과 h_n은 뭐가 다른가?</span><span class="a">output은 모든 시점의 Hidden state를 모은 것이고, h_n은 마지막 시점의 Hidden state다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">output</span><span class="cells"><span class="cell hi">h₁</span><span class="cell hi">h₂</span><span class="cell hi">h₃</span><span class="cell hi">h₄</span></span><span class="vnote"><code>[B,T,H]</code></span></div><div class="vrow"><span class="vlabel">h_n</span><span class="cells"><span class="cell pad">h₁</span><span class="cell pad">h₂</span><span class="cell pad">h₃</span><span class="cell hi">h₄</span></span><span class="vnote"><code>[L·D,B,H]</code></span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>분류 모델은 <code>h_n[-1]</code>(p.30), 예측 모델은 <code>output[:, -1]</code>(p.41)로 마지막 시점을 꺼낸다. 1층·단방향·Padding 없음이면 둘은 같은 값이다.</p>
+  </div>
+</details></div>
+<div class="qa-col g-rnn"><h3 class="qa-head">LSTM<span>3교시</span></h3><details class="qa" id="n-vanish" data-q="Q5" data-tag="RNN → LSTM">
+  <summary><span class="q"><span class="qn">Q5</span> RNN은 왜 긴 순서를 잘 기억하지 못하나?</span><span class="a">같은 가중치를 시점마다 계속 곱하기 때문이다. 1보다 작은 수를 여러 번 곱하면 0에 가까워지듯, 먼 과거에서 오는 Gradient가 사라진다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="bars"><div class="bar-row"><span>0.9¹</span><span class="meter "><i style="--w:90%"></i></span><b>0.90</b></div><div class="bar-row"><span>0.9¹⁰</span><span class="meter "><i style="--w:35%"></i></span><b>0.35</b></div><div class="bar-row"><span>0.9²⁰</span><span class="meter warn"><i style="--w:12%"></i></span><b>0.12</b></div><div class="bar-row"><span>0.9⁵⁰</span><span class="meter warn"><i style="--w:0.5%"></i></span><b>0.005</b></div></div><p class="vcap">곱하는 횟수(시점 수)가 늘수록 거의 0이 된다.</p></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>그래서 긴 Window에는 <code>nn.RNN</code> 대신 <code>nn.LSTM</code>을 쓴다. 실습 03 응용에서 둘의 valid MSE를 비교한다 (p.44).</p>
+  </div>
+</details><details class="qa" id="n-gate" data-q="Q6" data-tag="LSTM">
+  <summary><span class="q"><span class="qn">Q6</span> LSTM은 기억을 어떻게 오래 유지하나?</span><span class="a">이전 Cell state에 남길 비율(forget gate)을 곱하고, 새 정보는 쓸 비율(input gate)만큼 더한다. 곱하기만 반복하지 않고 더하기로 이어 가서 기억이 오래 간다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">남길 양</span><span class="cells"><span class="cell">이전 c 2</span><span class="op">×</span><span class="cell hi">forget 0.5</span><span class="op">=</span><span class="cell">1</span></span></div><div class="vrow"><span class="vlabel">쓸 양</span><span class="cells"><span class="cell">새 후보 0.5</span><span class="op">×</span><span class="cell hi">input 0.4</span><span class="op">=</span><span class="cell">0.2</span></span></div><div class="vrow"><span class="vlabel">새 c</span><span class="cells"><span class="cell">1</span><span class="op">+</span><span class="cell">0.2</span><span class="op">=</span><span class="cell hi">1.2</span></span><span class="vnote"><code>c = f⊙c + i⊙g</code> · 강의 p.6</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>Gate 계산은 <code>nn.LSTM</code>이 모두 알아서 한다. 우리가 정하는 것은 <code>hidden_size</code>와 층 수 정도다 (p.36).</p>
+  </div>
+</details><details class="qa" id="n-hc" data-q="Q7" data-tag="LSTM">
+  <summary><span class="q"><span class="qn">Q7</span> LSTM은 왜 상태가 h와 c 두 개인가?</span><span class="a">Cell state c는 안에서 오래 들고 가는 기억이고, Hidden state h는 그중 지금 필요한 부분을 꺼낸 출력이다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">c</span><span class="cells"><span class="cell hi wide">Cell state ━━━</span></span><span class="vnote">안에서만 전달</span></div><div class="vrow"><span class="vlabel">h</span><span class="cells"><span class="cell">Hidden state</span><span class="op">→</span><span class="cell">output</span></span><span class="vnote">밖으로 나감</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>output, (h_n, c_n) = lstm(x)</code>처럼 h와 c를 괄호로 묶어 따로 돌려준다. 둘을 하나의 Tensor로 다루면 오류가 난다 (p.40, 43).</p>
+  </div>
+</details></div>
+<div class="qa-col g-tr"><h3 class="qa-head">Transformer<span>5–6교시</span></h3><details class="qa" id="n-seqlimit" data-q="Q8" data-tag="LSTM → Transformer">
+  <summary><span class="q"><span class="qn">Q8</span> LSTM이 있는데 왜 Attention이 또 나왔나?</span><span class="a">LSTM도 한 시점씩 차례로 계산해서 느리고, 먼 시점의 정보는 중간을 모두 거쳐 와야 한다. Attention은 모든 위치를 한 번에 직접 비교한다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">LSTM</span><span class="cells"><span class="cell">1</span><span class="op">→</span><span class="cell">2</span><span class="op">→</span><span class="cell">3</span><span class="op">→</span><span class="cell hi">4</span></span><span class="vnote">차례로 · 거쳐 옴</span></div><div class="vrow"><span class="vlabel">Attention</span><span class="cells"><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell hi">4</span></span><span class="vnote">4가 1·2·3을 한 번에 직접 봄</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>그래서 Transformer는 시점을 하나씩 돌지 않고 <code>[B,T,E]</code> 전체를 한 번에 받는다 (p.64).</p>
+  </div>
+</details><details class="qa" id="n-attn" data-q="Q9" data-tag="Transformer">
+  <summary><span class="q"><span class="qn">Q9</span> Attention은 무엇을 계산하나? (Query·Key·Value)</span><span class="a">Query와 Key를 비교해 어느 위치를 얼마나 볼지(Attention weight)를 정하고, 그 비율대로 Value를 섞는다.</span></summary>
+  <div class="more">
+    <p class="analogy"><span class="lbl">비유</span>회의에서 내 질문(Query)과 관련 있는 사람(Key)일수록 그 사람 말(Value)에 더 귀 기울인다.</p><div class="viz"><div class="vrow"><span class="vlabel">weight</span><span class="cells"><span class="cell">0.2</span><span class="cell">0.3</span><span class="cell">0.5</span></span><span class="vnote">Query·Key 비교 → softmax, 합 1</span></div><div class="vrow"><span class="vlabel">Value</span><span class="cells"><span class="cell">10</span><span class="cell">20</span><span class="cell">30</span></span><span class="vnote">섞을 내용</span></div><div class="vrow"><span class="vlabel">출력</span><span class="cells"><span class="calc ok">0.2×10 + 0.3×20 + 0.5×30 = 23</span></span><span class="vnote">강의 p.9</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>Self-Attention은 Query·Key·Value를 모두 같은 입력에서 만들어서 <code>attn(x, x, x)</code>로 쓴다 (p.62).</p>
+  </div>
+</details><details class="qa" id="n-scale" data-q="Q10" data-tag="Transformer">
+  <summary><span class="q"><span class="qn">Q10</span> Attention 점수는 왜 √d로 나눠서 쓰나?</span><span class="a">점수 차이가 너무 크면 softmax가 한 위치에 거의 100%를 몰아준다. 그러면 학습이 잘 안 되므로, 점수를 줄여 골고루 보게 한다.</span></summary>
+  <div class="more">
+    <p class="analogy"><span class="lbl">비유</span>점수 차이가 너무 크면 한 사람 말만 듣게 된다.</p><div class="viz"><p class="vtitle">✕ 점수 [8, 4, 0] 그대로 → 한 곳만 봄</p><div class="bars"><div class="bar-row"><span>위치 1</span><span class="meter warn"><i style="--w:98%"></i></span><b>0.98</b></div><div class="bar-row"><span>위치 2</span><span class="meter "><i style="--w:2%"></i></span><b>0.02</b></div><div class="bar-row"><span>위치 3</span><span class="meter "><i style="--w:0%"></i></span><b>0.00</b></div></div><p class="vtitle">○ √16 = 4로 나눠 [2, 1, 0] → 골고루 봄</p><div class="bars"><div class="bar-row"><span>위치 1</span><span class="meter "><i style="--w:67%"></i></span><b>0.67</b></div><div class="bar-row"><span>위치 2</span><span class="meter "><i style="--w:24%"></i></span><b>0.24</b></div><div class="bar-row"><span>위치 3</span><span class="meter "><i style="--w:9%"></i></span><b>0.09</b></div></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>직접 쓸 일은 없다. <code>nn.MultiheadAttention</code> 안에서 자동으로 나눈다.</p>
+  </div>
+</details><details class="qa" id="n-pos" data-q="Q11" data-tag="Transformer">
+  <summary><span class="q"><span class="qn">Q11</span> Transformer에는 왜 Position을 더하나?</span><span class="a">Attention은 위치끼리 비교만 해서 순서를 모른다. 단어 순서를 바꿔도 같은 묶음으로 본다. 그래서 위치마다 다른 값을 더해 순서를 알려 준다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">문장 1</span><span class="cells"><span class="cell">woman</span><span class="cell">ate</span><span class="cell">raccoon</span></span></div><div class="vrow"><span class="vlabel">문장 2</span><span class="cells"><span class="cell">raccoon</span><span class="cell">ate</span><span class="cell">woman</span></span><span class="vnote">뜻은 반대인데 같은 묶음</span></div><div class="vrow"><span class="vlabel">해결</span><span class="cells"><span class="cell">입력</span><span class="op">+</span><span class="cell hi">Position</span></span><span class="vnote">위치 1·2·3마다 다른 값</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>x + self.position(pos)</code>처럼 입력에 Position Embedding을 더한다. 그래서 입력 길이는 <code>max_len</code> 이하여야 한다 (p.75).</p>
+  </div>
+</details><details class="qa" id="n-layer" data-q="Q12" data-tag="Transformer">
+  <summary><span class="q"><span class="qn">Q12</span> Encoder Layer 한 층 안에는 무엇이 있나?</span><span class="a">Self-Attention(위치끼리 정보 섞기)과 Feedforward(위치마다 따로 변환)가 있고, 각각 뒤에 Residual 더하기와 LayerNorm이 붙는다. 입력과 출력 크기가 같아서 여러 층을 쌓을 수 있다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">한 층</span><span class="cells"><span class="cell">Self-Attention</span><span class="op">+</span><span class="cell">LayerNorm</span><span class="op">→</span><span class="cell">Feedforward</span><span class="op">+</span><span class="cell">LayerNorm</span></span><span class="vnote">크기 그대로 <code>[B,T,E]</code></span></div><div class="vrow"><span class="vlabel">BatchNorm</span><span class="cells"><span class="ng" aria-hidden="true"><i class=""></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class="on"></i><i class=""></i><i class=""></i></span></span><span class="vnote">여러 샘플을 묶어 정규화</span></div><div class="vrow"><span class="vlabel">LayerNorm</span><span class="cells"><span class="ng" aria-hidden="true"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span></span><span class="vnote">위치 하나 안에서 정규화 → 길이가 제각각이어도 OK</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>nn.TransformerEncoderLayer(d_model=16, nhead=4)</code> 하나가 이 한 층이다. <code>d_model</code>은 <code>nhead</code>로 나누어떨어져야 한다 (p.64, 73).</p>
+  </div>
+</details><details class="qa" id="n-t2" data-q="Q13" data-tag="Transformer">
+  <summary><span class="q"><span class="qn">Q13</span> 순서가 길어지면 왜 Transformer가 더 무거워지나?</span><span class="a">모든 위치 쌍을 비교하므로 길이가 T면 T×T번 비교한다. 길이가 2배면 비교는 4배가 된다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">T = 4</span><span class="sq" style="--n:4" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="vnote">16번</span></div><div class="vrow"><span class="vlabel">T = 8</span><span class="sq" style="--n:8" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="vnote">64번 · 길이 2배 → 4배</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>실습 07에서 길이 16·32·64로 시간과 Peak Memory를 재 보면 이 차이가 보인다 (p.88, 91).</p>
+  </div>
+</details></div>
+<div class="qa-col g-ae"><h3 class="qa-head">Autoencoder<span>4교시</span></h3><details class="qa" id="n-ae-branch" data-q="Q14" data-tag="Autoencoder">
+  <summary><span class="q"><span class="qn">Q14</span> Autoencoder는 왜 따로 떨어져 있나?</span><span class="a">미래 값을 맞히는 게 아니라 입력을 그대로 되살리는 게 목표라서, 정답과 평가 지표가 다르다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="vrow"><span class="vlabel">예측</span><span class="cells"><span class="cell">과거 12개</span><span class="op">→</span><span class="cell hi">다음 1개</span></span><span class="vnote">정답 = 미래 값</span></div><div class="vrow"><span class="vlabel">재구성</span><span class="cells"><span class="cell">x 8개</span><span class="op">→</span><span class="cell hi">x̂ 8개</span></span><span class="vnote">정답 = x 자신</span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span>정답이 입력 자신이라 <code>loss = loss_fn(recon, x)</code>처럼 x와 비교한다 (p.56).</p>
+  </div>
+</details><details class="qa" id="n-ae-bottle" data-q="Q15" data-tag="Autoencoder">
+  <summary><span class="q"><span class="qn">Q15</span> Autoencoder는 왜 가운데를 좁게 만드나?</span><span class="a">가운데(Latent)가 넓으면 입력을 그대로 베끼기만 한다. 좁게 만들어야 중요한 특징만 골라 담는다. 너무 좁으면 중요한 정보까지 잃는다.</span></summary>
+  <div class="more">
+    <p class="analogy"><span class="lbl">비유</span>긴 글을 세 줄로 요약했다가 다시 풀어 쓰기. 요약이 짧아야 핵심만 남는다.</p><div class="viz"><div class="vrow"><span class="vlabel">통로</span><span class="cells"><span class="cell">8</span><span class="op">→</span><span class="cell">4</span><span class="op">→</span><span class="cell hi">2</span><span class="op">→</span><span class="cell">4</span><span class="op">→</span><span class="cell">8</span></span></div><div class="vrow"><span class="vlabel">너무 넓으면</span><span class="cells"><span class="calc bad txt">그대로 베낌 · 배운 것 없음</span></span></div><div class="vrow"><span class="vlabel">너무 좁으면</span><span class="cells"><span class="calc bad txt">중요한 정보도 잃음</span></span></div></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>nn.Linear(4, 2)</code>의 2가 Latent 크기다. 실습 04 응용에서 1·2·4를 비교한다 (p.56–57).</p>
+  </div>
+</details><details class="qa" id="n-ae-anom" data-q="Q16" data-tag="Autoencoder">
+  <summary><span class="q"><span class="qn">Q16</span> 재구성 오차가 크면 왜 '이상'이 아니라 '이상 후보'인가?</span><span class="a">정상 데이터로만 배운 모델이라 낯선 입력은 잘 되살리지 못해 오차가 커진다. 하지만 전처리나 모델 크기 때문에도 오차가 커질 수 있어 확정할 수는 없다.</span></summary>
+  <div class="more">
+    <div class="viz"><div class="bars"><div class="bar-row"><span>정상 입력</span><span class="meter "><i style="--w:15%"></i></span><b>작음</b></div><div class="bar-row"><span>낯선 입력</span><span class="meter warn"><i style="--w:80%"></i></span><b>큼</b></div></div><p class="vcap">개념 그림이다. 기준값(임계값)은 valid에서 정한다.</p></div>
+    <p class="codeline-n"><span class="lbl">코드에서는</span><code>MSELoss(reduction="none")</code>로 샘플별 오차를 구하고, 기준값은 valid에서 정한 뒤 test는 마지막에 한 번만 본다 (p.54–55).</p>
+  </div>
+</details></div>
+</div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>NVIDIA AI 코어 엔지니어 2기 · Day12 딥러닝 핵심 아키텍처 및 학습 · 강의 PDF <code>20261102-2.pdf</code>(103쪽) 범위. 본문의 p.번호는 강의 PDF 쪽입니다.</p>
+  <p>참고 교재: GF = Goodfellow, Bengio, Courville, <i>Deep Learning</i>, MIT Press, 2016. UDL = Simon J. D. Prince, <i>Understanding Deep Learning</i>, MIT Press, 2023.</p>
+  <p>질문별 근거: Q1 GF 10장 도입 · UDL 12.1 · Q2 UDL 12.7 (Mask) · Q3 GF 10.1 · Q4 GF 10.2 · Q5 GF 10.7 · Q6 GF 10.9.2, 10.10 · Q7 GF 10.10.1 · Q8 GF 10.2 · UDL 12장 Notes · Q9 UDL 12.2 · Q10 UDL 12.3.2 · Q11 UDL 12.3.1 · Q12 UDL 12.3.3, 12.4, 11.4 Notes · Q13 UDL 12.2.1, 12.9 · Q14 강의 p.52, 72 · Q15 GF 14장 도입, 14.1–14.2 · Q16 GF 14장 도입.</p>
+  <p>비유는 이해를 돕기 위한 것으로 실제 계산과 같지 않습니다.</p>
+</footer>
+
+<dialog class="pop" id="pop" aria-labelledby="pop-title">
+  <div class="bar"><span class="tag" id="pop-tag"></span><button type="button" class="close" id="pop-close">닫기</button></div>
+  <div class="body" id="pop-body"></div>
+</dialog>
+
+<script>
+(() => {
+  const pop = document.getElementById('pop');
+  const body = document.getElementById('pop-body');
+  const tag = document.getElementById('pop-tag');
+
+  // 주소의 #질문 으로 들어오면 그 질문을 펼친다
+  const openTarget = () => {
+    const el = location.hash && document.getElementById(location.hash.slice(1));
+    if (el && el.matches('details.qa')) el.open = true;
+  };
+  window.addEventListener('hashchange', openTarget);
+  // 브라우저 인쇄 = PDF 모드
+  let opened = [];
+  window.addEventListener('beforeprint', () => {
+    document.documentElement.classList.add('pdf');
+    opened = [...document.querySelectorAll('details')].filter(d => !d.open);
+    opened.forEach(d => { d.open = true; });
+  });
+  window.addEventListener('afterprint', () => {
+    document.documentElement.classList.remove('pdf');
+    opened.forEach(d => { d.open = false; });
+  });
+  openTarget();
+
+  if (!pop || typeof pop.showModal !== 'function') return;
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('#map a.chip');
+    if (!link) return;
+    const qa = document.getElementById(link.getAttribute('href').slice(1));
+    if (!qa) return;
+    e.preventDefault();
+    const q = qa.querySelector(':scope > summary .q').innerHTML;
+    const a = qa.querySelector(':scope > summary .a').innerHTML;
+    body.innerHTML = '<h4 class="q" id="pop-title">' + q + '</h4><p class="a">' + a + '</p><div class="more">' + qa.querySelector('.more').innerHTML + '</div>';
+    tag.textContent = qa.dataset.tag || '';
+    pop.showModal();
+  });
+  document.getElementById('pop-close').addEventListener('click', () => pop.close());
+  pop.addEventListener('click', (e) => { if (e.target === pop) pop.close(); });
+})();
+</script>
+</body>
+</html>

@@ -15,7 +15,7 @@
 - 홈: 맨 위 제목·최근 수업·지금 과목 표지 → 100일 일정 → 참고 문서 모음 → 과목별 챕터(Day 목록).
   참고 문서 모음은 공통 묶음(COMMON_GROUPS)별 설치 가이드 칸 + '과목 참고 문서' 칸(치트시트·과목 설치 가이드).
 - 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 각 요약 페이지 글꼴은 건드리지 않는다.
-- 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
+- 각 폴더의 index.html을 public/에 복사하고, 사이트 메뉴·통계를 뺀 원본을 download.html로 함께 둔다(메뉴의 "HTML 받기"). PDF는 만들지 않는다(2026-11-14 폐지).
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
@@ -127,11 +127,6 @@ def page_h1(src):
     return html.unescape(re.sub(r"<[^>]+>", "", m.group(1)).strip()) if m else src.name
 
 
-def pdf_of(src):
-    pdfs = sorted(p.name for p in src.glob("*.pdf"))
-    return pdfs[0] if pdfs else None
-
-
 def md(date):
     return f"{int(date[5:7])}/{int(date[8:10])}"
 
@@ -144,27 +139,29 @@ NAV_CSS = f"""<style>
 .cn-nav a:hover,.cn-nav a:focus-visible{{background:rgba(255,255,255,.16);outline:none}}
 .cn-nav .cn-here{{opacity:.7}}
 .cn-nav .cn-right{{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}}
+.cn-nav .cn-dl{{background:rgba(255,255,255,.14);padding:.125rem .6rem}}
 @media print{{.cn-nav{{display:none}}}}
 </style>"""
 
 
-def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None, lecture=None):
+DOWNLOAD_MARK = "<!--download-->"  # copy_page가 'HTML 받기' 링크로 바꾼다
+
+
+def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None):
     """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)"""
     up = "../" * depth
     left = [f'<a href="{up or "./"}">← {SITE_NAME}</a>']
     left += [f'<a href="{up}{path}">{html.escape(name)}</a>' for name, path in crumbs]
     if here:
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
-    right = []
+    right = [DOWNLOAD_MARK]
     if lecture:
         right.append(f'<a href="{html.escape(lecture)}" target="_blank" rel="noopener">강의 자료 ↗</a>')
-    if pdf:
-        right.append(f'<a href="{html.escape(pdf)}">PDF</a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:
         right.append(f'<a href="{up}{next_[1]}">{html.escape(next_[0])} ›</a>')
-    side = f'<span class="cn-right">{"".join(right)}</span>' if right else ""
+    side = f'<span class="cn-right">{"".join(right)}</span>'
     return f'{NAV_CSS}<nav class="cn-nav" aria-label="사이트 메뉴">{"".join(left)}{side}</nav>'
 
 
@@ -189,17 +186,27 @@ def strip_local_links(text):
     return "".join(parts), count
 
 
+def download_name(text):
+    """받는 파일 이름: 페이지 <title>에서 · ( ) 공백을 _로. 예: Day10_최적화와_규제.html"""
+    m = re.search(r"<title>(.*?)</title>", text, re.S)
+    name = html.unescape(m.group(1)) if m else "page"
+    name = re.sub(r"[\\/:*?\"<>|·()\[\]–—|-]+", " ", name)
+    name = re.sub(r"\s+", "_", name.strip())[:60].strip("_")
+    return f"{name}.html"
+
+
 def copy_page(src, dest, nav):
-    text = (src / "index.html").read_text(encoding="utf-8")
-    text, n_links = strip_local_links(text)
+    original = (src / "index.html").read_text(encoding="utf-8")
+    text, n_links = strip_local_links(original)
+    link = (f'<a class="cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
+            f'title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a>')
+    nav = nav.replace(DOWNLOAD_MARK, link)
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(text, encoding="utf-8")
-    pdf = pdf_of(src)
-    if pdf:
-        shutil.copy2(src / pdf, out / pdf)
+    (out / "download.html").write_text(original, encoding="utf-8")   # 사이트 메뉴·통계 없는 원본
     for name in FILES.get(dest, []):
         shutil.copy2(src / name, out / name)
     note = f" (사이트에 없는 링크 {n_links}개를 글자로)" if n_links else ""
@@ -377,12 +384,9 @@ def list_page(title, body, nav="", up=""):
 
 
 def day_links(d, up):
-    """Day 한 줄 오른쪽의 작은 버튼: PDF · 강의 자료 · 하위 페이지"""
+    """Day 한 줄 오른쪽의 작은 버튼: 강의 자료 · 하위 페이지"""
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     out = []
-    pdf = pdf_of(d["src"]) if d["src"] else None
-    if pdf:
-        out.append(f'<a class="mini" href="{href}{html.escape(pdf)}">{ICON_DOC}PDF</a>')
     if d["link"]:
         out.append(f'<a class="mini" href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료</a>')
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
@@ -436,8 +440,7 @@ def chapter_block(key, ds, up, link_head=True):
     rows = []
     if has_all:
         src = PAGES / key / "all"
-        pdf = pdf_of(src)
-        btn = f'<a class="mini" href="{up}{key}/{html.escape(pdf)}">{ICON_DOC}PDF</a>' if pdf else ""
+        btn = ""
         rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
                     f'<span class="t">{html.escape(page_h1(src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
     for d in reversed(ds):
@@ -469,13 +472,14 @@ def cover_card(days, subjects, today):
 
 
 def timeline(days, today):
+    last = max((d["date"] for d in days if d["date"] <= today), default=None)   # 오늘까지 가장 최근 수업일
     groups, current = [], None
     for d in days:
         if d["subject"] != current:
             groups.append((d["short"], []))
             current = d["subject"]
         state = "has" if d["src"] else ("past" if d["date"] <= today else "")
-        if d["date"] == today:
+        if d["date"] == last:
             state += " today"
         tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["subject"]}')
         if d["src"]:
@@ -558,7 +562,7 @@ def main():
         prev = (f'Day{made[i-1]["n"]}', f'{made[i-1]["key"]}/{made[i-1]["ymd"]}/') if i > 0 else None
         nxt = (f'Day{made[i+1]["n"]}', f'{made[i+1]["key"]}/{made[i+1]["ymd"]}/') if i + 1 < len(made) else None
         nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
-                       pdf=pdf_of(d["src"]), prev=prev, next_=nxt, lecture=d["link"])
+                       prev=prev, next_=nxt, lecture=d["link"])
         copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav)
         for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
             copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
@@ -568,7 +572,7 @@ def main():
     for key, ds in subjects:
         src = PAGES / key / "all"
         if (src / "index.html").exists():
-            copy_page(src, key, nav_html(1, [], here=f'{ds[0]["short"]} 4일 종합', pdf=pdf_of(src)))
+            copy_page(src, key, nav_html(1, [], here=f'{ds[0]["short"]} 4일 종합'))
         else:
             (PUBLIC / key).mkdir(parents=True, exist_ok=True)
             (PUBLIC / key / "index.html").write_text(subject_page(key, ds), encoding="utf-8")
@@ -577,7 +581,7 @@ def main():
     print("치트시트")
     for k, (name, *_) in CHEATSHEETS.items():
         src = PAGES / "cheatsheet" / k
-        copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name, pdf=pdf_of(src)))
+        copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name))
 
     print("설치 가이드" + (" (--release: 공개 전 페이지 제외)" if RELEASE else ""))
     for k, name, *_ in setup_items():

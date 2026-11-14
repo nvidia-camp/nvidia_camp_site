@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day18 · SQL (PostgreSQL)</title>
+<meta name="description" content="Day18 PostgreSQL 입문: 같은 두 테이블로 보는 SELECT·JOIN·GROUP BY·INSERT·UPDATE·DELETE·CREATE TABLE·트랜잭션">
+<style>
+:root {
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-code-bg: #1B2435;
+  --color-code-text: #FFFFFF;
+  --code-kw: #9CC3FF;
+  --code-str: #F2D28B;
+  --on-primary: #FFFFFF;
+  /* 분류 색: Day16 구역 색 파생값. 글자와 함께 써서 색만으로 구분하지 않는다 */
+  --c1-bg: #E9F3FC; --c1-fg: #245C9C;
+  --c2-bg: #FFF3D8; --c2-fg: #7A4F0E;
+  --c3-bg: #E9F5EE; --c3-fg: #2E6B45;
+  --c4-bg: #EEF1F6; --c4-fg: #4A5870;
+  --hit-bg: #F0F6FD;
+  --new-bg: #E9F5EE; --new-fg: #2E6B45;
+  --del-fg: #8A4B2A;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+    --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C;
+    --color-code-bg: #0B1220; --on-primary: #0E1626;
+    --c1-bg: #1C3352; --c1-fg: #A9CDF5; --c2-bg: #3A2E14; --c2-fg: #F2D28B;
+    --c3-bg: #183526; --c3-fg: #9BD8B2; --c4-bg: #263147; --c4-fg: #C2CCDD;
+    --hit-bg: #1F3152; --new-bg: #183526; --new-fg: #9BD8B2; --del-fg: #F0B49A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+  --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C;
+  --color-code-bg: #0B1220; --on-primary: #0E1626;
+  --c1-bg: #1C3352; --c1-fg: #A9CDF5; --c2-bg: #3A2E14; --c2-fg: #F2D28B;
+  --c3-bg: #183526; --c3-fg: #9BD8B2; --c4-bg: #263147; --c4-fg: #C2CCDD;
+  --hit-bg: #1F3152; --new-bg: #183526; --new-fg: #9BD8B2; --del-fg: #F0B49A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
+main { max-width: 72rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 2.5rem; }
+h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
+h1 { font-size: clamp(1.75rem, 4vw, 2.3rem); letter-spacing: -0.02em; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+a { color: var(--color-primary); }
+code { font-family: var(--font-code); font-size: 0.88em; background: var(--color-soft); color: var(--color-heading); padding: 0.05rem 0.35rem; border-radius: 0.35rem; }
+section { display: grid; gap: 1rem; min-width: 0; scroll-margin-top: 1rem; }
+.section-head { display: grid; gap: 0.25rem; }
+.section-head p { color: var(--color-muted); }
+
+/* 머리말 */
+.head { display: grid; gap: 0.6rem; }
+.eyebrow { font-size: 0.875rem; font-weight: 700; color: var(--color-muted); }
+.lead { color: var(--color-muted); max-width: 45rem; }
+
+/* 큰 그림 */
+.strip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.strip li { border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.6rem 0.9rem; background: var(--color-surface); display: grid; gap: 0.1rem; }
+.strip .when { font-size: 0.8rem; font-weight: 700; color: var(--color-muted); }
+.strip li.now { border-color: var(--color-primary); background: var(--color-soft); }
+.strip li.now .when { color: var(--color-primary); }
+.big { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.big-tables { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 0.75rem; align-items: start; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.1rem; }
+.big-tables .rel { grid-column: 1 / -1; font-size: 0.875rem; color: var(--color-muted); }
+.map { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.map li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0.1rem 0.75rem; align-items: baseline; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.7rem 0.9rem; }
+.map-group { grid-row: span 2; font-weight: 700; color: var(--color-heading); display: grid; line-height: 1.35; }
+.map-group small, h2 small { font-family: var(--font-code); font-size: 0.75rem; font-weight: 700; color: var(--color-muted); }
+h2 small { font-size: 0.85rem; margin-left: 0.25rem; }
+.map-links { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; }
+.map-links a { font-family: var(--font-code); font-weight: 700; font-size: 0.92rem; text-underline-offset: 0.2em; }
+.map-desc { font-size: 0.875rem; color: var(--color-muted); }
+.where { font-size: 0.875rem; color: var(--color-muted); }
+
+/* 카드 */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1rem; }
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.25rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.85rem; align-content: start; min-width: 0; scroll-margin-top: 1rem; }
+.card.wide { grid-column: 1 / -1; }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem; }
+.tag-kw { font-family: var(--font-code); font-weight: 700; font-size: 0.85rem; color: var(--on-primary); background: var(--color-primary); border-radius: 0.45rem; padding: 0.1rem 0.5rem; }
+.sql { margin: 0; background: var(--color-code-bg); color: var(--color-code-text); border-radius: var(--radius-control); padding: 0.85rem 1rem; overflow-x: auto; font: 400 0.875rem/1.65 var(--font-code); }
+.sql code { background: none; color: inherit; padding: 0; font-size: inherit; }
+.sql .kw { color: var(--code-kw); font-weight: 700; }
+.sql .str { color: var(--code-str); }
+.sql .cmt { color: #9DADC4; font-style: italic; }
+.viz { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; min-width: 0; }
+.points { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.3rem; }
+.points li::marker { color: var(--color-muted); }
+
+/* 미니 테이블 */
+.mini { width: 100%; border-collapse: collapse; font-size: 0.875rem; background: var(--color-surface); }
+.mini caption { text-align: left; font-size: 0.8rem; font-weight: 700; color: var(--color-muted); padding-bottom: 0.3rem; caption-side: top; }
+.mini th, .mini td { text-align: left; padding: 0.35rem 0.55rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.mini th { font-family: var(--font-code); font-size: 0.78rem; font-weight: 700; color: var(--color-muted); background: var(--color-soft); }
+.mini td:first-child, .mini th:first-child { padding-left: 0.6rem; }
+.mini td.tag, .mini th.tag { width: 1%; white-space: nowrap; text-align: right; font-size: 0.75rem; font-weight: 700; }
+.mini tr.hit td { background: var(--hit-bg); font-weight: 600; }
+.mini tr.hit td:first-child { box-shadow: inset 3px 0 0 var(--color-primary); }
+.mini tr.hit td.tag { color: var(--color-primary); }
+.mini tr.dim td { color: var(--color-muted); }
+.mini tr.dim .cat { opacity: 0.55; }
+.mini tr.new td { background: var(--new-bg); }
+.mini tr.new td:first-child { box-shadow: inset 3px 0 0 var(--new-fg); }
+.mini tr.new td.tag { color: var(--new-fg); }
+.mini tr.del td { color: var(--del-fg); text-decoration: line-through; }
+.mini tr.del td.tag { text-decoration: none; }
+.mini tr.chg td:first-child { box-shadow: inset 3px 0 0 var(--color-primary); }
+.mini tr.chg td.tag { color: var(--color-primary); }
+.mini del { display: block; color: var(--del-fg); }
+.mini ins { display: block; text-decoration: none; font-weight: 700; color: var(--color-heading); }
+.null { font-family: var(--font-code); font-size: 0.78rem; color: var(--color-muted); border: 1px dashed var(--color-muted); border-radius: 0.35rem; padding: 0 0.35rem; }
+.cat { display: inline-block; font-family: var(--font-code); font-size: 0.8rem; font-weight: 700; border-radius: 0.4rem; padding: 0 0.4rem; }
+.c1 { background: var(--c1-bg); color: var(--c1-fg); }
+.c2 { background: var(--c2-bg); color: var(--c2-fg); }
+.c3 { background: var(--c3-bg); color: var(--c3-fg); }
+.c4 { background: var(--c4-bg); color: var(--c4-fg); }
+
+/* 테이블 정의 */
+.badge { display: inline-block; font-family: var(--font-code); font-size: 0.75rem; font-weight: 700; color: var(--color-heading); background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 0.4rem; padding: 0 0.4rem; margin: 0.08rem 0; white-space: nowrap; }
+.summary .badge { justify-self: start; }
+.badge.strong { background: var(--color-primary); color: var(--on-primary); border-color: var(--color-primary); }
+.sub { font-size: 0.875rem; color: var(--color-muted); }
+#create_table .viz { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+#create_table .viz .sub:first-of-type { grid-column: 1; }
+.reject { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.8rem 0.9rem; }
+.reject-title { font-weight: 700; font-size: 0.9rem; color: var(--color-heading); }
+.reject ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.reject li { display: grid; grid-template-columns: 1.2rem minmax(0, 1fr) auto; gap: 0.5rem; align-items: baseline; font-size: 0.875rem; }
+.reject .x { color: var(--del-fg); font-weight: 700; }
+
+/* 트랜잭션 */
+.tx { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.tx-col { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.6rem; align-content: start; min-width: 0; }
+.tx-title { font-weight: 700; color: var(--color-heading); }
+
+/* 종합 */
+.summary { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.summary li { display: grid; grid-template-columns: 9rem 14rem minmax(0, 1fr); gap: 0.75rem; align-items: baseline; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); padding: 0.75rem 1rem; }
+.sum-what { font-weight: 700; color: var(--color-heading); }
+.sum-where { color: var(--color-text); }
+
+/* 더 알아보기 */
+details { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1rem 1.25rem; }
+summary { cursor: pointer; font-weight: 700; color: var(--color-heading); }
+details dl { margin: 0.9rem 0 0; display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 0.6rem 1rem; }
+details dt { font-weight: 700; font-family: var(--font-code); font-size: 0.9rem; color: var(--color-heading); }
+details dd { margin: 0; }
+
+.foot { font-size: 0.875rem; color: var(--color-muted); display: grid; gap: 0.3rem; border-top: 1px solid var(--color-border); padding-top: 1rem; }
+
+@media (max-width: 60rem) {
+  .big { grid-template-columns: minmax(0, 1fr); }
+  #create_table .viz { grid-template-columns: minmax(0, 1fr); }
+  .reject { grid-column: auto !important; grid-row: auto !important; }
+  .summary li { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
+}
+@media (max-width: 45rem) {
+  main { padding: 1.5rem 1rem 3.5rem; gap: 2rem; }
+  .strip { grid-template-columns: minmax(0, 1fr); }
+  .big-tables { grid-template-columns: minmax(0, 1fr); padding: 0.9rem; }
+  .map li { grid-template-columns: minmax(0, 1fr); }
+  .map-group { grid-row: auto; }
+  .tx { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 1rem; }
+  .badge { white-space: normal; }
+  .mini th, .mini td { padding: 0.35rem 0.4rem; }
+  details dl { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+  details dd { margin-bottom: 0.6rem; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<header class="head">
+  <p class="eyebrow">Day18 · 11/11 · 생성형 AI·LLM 및 RAG 엔지니어링</p>
+  <h1>SQL (PostgreSQL)</h1>
+  <p class="lead">같은 두 테이블에 SQL을 하나씩 실행하며, 각 SQL이 어떤 행을 고르고 바꾸는지 봅니다.</p>
+</header>
+
+<section aria-labelledby="big-title">
+  <div class="section-head"><h2 id="big-title">큰 그림</h2></div>
+  <ol class="strip">
+    <li><span class="when">어제</span><span>FastAPI + JSON 파일에 저장</span></li>
+    <li class="now"><span class="when">오늘</span><span>PostgreSQL 테이블에 저장하고 SQL로 다룸</span></li>
+    <li><span class="when">내일</span><span>FastAPI가 SQL로 PostgreSQL 사용</span></li>
+  </ol>
+  <div class="big">
+    <div class="big-tables">
+      <table class="mini"><caption><code>categories</code> 분류</caption><thead><tr><th>id</th><th>name</th></tr></thead><tbody><tr class=""><td><span class="cat c1">1</span></td><td>learning</td></tr><tr class=""><td><span class="cat c2">2</span></td><td>environment</td></tr><tr class=""><td><span class="cat c3">3</span></td><td>reference</td></tr></tbody></table>
+      <table class="mini"><caption><code>knowledge</code> 지식</caption><thead><tr><th>id</th><th>title</th><th>category_id</th></tr></thead><tbody><tr class=""><td>1</td><td>실습 파일 보관</td><td><span class="cat c1">1</span></td></tr><tr class=""><td>2</td><td>서버 실행</td><td><span class="cat c2">2</span></td></tr><tr class=""><td>3</td><td>질문 작성</td><td><span class="cat c1">1</span></td></tr></tbody></table>
+      <p class="rel"><code>knowledge.category_id</code>(FOREIGN KEY)는 <code>categories.id</code>(PRIMARY KEY)를 가리킵니다. 같은 색이 같은 분류입니다. 테이블 위치: PostgreSQL 서버 › <code>knowledge_lab</code> › <code>public</code></p>
+    </div>
+    <ol class="map" aria-label="오늘 배운 SQL"><li><span class="map-group">조회<small>Queries</small></span><span class="map-links"><a href="#select">SELECT</a><a href="#join">JOIN</a><a href="#left_join">LEFT JOIN</a><a href="#group_by">GROUP BY</a></span><span class="map-desc">행 조회 · 두 테이블 연결 · 집계</span></li><li><span class="map-group">데이터 조작<small>DML</small></span><span class="map-links"><a href="#insert">INSERT</a><a href="#update">UPDATE</a><a href="#delete">DELETE</a></span><span class="map-desc">행 추가 · 수정 · 삭제</span></li><li><span class="map-group">데이터 정의<small>DDL</small></span><span class="map-links"><a href="#create_table">CREATE TABLE</a></span><span class="map-desc">열 · 자료형 · 제약조건</span></li><li><span class="map-group">트랜잭션<small>Transaction</small></span><span class="map-links"><a href="#transaction">BEGIN · COMMIT · ROLLBACK</a></span><span class="map-desc">여러 변경을 확정하거나 취소</span></li></ol>
+  </div>
+</section>
+
+<section aria-labelledby="read-title">
+  <div class="section-head"><h2 id="read-title">조회 <small>Queries</small></h2><p>테이블은 그대로 두고 행을 골라 봅니다.</p></div>
+  <div class="cards">
+<article class="card" id="select">
+  <header class="card-head"><span class="tag-kw">SELECT</span><h3>조건에 맞는 행 조회</h3></header>
+  <pre class="sql"><code><span class="kw">SELECT</span> id, title
+<span class="kw">FROM</span> knowledge
+<span class="kw">WHERE</span> category_id = 1
+<span class="kw">ORDER</span> <span class="kw">BY</span> id;</code></pre>
+  <div class="viz"><table class="mini"><caption>결과 2행</caption><thead><tr><th>id</th><th>title</th><th>category_id</th><th class="tag"></th></tr></thead><tbody><tr class="hit"><td>1</td><td>실습 파일 보관</td><td><span class="cat c1">1</span></td><td class="tag">남음</td></tr><tr class="dim"><td>2</td><td>서버 실행</td><td><span class="cat c2">2</span></td><td class="tag"></td></tr><tr class="hit"><td>3</td><td>질문 작성</td><td><span class="cat c1">1</span></td><td class="tag">남음</td></tr></tbody></table></div>
+  <ul class="points"><li><code>WHERE</code>에 맞는 행만 남고, <code>ORDER BY</code> 순서로 나옵니다. <code>LIMIT n</code>은 최대 n행입니다.</li><li>읽는 순서: <code>FROM</code> → <code>WHERE</code> → <code>SELECT</code> → <code>ORDER BY</code></li></ul>
+</article>
+<article class="card" id="join">
+  <header class="card-head"><span class="tag-kw">JOIN</span><h3>두 테이블 연결</h3></header>
+  <pre class="sql"><code><span class="kw">SELECT</span> k.id, k.title, c.name <span class="kw">AS</span> category
+<span class="kw">FROM</span> knowledge <span class="kw">AS</span> k
+<span class="kw">JOIN</span> categories <span class="kw">AS</span> c
+  <span class="kw">ON</span> c.id = k.category_id
+<span class="kw">ORDER</span> <span class="kw">BY</span> k.id;</code></pre>
+  <div class="viz"><table class="mini"><caption>결과 3행 · 한 행 = 지식 한 건</caption><thead><tr><th>id</th><th>title</th><th>category</th></tr></thead><tbody><tr class=""><td>1</td><td>실습 파일 보관</td><td><span class="cat c1">learning</span></td></tr><tr class=""><td>2</td><td>서버 실행</td><td><span class="cat c2">environment</span></td></tr><tr class=""><td>3</td><td>질문 작성</td><td><span class="cat c1">learning</span></td></tr></tbody></table></div>
+  <ul class="points"><li><code>ON</code>의 값이 같은 분류 행을 지식 행 옆에 붙입니다. <code>k</code>·<code>c</code>는 테이블 별칭입니다.</li></ul>
+</article>
+<article class="card" id="left_join">
+  <header class="card-head"><span class="tag-kw">LEFT JOIN</span><h3>짝이 없는 행도 남기기</h3></header>
+  <pre class="sql"><code><span class="kw">SELECT</span> c.name <span class="kw">AS</span> category, k.title
+<span class="kw">FROM</span> categories <span class="kw">AS</span> c
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> knowledge <span class="kw">AS</span> k
+  <span class="kw">ON</span> k.category_id = c.id
+<span class="kw">ORDER</span> <span class="kw">BY</span> c.id, k.id;</code></pre>
+  <div class="viz"><table class="mini"><caption>결과 4행</caption><thead><tr><th>category</th><th>title</th></tr></thead><tbody><tr class=""><td><span class="cat c1">learning</span></td><td>실습 파일 보관</td></tr><tr class=""><td><span class="cat c1">learning</span></td><td>질문 작성</td></tr><tr class=""><td><span class="cat c2">environment</span></td><td>서버 실행</td></tr><tr class="nullrow"><td><span class="cat c3">reference</span></td><td><span class="null">NULL</span></td></tr></tbody></table></div>
+  <ul class="points"><li>왼쪽(<code>categories</code>)의 행은 모두 남고, 짝이 없으면 <code>NULL</code>입니다.</li></ul>
+</article>
+<article class="card" id="group_by">
+  <header class="card-head"><span class="tag-kw">GROUP BY</span><h3>분류별 집계</h3></header>
+  <pre class="sql"><code><span class="kw">SELECT</span> c.name <span class="kw">AS</span> category,
+       <span class="kw">COUNT</span>(k.id) <span class="kw">AS</span> knowledge_count
+<span class="kw">FROM</span> categories <span class="kw">AS</span> c
+<span class="kw">LEFT</span> <span class="kw">JOIN</span> knowledge <span class="kw">AS</span> k
+  <span class="kw">ON</span> k.category_id = c.id
+<span class="kw">GROUP</span> <span class="kw">BY</span> c.id, c.name
+<span class="kw">ORDER</span> <span class="kw">BY</span> c.id;</code></pre>
+  <div class="viz"><table class="mini"><caption>결과 3행 · 한 행 = 분류 하나</caption><thead><tr><th>category</th><th>knowledge_count</th></tr></thead><tbody><tr class=""><td><span class="cat c1">learning</span></td><td>2</td></tr><tr class=""><td><span class="cat c2">environment</span></td><td>1</td></tr><tr class=""><td><span class="cat c3">reference</span></td><td>0</td></tr></tbody></table></div>
+  <ul class="points"><li>분류마다 한 행으로 묶어 셉니다.</li><li><code>COUNT(k.id)</code>는 NULL을 세지 않아 빈 분류가 0입니다. <code>COUNT(*)</code>를 쓰면 reference가 1로 나옵니다.</li></ul>
+</article></div>
+</section>
+
+<section aria-labelledby="write-title">
+  <div class="section-head"><h2 id="write-title">데이터 조작 <small>DML</small></h2><p>각 예시는 처음 3행에서 실행한 결과입니다.</p></div>
+  <div class="cards">
+<article class="card" id="insert">
+  <header class="card-head"><span class="tag-kw">INSERT</span><h3>행 추가</h3></header>
+  <pre class="sql"><code><span class="kw">INSERT</span> <span class="kw">INTO</span> knowledge (title, content, category_id)
+<span class="kw">VALUES</span> (<span class="str">&#x27;임시 안내&#x27;</span>, <span class="str">&#x27;한 번만 실행합니다.&#x27;</span>, 1)
+<span class="kw">RETURNING</span> id;</code></pre>
+  <div class="viz"><table class="mini"><caption>RETURNING id → 4</caption><thead><tr><th>id</th><th>title</th><th>category_id</th><th class="tag"></th></tr></thead><tbody><tr class=""><td>1</td><td>실습 파일 보관</td><td><span class="cat c1">1</span></td><td class="tag"></td></tr><tr class=""><td>2</td><td>서버 실행</td><td><span class="cat c2">2</span></td><td class="tag"></td></tr><tr class=""><td>3</td><td>질문 작성</td><td><span class="cat c1">1</span></td><td class="tag"></td></tr><tr class="new"><td>4</td><td>임시 안내</td><td><span class="cat c1">1</span></td><td class="tag">추가</td></tr></tbody></table></div>
+  <ul class="points"><li><code>id</code>는 넣지 않습니다. DB가 발급한 번호를 <code>RETURNING</code>으로 받습니다.</li></ul>
+</article>
+<article class="card" id="update">
+  <header class="card-head"><span class="tag-kw">UPDATE</span><h3>행 수정</h3></header>
+  <pre class="sql"><code><span class="kw">UPDATE</span> knowledge
+<span class="kw">SET</span> content = <span class="str">&#x27;실행 전에 가상환경을 확인합니다.&#x27;</span>
+<span class="kw">WHERE</span> id = 2;</code></pre>
+  <div class="viz"><table class="mini"><caption>UPDATE 1 · 바뀐 행 수</caption><thead><tr><th>id</th><th>content</th><th class="tag"></th></tr></thead><tbody><tr class=""><td>1</td><td>실습 파일은 개인 폴더에 보관합니다.</td><td class="tag"></td></tr><tr class="chg"><td>2</td><td><del>프로젝트 폴더에서 서버를 실행합니다.</del><ins>실행 전에 가상환경을 확인합니다.</ins></td><td class="tag">수정</td></tr><tr class=""><td>3</td><td>오류 메시지와 시도한 작업을 함께 적습니다.</td><td class="tag"></td></tr></tbody></table></div>
+  <ul class="points"><li><code>SET</code>은 바꿀 값, <code>WHERE</code>는 대상입니다. <strong>WHERE를 빼면 모든 행이 바뀝니다.</strong></li></ul>
+</article>
+<article class="card" id="delete">
+  <header class="card-head"><span class="tag-kw">DELETE</span><h3>행 삭제</h3></header>
+  <pre class="sql"><code><span class="kw">DELETE</span> <span class="kw">FROM</span> knowledge
+<span class="kw">WHERE</span> id = 3;</code></pre>
+  <div class="viz"><table class="mini"><caption>DELETE 1 · 남은 행 2개</caption><thead><tr><th>id</th><th>title</th><th class="tag"></th></tr></thead><tbody><tr class=""><td>1</td><td>실습 파일 보관</td><td class="tag"></td></tr><tr class=""><td>2</td><td>서버 실행</td><td class="tag"></td></tr><tr class="del"><td>3</td><td>질문 작성</td><td class="tag">삭제</td></tr></tbody></table></div>
+  <ul class="points"><li>행만 지우고 테이블은 남습니다. <strong>WHERE를 빼면 모든 행이 지워집니다.</strong></li></ul>
+</article></div>
+</section>
+
+<section aria-labelledby="ddl-title">
+  <div class="section-head"><h2 id="ddl-title">데이터 정의 <small>DDL</small></h2><p>지금까지 쓴 테이블이 어떻게 정의되어 있는지 봅니다.</p></div>
+  <div class="cards">
+<article class="card wide" id="create_table">
+  <header class="card-head"><span class="tag-kw">CREATE TABLE</span><h3>테이블 구조와 제약조건</h3></header>
+  <pre class="sql"><code><span class="kw">CREATE</span> <span class="kw">TABLE</span> knowledge (
+  id          <span class="kw">BIGINT</span> <span class="kw">GENERATED</span> <span class="kw">ALWAYS</span> <span class="kw">AS</span> <span class="kw">IDENTITY</span> <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,
+  title       <span class="kw">VARCHAR</span>(80) <span class="kw">NOT</span> <span class="kw">NULL</span>
+              <span class="kw">CHECK</span> (char_length(title) <span class="kw">BETWEEN</span> 1 <span class="kw">AND</span> 80),
+  content     <span class="kw">TEXT</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+              <span class="kw">CHECK</span> (char_length(content) <span class="kw">BETWEEN</span> 1 <span class="kw">AND</span> 2000),
+  category_id <span class="kw">BIGINT</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+              <span class="kw">REFERENCES</span> categories (id) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">RESTRICT</span>
+);</code></pre>
+  <div class="viz"><table class="mini cols"><caption><code>knowledge</code>의 열</caption>
+<thead><tr><th>열</th><th>자료형</th><th>제약조건</th></tr></thead><tbody>
+<tr><td>id</td><td><code>BIGINT</code></td><td><span class="badge">PRIMARY KEY</span> <span class="badge">IDENTITY</span></td></tr>
+<tr><td>title</td><td><code>VARCHAR(80)</code></td><td><span class="badge">NOT NULL</span> <span class="badge">CHECK 1~80자</span></td></tr>
+<tr><td>content</td><td><code>TEXT</code></td><td><span class="badge">NOT NULL</span> <span class="badge">CHECK 1~2,000자</span></td></tr>
+<tr><td>category_id</td><td><code>BIGINT</code></td><td><span class="badge">NOT NULL</span> <span class="badge">FOREIGN KEY</span> → <code>categories.id</code></td></tr>
+</tbody></table>
+<p class="sub"><code>categories</code>: id <code>BIGINT</code> <span class="badge">PRIMARY KEY</span> <span class="badge">IDENTITY</span> · name <code>VARCHAR(30)</code> <span class="badge">NOT NULL</span> <span class="badge">UNIQUE</span></p>
+<div class="reject"><p class="reject-title">이런 INSERT·DELETE는 거부됩니다</p><ul><li><span class="x" aria-hidden="true">✕</span><span>title에 NULL</span><span class="badge">NOT NULL</span></li><li><span class="x" aria-hidden="true">✕</span><span>content에 빈 문자열 <code>''</code></span><span class="badge">CHECK</span></li><li><span class="x" aria-hidden="true">✕</span><span>category_id에 없는 분류 99</span><span class="badge">FOREIGN KEY</span></li><li><span class="x" aria-hidden="true">✕</span><span>분류 learning을 한 번 더 추가</span><span class="badge">UNIQUE</span></li><li><span class="x" aria-hidden="true">✕</span><span>지식이 있는 분류 learning 삭제</span><span class="badge">ON DELETE RESTRICT</span></li></ul>
+<p class="sub">거부된 뒤에도 knowledge는 3행 그대로</p></div></div>
+  <ul class="points"><li>규칙은 <code>CREATE TABLE</code>에서 정하고, DB가 INSERT·UPDATE·DELETE 때마다 검사합니다.</li><li>부모 테이블(<code>categories</code>)을 먼저 만듭니다. 관계는 categories 1 : N knowledge입니다.</li></ul>
+</article></div>
+</section>
+
+<section aria-labelledby="tx-title">
+  <div class="section-head"><h2 id="tx-title">트랜잭션 <small>Transaction</small></h2><p>새 분류 api를 만들고 그 분류에 지식을 넣는데, 두 번째 INSERT가 실패하는 경우입니다.</p></div>
+  <div class="cards">
+<article class="card wide" id="transaction">
+  <header class="card-head"><span class="tag-kw">BEGIN · COMMIT · ROLLBACK</span><h3>여러 변경을 하나로</h3></header>
+  
+  <div class="viz"><div class="tx">
+  <div class="tx-col"><p class="tx-title">BEGIN 없이 (Auto commit)</p><pre class="sql"><code><span class="cmt">-- ① 바로 확정</span>
+<span class="kw">INSERT</span> <span class="kw">INTO</span> categories (name) <span class="kw">VALUES</span> (<span class="str">&#x27;api&#x27;</span>);
+<span class="cmt">-- ② CHECK 위반으로 실패</span>
+<span class="kw">INSERT</span> <span class="kw">INTO</span> knowledge (title, content, category_id)
+<span class="kw">VALUES</span> (<span class="str">&#x27;API 문서&#x27;</span>, <span class="str">&#x27;&#x27;</span>, 4);</code></pre><table class="mini"><caption>categories 4행 · 지식 없는 분류 api가 남음</caption><thead><tr><th>id</th><th>name</th><th class="tag"></th></tr></thead><tbody><tr class=""><td><span class="cat c1">1</span></td><td>learning</td><td class="tag"></td></tr><tr class=""><td><span class="cat c2">2</span></td><td>environment</td><td class="tag"></td></tr><tr class=""><td><span class="cat c3">3</span></td><td>reference</td><td class="tag"></td></tr><tr class="new"><td><span class="cat c4">4</span></td><td>api</td><td class="tag">남음</td></tr></tbody></table></div>
+  <div class="tx-col"><p class="tx-title">BEGIN으로 묶으면</p><pre class="sql"><code><span class="kw">BEGIN</span>;
+<span class="kw">INSERT</span> <span class="kw">INTO</span> categories (name) <span class="kw">VALUES</span> (<span class="str">&#x27;api&#x27;</span>);
+<span class="cmt">-- CHECK 위반으로 실패</span>
+<span class="kw">INSERT</span> <span class="kw">INTO</span> knowledge (title, content, category_id)
+<span class="kw">VALUES</span> (<span class="str">&#x27;API 문서&#x27;</span>, <span class="str">&#x27;&#x27;</span>, 4);
+<span class="cmt">-- 실패했으니 둘 다 취소</span>
+<span class="kw">ROLLBACK</span>;</code></pre><table class="mini"><caption>categories 3행 · 둘 다 취소</caption><thead><tr><th>id</th><th>name</th></tr></thead><tbody><tr class=""><td><span class="cat c1">1</span></td><td>learning</td></tr><tr class=""><td><span class="cat c2">2</span></td><td>environment</td></tr><tr class=""><td><span class="cat c3">3</span></td><td>reference</td></tr></tbody></table></div>
+</div></div>
+  <ul class="points"><li>함께 성공해야 하는 변경은 <code>BEGIN</code>으로 묶습니다. 모두 성공하면 <code>COMMIT</code>, 하나라도 실패하면 <code>ROLLBACK</code>합니다.</li><li>pgAdmin Query Tool은 Auto commit이 기본입니다. BEGIN 없이 실행한 문장은 바로 확정됩니다.</li><li>내일 FastAPI 코드에서는 성공하면 <code>db.commit()</code>, 예외가 나면 <code>db.rollback()</code>을 호출합니다.</li></ul>
+</article></div>
+</section>
+
+<section aria-labelledby="sum-title">
+  <div class="section-head"><h2 id="sum-title">종합</h2></div>
+  <ul class="summary"><li><span class="badge strong">PRIMARY KEY</span><span class="sum-what">행을 구분합니다</span><span class="sum-where"><code>WHERE id = 2</code> — 조회·수정·삭제할 행 하나를 정확히 고름</span></li><li><span class="badge strong">FOREIGN KEY</span><span class="sum-what">부모에 있는 값만 받습니다</span><span class="sum-where"><code>JOIN … ON c.id = k.category_id</code> — 조회할 때 그 값으로 연결</span></li><li><span class="badge strong">제약조건</span><span class="sum-what">잘못된 값을 거부합니다</span><span class="sum-where">INSERT·UPDATE가 실패해도 기존 데이터는 그대로</span></li><li><span class="badge strong">트랜잭션<small>Transaction</small></span><span class="sum-what">여러 변경을 하나로 묶습니다</span><span class="sum-where"><code>COMMIT</code>으로 확정, <code>ROLLBACK</code>으로 취소</span></li></ul>
+</section>
+
+<details>
+  <summary>더 알아보기</summary>
+  <dl><dt>HAVING</dt><dd><code>GROUP BY … HAVING COUNT(k.id) &gt;= 2</code> — 묶은 뒤의 그룹을 거릅니다. 묶기 전의 행을 거르는 것은 WHERE입니다.</dd><dt>SUM · MIN · MAX</dt><dd><code>SUM(char_length(content))</code>처럼 합계·최솟값·최댓값을 구하는 집계 함수입니다.</dd><dt>LIKE</dt><dd><code>title LIKE '%실습%'</code> — '실습'이 들어간 값. <code>%</code>는 아무 글자 0자 이상입니다.</dd><dt>NULL과 빈 문자열</dt><dd>NULL은 값이 없는 상태, <code>''</code>는 길이 0인 값입니다. NULL은 <code>IS NULL</code>로 확인합니다.</dd><dt>INDEX · EXPLAIN</dt><dd><code>CREATE INDEX</code>는 행을 빨리 찾는 구조를 만들고, <code>EXPLAIN</code>은 DB가 행을 찾는 방법을 보여 줍니다. 행이 3개뿐이면 인덱스가 있어도 전부 읽는 <code>Seq Scan</code>이 정상입니다.</dd><dt>번호 건너뜀</dt><dd>ROLLBACK하거나 INSERT가 실패해도 발급된 IDENTITY 번호는 돌아오지 않습니다. 다음 번호를 예상하지 말고 RETURNING으로 확인합니다.</dd><dt>SQL과 HTTP</dt><dd>SQL은 행과 오류만 돌려줍니다. 200·404 같은 상태코드는 API가 정합니다.</dd></dl>
+</details>
+
+<footer class="foot">
+  <p>pgAdmin·psql 사용법은 <a data-site href="../../setup/postgresql/">PostgreSQL 가이드</a>에 있습니다.</p>
+  <p>결과는 수업 데이터로 PostgreSQL 17.10에서 실제로 실행한 값입니다.</p>
+</footer>
+
+</main>
+</body>
+</html>

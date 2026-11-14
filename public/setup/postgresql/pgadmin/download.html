@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostgreSQL 가이드 · pgAdmin 사용법</title>
+<meta name="description" content="pgAdmin 4가 서비스 구조에서 어디에 있는 도구인지, 화면 구성, knowledge_lab에서 SQL 실행과 결과 읽기">
+<style>
+:root {
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-code-bg: #1B2435;
+  --color-code-text: #FFFFFF;
+  --code-muted: #9AACC4;
+  --on-primary: #FFFFFF;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+    --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C;
+    --color-code-bg: #0A111E; --on-primary: #0E1626; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+  --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C;
+  --color-code-bg: #0A111E; --on-primary: #0E1626; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
+main { max-width: 56rem; margin-inline: auto; padding: 2.5rem 1rem 4.5rem; display: grid; gap: 1.5rem; }
+h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: var(--color-primary); text-underline-offset: 0.2em; font-weight: 600; }
+:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+code { font-family: var(--font-code); font-size: 0.9em; background: var(--color-soft); color: var(--color-heading); padding: 0.05rem 0.4rem; border-radius: 0.35rem; overflow-wrap: anywhere; }
+kbd { font-family: var(--font-body); font-size: 0.85em; font-weight: 700; color: var(--color-primary); border: 1px solid var(--color-border); border-bottom-width: 2px; border-radius: 0.4rem; padding: 0 0.4rem; background: var(--color-surface); white-space: nowrap; }
+
+.head { display: grid; gap: 0.75rem; }
+.eyebrow { font-size: 0.875rem; font-weight: 700; color: var(--color-muted); }
+.lead { color: var(--color-muted); }
+
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.5rem; display: grid; gap: 1rem; min-width: 0; }
+.card.soft { background: var(--color-soft); }
+
+/* 한눈에 */
+.glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.glance > div { display: grid; gap: 0.35rem; align-content: start; }
+.glance .label { font-size: 0.8rem; font-weight: 700; color: var(--color-muted); }
+.glance ul { margin: 0; padding-left: 1.1rem; }
+.glance li + li { margin-top: 0.15rem; }
+
+
+/* 단계 */
+.step-head { display: flex; align-items: center; gap: 0.75rem; }
+.num { flex: none; display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; background: var(--color-primary); color: var(--on-primary); font-weight: 700; font-variant-numeric: tabular-nums; }
+.opt { font-size: 0.78rem; font-weight: 700; color: var(--color-muted); border: 1px dashed var(--color-border); border-radius: 999px; padding: 0 0.5rem; }
+ol.plain { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.35rem; }
+
+/* 표 */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--color-border); }
+th { font-size: 0.8rem; color: var(--color-muted); background: var(--color-soft); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 700; color: var(--color-heading); white-space: nowrap; }
+table.wrap1 td:first-child { white-space: normal; width: 42%; }
+td.screen { font-family: var(--font-code); font-size: 0.88rem; }
+.hint { font-size: 0.88rem; color: var(--color-muted); }
+
+/* 주의 */
+.note { border-left: 4px solid var(--color-primary); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: 0.75rem 1rem; }
+.note b:first-child { color: var(--color-heading); margin-right: 0.35rem; }
+
+/* 코드 */
+.code { background: var(--color-code-bg); color: var(--color-code-text); border-radius: var(--radius-control); overflow: hidden; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.4rem 0.9rem; font-size: 0.8rem; color: var(--code-muted); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.code-head button { font: inherit; font-size: 0.78rem; color: #CFE0F5; background: transparent; border: 1px solid rgba(207, 224, 245, 0.4); border-radius: 999px; padding: 0.1rem 0.65rem; cursor: pointer; min-height: 1.75rem; }
+.code-head button:hover { background: rgba(255, 255, 255, 0.08); }
+.code pre { margin: 0; padding: 0.75rem 0.9rem; overflow-x: auto; font: 0.88rem/1.65 var(--font-code); white-space: pre; }
+.code .c { color: var(--code-muted); }
+.result { font-size: 0.9rem; color: var(--color-muted); }
+.result b { color: var(--color-heading); }
+
+/* 체크리스트 */
+.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.check label { display: flex; gap: 0.6rem; align-items: flex-start; cursor: pointer; }
+.check input { width: 1.15rem; height: 1.15rem; margin-top: 0.3rem; accent-color: var(--color-primary); flex: none; }
+
+/* 사진 */
+figure.shot { margin: 0.6rem 0 0.2rem; display: grid; gap: 0.35rem; }
+figure.shot.narrow { max-width: 30rem; }
+figure.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: #FFFFFF; cursor: zoom-in; }
+figure.shot figcaption { font-size: 0.85rem; color: var(--color-muted); }
+dialog.zoom { padding: 0; border: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog.zoom::backdrop { background: rgba(10, 17, 30, 0.8); }
+dialog.zoom img { display: block; max-width: 96vw; max-height: 94vh; border-radius: var(--radius-control); cursor: zoom-out; }
+
+/* 가이드 안 페이지 탭 */
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tabs a { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.5rem; padding: 0.35rem 0.95rem 0.35rem 0.45rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text); text-decoration: none; font-weight: 600; }
+.tabs a:hover { border-color: var(--color-primary); }
+.tabs .n { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: var(--color-soft); color: var(--color-primary); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.tabs a[aria-current="page"] { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); }
+.tabs a[aria-current="page"] .n { background: var(--on-primary); color: var(--color-primary); }
+
+.refs { font-size: 0.875rem; color: var(--color-muted); display: grid; gap: 0.25rem; }
+
+.plain-list { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.35rem; }
+
+/* 도구 위치 그림 */
+.arch { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); align-items: stretch; gap: 0.5rem; }
+.layer { border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); padding: 0.9rem; display: grid; gap: 0.35rem; align-content: start; }
+.layer.here { border: 2px solid var(--color-primary); background: var(--color-soft); }
+.layer .tag { font-size: 0.78rem; font-weight: 700; color: var(--color-muted); }
+.layer strong { color: var(--color-heading); font-size: 1.05rem; }
+.layer p { font-size: 0.9rem; }
+.layer .tool { margin-top: 0.35rem; border-top: 1px dashed var(--color-border); padding-top: 0.5rem; font-size: 0.88rem; }
+.layer .tool b { color: var(--color-primary); }
+.arch .arrow { align-self: center; color: var(--color-muted); font-weight: 700; text-align: center; font-size: 0.8rem; line-height: 1.3; }
+.arch .arrow span { display: block; font-size: 1.3rem; }
+
+/* 화면 구성 그림 */
+.mock { border: 1px solid var(--color-border); border-radius: var(--radius-control); overflow: hidden; display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); font-size: 0.85rem; background: var(--color-surface); }
+.mock .side { border-right: 1px solid var(--color-border); background: var(--color-soft); padding: 0.6rem 0.75rem; }
+.mock .side pre { margin: 0; font: 0.8rem/1.6 var(--font-code); white-space: pre; overflow-x: auto; color: var(--color-text); }
+.mock .side pre b { color: var(--color-primary); }
+.mock .main { display: grid; grid-template-rows: auto auto auto auto auto; min-width: 0; }
+.mock .bar { padding: 0.4rem 0.75rem; border-bottom: 1px solid var(--color-border); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.mock .conn { font-family: var(--font-code); font-size: 0.8rem; border: 1px solid var(--color-border); border-radius: 0.4rem; padding: 0 0.4rem; background: var(--color-canvas); }
+.mock .btn { font-family: var(--font-code); border: 1px solid var(--color-border); border-radius: 0.35rem; padding: 0 0.4rem; background: var(--color-canvas); }
+.mock .editor { margin: 0; padding: 0.6rem 0.75rem; font: 0.8rem/1.6 var(--font-code); background: var(--color-code-bg); color: var(--color-code-text); white-space: pre; overflow-x: auto; }
+.mock .rtabs { display: flex; gap: 0; border-bottom: 1px solid var(--color-border); font-size: 0.8rem; flex-wrap: wrap; }
+.mock .rtabs span { padding: 0.3rem 0.7rem; color: var(--color-muted); }
+.mock .rtabs span.on { color: var(--color-heading); font-weight: 700; border-bottom: 2px solid var(--color-primary); }
+.mock .grid { margin: 0; padding: 0.4rem 0.75rem; font: 0.8rem/1.6 var(--font-code); white-space: pre; overflow-x: auto; }
+.mock .status { padding: 0.25rem 0.75rem; border-top: 1px solid var(--color-border); font-size: 0.78rem; color: var(--color-muted); }
+.pin { display: inline-grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 999px; background: var(--color-primary); color: var(--on-primary); font: 700 0.72rem/1 var(--font-body); vertical-align: middle; flex: none; }
+.mock .editor .pin { background: var(--color-code-text); color: var(--color-code-bg); }
+.mock .rtabs .pin { padding: 0; color: var(--on-primary); margin: 0.3rem 0.25rem 0.3rem 0.75rem; }
+.mock-cap { font-size: 0.85rem; color: var(--color-muted); }
+
+@media (max-width: 720px) {
+  .arch { grid-template-columns: minmax(0, 1fr); }
+  .arch .arrow span { transform: rotate(90deg); }
+  table.cards thead { display: none; }
+  table.cards, table.cards tbody, table.cards tr, table.cards td { display: block; width: 100%; }
+  table.cards tr { padding: 0.6rem 0; border-bottom: 1px solid var(--color-border); }
+  table.cards tr:last-child { border-bottom: 0; }
+  table.cards td { border: 0; padding: 0.15rem 0; display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 0.5rem; }
+  table.cards td::before { content: attr(data-label); font-size: 0.8rem; font-weight: 700; color: var(--color-muted); }
+  table.cards td:first-child { display: block; font-size: 1.02rem; }
+  table.cards td:first-child::before { content: none; }
+  .mock { grid-template-columns: minmax(0, 1fr); }
+  .mock .side { border-right: 0; border-bottom: 1px solid var(--color-border); }
+}
+
+@media (max-width: 720px) {
+  main { padding-top: 1.5rem; }
+  .glance { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 1.1rem; }
+  td:first-child { white-space: normal; }
+}
+@media print {
+  body { background: #fff; }
+  .card { break-inside: avoid; }
+  .code-head button { display: none; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<header class="head">
+  <p class="eyebrow">PostgreSQL 가이드 · pgAdmin 4 · Day18(11/11) 실습부터 사용</p>
+  <h1>pgAdmin 사용법</h1>
+  <p class="lead">pgAdmin은 PostgreSQL 서버에 SQL을 보내고 결과를 표로 보여 주는 창입니다. 어디에 있는 도구인지, 화면을 어떻게 읽는지, SQL을 어떻게 실행하는지 순서대로 봅니다.</p>
+</header>
+
+<nav class="tabs" aria-label="PostgreSQL 가이드 페이지"><a data-site href="../"><span class="n">1</span>셋업</a><a data-site href="../pgadmin/" aria-current="page"><span class="n">2</span>pgAdmin 사용법</a><a data-site href="../psql/"><span class="n">3</span>psql</a></nav>
+
+<!-- 1 -->
+<section class="card" aria-labelledby="s1">
+  <div class="step-head"><span class="num">1</span><h2 id="s1">pgAdmin은 어디에 있는 도구인가</h2></div>
+  <p>서비스는 보통 세 층으로 나뉩니다. 오늘 다루는 것은 맨 오른쪽 <b>DB</b>입니다.</p>
+  <div class="arch" role="img" aria-label="프론트엔드에서 백엔드로 HTTP 요청, 백엔드에서 DB로 SQL. 백엔드는 /docs로, DB는 pgAdmin과 psql로 직접 열어 볼 수 있다">
+    <div class="layer">
+      <span class="tag">프론트엔드</span>
+      <strong>사용자 화면</strong>
+      <p>버튼을 누르고 결과를 보는 곳</p>
+    </div>
+    <div class="arrow"><span>→</span>HTTP 요청</div>
+    <div class="layer">
+      <span class="tag">백엔드</span>
+      <strong>FastAPI 서버</strong>
+      <p>요청을 받아 처리하고 응답을 돌려줌</p>
+      <p class="tool">직접 열어 보는 창: <b>/docs</b> (Day17)</p>
+    </div>
+    <div class="arrow"><span>→</span>SQL</div>
+    <div class="layer here">
+      <span class="tag">데이터베이스 · 오늘</span>
+      <strong>PostgreSQL 서버</strong>
+      <p>지식·분류를 표로 저장하고 SQL을 처리</p>
+      <p class="tool">직접 열어 보는 창: <b>pgAdmin</b> · <b>psql</b></p>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="cards">
+      <thead><tr><th>이름</th><th>정체</th><th>하는 일</th></tr></thead>
+      <tbody>
+        <tr><td data-label="이름">PostgreSQL 서버</td><td data-label="정체">DBMS (프로그램)</td><td data-label="하는 일">데이터를 저장하고 SQL을 실행합니다. Windows 서비스로 뒤에서 계속 켜져 있습니다.</td></tr>
+        <tr><td data-label="이름">knowledge_lab</td><td data-label="정체">Database</td><td data-label="하는 일">서버 안에 만든 오늘의 학습용 DB. 서버 하나에 DB 여러 개가 들어갑니다.</td></tr>
+        <tr><td data-label="이름">pgAdmin · psql</td><td data-label="정체">Client (접속 도구)</td><td data-label="하는 일">서버에 SQL을 보내고 결과를 보여 줍니다. pgAdmin은 화면, psql은 명령창입니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note"><b>pgAdmin을 닫아도 DB는 꺼지지 않습니다</b>pgAdmin은 서버를 들여다보는 창일 뿐입니다. 저장한 데이터는 서버에 남고, 다시 열면 그대로 보입니다. 내일(Day19)은 pgAdmin 대신 FastAPI 코드가 같은 서버에 SQL을 보냅니다.</p>
+</section>
+
+<!-- 2 -->
+<section class="card" aria-labelledby="s2">
+  <div class="step-head"><span class="num">2</span><h2 id="s2">접속 다섯 값</h2></div>
+  <p>어떤 도구로 붙든 서버에 알려 주는 값은 같습니다. 칸 이름만 다릅니다.</p>
+  <div class="table-wrap">
+    <table class="cards">
+      <thead><tr><th>값</th><th>수업 예</th><th>pgAdmin</th><th>psql</th><th>내일 .env</th></tr></thead>
+      <tbody>
+        <tr><td data-label="값">Host</td><td data-label="수업 예"><code>localhost</code></td><td data-label="pgAdmin">Host name/address</td><td data-label="psql">Server</td><td data-label="내일 .env"><code>DB_HOST</code></td></tr>
+        <tr><td data-label="값">Port</td><td data-label="수업 예"><code>5432</code></td><td data-label="pgAdmin">Port</td><td data-label="psql">Port</td><td data-label="내일 .env"><code>DB_PORT</code></td></tr>
+        <tr><td data-label="값">Database</td><td data-label="수업 예"><code>knowledge_lab</code></td><td data-label="pgAdmin">트리에서 선택</td><td data-label="psql">Database</td><td data-label="내일 .env"><code>DB_NAME</code></td></tr>
+        <tr><td data-label="값">User</td><td data-label="수업 예"><code>postgres</code></td><td data-label="pgAdmin">Username</td><td data-label="psql">Username</td><td data-label="내일 .env"><code>DB_USER</code></td></tr>
+        <tr><td data-label="값">Password</td><td data-label="수업 예">설치 때 정한 값</td><td data-label="pgAdmin">Password</td><td data-label="psql">암호</td><td data-label="내일 .env"><code>DB_PASSWORD</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint"><code>localhost</code>는 "지금 이 컴퓨터"라는 뜻입니다. pgAdmin 트리의 <b>PostgreSQL 18</b>은 서버를 부르는 별칭이라, 이름을 바꿔도 DB가 새로 생기지 않습니다.</p>
+</section>
+
+<!-- 3 -->
+<section class="card" aria-labelledby="s3">
+  <div class="step-head"><span class="num">3</span><h2 id="s3">화면 구성</h2></div>
+  <div class="mock" role="img" aria-label="pgAdmin 화면 구조 그림. 왼쪽 Object Explorer 트리, 오른쪽 Query Tool의 연결 표시, 도구 모음, SQL 편집기, 결과 탭">
+    <div class="side">
+<pre><span class="pin">1</span> Object Explorer
+Servers
+└ PostgreSQL 18
+  └ Databases
+    ├ <b>knowledge_lab</b>
+    │ └ Schemas
+    │   └ public
+    │     └ Tables
+    │       ├ categories
+    │       └ knowledge
+    └ postgres</pre>
+    </div>
+    <div class="main">
+      <div class="bar"><span class="pin">2</span><span class="conn">knowledge_lab/postgres@PostgreSQL 18</span></div>
+      <div class="bar"><span class="pin">3</span><span class="btn">열기</span><span class="btn">저장</span><span class="btn">▶ ▾</span></div>
+      <pre class="editor"><span class="pin">4</span> SELECT id, title
+   FROM knowledge
+   ORDER BY id;</pre>
+      <div class="rtabs"><span class="pin">5</span><span class="on">Data Output</span><span>Messages</span><span>Explain</span><span>Notifications</span></div>
+<pre class="grid"> id | title
+  1 | 실습 파일 보관
+  2 | 서버 실행
+  3 | 질문 작성</pre>
+      <div class="status">Total rows: 3</div>
+    </div>
+  </div>
+  <p class="mock-cap">구조를 보여 주는 그림입니다. 실제 화면은 <a data-site href="../">1 셋업</a>의 사진을 봅니다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>위치</th><th>무엇을 보나</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pin">1</span> Object Explorer</td><td>서버 → DB → 스키마 → 테이블 순서의 트리. 새로 만든 DB·테이블은 상위 항목을 오른쪽 클릭 → <b>Refresh</b>해야 보입니다.</td></tr>
+        <tr><td><span class="pin">2</span> 연결 표시</td><td>이 Query Tool이 붙은 <b>DB/사용자@서버</b>. SQL은 여기 적힌 DB에서 실행됩니다.</td></tr>
+        <tr><td><span class="pin">3</span> 도구 모음</td><td>파일 열기(<kbd>Ctrl</kbd>+<kbd>O</kbd>)·저장(<kbd>Ctrl</kbd>+<kbd>S</kbd>), 실행 ▶와 설정 ▾</td></tr>
+        <tr><td><span class="pin">4</span> SQL 편집기</td><td>SQL을 쓰거나 <code>.sql</code> 파일을 열어 놓는 곳</td></tr>
+        <tr><td><span class="pin">5</span> 결과 탭</td><td><b>Data Output</b>은 조회 결과 표, <b>Messages</b>는 바뀐 행 수와 오류. 아래 상태 줄에 행 수가 나옵니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="card" aria-labelledby="s4">
+  <div class="step-head"><span class="num">4</span><h2 id="s4">knowledge_lab에서 Query Tool 열기</h2></div>
+  <p>Query Tool은 <b>트리에서 선택한 DB</b>에 붙어서 열립니다. 수업에서 가장 자주 나는 실수가 <code>postgres</code> DB에서 실습 SQL을 실행하는 것입니다.</p>
+  <ol class="plain">
+    <li>1교시에 <code>postgres</code> DB의 Query Tool에서 <code>CREATE DATABASE knowledge_lab;</code> 한 문장만 실행합니다.</li>
+    <li>트리의 <b>Databases</b>를 오른쪽 클릭 → <b>Refresh</b>. <code>knowledge_lab</code>이 나타납니다.</li>
+    <li><code>knowledge_lab</code>을 선택하고 <b>Tools → Query Tool</b>로 <b>새</b> Query Tool을 엽니다.</li>
+    <li><span class="pin">2</span> 연결 표시가 <code>knowledge_lab/postgres@PostgreSQL 18</code>인지 보고, 아래 한 줄로 한 번 더 확인합니다.</li>
+  </ol>
+  <div class="code">
+    <div class="code-head"><span>Query Tool · knowledge_lab</span><button type="button" data-copy="check-db">코드 복사</button></div>
+<pre id="check-db">SELECT current_database();</pre>
+  </div>
+  <p class="result">Data Output에 <b>knowledge_lab</b>이 나오면 맞는 DB입니다. <b>postgres</b>가 나오면 3번부터 다시 합니다.</p>
+</section>
+
+<!-- 5 -->
+<section class="card" aria-labelledby="s5">
+  <div class="step-head"><span class="num">5</span><h2 id="s5">SQL 실행하기</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>방법</th><th>실행되는 범위</th></tr></thead>
+      <tbody>
+        <tr><td>▶ Execute script · <kbd>F5</kbd></td><td>편집기 전체. <b>드래그로 선택해 두면 선택한 부분만</b> 실행됩니다.</td></tr>
+        <tr><td>Execute query · <kbd>Alt</kbd>+<kbd>F5</kbd></td><td>커서가 있는 문장 하나 (밑줄로 표시)</td></tr>
+        <tr><td>Explain · <kbd>F7</kbd></td><td>실행하지 않고 실행 계획만 봅니다 (7교시)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note"><b>수업 규칙</b>실습 파일은 <code>-- @step</code> 주석으로 구간이 나뉘어 있습니다. 한 구간씩 드래그로 선택하고 <kbd>F5</kbd>를 누릅니다. 여러 문장을 한꺼번에 실행하면 Data Output에는 <b>마지막 문장 결과만</b> 남습니다.</p>
+  <ul class="plain-list">
+    <li><b>Auto commit</b>이 켜져 있어 한 문장씩 바로 저장됩니다. <code>BEGIN;</code>을 실행했다면 <code>COMMIT;</code>이나 <code>ROLLBACK;</code>까지 <b>같은 Query Tool 탭</b>에서 이어 갑니다.</li>
+    <li>오류가 난 뒤에는 <code>ROLLBACK;</code> 한 줄만 따로 선택해 실행합니다. 설정은 <a data-site href="../#s4">1 셋업 4단계</a>에 있습니다.</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section class="card" aria-labelledby="s6">
+  <div class="step-head"><span class="num">6</span><h2 id="s6">결과 읽기</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>실행한 SQL</th><th>보는 곳</th><th>보이는 것</th></tr></thead>
+      <tbody>
+        <tr><td>SELECT</td><td>Data Output</td><td>결과 표와 상태 줄의 <b>Total rows</b></td></tr>
+        <tr><td>SELECT · 0행</td><td>Data Output</td><td>열 이름만 있는 빈 표. 조건에 맞는 행이 없다는 뜻이고 <b>오류가 아닙니다</b>.</td></tr>
+        <tr><td>INSERT · UPDATE · DELETE</td><td>Messages</td><td><code>INSERT 0 1</code>, <code>UPDATE 1</code>, <code>DELETE 1</code>처럼 바뀐 행 수</td></tr>
+        <tr><td>… RETURNING id</td><td>Data Output</td><td>바뀐 행을 표로 돌려받습니다. 새로 발급된 <code>id</code>를 여기서 읽습니다.</td></tr>
+        <tr><td>오류</td><td>Messages</td><td><code>ERROR:</code> 문장과 <b>SQL state</b> 번호. 예: <code>23514</code> 제약조건(CHECK) 위반</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="card" aria-labelledby="s7">
+  <div class="step-head"><span class="num">7</span><h2 id="s7">표와 구조를 화면으로 보기</h2></div>
+  <div class="table-wrap">
+    <table class="wrap1">
+      <thead><tr><th>보고 싶은 것</th><th>하는 법</th></tr></thead>
+      <tbody>
+        <tr><td>테이블에 든 행</td><td>테이블 오른쪽 클릭 → <b>View/Edit Data</b> → <b>All Rows</b>. 이 화면에서 칸을 고치면 실제로 저장될 수 있으니, 수업에서는 보기만 하고 변경은 SQL로 합니다.</td></tr>
+        <tr><td>열과 자료형</td><td>테이블 → <b>Columns</b> 펼치기</td></tr>
+        <tr><td>PK · FK · CHECK</td><td>테이블 → <b>Constraints</b> 펼치기</td></tr>
+        <tr><td>두 테이블 관계 그림 (ERD)</td><td><code>knowledge_lab</code> 오른쪽 클릭 → <b>ERD For Database</b> <span class="opt">선택</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 문제 해결 -->
+<section class="card" aria-labelledby="trouble">
+  <h2 id="trouble">막혔을 때</h2>
+  <div class="table-wrap">
+    <table class="wrap1">
+      <thead><tr><th>증상</th><th>먼저 해 볼 것</th></tr></thead>
+      <tbody>
+        <tr><td>relation "knowledge" does not exist</td><td><span class="pin">2</span> 연결 표시가 <code>postgres</code>인지 봅니다. <code>knowledge_lab</code>에서 Query Tool을 새로 엽니다(4단계).</td></tr>
+        <tr><td>여러 줄을 실행했는데 결과가 하나만</td><td>정상입니다. 마지막 문장 결과만 보입니다. 보고 싶은 문장만 선택해 <kbd>F5</kbd>.</td></tr>
+        <tr><td>새로 만든 DB·테이블이 트리에 없음</td><td>상위 항목(Databases, Tables) 오른쪽 클릭 → <b>Refresh</b></td></tr>
+        <tr><td>current transaction is aborted (SQL state 25P02)</td><td>앞 문장의 오류로 묶음이 멈춘 상태입니다. <code>ROLLBACK;</code> 한 줄만 선택해 실행합니다.</td></tr>
+        <tr><td><code>\dt</code>를 붙였더니 syntax error</td><td><code>\</code>로 시작하는 줄은 psql 전용 명령입니다. <a data-site href="../psql/">3 psql</a>에서 씁니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="refs">
+  <span>공식 문서: <a href="https://www.pgadmin.org/docs/pgadmin4/latest/query_tool.html" target="_blank" rel="noopener">Query Tool</a> · <a href="https://www.pgadmin.org/docs/pgadmin4/latest/query_tool_toolbar.html" target="_blank" rel="noopener">Query Tool Toolbar</a> · <a href="https://www.pgadmin.org/docs/pgadmin4/latest/editgrid.html" target="_blank" rel="noopener">View/Edit Data</a></span>
+  <span>다음: <a data-site href="../psql/">3 psql</a> · 같은 일을 명령창으로</span>
+</footer>
+
+</main>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var text = document.getElementById(btn.dataset.copy).textContent;
+    var done = function () { btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '코드 복사'; }, 1500); };
+    if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, function () {}); }
+  });
+});
+</script>
+</body>
+</html>
