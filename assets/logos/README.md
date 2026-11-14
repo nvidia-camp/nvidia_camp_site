@@ -11,6 +11,10 @@
 | `pytorch.svg` | [PyTorch 공식 웹사이트 저장소](https://github.com/pytorch/pytorch.github.io/blob/site/assets/images/logo-icon.svg) | [Brand guidelines](https://pytorch.org/brand-guidelines/) |
 | `opencv.png` | [OpenCV 공식 저장소](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.png) | [로고 안내](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.md) |
 | `ollama.png` | [Ollama 공식 사이트](https://ollama.com/public/ollama.png) (2026-11-14 확인) | [ollama.com](https://ollama.com) |
+| `opencode.svg` | [OpenCode 공식 브랜드 페이지](https://opencode.ai/brand) `opencode-logo-transparent-light.svg` (2026-11-14 확인) | [Brand](https://opencode.ai/brand) |
+| `claude-code.png` | [Claude Code 공식 문서 사이트](https://code.claude.com) 파비콘 192px → 64px (2026-11-14 확인) | Anthropic |
+| `codex.png` | [OpenAI 개발자 문서 Codex](https://developers.openai.com/codex) 파비콘 (2026-11-14 확인) | OpenAI |
+| `antigravity.png` | [Antigravity 공식 사이트](https://antigravity.google) `antigravity-logo.png` 276px → 64px (2026-11-14 확인) | Google |
 | `postgresql.svg` | [PostgreSQL 공식 위키](https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg) (2026-11-10 확인) | [Trademark Policy](https://www.postgresql.org/about/policies/trademarks/) |
 
 `terminal.svg` · `code.svg`는 특정 제품이 아닌 'CLI 도구' · 'AI 코딩 도구' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.
