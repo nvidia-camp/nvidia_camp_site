@@ -427,7 +427,7 @@ def home_page(days, subjects, today):
 <div class="title-block">
 <div class="brand">
 <span class="brand-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="36"><span class="brand-sep" aria-hidden="true"></span><img src="{nvidia}" alt="NVIDIA" height="36"></span>
-<p>새싹 부트캠프 · AI 코어 엔지니어 2기</p>
+<p>청년취업사관학교 · AI 코어 엔지니어 2기</p>
 </div>
 <h1>{SITE_NAME}</h1>
 </div>
