@@ -64,3 +64,4 @@
 | 2026-11-14 | setup/local-ai · setup/ai-coding · setup/cli | 문장 다듬기: humanize-korean(imnotai.kr 엔진, 로컬 실행) standard 경로로 192개 문장 덩어리 진단·윤문 → 게이트 수렴(문자율 1.8%, golden PASS, 서법 소실 0) → 코드·키·링크·태그가 그대로인 36곳만 반영. 단문 나열 연결, 지시/사실 종결 구분, 무생물 주어("창은 설치된 것을 모릅니다") 정리. CLI 페이지의 없어진 "설치 6-1 설정" 언급 바로잡음. 1시간 유지 보강: 한눈에 보기 "Ollama 설정 두 가지", 3단계 제목·바로 가기, 수업 전 체크(59 minutes), OpenCode 탭 한 줄 | main만 |
 | 2026-11-14 | setup/local-ai | "수업 전 체크" 칸 삭제(사용자 요청) | main만 |
 | 2026-11-14 | setup/ai-coding | 탭 번호 대신 도구 로고(흰 원 받침): 공통 code.svg · OpenCode 브랜드 페이지 · Claude Code 문서 사이트 파비콘 · OpenAI 개발자 문서 파비콘 · Antigravity 공식 로고. 출처는 assets/logos/README.md | main만 |
+| 2026-11-14 | setup/ai-coding | 도구 탭 맨 아래 "이전 · 다음" 줄 삭제(위 탭으로 이동) | main만 |
