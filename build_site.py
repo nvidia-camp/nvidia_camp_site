@@ -352,7 +352,9 @@ a.cell:hover{transform:scale(1.3)}
 
 /* 과목 = 챕터 */
 .chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
-.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--muted);font-weight:500}
+.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
+.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
+.rows li.all .row.off{background:none}
 .ch-side{display:grid;gap:4px;align-content:start}
 .ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
 .ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
@@ -395,6 +397,18 @@ def day_range(ds):
     return f'Day{ds[0]["n"].split("-")[0]}–{ds[-1]["n"].split("-")[0]}'
 
 
+# 요약 페이지가 아직 없는 Day의 제목(강의 목차 기준). 요약 페이지를 만들면 그 <h1>을 이 제목으로 쓰고 여기서 지운다.
+PLANNED_TITLES = {
+    "python/20261020": "Python 기초 문법",
+    "python/20261021": "객체지향과 파일 처리",
+    "python/20261022": "데이터 분석과 EDA",
+    "ml/20261023": "데이터 전처리",
+    "ml/20261026": "회귀와 분류 모델",
+    "ml/20261027": "트리와 앙상블",
+    "ml/20261028": "모델 평가와 군집",
+    "dl/20261029": "신경망 학습 기초",
+    "llm/20261116": "Prompt · Context Engineering",
+}
 ICON_VIEW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
              '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>')
 # 과목 번호(챕터): SUBJECTS에서 경로가 있는 과목의 순서
@@ -457,7 +471,7 @@ def shelf_block(subjects, up):
 
 
 def chapter_block(key, ds, up, link_head=True):
-    """과목 한 블록: 왼쪽 챕터 번호·이름·범위, 오른쪽 Day 목록"""
+    """과목 한 블록: 왼쪽 챕터 번호·이름·범위, 오른쪽 종합 + Day 목록(요약이 없으면 제목 + '요약 준비 중')"""
     made = [d for d in ds if d["src"]]
     has_all = (PAGES / key / "all" / "index.html").exists()
     today = datetime.date.today().isoformat()
@@ -468,28 +482,27 @@ def chapter_block(key, ds, up, link_head=True):
     refs = "".join(f'<a href="{up}{p}" title="{html.escape(desc)}">{logo_span(lg)}<span>{html.escape(n)}</span></a>'
                    for p, n, lg, desc in refs_of(key))
     refs = f'<div class="ch-refs" aria-label="참고 문서">{refs}</div>' if refs else ""
-    if not made and not has_all:
-        rows = "".join(
-            f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span><span class="d">{md(d["date"])}</span></span>'
-            f'<span class="lk">{day_links(d, up)}</span></li>' for d in reversed(ds) if d["date"] <= today or d["lecture"])
-        return (f'<section class="chapter pending" id="{key}"><div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span>'
-                f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span>{refs}</div>'
-                f'<ol class="rows">{rows}</ol></section>')
+    status = (f'<span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>' if made or has_all
+              else '<span class="soon">준비 중</span>')
     side = (f'<div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span><h2 title="{html.escape(ds[0]["subject"])}">{name}</h2>'
-            f'<span class="ch-meta">{rng}</span><span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>{refs}</div>')
+            f'<span class="ch-meta">{rng}</span>{status}{refs}</div>')
+    pend = '<span class="pend">요약 준비 중</span>'
     rows = []
+    # 과목 종합: 있으면 링크, 없으면 제목 + 요약 준비 중
     if has_all:
-        src = PAGES / key / "all"
-        btn = ""
         rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
-                    f'<span class="t">{html.escape(page_h1(src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
+                    f'<span class="t">{html.escape(page_h1(PAGES / key / "all"))}</span><span class="d">{len(ds)}일</span></a><span class="lk"></span></li>')
+    else:
+        rows.append(f'<li class="all"><span class="row off"><span class="no">종합</span>'
+                    f'<span class="t">{html.escape(ds[0]["short"])} {len(ds)}일 종합{pend}</span><span class="d">{len(ds)}일</span></span><span class="lk"></span></li>')
     for d in reversed(ds):
         if d["src"]:
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
                         f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
-        elif d["date"] <= today or d["lecture"]:   # 요약이 아직 없으면 '요약 준비 중' (강의 HTML이 있으면 미리 보임)
-            rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span>'
+        elif d["date"] <= today or d["lecture"]:   # 요약이 아직 없으면 예정 제목 + '요약 준비 중' (강의 HTML이 있으면 미리 보임)
+            title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
+            rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">{html.escape(title)}{pend}</span>'
                         f'<span class="d">{md(d["date"])}</span></span><span class="lk">{day_links(d, up)}</span></li>')
     return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
 
