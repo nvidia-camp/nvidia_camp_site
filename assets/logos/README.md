@@ -13,6 +13,6 @@
 | `ollama.png` | [Ollama 공식 사이트](https://ollama.com/public/ollama.png) (2026-11-14 확인) | [ollama.com](https://ollama.com) |
 | `postgresql.svg` | [PostgreSQL 공식 위키](https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg) (2026-11-10 확인) | [Trademark Policy](https://www.postgresql.org/about/policies/trademarks/) |
 
-`terminal.svg`는 특정 제품이 아닌 'CLI 도구' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.
+`terminal.svg` · `code.svg`는 특정 제품이 아닌 'CLI 도구' · 'AI 코딩 도구' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.
 
 확인일: 2026-11-09. 각 로고의 권리는 원 권리자에게 있습니다.
