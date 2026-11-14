@@ -224,11 +224,13 @@ a{{color:inherit;text-decoration:none}}
 a:focus-visible{{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}}
 p{{margin:0}}
 .top{{display:grid;gap:20px}}
-.bootcamp-brand{{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}}
-.bootcamp-logos{{display:flex;align-items:center;gap:24px;padding:12px 20px;
-  background:#FFFFFF;border:1px solid #D8E4F2;border-radius:12px}}
-.bootcamp-logos img{{display:block;width:auto;height:56px;max-width:104px;object-fit:contain}}
-.bootcamp-brand p{{color:var(--muted);font-size:14px;font-weight:600}}
+.title-block{{display:grid;gap:12px}}
+.brand{{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}}
+.brand-logos{{display:inline-flex;align-items:center;gap:12px;border-radius:8px}}
+.brand-logos img{{display:block;width:auto;height:36px;object-fit:contain}}
+.brand-sep{{width:1px;height:24px;background:#D8E4F2}}
+.brand p{{color:var(--muted);font-size:14px;font-weight:600}}
+@media (prefers-color-scheme:dark){{.brand-logos{{background:#FFFFFF;padding:4px 10px}}}}
 .row{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}}
 .links{{display:flex;flex-wrap:wrap;gap:8px}}
 .links a{{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
@@ -418,11 +420,13 @@ def home_page(days, subjects, today):
     sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
     nvidia = image_data(HERE / "assets" / "branding" / "nvidia.svg")
     body = f"""<header class="top">
-<div class="bootcamp-brand">
-<div class="bootcamp-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="56"><img src="{nvidia}" alt="NVIDIA" height="56"></div>
-<p>새싹(SeSAC) 부트캠프</p>
+<div class="title-block">
+<div class="brand">
+<span class="brand-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="36"><span class="brand-sep" aria-hidden="true"></span><img src="{nvidia}" alt="NVIDIA" height="36"></span>
+<p>새싹 부트캠프 · AI 코어 엔지니어 2기</p>
 </div>
 <h1>{SITE_NAME}</h1>
+</div>
 <div class="row"><p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{made}</b>일</p>
 <nav class="links" aria-label="문제 풀이">{practice}</nav></div>
 <div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
