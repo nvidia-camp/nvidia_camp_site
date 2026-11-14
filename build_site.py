@@ -34,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 PAGES = HERE / "pages"
 PUBLIC = HERE / "public"
 LECTURES = HERE / "lectures.json"
-SITE_NAME = "AI 코어 엔지니어 학습 노트"
+SITE_NAME = "학습 아카이브"
 
 # 시트의 교과목 → (사이트 경로, 짧은 이름). 경로가 None이면 일정 띠에만 보인다.
 SUBJECTS = {
@@ -51,10 +51,10 @@ SUBJECTS = {
     "AI Agent End-to-End 종합 프로젝트": ("agent-project", "Agent 프로젝트"),
     "최종발표회 및 수료식": (None, "수료"),
 }
-# 문제 풀이 사이트 (홈 위쪽 링크)
+# 문제 풀이 사이트 (홈 위쪽 링크): (이름, assets/logos의 공식 아이콘, 주소)
 PRACTICE = [
-    ("SWEA", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
-    ("Programmers", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
+    ("SWEA", "swea.png", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
+    ("Programmers", "programmers.png", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
 ]
 # 치트시트: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목). 과목 블록 아래 '참고' 줄에 나온다.
 CHEATSHEETS = {
@@ -150,7 +150,7 @@ NAV_CSS = f"""<style>
 def nav_html(depth, crumbs, here=None, pdf=None, prev=None, next_=None, lecture=None):
     """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)"""
     up = "../" * depth
-    left = [f'<a href="{up or "./"}">← 학습 노트</a>']
+    left = [f'<a href="{up or "./"}">← {SITE_NAME}</a>']
     left += [f'<a href="{up}{path}">{html.escape(name)}</a>' for name, path in crumbs]
     if here:
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
@@ -233,9 +233,10 @@ p{{margin:0}}
 @media (prefers-color-scheme:dark){{.brand-logos{{background:#FFFFFF;padding:4px 10px}}}}
 .row{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}}
 .links{{display:flex;flex-wrap:wrap;gap:8px}}
-.links a{{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
+.links a{{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 10px;border:1px solid var(--border);
   border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}}
 .links a:hover{{border-color:var(--primary)}}
+.links img{{display:block;width:20px;height:20px;border-radius:5px}}
 .quiet-list{{display:grid;gap:12px}}
 .subject.quiet{{gap:6px}}
 .quiet h2{{font-size:17px;color:var(--muted);font-weight:600}}
@@ -419,8 +420,9 @@ def home_page(days, subjects, today):
     full = [subject_block(k, ds, "") for k, ds in ordered if "quiet" not in subject_block(k, ds, "")]
     quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
     blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
-    practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{name} ↗</a>'
-                       for name, url in PRACTICE)
+    practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
+                       f'<img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" width="20" height="20">{name} ↗</a>'
+                       for name, logo, url in PRACTICE)
     sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
     nvidia = image_data(HERE / "assets" / "branding" / "nvidia.svg")
     body = f"""<header class="top">

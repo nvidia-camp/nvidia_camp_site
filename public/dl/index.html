@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DL · AI 코어 엔지니어 학습 노트</title>
+<title>DL · 학습 아카이브</title>
 <style>
 :root{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
   --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
@@ -31,9 +31,10 @@ p{margin:0}
 @media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
 .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
 .links{display:flex;flex-wrap:wrap;gap:8px}
-.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--border);
+.links a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 10px;border:1px solid var(--border);
   border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}
 .links a:hover{border-color:var(--primary)}
+.links img{display:block;width:20px;height:20px;border-radius:5px}
 .quiet-list{display:grid;gap:12px}
 .subject.quiet{gap:6px}
 .quiet h2{font-size:17px;color:var(--muted);font-weight:600}
@@ -97,7 +98,7 @@ a.cell:hover{transform:scale(1.25)}
 .cn-nav .cn-here{opacity:.7}
 .cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 노트</a><span class="cn-here">DL</span></nav>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 아카이브</a><span class="cn-here">DL</span></nav>
 <main>
 <section class="subject"><div class="subject-head"><h2 title="딥러닝 핵심 아키텍처 및 학습">DL</h2><span>Day9–11-2</span></div><div class="grid"><div class="card"><a href="../dl/20261030/"><p class="meta"><b>Day10</b><span>10/30</span></p><h3>학습을 안정시키는 도구들은 어디에 있을까</h3></a><p class="links-row"><a href="../dl/20261030/Day10_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793319419618279" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102/"><p class="meta"><b>Day11-1</b><span>11/2</span></p><h3>CNN 개념 지도 · 모델 안과 모델 밖</h3></a><p class="links-row"><a href="../dl/20261102/Day11_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793578427089629" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102-2/"><p class="meta"><b>Day11-2</b><span>11/2</span></p><h3>순서 모델 한눈에 보기</h3></a><p class="links-row"><a href="../dl/20261102-2/Day12_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener">강의 자료 ↗</a></p></div></div><p class="refs"><span class="label">참고</span><a class="ref" href="../cheatsheet/pytorch/" title="텐서 · 신경망 학습"><span class="ref-logo"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwLjYgMTA2Ny45IDkwLjMgMTA5LjEiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMC42IDEwNjcuOSA5MC4zIDEwOS4xIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNFRTRDMkMiIGQ9Ik03Ny42LDEwOTkuNmwtOC4xLDguMWMxMy4zLDEzLjMsMTMuMywzNC43LDAsNDcuOGMtMTMuMywxMy4zLTM0LjcsMTMuMy00Ny44LDANCgkJYy0xMy4zLTEzLjMtMTMuMy0zNC43LDAtNDcuOGwwLDBsMjEuMS0yMS4xbDMtM2wwLDB2LTE1LjlsLTMxLjgsMzEuOGMtMTcuNywxNy43LTE3LjcsNDYuMywwLDY0YzE3LjcsMTcuNyw0Ni4zLDE3LjcsNjMuNywwDQoJCUM5NS4zLDExNDUuOCw5NS4zLDExMTcuNCw3Ny42LDEwOTkuNnoiLz4NCgk8Y2lyY2xlIGZpbGw9IiNFRTRDMkMiIGN4PSI2MS43IiBjeT0iMTA5MS44IiByPSI1LjkiLz4NCjwvZz4NCjwvc3ZnPg0K" alt="" width="32" height="22"></span>PyTorch 치트시트</a></p></section>
 </main>
