@@ -13,6 +13,7 @@
     pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 이름·과목·공개 여부 등록)
     pages/setup/<이름>/<하위>/ 가이드 안 페이지 → /setup/<이름>/<하위>/ (SETUP_PAGES에 순서·이름 등록)
 - 치트시트·설치 가이드는 등록한 과목 블록 아래 '참고' 줄에 링크로 나온다.
+  과목 대신 공통 묶음(COMMON_GROUPS)을 적은 설치 가이드는 홈 위쪽 '공통 가이드' 섹션에 나온다.
 - 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
@@ -62,13 +63,22 @@ CHEATSHEETS = {
     "opencv": ("OpenCV 치트시트", "opencv.png", "이미지 · 영상 처리", "vision"),
 }
 
-# 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목, 공개 여부). 공개 전에는 False로 둔다.
+# 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목 또는 공통 묶음, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
+    "opencode": ("OpenCode", "opencode.svg", "로컬 AI 코딩 도구 설치 · 사용법", "AI 코딩", False),
+    "cli": ("CLI 도구", "terminal.svg", "AI 에이전트가 쓰는 터미널 도구", "AI 코딩", False),
+}
+# 과정 전체에서 쓰는 가이드의 묶음과 순서. 홈 '공통 가이드' 섹션에 묶음마다 한 줄씩 나온다.
+COMMON_GROUPS = ["개발 환경", "AI 코딩"]
+# 페이지와 함께 내려받게 둘 파일: 사이트 경로 → [파일 이름]. 페이지에서는 data-site를 붙여 링크한다.
+FILES = {
+    "setup/opencode": ["SETUP_FOR_AI.md"],
 }
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
+    "opencode": [("", "설치"), ("usage", "사용법")],
 }
 # Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.
 DAY_SUBPAGES = {
@@ -188,6 +198,8 @@ def copy_page(src, dest, nav):
     pdf = pdf_of(src)
     if pdf:
         shutil.copy2(src / pdf, out / pdf)
+    for name in FILES.get(dest, []):
+        shutil.copy2(src / name, out / name)
     note = f" (사이트에 없는 링크 {n_links}개를 글자로)" if n_links else ""
     print(f"  /{dest}/ ← {src.relative_to(HERE)}{note}")
 
@@ -260,6 +272,8 @@ a.cell:hover{{transform:scale(1.25)}}
   background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
 .refs{{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}}
 .refs .label{{font-size:13px;margin-right:2px}}
+.common{{gap:10px}}
+.common .refs .label{{min-width:5.5em}}
 .ref{{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:5px 14px 5px 6px;
   background:var(--surface);border:1px solid var(--border);border-radius:12px;
   font-size:14px;font-weight:600;color:var(--heading)}}
@@ -268,6 +282,7 @@ a.cell:hover{{transform:scale(1.25)}}
   background:#FFFFFF;border:1px solid #D8E4F2;border-radius:8px}}
 .ref-logo img{{display:block;width:32px;height:22px;object-fit:contain}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
+@media (max-width:600px){{.common .refs .label{{flex-basis:100%}}}}
 @media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
 """
 
@@ -316,15 +331,30 @@ def feature_card(key, up):
             f'<h3>{html.escape(page_h1(src))}</h3></a>{pdf_link}</div>')
 
 
+def ref_links(refs, up):
+    return "".join(f'<a class="ref" href="{up}{path}" title="{html.escape(desc)}">'
+                    f'<span class="ref-logo"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
+                    f'width="32" height="22"></span>{html.escape(name)}</a>'
+                    for path, name, logo, desc in refs)
+
+
 def refs_row(key, up):
     refs = refs_of(key)
     if not refs:
         return ""
-    links = "".join(f'<a class="ref" href="{up}{path}" title="{html.escape(desc)}">'
-                    f'<span class="ref-logo"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
-                    f'width="32" height="22"></span>{html.escape(name)}</a>'
-                    for path, name, logo, desc in refs)
-    return f'<p class="refs"><span class="label">참고</span>{links}</p>'
+    return f'<p class="refs"><span class="label">참고</span>{ref_links(refs, up)}</p>'
+
+
+def common_block(up):
+    """과정 공통 가이드: 묶음마다 한 줄. 보일 가이드가 없으면 섹션도 없다."""
+    rows = []
+    for group in COMMON_GROUPS:
+        refs = [(f"setup/{k}/", name, logo, desc) for k, name, logo, desc, g in setup_items() if g == group]
+        if refs:
+            rows.append(f'<p class="refs"><span class="label">{html.escape(group)}</span>{ref_links(refs, up)}</p>')
+    if not rows:
+        return ""
+    return f'<section class="subject common"><div class="subject-head"><h2>공통 가이드</h2></div>{"".join(rows)}</section>'
 
 
 def subject_block(key, ds, up, link_head=True):
@@ -396,7 +426,7 @@ def home_page(days, subjects, today):
 <nav class="links" aria-label="문제 풀이">{practice}</nav></div>
 <div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
 </header>
-{blocks}"""
+{common_block("")}{blocks}"""
     return list_page(SITE_NAME, body)
 
 
