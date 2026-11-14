@@ -305,21 +305,19 @@ a.cell:hover{transform:scale(1.3)}
 .ch-refs{display:grid;gap:2px;margin-top:12px}
 .ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
 .ch-refs a:hover{background:var(--soft)}
-.chapter.empty .ch-refs{margin-top:0;grid-auto-flow:column;gap:12px}
 @media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
 .shelf .soon{margin:2px 0}
 .soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
 
 /* 과목 = 챕터 */
 .chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
-.chapter.empty{grid-template-columns:1fr;padding:22px 0}
+.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--muted);font-weight:500}
 .ch-side{display:grid;gap:4px;align-content:start}
 .ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
 .ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
 .ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
 .ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.chapter.empty .ch-side{grid-auto-flow:column;justify-content:start;align-items:baseline;gap:14px}
-.chapter.empty h2{font-size:22px;margin:0}
+.ch-side .soon{margin-top:6px}
 .rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
 .rows li:first-child{border-top:1px solid var(--line)}
 .row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
@@ -349,6 +347,31 @@ ICON_EXT = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
             '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>')
 ICON_ARROW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
               '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>')
+# 홈·과목 목록에 보이는 짧은 이름(강의 목차처럼). 없으면 페이지의 <h1>을 쓴다. 요약 페이지 안의 제목은 그대로 둔다.
+SHORT_TITLES = {
+    "dl/20261030": "학습 안정화 기법",
+    "dl/20261102": "CNN 입문",
+    "dl/20261102-2": "RNN · LSTM · Transformer",
+    "vision/20261104": "OpenCV 이미지 전처리",
+    "vision/20261105": "전이학습 이미지 분류",
+    "vision/20261106": "YOLO 객체 탐지",
+    "vision/20261109": "OCR · VLM 문서 AI",
+    "vision/all": "Vision 4일 종합",
+    "llm/20261110": "FastAPI 입문",
+    "llm/20261111": "PostgreSQL · SQL 기초",
+    "llm/20261112": "FastAPI · PostgreSQL 연동",
+}
+
+
+def short_title(path, src):
+    return SHORT_TITLES.get(path) or page_h1(src)
+
+
+def day_range(ds):
+    """과목의 Day 범위. 같은 날 두 번째 회차 표시(-2)는 뺀다: Day9–11"""
+    return f'Day{ds[0]["n"].split("-")[0]}–{ds[-1]["n"].split("-")[0]}'
+
+
 # 과목 번호(챕터): SUBJECTS에서 경로가 있는 과목의 순서
 CHAPTER = {key: i for i, key in enumerate([k for k, _ in SUBJECTS.values() if k], 1)}
 
@@ -377,7 +400,7 @@ def day_links(d, up):
     """Day 한 줄 오른쪽의 작은 버튼: PDF · 강의 자료 · 하위 페이지"""
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     out = []
-    pdf = pdf_of(d["src"])
+    pdf = pdf_of(d["src"]) if d["src"] else None
     if pdf:
         out.append(f'<a class="mini" href="{href}{html.escape(pdf)}">{ICON_DOC}PDF</a>')
     if d["link"]:
@@ -417,13 +440,17 @@ def chapter_block(key, ds, up, link_head=True):
     name = html.escape(ds[0]["short"])
     if link_head and (made or has_all):
         name = f'<a href="{up}{key}/">{name}</a>'
-    rng = f'Day{ds[0]["n"]}–{ds[-1]["n"]}'
+    rng = day_range(ds)
     refs = "".join(f'<a href="{up}{p}" title="{html.escape(desc)}">{logo_span(lg)}<span>{html.escape(n)}</span></a>'
                    for p, n, lg, desc in refs_of(key))
     refs = f'<div class="ch-refs" aria-label="참고 문서">{refs}</div>' if refs else ""
     if not made and not has_all:
-        return (f'<section class="chapter empty"><div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span>'
-                f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span>{refs}</div></section>')
+        rows = "".join(
+            f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span><span class="d">{md(d["date"])}</span></span>'
+            f'<span class="lk">{day_links(d, up)}</span></li>' for d in reversed(ds) if d["date"] <= today)
+        return (f'<section class="chapter pending" id="{key}"><div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span>'
+                f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span>{refs}</div>'
+                f'<ol class="rows">{rows}</ol></section>')
     side = (f'<div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span><h2 title="{html.escape(ds[0]["subject"])}">{name}</h2>'
             f'<span class="ch-meta">{rng}</span><span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>{refs}</div>')
     rows = []
@@ -432,10 +459,10 @@ def chapter_block(key, ds, up, link_head=True):
         pdf = pdf_of(src)
         btn = f'<a class="mini" href="{up}{key}/{html.escape(pdf)}">{ICON_DOC}PDF</a>' if pdf else ""
         rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
-                    f'<span class="t">{html.escape(page_h1(src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
+                    f'<span class="t">{html.escape(short_title(f"{key}/all", src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
     for d in reversed(made):
         rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-                    f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
+                    f'<span class="t">{html.escape(short_title(f"{d["key"]}/{d["ymd"]}", d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
                     f'<span class="lk">{day_links(d, up)}</span></li>')
     return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
 
@@ -446,7 +473,7 @@ def cover_card(days, subjects, today):
     n_done = len([d for d in ds if d["date"] <= today])
     made = [d for d in ds if d["src"]]
     if made:
-        go_href, go_text = f'{made[-1]["key"]}/{made[-1]["ymd"]}/', f'Day{made[-1]["n"]} · {page_h1(made[-1]["src"])}'
+        go_href, go_text = f'{made[-1]["key"]}/{made[-1]["ymd"]}/', f'Day{made[-1]["n"]} · {short_title(f"{made[-1]["key"]}/{made[-1]["ymd"]}", made[-1]["src"])}'
     else:
         go_href, go_text = f'#{key}', f'{ds[0]["short"]} 보기'
     return (f'<a class="cover" href="{go_href}"><span class="wm" aria-hidden="true">{CHAPTER[key]:02d}</span>'
@@ -492,7 +519,7 @@ def home_page(days, subjects, today):
     latest = made[-1] if made else None
     recent = "".join(
         f'<li class="{"on" if d is latest else ""}"><a href="{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-        f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span>'
+        f'<span class="t">{html.escape(short_title(f"{d["key"]}/{d["ymd"]}", d["src"]))}</span><span class="d">{md(d["date"])}</span>'
         f'<span class="go">{ICON_ARROW}</span></a></li>'
         for d in reversed(made[-4:]))
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
