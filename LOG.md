@@ -66,3 +66,4 @@
 | 2026-11-14 | setup/ai-coding | 탭 번호 대신 도구 로고(흰 원 받침): 공통 code.svg · OpenCode 브랜드 페이지 · Claude Code 문서 사이트 파비콘 · OpenAI 개발자 문서 파비콘 · Antigravity 공식 로고. 출처는 assets/logos/README.md | main만 |
 | 2026-11-14 | setup/ai-coding | 도구 탭 맨 아래 "이전 · 다음" 줄 삭제(위 탭으로 이동) | main만 |
 | 2026-11-14 | 홈 | 맨 위 브랜드 영역을 한 줄 브랜드 바로: 로고 상자 없앰, SeSAC │ NVIDIA 로고 36px + "새싹 부트캠프 · AI 코어 엔지니어 2기", 제목 바로 위에 붙임. 다크 모드에서만 로고 뒤 흰 받침 | main만 |
+| 2026-11-14 | 홈 · setup/ai-coding | 참고·공통 가이드 칩의 안쪽 로고 상자 삭제(이중 테두리 없앰): 로고 24px을 칩 안에 바로, 다크 모드에서만 회사 로고 뒤 흰 받침. 직접 그린 code·terminal 아이콘은 두 테마에서 보이는 #4B74A6로 바꾸고 받침 없음 | main만 |

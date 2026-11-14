@@ -277,13 +277,13 @@ a.cell:hover{{transform:scale(1.25)}}
 .refs .label{{font-size:13px;margin-right:2px}}
 .common{{gap:10px}}
 .common .refs .label{{min-width:5.5em}}
-.ref{{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:5px 14px 5px 6px;
+.ref{{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:6px 16px 6px 12px;
   background:var(--surface);border:1px solid var(--border);border-radius:12px;
   font-size:14px;font-weight:600;color:var(--heading)}}
 .ref:hover{{border-color:var(--primary);text-decoration:underline;text-underline-offset:3px}}
-.ref-logo{{display:flex;align-items:center;justify-content:center;width:44px;height:32px;
-  background:#FFFFFF;border:1px solid #D8E4F2;border-radius:8px}}
-.ref-logo img{{display:block;width:32px;height:22px;object-fit:contain}}
+.ref-logo{{display:flex;align-items:center;justify-content:center;border-radius:6px}}
+.ref-logo img{{display:block;width:auto;height:24px;max-width:40px;object-fit:contain}}
+@media (prefers-color-scheme:dark){{.ref-logo:not(.own){{background:#FFFFFF;padding:3px 5px}}}}
 @media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
 @media (max-width:600px){{.common .refs .label{{flex-basis:100%}}}}
 @media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
@@ -334,9 +334,13 @@ def feature_card(key, up):
             f'<h3>{html.escape(page_h1(src))}</h3></a>{pdf_link}</div>')
 
 
+# 이 저장소에서 그린 아이콘: 두 테마 모두에서 보이는 색이라 다크 모드 흰 받침을 깔지 않는다
+OWN_ICONS = {"code.svg", "terminal.svg"}
+
+
 def ref_links(refs, up):
     return "".join(f'<a class="ref" href="{up}{path}" title="{html.escape(desc)}">'
-                    f'<span class="ref-logo"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
+                    f'<span class="ref-logo{" own" if logo in OWN_ICONS else ""}"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
                     f'width="32" height="22"></span>{html.escape(name)}</a>'
                     for path, name, logo, desc in refs)
 
