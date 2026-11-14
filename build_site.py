@@ -12,8 +12,9 @@
     pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 이름·과목 등록)
     pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 이름·과목·공개 여부 등록)
     pages/setup/<이름>/<하위>/ 가이드 안 페이지 → /setup/<이름>/<하위>/ (SETUP_PAGES에 순서·이름 등록)
-- 치트시트·설치 가이드는 등록한 과목 블록 아래 '참고' 줄에 링크로 나온다.
-  과목 대신 공통 묶음(COMMON_GROUPS)을 적은 설치 가이드는 홈 위쪽 '공통 가이드' 섹션에 나온다.
+- 홈: 맨 위 제목·최근 수업·지금 과목 표지 → 100일 일정 → 참고 문서 모음 → 과목별 챕터(Day 목록).
+  참고 문서 모음은 공통 묶음(COMMON_GROUPS)별 설치 가이드 칸 + '과목 참고 문서' 칸(치트시트·과목 설치 가이드).
+- 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 각 요약 페이지 글꼴은 건드리지 않는다.
 - 각 폴더의 index.html과 요약 PDF를 public/에 복사한다.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
@@ -206,98 +207,153 @@ def copy_page(src, dest, nav):
 
 
 # ── 목록 페이지 (홈, 과목) ───────────────────────────────────────────────
-PAGE_CSS = f"""
-:root{{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
-  --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
-  --on-primary:#FFFFFF;--focus:#4B74A6}}
-@media (prefers-color-scheme:dark){{:root{{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--border:#2A3B5C;
-  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--cell-past:#33476B;
-  --cell-future:#1C2943;--on-primary:#0E1626;--focus:#A9C3EC;color-scheme:dark}}}}
-*{{box-sizing:border-box}}
-body{{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 {FONT};word-break:keep-all;overflow-wrap:break-word}}
-main{{max-width:1120px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:56px}}
-h1,h2,h3{{color:var(--heading);margin:0;line-height:1.35;text-wrap:balance}}
-h1{{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}}
-h2{{font-size:20px}}
-h3{{font-size:16px;line-height:1.45;font-weight:600}}
-a{{color:inherit;text-decoration:none}}
-a:focus-visible{{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}}
-p{{margin:0}}
-.top{{display:grid;gap:20px}}
-.title-block{{display:grid;gap:12px}}
-.brand{{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}}
-.brand-logos{{display:inline-flex;align-items:center;gap:12px;border-radius:8px}}
-.brand-logos img{{display:block;width:auto;height:36px;object-fit:contain}}
-.brand-sep{{width:1px;height:24px;background:#D8E4F2}}
-.brand p{{color:var(--muted);font-size:14px;font-weight:600}}
-@media (prefers-color-scheme:dark){{.brand-logos{{background:#FFFFFF;padding:4px 10px}}}}
-.row{{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}}
-.links{{display:flex;flex-wrap:wrap;gap:8px}}
-.links a{{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 10px;border:1px solid var(--border);
-  border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}}
-.links a:hover{{border-color:var(--primary)}}
-.links img{{display:block;width:20px;height:20px;border-radius:5px}}
-.quiet-list{{display:grid;gap:12px}}
-.subject.quiet{{gap:6px}}
-.quiet h2{{font-size:17px;color:var(--muted);font-weight:600}}
-.soon{{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}}
-.count{{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}}
-.count b{{color:var(--heading)}}
-.timeline{{display:flex;flex-wrap:wrap;gap:14px 24px;padding:20px;background:var(--surface);
-  border:1px solid var(--border);border-radius:16px}}
-.tl{{display:grid;gap:6px;min-width:0}}
-.tl-name{{font-size:13px;font-weight:600;color:var(--heading)}}
-.tl-cells{{display:flex;flex-wrap:wrap;gap:3px}}
-.cell{{width:14px;height:14px;border-radius:3px;display:inline-block;background:var(--cell-future)}}
-.cell.past{{background:var(--cell-past)}}
-.cell.has{{background:var(--primary)}}
-a.cell:hover{{transform:scale(1.25)}}
-.cell.today{{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}}
-.subject{{display:grid;gap:16px}}
-.subject-head{{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}}
-.subject-head a:hover h2{{text-decoration:underline}}
-.subject-head span{{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}}
-.grid{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}}
-.card{{display:grid;gap:6px;align-content:start;min-width:0;padding:16px;background:var(--surface);
-  border:1px solid var(--border);border-radius:14px}}
-.card:hover{{border-color:var(--primary)}}
-.card:hover h3{{text-decoration:underline}}
-.meta{{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}}
-.meta b{{color:var(--heading)}}
-.pdf,.links-row a{{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px}}
-.pdf{{justify-self:start}}
-.links-row{{display:flex;flex-wrap:wrap;gap:4px 14px}}
-.feature{{display:grid;gap:6px;padding:20px;background:var(--soft);border:1px solid var(--border);border-radius:16px}}
-.feature:hover{{border-color:var(--primary)}}
-.feature:hover h3{{text-decoration:underline}}
-.feature h3{{font-size:22px;font-weight:700}}
-.label{{font-size:13px;font-weight:600;color:var(--muted)}}
-.btn{{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
-  background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}}
-.refs{{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}}
-.refs .label{{font-size:13px;margin-right:2px}}
-.common{{gap:10px}}
-.common .refs .label{{min-width:5.5em}}
-.ref{{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:6px 16px 6px 12px;
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  font-size:14px;font-weight:600;color:var(--heading)}}
-.ref:hover{{border-color:var(--primary);text-decoration:underline;text-underline-offset:3px}}
-.ref-logo{{display:flex;align-items:center;justify-content:center;border-radius:6px}}
-.ref-logo img{{display:block;width:auto;height:24px;max-width:40px;object-fit:contain}}
-@media (prefers-color-scheme:dark){{.ref-logo:not(.own){{background:#FFFFFF;padding:3px 5px}}}}
-@media (max-width:900px){{.grid{{grid-template-columns:repeat(2,minmax(0,1fr))}}}}
-@media (max-width:600px){{.common .refs .label{{flex-basis:100%}}}}
-@media (prefers-reduced-motion:reduce){{a.cell:hover{{transform:none}}}}
+# 이 저장소에서 그린 아이콘: 두 테마 모두에서 보이는 색이라 다크 모드 흰 받침을 깔지 않는다
+OWN_ICONS = {"code.svg", "terminal.svg"}
+
+
+PAGE_CSS = """
+:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
+  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
+  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
+  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+h1,h2,h3{color:var(--heading);text-wrap:balance}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+svg{display:block}
+
+/* 맨 위: 브랜드 줄 + 문제 풀이 */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
+.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
+.brand-sep{width:1px;height:22px;background:#D8E4F2}
+.brand p{color:var(--muted);font-size:14px;font-weight:600}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
+.links a:hover{border-color:var(--accent)}
+.links img{display:block;width:20px;height:20px;border-radius:5px}
+@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+
+/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
+.hero-l{display:grid;gap:22px}
+.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
+.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.recent{border-top:1px solid var(--line-2)}
+.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
+  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
+.recent a:hover{background:var(--soft);padding-left:10px}
+.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
+.recent a:hover .go{opacity:1}
+.recent .go svg{width:16px;height:16px}
+.recent li.on .t{font-weight:700}
+.recent li.on .no{color:var(--accent);font-weight:700}
+.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
+.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
+  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
+.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
+  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
+.cover>*{position:relative}
+.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
+.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
+.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.cover .c-n{font-size:15px;opacity:.72}
+.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
+.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
+.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
+.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
+.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
+.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
+.cover:hover .c-go svg{transform:translateX(4px)}
+@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+
+/* 100일 일정 */
+.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.3)}
+.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* 참고 문서 모음 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:40px 0 8px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.shelf .col{display:grid;gap:4px;align-content:start;padding:22px 24px;border-left:1px solid var(--line);margin-left:-1px}
+.shelf h2{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.shelf a{display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:10px;font-size:15px;font-weight:600;color:var(--heading);transition:background .15s}
+.shelf a:hover{background:var(--soft)}
+.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
+.ref-logo img{display:block;width:auto;height:22px;max-width:36px;object-fit:contain}
+@media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
+.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+
+/* 과목 = 챕터 */
+.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
+.chapter.empty{grid-template-columns:1fr;padding:22px 0}
+.ch-side{display:grid;gap:4px;align-content:start}
+.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
+.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
+.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chapter.empty .ch-side{grid-auto-flow:column;justify-content:start;align-items:baseline;gap:14px}
+.chapter.empty h2{font-size:22px;margin:0}
+.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.rows li:first-child{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
+.row:hover{background:var(--soft)}
+.row:hover .t{color:var(--accent)}
+.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
+.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
+.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
+.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
+.mini:hover{background:var(--soft);border-color:var(--accent)}
+.mini svg{width:14px;height:14px}
+.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.rows li.all .no{color:var(--accent)}
+
+@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col{border-left:0;margin-left:0;border-top:1px solid var(--line)}
+  .shelf .col:first-child{border-top:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
+  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
+@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
 """
 
+ICON_DOC = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>')
+ICON_EXT = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+            '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>')
+ICON_ARROW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+              '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>')
+# 과목 번호(챕터): SUBJECTS에서 경로가 있는 과목의 순서
+CHAPTER = {key: i for i, key in enumerate([k for k, _ in SUBJECTS.values() if k], 1)}
 
-def list_page(title, body, nav=""):
+
+def list_page(title, body, nav="", up=""):
     return f"""<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title>
+<link rel="stylesheet" href="{up}fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>{PAGE_CSS}</style>
 {ANALYTICS}
 </head>
@@ -310,78 +366,85 @@ def list_page(title, body, nav=""):
 """
 
 
-def day_card(d, up):
+def day_links(d, up):
+    """Day 한 줄 오른쪽의 작은 버튼: PDF · 강의 자료 · 하위 페이지"""
     href = f'{up}{d["key"]}/{d["ymd"]}/'
+    out = []
     pdf = pdf_of(d["src"])
-    links = []
     if pdf:
-        links.append(f'<a href="{href}{html.escape(pdf)}">PDF</a>')
+        out.append(f'<a class="mini" href="{href}{html.escape(pdf)}">{ICON_DOC}PDF</a>')
     if d["link"]:
-        links.append(f'<a href="{html.escape(d["link"])}" target="_blank" rel="noopener">강의 자료 ↗</a>')
+        out.append(f'<a class="mini" href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료</a>')
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
-        links.append(f'<a href="{href}{sub}/">{html.escape(label)}</a>')
-    row = f'<p class="links-row">{"".join(links)}</p>' if links else ""
-    return (f'<div class="card"><a href="{href}">'
-            f'<p class="meta"><b>Day{d["n"]}</b><span>{md(d["date"])}</span></p>'
-            f'<h3>{html.escape(page_h1(d["src"]))}</h3></a>{row}</div>')
+        out.append(f'<a class="mini" href="{href}{sub}/">{ICON_ARROW}{html.escape(label)}</a>')
+    return "".join(out)
 
 
-def feature_card(key, up):
-    src = PAGES / key / "all"
-    href = f"{up}{key}/"
-    pdf = pdf_of(src)
-    pdf_link = f'<a class="pdf" href="{href}{html.escape(pdf)}">PDF</a>' if pdf else ""
-    return (f'<div class="feature"><a href="{href}"><p class="label">4일 종합</p>'
-            f'<h3>{html.escape(page_h1(src))}</h3></a>{pdf_link}</div>')
+def logo_span(logo):
+    own = " own" if logo in OWN_ICONS else ""
+    return (f'<span class="ref-logo{own}"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
+            f'width="32" height="22"></span>')
 
 
-# 이 저장소에서 그린 아이콘: 두 테마 모두에서 보이는 색이라 다크 모드 흰 받침을 깔지 않는다
-OWN_ICONS = {"code.svg", "terminal.svg"}
-
-
-def ref_links(refs, up):
-    return "".join(f'<a class="ref" href="{up}{path}" title="{html.escape(desc)}">'
-                    f'<span class="ref-logo{" own" if logo in OWN_ICONS else ""}"><img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" '
-                    f'width="32" height="22"></span>{html.escape(name)}</a>'
-                    for path, name, logo, desc in refs)
-
-
-def refs_row(key, up):
-    refs = refs_of(key)
-    if not refs:
-        return ""
-    return f'<p class="refs"><span class="label">참고</span>{ref_links(refs, up)}</p>'
-
-
-def common_block(up):
-    """과정 공통 가이드: 묶음마다 한 줄. 보일 가이드가 없으면 섹션도 없다."""
-    rows = []
+def shelf_block(subjects, up):
+    """참고 문서 모음: 공통 가이드 묶음 + 과목 참고 문서. 보일 것이 없는 칸은 main에서만 '준비 중'."""
+    cols = []
     for group in COMMON_GROUPS:
-        refs = [(f"setup/{k}/", name, logo, desc) for k, name, logo, desc, g in setup_items() if g == group]
-        if refs:
-            rows.append(f'<p class="refs"><span class="label">{html.escape(group)}</span>{ref_links(refs, up)}</p>')
-    if not rows:
-        return ""
-    return f'<section class="subject common"><div class="subject-head"><h2>공통 가이드</h2></div>{"".join(rows)}</section>'
+        items = [(f"setup/{k}/", name, logo) for k, name, logo, desc, g in setup_items() if g == group]
+        links = "".join(f'<a href="{up}{p}">{logo_span(lg)}<span>{html.escape(n)}</span></a>' for p, n, lg in items)
+        if links or not RELEASE:
+            cols.append(f'<div class="col"><h2>{html.escape(group)}</h2>{links or "<span class=soon>준비 중</span>"}</div>')
+    refs = [r for key, _ in subjects for r in refs_of(key)]
+    if refs:
+        links = "".join(f'<a href="{up}{p}" title="{html.escape(desc)}">{logo_span(lg)}<span>{html.escape(n)}</span></a>'
+                        for p, n, lg, desc in refs)
+        cols.append(f'<div class="col"><h2>과목 참고 문서</h2>{links}</div>')
+    return f'<section class="shelf" aria-label="참고 문서 모음">{"".join(cols)}</section>' if cols else ""
 
 
-def subject_block(key, ds, up, link_head=True):
+def chapter_block(key, ds, up, link_head=True):
+    """과목 한 블록: 왼쪽 챕터 번호·이름·범위, 오른쪽 Day 목록"""
     made = [d for d in ds if d["src"]]
     has_all = (PAGES / key / "all" / "index.html").exists()
+    today = datetime.date.today().isoformat()
+    name = html.escape(ds[0]["short"])
+    if link_head and (made or has_all):
+        name = f'<a href="{up}{key}/">{name}</a>'
+    rng = f'Day{ds[0]["n"]}–{ds[-1]["n"]}'
     if not made and not has_all:
-        return (f'<section class="subject quiet"><div class="subject-head"><h2 title="{html.escape(ds[0]["subject"])}">{html.escape(ds[0]["short"])}</h2>'
-                f'<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span><span class="soon">준비 중</span></div>'
-                f'{refs_row(key, up)}</section>')
-    head = f'<h2 title="{html.escape(ds[0]["subject"])}">{html.escape(ds[0]["short"])}</h2>'
-    if link_head:
-        head = f'<a href="{up}{key}/">{head}</a>'
-    parts = [f'<div class="subject-head">{head}<span>Day{ds[0]["n"]}–{ds[-1]["n"]}</span></div>']
+        return (f'<section class="chapter empty"><div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span>'
+                f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span></div></section>')
+    side = (f'<div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span><h2 title="{html.escape(ds[0]["subject"])}">{name}</h2>'
+            f'<span class="ch-meta">{rng}</span><span class="ch-meta">요약 {len(made)} / {len(ds)}일</span></div>')
+    rows = []
     if has_all:
-        parts.append(feature_card(key, up))
+        src = PAGES / key / "all"
+        pdf = pdf_of(src)
+        btn = f'<a class="mini" href="{up}{key}/{html.escape(pdf)}">{ICON_DOC}PDF</a>' if pdf else ""
+        rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
+                    f'<span class="t">{html.escape(page_h1(src))}</span><span class="d">{len(ds)}일</span></a><span class="lk">{btn}</span></li>')
+    for d in reversed(made):
+        rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
+                    f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
+                    f'<span class="lk">{day_links(d, up)}</span></li>')
+    return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
+
+
+def cover_card(days, subjects, today):
+    """지금 과목 표지: 오늘이 속한(없으면 마지막으로 시작한) 과목"""
+    key, ds = subjects[-1]
+    n_done = len([d for d in ds if d["date"] <= today])
+    made = [d for d in ds if d["src"]]
     if made:
-        parts.append(f'<div class="grid">{"".join(day_card(d, up) for d in made)}</div>')
-    parts.append(refs_row(key, up))
-    return f'<section class="subject">{"".join(parts)}</section>'
+        go_href, go_text = f'{made[-1]["key"]}/{made[-1]["ymd"]}/', f'Day{made[-1]["n"]} · {page_h1(made[-1]["src"])}'
+    else:
+        go_href, go_text = f'#{key}', f'{ds[0]["short"]} 보기'
+    return (f'<a class="cover" href="{go_href}"><span class="wm" aria-hidden="true">{CHAPTER[key]:02d}</span>'
+            f'<span class="eyebrow">CHAPTER {CHAPTER[key]:02d} · 지금 과목</span>'
+            f'<b>{html.escape(ds[0]["short"])}</b><span class="c-n">{html.escape(ds[0]["subject"])}</span>'
+            f'<span class="prog"><span class="bar"><i style="width:{round(100 * n_done / len(ds))}%"></i></span>'
+            f'<span class="c-k">{n_done} / {len(ds)}일</span></span>'
+            f'<span class="c-go"><span>{html.escape(go_text)}</span>{ICON_ARROW}</span></a>')
 
 
 def timeline(days, today):
@@ -415,35 +478,37 @@ def image_data(image):
 def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
-    made = sum(bool(d["src"]) for d in days)
-    ordered = list(reversed(subjects))
-    full = [subject_block(k, ds, "") for k, ds in ordered if "quiet" not in subject_block(k, ds, "")]
-    quiet = [subject_block(k, ds, "") for k, ds in ordered if "quiet" in subject_block(k, ds, "")]
-    blocks = "".join(full) + (f'<div class="quiet-list">{"".join(quiet)}</div>' if quiet else "")
+    made = [d for d in days if d["src"]]
+    latest = made[-1] if made else None
+    recent = "".join(
+        f'<li class="{"on" if d is latest else ""}"><a href="{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
+        f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span>'
+        f'<span class="go">{ICON_ARROW}</span></a></li>'
+        for d in reversed(made[-4:]))
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
                        f'<img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" width="20" height="20">{name} ↗</a>'
                        for name, logo, url in PRACTICE)
     sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
     nvidia = image_data(HERE / "assets" / "branding" / "nvidia.svg")
+    chapters = "".join(chapter_block(k, ds, "") for k, ds in reversed(subjects))
     body = f"""<header class="top">
-<div class="title-block">
-<div class="brand">
-<span class="brand-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="36"><span class="brand-sep" aria-hidden="true"></span><img src="{nvidia}" alt="NVIDIA" height="36"></span>
-<p>청년취업사관학교 · AI 코어 엔지니어 2기</p>
-</div>
-<h1>{SITE_NAME}</h1>
-</div>
-<div class="row"><p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{made}</b>일</p>
-<nav class="links" aria-label="문제 풀이">{practice}</nav></div>
-<div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
+<div class="brand"><span class="brand-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="32"><span class="brand-sep" aria-hidden="true"></span><img src="{nvidia}" alt="NVIDIA" height="32"></span>
+<p>청년취업사관학교 · AI 코어 엔지니어 2기</p></div>
+<nav class="links" aria-label="문제 풀이">{practice}</nav>
 </header>
-{common_block("")}{blocks}"""
+<section class="hero"><div class="hero-l"><h1 class="title">{SITE_NAME}</h1>
+<p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{len(made)}</b>일</p>
+<div><p class="label">최근 수업</p><ol class="recent">{recent}</ol></div></div>
+{cover_card(days, subjects, today)}</section>
+<div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
+{shelf_block(list(reversed(subjects)), "")}
+{chapters}"""
     return list_page(SITE_NAME, body)
 
 
 def subject_page(key, ds):
     nav = nav_html(1, [], here=ds[0]["short"])
-    return list_page(f'{ds[0]["short"]} · {SITE_NAME}', subject_block(key, ds, "../", link_head=False), nav)
+    return list_page(f'{ds[0]["short"]} · {SITE_NAME}', chapter_block(key, ds, "../", link_head=False), nav, up="../")
 
 
 # ── 만들기 ──────────────────────────────────────────────────────────────
@@ -453,6 +518,7 @@ def main():
     if PUBLIC.exists():
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir()
+    shutil.copytree(HERE / "assets" / "fonts", PUBLIC / "fonts")   # 홈·과목 목록의 Pretendard(OFL)
 
     # 과목별로 묶기: 수업이 시작된 과목은 홈에 모두 보이고, 과목 페이지는 요약이 있는 과목만 만든다
     started, subjects = [], []

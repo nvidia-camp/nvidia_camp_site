@@ -4,88 +4,130 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DL · 학습 아카이브</title>
+<link rel="stylesheet" href="../fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>
-:root{--bg:#F9FBFE;--surface:#FFFFFF;--soft:#F0F6FD;--border:#D8E4F2;--primary:#142849;
-  --heading:#1C2B40;--text:#222F44;--muted:#52667E;--cell-past:#C9D7EA;--cell-future:#E2EAF5;
-  --on-primary:#FFFFFF;--focus:#4B74A6}
-@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--border:#2A3B5C;
-  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--cell-past:#33476B;
-  --cell-future:#1C2943;--on-primary:#0E1626;--focus:#A9C3EC;color-scheme:dark}}
+:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
+  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
+  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
+  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:break-word}
-main{max-width:1120px;margin:0 auto;padding:40px 16px 72px;display:grid;gap:56px}
-h1,h2,h3{color:var(--heading);margin:0;line-height:1.35;text-wrap:balance}
-h1{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}
-h2{font-size:20px}
-h3{font-size:16px;line-height:1.45;font-weight:600}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+h1,h2,h3{color:var(--heading);text-wrap:balance}
 a{color:inherit;text-decoration:none}
-a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}
-p{margin:0}
-.top{display:grid;gap:20px}
-.title-block{display:grid;gap:12px}
-.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+svg{display:block}
+
+/* 맨 위: 브랜드 줄 + 문제 풀이 */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
 .brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
-.brand-logos img{display:block;width:auto;height:36px;object-fit:contain}
-.brand-sep{width:1px;height:24px;background:#D8E4F2}
+.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
+.brand-sep{width:1px;height:22px;background:#D8E4F2}
 .brand p{color:var(--muted);font-size:14px;font-weight:600}
-@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
-.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
 .links{display:flex;flex-wrap:wrap;gap:8px}
-.links a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 10px;border:1px solid var(--border);
-  border-radius:999px;background:var(--surface);font-size:14px;font-weight:600;color:var(--heading)}
-.links a:hover{border-color:var(--primary)}
+.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
+.links a:hover{border-color:var(--accent)}
 .links img{display:block;width:20px;height:20px;border-radius:5px}
-.quiet-list{display:grid;gap:12px}
-.subject.quiet{gap:6px}
-.quiet h2{font-size:17px;color:var(--muted);font-weight:600}
-.soon{font-size:12px;border:1px dashed var(--border);border-radius:999px;padding:0 8px}
-.count{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+
+/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
+.hero-l{display:grid;gap:22px}
+.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
+.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
 .count b{color:var(--heading)}
-.timeline{display:flex;flex-wrap:wrap;gap:14px 24px;padding:20px;background:var(--surface);
-  border:1px solid var(--border);border-radius:16px}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.recent{border-top:1px solid var(--line-2)}
+.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
+  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
+.recent a:hover{background:var(--soft);padding-left:10px}
+.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
+.recent a:hover .go{opacity:1}
+.recent .go svg{width:16px;height:16px}
+.recent li.on .t{font-weight:700}
+.recent li.on .no{color:var(--accent);font-weight:700}
+.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
+.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
+  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
+.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
+  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
+.cover>*{position:relative}
+.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
+.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
+.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.cover .c-n{font-size:15px;opacity:.72}
+.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
+.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
+.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
+.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
+.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
+.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
+.cover:hover .c-go svg{transform:translateX(4px)}
+@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+
+/* 100일 일정 */
+.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .tl{display:grid;gap:6px;min-width:0}
-.tl-name{font-size:13px;font-weight:600;color:var(--heading)}
+.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
 .tl-cells{display:flex;flex-wrap:wrap;gap:3px}
-.cell{width:14px;height:14px;border-radius:3px;display:inline-block;background:var(--cell-future)}
+.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
 .cell.past{background:var(--cell-past)}
 .cell.has{background:var(--primary)}
-a.cell:hover{transform:scale(1.25)}
-.cell.today{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
-.subject{display:grid;gap:16px}
-.subject-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
-.subject-head a:hover h2{text-decoration:underline}
-.subject-head span{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}
-.card{display:grid;gap:6px;align-content:start;min-width:0;padding:16px;background:var(--surface);
-  border:1px solid var(--border);border-radius:14px}
-.card:hover{border-color:var(--primary)}
-.card:hover h3{text-decoration:underline}
-.meta{display:flex;gap:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.meta b{color:var(--heading)}
-.pdf,.links-row a{font-size:13px;color:var(--primary);text-decoration:underline;text-underline-offset:3px}
-.pdf{justify-self:start}
-.links-row{display:flex;flex-wrap:wrap;gap:4px 14px}
-.feature{display:grid;gap:6px;padding:20px;background:var(--soft);border:1px solid var(--border);border-radius:16px}
-.feature:hover{border-color:var(--primary)}
-.feature:hover h3{text-decoration:underline}
-.feature h3{font-size:22px;font-weight:700}
-.label{font-size:13px;font-weight:600;color:var(--muted)}
-.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:12px;
-  background:var(--primary);color:var(--on-primary);font-weight:600;font-size:15px}
-.refs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
-.refs .label{font-size:13px;margin-right:2px}
-.common{gap:10px}
-.common .refs .label{min-width:5.5em}
-.ref{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:6px 16px 6px 12px;
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  font-size:14px;font-weight:600;color:var(--heading)}
-.ref:hover{border-color:var(--primary);text-decoration:underline;text-underline-offset:3px}
-.ref-logo{display:flex;align-items:center;justify-content:center;border-radius:6px}
-.ref-logo img{display:block;width:auto;height:24px;max-width:40px;object-fit:contain}
+a.cell:hover{transform:scale(1.3)}
+.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* 참고 문서 모음 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:40px 0 8px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.shelf .col{display:grid;gap:4px;align-content:start;padding:22px 24px;border-left:1px solid var(--line);margin-left:-1px}
+.shelf h2{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.shelf a{display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:10px;font-size:15px;font-weight:600;color:var(--heading);transition:background .15s}
+.shelf a:hover{background:var(--soft)}
+.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
+.ref-logo img{display:block;width:auto;height:22px;max-width:36px;object-fit:contain}
 @media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
-@media (max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:600px){.common .refs .label{flex-basis:100%}}
-@media (prefers-reduced-motion:reduce){a.cell:hover{transform:none}}
+.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+
+/* 과목 = 챕터 */
+.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
+.chapter.empty{grid-template-columns:1fr;padding:22px 0}
+.ch-side{display:grid;gap:4px;align-content:start}
+.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
+.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
+.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chapter.empty .ch-side{grid-auto-flow:column;justify-content:start;align-items:baseline;gap:14px}
+.chapter.empty h2{font-size:22px;margin:0}
+.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.rows li:first-child{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
+.row:hover{background:var(--soft)}
+.row:hover .t{color:var(--accent)}
+.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
+.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
+.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
+.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
+.mini:hover{background:var(--soft);border-color:var(--accent)}
+.mini svg{width:14px;height:14px}
+.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.rows li.all .no{color:var(--accent)}
+
+@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col{border-left:0;margin-left:0;border-top:1px solid var(--line)}
+  .shelf .col:first-child{border-top:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
+  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
+@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
 </style>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -100,7 +142,7 @@ a.cell:hover{transform:scale(1.25)}
 @media print{.cn-nav{display:none}}
 </style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 아카이브</a><span class="cn-here">DL</span></nav>
 <main>
-<section class="subject"><div class="subject-head"><h2 title="딥러닝 핵심 아키텍처 및 학습">DL</h2><span>Day9–11-2</span></div><div class="grid"><div class="card"><a href="../dl/20261030/"><p class="meta"><b>Day10</b><span>10/30</span></p><h3>학습을 안정시키는 도구들은 어디에 있을까</h3></a><p class="links-row"><a href="../dl/20261030/Day10_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793319419618279" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102/"><p class="meta"><b>Day11-1</b><span>11/2</span></p><h3>CNN 개념 지도 · 모델 안과 모델 밖</h3></a><p class="links-row"><a href="../dl/20261102/Day11_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793578427089629" target="_blank" rel="noopener">강의 자료 ↗</a></p></div><div class="card"><a href="../dl/20261102-2/"><p class="meta"><b>Day11-2</b><span>11/2</span></p><h3>순서 모델 한눈에 보기</h3></a><p class="links-row"><a href="../dl/20261102-2/Day12_개념지도.pdf">PDF</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener">강의 자료 ↗</a></p></div></div><p class="refs"><span class="label">참고</span><a class="ref" href="../cheatsheet/pytorch/" title="텐서 · 신경망 학습"><span class="ref-logo"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNy4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwLjYgMTA2Ny45IDkwLjMgMTA5LjEiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMC42IDEwNjcuOSA5MC4zIDEwOS4xIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxwYXRoIGZpbGw9IiNFRTRDMkMiIGQ9Ik03Ny42LDEwOTkuNmwtOC4xLDguMWMxMy4zLDEzLjMsMTMuMywzNC43LDAsNDcuOGMtMTMuMywxMy4zLTM0LjcsMTMuMy00Ny44LDANCgkJYy0xMy4zLTEzLjMtMTMuMy0zNC43LDAtNDcuOGwwLDBsMjEuMS0yMS4xbDMtM2wwLDB2LTE1LjlsLTMxLjgsMzEuOGMtMTcuNywxNy43LTE3LjcsNDYuMywwLDY0YzE3LjcsMTcuNyw0Ni4zLDE3LjcsNjMuNywwDQoJCUM5NS4zLDExNDUuOCw5NS4zLDExMTcuNCw3Ny42LDEwOTkuNnoiLz4NCgk8Y2lyY2xlIGZpbGw9IiNFRTRDMkMiIGN4PSI2MS43IiBjeT0iMTA5MS44IiByPSI1LjkiLz4NCjwvZz4NCjwvc3ZnPg0K" alt="" width="32" height="22"></span>PyTorch 치트시트</a></p></section>
+<section class="chapter" id="dl"><div class="ch-side"><span class="ch-no">03</span><h2 title="딥러닝 핵심 아키텍처 및 학습">DL</h2><span class="ch-meta">Day9–11-2</span><span class="ch-meta">요약 3 / 4일</span></div><ol class="rows"><li><a class="row" href="../dl/20261102-2/"><span class="no">Day11-2</span><span class="t">순서 모델 한눈에 보기</span><span class="d">11/2</span></a><span class="lk"><a class="mini" href="../dl/20261102-2/Day12_개념지도.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>PDF</a><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li><li><a class="row" href="../dl/20261102/"><span class="no">Day11-1</span><span class="t">CNN 개념 지도 · 모델 안과 모델 밖</span><span class="d">11/2</span></a><span class="lk"><a class="mini" href="../dl/20261102/Day11_개념지도.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>PDF</a><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793578427089629" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li><li><a class="row" href="../dl/20261030/"><span class="no">Day10</span><span class="t">학습을 안정시키는 도구들은 어디에 있을까</span><span class="d">10/30</span></a><span class="lk"><a class="mini" href="../dl/20261030/Day10_개념지도.pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>PDF</a><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793319419618279" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li></ol></section>
 </main>
 </body>
 </html>
