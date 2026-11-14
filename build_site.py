@@ -16,6 +16,8 @@
   참고 문서 모음은 공통 묶음(COMMON_GROUPS)별 설치 가이드 칸 + '과목 참고 문서' 칸(치트시트·과목 설치 가이드).
 - 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 각 요약 페이지 글꼴은 건드리지 않는다.
 - 각 폴더의 index.html을 public/에 복사하고, 사이트 메뉴·통계를 뺀 원본을 download.html로 함께 둔다(메뉴의 "HTML 받기"). PDF는 만들지 않는다(2026-11-14 폐지).
+- 강사님 강의 HTML(sync_lecture_html.py가 pages/<과목>/<날짜>/lecture/에 옮김)은 원본 그대로 /<과목>/<날짜>/lecture/에
+  메뉴 아래 전체 화면으로 띄운다. 홈 Day 줄·Day 페이지 메뉴의 '바로 보기'로 열고, '강의 자료 ↗'는 지금처럼 Slack 링크.
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.

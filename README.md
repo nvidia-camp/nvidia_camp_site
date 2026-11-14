@@ -42,3 +42,14 @@ git add -A && git commit -m "..." && git push        # main → 미리보기
 - 사이트는 2026-11-10에 출시됐습니다. 2026-11-10 저녁부터는 수정할 때마다 main에 올린 뒤 바로 `git push origin main:deploy`로 배포합니다(deploy는 항상 main을 그대로 따라가는 fast-forward).
 - 공개 전 페이지: `SETUP`의 공개 여부가 False인 페이지는 main 빌드에는 그대로 들어가(따로 표시 없음) 미리보기에서 볼 수 있습니다. `uv run build_site.py --release`로 만들면 빠집니다.
 - 실제 배포: 공개 전 페이지가 없으면 `git push origin main:deploy`. 있으면 main을 그대로 올리지 않고, `--release`로 다시 만든 public/을 deploy에 올립니다.
+
+## 강의 자료 바로 보기 (강사님 강의 HTML)
+
+강사님이 강의 HTML을 주시면(웹사이트 게시 허락, 2026-11-14):
+
+1. `nvidia_camp/<과목>/<YYYYMMDD>/` 바로 아래에 둡니다. 같은 날 두 번째 회차는 `Day*_02/` 아래. nvidia_camp에서는 `.gitignore`로 제외됩니다.
+2. `uv run sync_lecture_html.py` → `pages/<과목>/<날짜>/lecture/index.html`로 복사(원본 그대로, 바뀐 것만).
+3. `uv run build_site.py` → `/<과목>/<날짜>/lecture/`가 생기고, 홈 Day 줄과 Day 페이지 메뉴에 **바로 보기**가 붙습니다.
+
+- **강의 자료 ↗**는 지금처럼 학습 자료 시트의 Slack 링크(PDF든 HTML이든 원본)입니다.
+- 강의 HTML은 고치지 않습니다. 사이트 메뉴 아래 화면 전체에 띄우고, 메뉴의 "HTML 받기"로 원본을 그대로 받습니다.
