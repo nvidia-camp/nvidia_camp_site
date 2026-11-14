@@ -293,14 +293,21 @@ a.cell:hover{transform:scale(1.3)}
 .cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 
 /* 참고 문서 모음 */
-.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:40px 0 8px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
-.shelf .col{display:grid;gap:4px;align-content:start;padding:22px 24px;border-left:1px solid var(--line);margin-left:-1px}
-.shelf h2{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
-.shelf a{display:flex;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:10px;font-size:15px;font-weight:600;color:var(--heading);transition:background .15s}
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
+.shelf .col+.col{border-left:1px solid var(--line)}
+.shelf+.chapter{border-top:0}
+.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
 .shelf a:hover{background:var(--soft)}
 .ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
-.ref-logo img{display:block;width:auto;height:22px;max-width:36px;object-fit:contain}
+.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
+.ch-refs{display:grid;gap:2px;margin-top:12px}
+.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
+.ch-refs a:hover{background:var(--soft)}
+.chapter.empty .ch-refs{margin-top:0;grid-auto-flow:column;gap:12px}
 @media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
+.shelf .soon{margin:2px 0}
 .soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
 
 /* 과목 = 챕터 */
@@ -329,8 +336,8 @@ a.cell:hover{transform:scale(1.3)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
 
-@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col{border-left:0;margin-left:0;border-top:1px solid var(--line)}
-  .shelf .col:first-child{border-top:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
+@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
+  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
   .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
 @media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
@@ -411,11 +418,14 @@ def chapter_block(key, ds, up, link_head=True):
     if link_head and (made or has_all):
         name = f'<a href="{up}{key}/">{name}</a>'
     rng = f'Day{ds[0]["n"]}–{ds[-1]["n"]}'
+    refs = "".join(f'<a href="{up}{p}" title="{html.escape(desc)}">{logo_span(lg)}<span>{html.escape(n)}</span></a>'
+                   for p, n, lg, desc in refs_of(key))
+    refs = f'<div class="ch-refs" aria-label="참고 문서">{refs}</div>' if refs else ""
     if not made and not has_all:
         return (f'<section class="chapter empty"><div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span>'
-                f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span></div></section>')
+                f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span>{refs}</div></section>')
     side = (f'<div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span><h2 title="{html.escape(ds[0]["subject"])}">{name}</h2>'
-            f'<span class="ch-meta">{rng}</span><span class="ch-meta">요약 {len(made)} / {len(ds)}일</span></div>')
+            f'<span class="ch-meta">{rng}</span><span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>{refs}</div>')
     rows = []
     if has_all:
         src = PAGES / key / "all"
