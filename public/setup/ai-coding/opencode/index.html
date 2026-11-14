@@ -191,21 +191,21 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 
 <section class="card" aria-labelledby="direct">
   <h2 id="direct">로컬 모델과 바로 대화하기</h2>
-  <p>코드 작업이 아니라 질문만 할 때는 OpenCode 없이 Ollama로 바로 묻습니다.</p>
+  <p>코드 작업이 아니라 질문만 할 때는 OpenCode 없이 Ollama로 바로 물으면 됩니다.</p>
   <div class="code">
     <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c-chat">코드 복사</button></div>
     <pre id="c-chat">ollama run gpt-oss:20b      <span class="c"># 대화 시작. 끝낼 때는 /bye</span>
 ollama ps                   <span class="c"># 지금 올라가 있는 모델 · GPU 사용 확인</span>
 ollama stop gpt-oss:20b     <span class="c"># 모델 내리기: GPU 메모리 약 14GB를 돌려받음</span></pre>
   </div>
-  <p class="hint">Ollama 앱의 <b>Chat</b> 화면도 같은 모델을 씁니다. 게임이나 다른 GPU 실습 전에는 <code>ollama stop</code>으로 모델을 내립니다.</p>
+  <p class="hint">설치 3-2에서 1시간 유지로 설정했다면 마지막 사용 뒤 1시간 동안 모델이 GPU에 남아 있어 바로 답합니다. Ollama 앱의 <b>Chat</b> 화면도 같은 모델을 씁니다. 게임이나 다른 GPU 실습 전에는 <code>ollama stop</code>으로 모델을 내려 두십시오.</p>
 </section>
 
 <section class="card soft" aria-labelledby="rules">
   <h2 id="rules">로컬 모델이라 더 지킬 5가지</h2>
   <ol class="rules">
-    <li><b>"완료했다"는 말을 더 의심합니다.</b><span>작은 모델은 하지 않은 일을 했다고 말하는 경우가 많습니다. 화면의 실행 기록과 파일을 직접 봅니다.</span></li>
-    <li><b>테스트를 고치지 말라고 적습니다.</b><span>테스트가 실패하면 코드 대신 테스트를 고치는 경우가 있습니다. 바뀐 파일 목록에 테스트가 있는지 봅니다.</span></li>
+    <li><b>"완료했다"는 말을 더 의심합니다.</b><span>작은 모델은 하지 않은 일을 했다고 말하는 경우가 많으니 화면의 실행 기록과 파일을 직접 봐야 합니다.</span></li>
+    <li><b>테스트를 고치지 말라고 적어 둡니다.</b><span>테스트가 실패하면 코드 대신 테스트를 고치는 경우가 있으니 바뀐 파일 목록에 테스트가 있는지 봅니다.</span></li>
     <li><b>주제가 바뀌면 <code>/new</code>로 새로 시작합니다.</b><span>화면의 %는 128K 기준이라 50% 근처면 이미 한계(64K)입니다. 했던 일을 반복하거나 규칙을 잊으면 넘친 것입니다.</span></li>
     <li><b>작게 시키고, 계획을 먼저 봅니다.</b><span>여러 파일을 고치는 일은 Plan으로 계획부터 세웁니다.</span></li>
     <li><b>입력창 아래 모델을 확인합니다.</b><span><b>gpt-oss:20b Ollama</b>가 아니면 질문이 외부 서버로 전송됩니다.</span></li>
@@ -255,7 +255,7 @@ ollama stop gpt-oss:20b     <span class="c"># 모델 내리기: GPU 메모리 �
 
 <section class="card" aria-labelledby="plan">
   <h2 id="plan">Plan → Build</h2>
-  <p><b>Build</b>는 파일을 고치고 명령을 실행합니다. <b>Plan</b>은 코드를 읽고 계획만 세우며 파일을 고치지 않습니다. 작은 모델은 큰 일을 한 번에 시키면 길을 잃기 쉬워서, 계획을 먼저 보면 실패가 크게 줄어듭니다.</p>
+  <p><b>Build</b>는 파일을 고치고 명령을 실행합니다. <b>Plan</b>은 코드를 읽고 계획만 세우며 파일을 고치지 않습니다. 작은 모델은 큰 일을 한 번에 시키면 헤매기 쉬워서 계획을 먼저 보면 실패가 크게 줄어듭니다.</p>
   <ol class="plain">
     <li><kbd>Shift</kbd>+<kbd>Tab</kbd>으로 <b>Plan</b> → "이 기능을 넣으려면 어떤 파일을 어떻게 바꿔야 하는지 계획만 세워줘"</li>
     <li>계획을 읽고 틀린 부분을 대화로 고칩니다.</li>
@@ -273,7 +273,7 @@ ollama stop gpt-oss:20b     <span class="c"># 모델 내리기: GPU 메모리 �
 - 답변과 주석은 한국어로
 - 파일을 고친 뒤에는 반드시 실행해서 확인할 것</pre>
   </div>
-  <p class="note"><b>짧게 씁니다.</b> 매 요청마다 대화 길이(64K)를 차지합니다. OpenCode는 <code>CLAUDE.md</code>를 읽지 않으니 Claude Code와 같이 쓰는 프로젝트라면 <code>AGENTS.md</code>를 따로 만듭니다.</p>
+  <p class="note"><b>짧게 쓰는 것이 좋습니다.</b> 매 요청마다 대화 길이(64K)를 차지하기 때문입니다. OpenCode는 <code>CLAUDE.md</code>를 읽지 않으니 Claude Code와 같이 쓰는 프로젝트라면 <code>AGENTS.md</code>를 따로 만들어야 합니다.</p>
 </section>
 
 <section class="card" aria-labelledby="perm">
@@ -287,7 +287,7 @@ ollama stop gpt-oss:20b     <span class="c"># 모델 내리기: GPU 메모리 �
       </tbody>
     </table>
   </div>
-  <p class="hint">묻지 않고 모두 허용하는 <code>opencode --auto</code>는 망가져도 되는 테스트 폴더에서만 씁니다. 로컬 모델은 실수가 잦아서 특히 그렇습니다.</p>
+  <p class="hint">묻지 않고 모두 허용하는 <code>opencode --auto</code>는 망가져도 되는 테스트 폴더에서만 쓰십시오. 로컬 모델은 실수가 잦아서 특히 그렇습니다.</p>
 </section>
 
 <footer class="refs">
