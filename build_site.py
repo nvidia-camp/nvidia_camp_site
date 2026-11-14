@@ -117,6 +117,8 @@ def read_days():
             "n": row["day"], "date": row["date"], "ymd": folder, "key": key, "short": short,
             "subject": row["subject"], "link": row["link"],
             "src": src if src and (src / "index.html").exists() else None,
+            # 사이트에 올린 강의 HTML (sync_lecture_html.py) → '바로 보기'
+            "lecture": src / "lecture" if src and (src / "lecture" / "index.html").exists() else None,
         })
     return days
 
@@ -147,7 +149,7 @@ NAV_CSS = f"""<style>
 DOWNLOAD_MARK = "<!--download-->"  # copy_page가 'HTML 받기' 링크로 바꾼다
 
 
-def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None):
+def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view=None):
     """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)"""
     up = "../" * depth
     left = [f'<a href="{up or "./"}">← {SITE_NAME}</a>']
@@ -155,6 +157,8 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None):
     if here:
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = [DOWNLOAD_MARK]
+    if view:
+        right.append(f'<a href="{html.escape(view)}">바로 보기</a>')
     if lecture:
         right.append(f'<a href="{html.escape(lecture)}" target="_blank" rel="noopener">강의 자료 ↗</a>')
     if prev:
@@ -193,6 +197,34 @@ def download_name(text):
     name = re.sub(r"[\\/:*?\"<>|·()\[\]–—|-]+", " ", name)
     name = re.sub(r"\s+", "_", name.strip())[:60].strip("_")
     return f"{name}.html"
+
+
+def copy_lecture(src, dest, nav):
+    """강사님 강의 HTML: 원본은 손대지 않고 download.html로 두고, 사이트 메뉴 아래 화면 전체에 띄운다.
+    (강의 HTML은 자체 고정 머리·아래 막대가 있어 메뉴를 끼워 넣으면 겹친다)"""
+    original = (src / "index.html").read_text(encoding="utf-8")
+    m = re.search(r"<title>(.*?)</title>", original, re.S)
+    title = m.group(1).strip() if m else "강의 자료"
+    link = (f'<a class="cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
+            f'title="강의 자료를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a>')
+    page = f"""<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<style>html,body{{margin:0;height:100%}}body{{display:flex;flex-direction:column;height:100dvh;background:#fff}}
+.lecture-frame{{flex:1;width:100%;border:0;display:block}}</style>
+{ANALYTICS}
+</head>
+<body>{nav.replace(DOWNLOAD_MARK, link)}<iframe class="lecture-frame" src="download.html" title="{title}"></iframe></body>
+</html>
+"""
+    out = PUBLIC / dest
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "index.html").write_text(page, encoding="utf-8")
+    (out / "download.html").write_text(original, encoding="utf-8")   # 강의 원본 그대로 (화면 · 받기 공용)
+    print(f"  /{dest}/ ← {src.relative_to(HERE)} (원본 그대로, 메뉴 아래 전체 화면)")
 
 
 def copy_page(src, dest, nav):
@@ -338,6 +370,8 @@ a.cell:hover{transform:scale(1.3)}
   font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
 .mini:hover{background:var(--soft);border-color:var(--accent)}
 .mini svg{width:14px;height:14px}
+.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.mini.view:hover{border-color:var(--accent)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
 
@@ -359,6 +393,8 @@ def day_range(ds):
     return f'Day{ds[0]["n"].split("-")[0]}–{ds[-1]["n"].split("-")[0]}'
 
 
+ICON_VIEW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+             '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>')
 # 과목 번호(챕터): SUBJECTS에서 경로가 있는 과목의 순서
 CHAPTER = {key: i for i, key in enumerate([k for k, _ in SUBJECTS.values() if k], 1)}
 
@@ -384,9 +420,11 @@ def list_page(title, body, nav="", up=""):
 
 
 def day_links(d, up):
-    """Day 한 줄 오른쪽의 작은 버튼: 강의 자료 · 하위 페이지"""
+    """Day 한 줄 오른쪽의 작은 버튼: 바로 보기(사이트의 강의 HTML) · 강의 자료(Slack 원본) · 하위 페이지"""
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     out = []
+    if d["lecture"]:
+        out.append(f'<a class="mini view" href="{href}lecture/">{ICON_VIEW}바로 보기</a>')
     if d["link"]:
         out.append(f'<a class="mini" href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료</a>')
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
@@ -431,7 +469,7 @@ def chapter_block(key, ds, up, link_head=True):
     if not made and not has_all:
         rows = "".join(
             f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span><span class="d">{md(d["date"])}</span></span>'
-            f'<span class="lk">{day_links(d, up)}</span></li>' for d in reversed(ds) if d["date"] <= today)
+            f'<span class="lk">{day_links(d, up)}</span></li>' for d in reversed(ds) if d["date"] <= today or d["lecture"])
         return (f'<section class="chapter pending" id="{key}"><div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span>'
                 f'<h2 title="{html.escape(ds[0]["subject"])}">{name}</h2><span class="ch-meta">{rng}</span><span class="soon">준비 중</span>{refs}</div>'
                 f'<ol class="rows">{rows}</ol></section>')
@@ -448,7 +486,7 @@ def chapter_block(key, ds, up, link_head=True):
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
                         f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
-        elif d["date"] <= today:   # 지난 날인데 요약이 아직 없으면 '요약 준비 중'
+        elif d["date"] <= today or d["lecture"]:   # 요약이 아직 없으면 '요약 준비 중' (강의 HTML이 있으면 미리 보임)
             rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">요약 준비 중</span>'
                         f'<span class="d">{md(d["date"])}</span></span><span class="lk">{day_links(d, up)}</span></li>')
     return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
@@ -484,6 +522,9 @@ def timeline(days, today):
         tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["subject"]}')
         if d["src"]:
             groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" title="{tip}" aria-label="{tip}"></a>')
+        elif d["lecture"]:
+            tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료 바로 보기')
+            groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/lecture/" title="{tip}" aria-label="{tip}"></a>')
         elif d["link"]:
             tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료')
             groups[-1][1].append(f'<a class="cell {state}" href="{html.escape(d["link"])}" target="_blank" rel="noopener" '
@@ -562,11 +603,21 @@ def main():
         prev = (f'Day{made[i-1]["n"]}', f'{made[i-1]["key"]}/{made[i-1]["ymd"]}/') if i > 0 else None
         nxt = (f'Day{made[i+1]["n"]}', f'{made[i+1]["key"]}/{made[i+1]["ymd"]}/') if i + 1 < len(made) else None
         nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
-                       prev=prev, next_=nxt, lecture=d["link"])
+                       prev=prev, next_=nxt, lecture=d["link"], view="lecture/" if d["lecture"] else None)
         copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav)
         for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
             copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
                       nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label))
+
+    print("강의 자료 바로 보기")
+    for d in days:
+        if not d["lecture"]:
+            continue
+        crumbs = [(d["short"], f'{d["key"]}/')]
+        if d["src"]:
+            crumbs.append((f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/'))
+        here = "강의 자료" if d["src"] else f'Day{d["n"]} 강의 자료'
+        copy_lecture(d["lecture"], f'{d["key"]}/{d["ymd"]}/lecture', nav_html(3, crumbs, here=here, lecture=d["link"]))
 
     print("과목")
     for key, ds in subjects:
