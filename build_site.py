@@ -66,19 +66,19 @@ CHEATSHEETS = {
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목 또는 공통 묶음, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
-    "opencode": ("OpenCode", "opencode.svg", "로컬 AI 코딩 도구 설치 · 사용법", "AI 코딩", False),
+    "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode", "AI 코딩", False),
     "cli": ("CLI 도구", "terminal.svg", "AI 에이전트가 쓰는 터미널 도구", "AI 코딩", False),
 }
 # 과정 전체에서 쓰는 가이드의 묶음과 순서. 홈 '공통 가이드' 섹션에 묶음마다 한 줄씩 나온다.
 COMMON_GROUPS = ["개발 환경", "AI 코딩"]
 # 페이지와 함께 내려받게 둘 파일: 사이트 경로 → [파일 이름]. 페이지에서는 data-site를 붙여 링크한다.
 FILES = {
-    "setup/opencode": ["SETUP_FOR_AI.md"],
+    "setup/local-ai": ["SETUP_FOR_AI.md"],
 }
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
-    "opencode": [("", "설치"), ("usage", "사용법")],
+    "local-ai": [("", "설치"), ("usage", "사용법")],
 }
 # Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.
 DAY_SUBPAGES = {

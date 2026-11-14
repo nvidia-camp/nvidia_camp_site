@@ -132,6 +132,12 @@ dialog.zoom img { display: block; max-width: 96vw; max-height: 94vh; border-radi
 }
 
 /* 공통 가이드 추가분 */
+figure.shot img { width: auto; max-width: 100%; }
+.card h3 { margin-top: 0.5rem; color: var(--color-primary); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.toc a { font-size: 0.85rem; font-weight: 600; color: var(--color-heading); text-decoration: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 0.3rem 0.75rem; background: var(--color-surface); }
+.toc a:hover { border-color: var(--color-primary); }
+section[id], h2[id] { scroll-margin-top: 3.5rem; }
 .tag { font-size: 0.75rem; font-weight: 700; color: var(--color-primary); background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.05rem 0.55rem; white-space: nowrap; }
 .btn { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.75rem; padding: 0 1.1rem; border-radius: var(--radius-control); background: var(--color-primary); color: var(--on-primary); text-decoration: none; font-weight: 700; justify-self: start; }
 .btn:hover { text-decoration: underline; }
@@ -242,11 +248,11 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 - GitHub: `gh` (출력은 `--json 필드 --limit N`으로 줄이기). CI 실패는 `gh run view --log-failed`
 - 커밋 전: `gitleaks dir . -v`</pre>
   </div>
-  <p class="note"><b>에이전트는 내 계정 권한을 그대로 씁니다.</b> 로그인된 <code>gh</code>로 저장소 삭제도 할 수 있습니다. OpenCode 설치 때 넣은 설정이 <code>gh repo delete</code>를 막고 있습니다.</p>
+  <p class="note"><b>에이전트는 내 계정 권한을 그대로 씁니다.</b> 로그인된 <code>gh</code>로 저장소 삭제도 할 수 있습니다. 로컬 AI 코딩 설치 6-1의 설정이 <code>gh repo delete</code>를 막고 있습니다.</p>
 </section>
 
 <footer class="refs">
-  <span>함께 보기: <a data-site href="../opencode/">OpenCode 설치</a> · <a data-site href="../opencode/usage/">OpenCode 사용법</a></span>
+  <span>함께 보기: <a data-site href="../local-ai/">로컬 AI 코딩 설치</a> · <a data-site href="../local-ai/usage/">사용법</a></span>
 </footer>
 
 </main>

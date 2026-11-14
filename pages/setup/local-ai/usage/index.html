@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenCode 가이드 · 사용법</title>
-<meta name="description" content="로컬 모델로 OpenCode를 쓸 때 지킬 습관, 화면 읽기, 자주 쓰는 명령, Plan → Build">
+<title>로컬 AI 코딩 · 사용법</title>
+<meta name="description" content="로컬 모델과 바로 대화하기, OpenCode로 일 시킬 때 지킬 습관과 명령, Plan → Build">
 <style>
 :root {
   --color-primary: #142849;
@@ -132,6 +132,12 @@ dialog.zoom img { display: block; max-width: 96vw; max-height: 94vh; border-radi
 }
 
 /* 공통 가이드 추가분 */
+figure.shot img { width: auto; max-width: 100%; }
+.card h3 { margin-top: 0.5rem; color: var(--color-primary); }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.toc a { font-size: 0.85rem; font-weight: 600; color: var(--color-heading); text-decoration: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 0.3rem 0.75rem; background: var(--color-surface); }
+.toc a:hover { border-color: var(--color-primary); }
+section[id], h2[id] { scroll-margin-top: 3.5rem; }
 .tag { font-size: 0.75rem; font-weight: 700; color: var(--color-primary); background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.05rem 0.55rem; white-space: nowrap; }
 .btn { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.75rem; padding: 0 1.1rem; border-radius: var(--radius-control); background: var(--color-primary); color: var(--on-primary); text-decoration: none; font-weight: 700; justify-self: start; }
 .btn:hover { text-decoration: underline; }
@@ -161,28 +167,31 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 }
 </style>
 </head>
-<body><style>
-.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
-  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
-.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
-.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
-.cn-nav .cn-here{opacity:.7}
-.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
-@media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../../">← 학습 노트</a><a href="../../../setup/opencode/">OpenCode</a><span class="cn-here">사용법</span><span class="cn-right"><a href="../../../setup/opencode/">‹ 설치</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
-<script defer src="/_vercel/insights/script.js"></script>
+<body>
 <main>
 
 <header class="head">
-  <p class="eyebrow">공통 가이드 · OpenCode v2 · gpt-oss:20b</p>
-  <h1>OpenCode 사용법</h1>
+  <p class="eyebrow">공통 가이드 · gpt-oss:20b · Ollama · OpenCode v2</p>
+  <h1>로컬 AI 코딩 사용법</h1>
   <p class="lead">로컬 모델은 작고, 기억하는 대화 길이도 짧습니다. 아래 습관을 지키면 결과가 크게 달라집니다.</p>
 </header>
 
-<nav class="tabs" aria-label="OpenCode 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치</a><a data-site href="./" aria-current="page"><span class="n">2</span>사용법</a></nav>
+<nav class="tabs" aria-label="로컬 AI 코딩 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치</a><a data-site href="./" aria-current="page"><span class="n">2</span>사용법</a></nav>
+
+<section class="card" aria-labelledby="direct">
+  <h2 id="direct">모델과 바로 대화하기</h2>
+  <p>코드 작업이 아니라 질문만 할 때는 OpenCode 없이 Ollama로 바로 묻습니다.</p>
+  <div class="code">
+    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c-chat">코드 복사</button></div>
+    <pre id="c-chat">ollama run gpt-oss:20b      <span class="c"># 대화 시작. 끝낼 때는 /bye</span>
+ollama ps                   <span class="c"># 지금 올라가 있는 모델 · GPU 사용 확인</span>
+ollama stop gpt-oss:20b     <span class="c"># 모델 내리기: GPU 메모리 약 14GB를 돌려받음</span></pre>
+  </div>
+  <p class="hint">Ollama 앱의 <b>Chat</b> 화면도 같은 모델을 씁니다. 게임이나 다른 GPU 실습 전에는 <code>ollama stop</code>으로 모델을 내립니다.</p>
+</section>
 
 <section class="card soft" aria-labelledby="rules">
-  <h2 id="rules">꼭 지킬 5가지</h2>
+  <h2 id="rules">OpenCode로 일 시킬 때 꼭 지킬 5가지</h2>
   <ol class="rules">
     <li><b>"완료했다"는 말을 믿지 말고 직접 확인합니다.</b><span>파일이 바뀌었는지, 실행 결과가 맞는지 내 눈으로 봅니다.</span></li>
     <li><b>작업 전에 git 커밋으로 저장점을 만듭니다.</b><span>잘못되면 <code>/undo</code>나 git으로 되돌립니다.</span></li>
@@ -285,7 +294,7 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
       </tbody>
     </table>
   </div>
-  <p class="hint">설치 때 넣은 설정으로 <code>git push</code> · <code>git reset --hard</code>는 실행 전에 묻고, <code>git push --force</code>는 막혀 있습니다. 묻지 않고 모두 허용하는 <code>opencode --auto</code>는 망가져도 되는 테스트 폴더에서만 씁니다.</p>
+  <p class="hint">설치 6-1에서 넣은 설정으로 <code>git push</code> · <code>git reset --hard</code>는 실행 전에 묻고, <code>git push --force</code>는 막혀 있습니다. 묻지 않고 모두 허용하는 <code>opencode --auto</code>는 망가져도 되는 테스트 폴더에서만 씁니다.</p>
 </section>
 
 <details>

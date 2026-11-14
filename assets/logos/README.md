@@ -10,7 +10,7 @@
 | `sklearn.svg` | [scikit-learn 공식 저장소](https://github.com/scikit-learn/scikit-learn/blob/main/doc/logos/scikit-learn-logo-without-subtitle.svg) | [Branding & Logos](https://scikit-learn.org/stable/about.html#branding-logos) |
 | `pytorch.svg` | [PyTorch 공식 웹사이트 저장소](https://github.com/pytorch/pytorch.github.io/blob/site/assets/images/logo-icon.svg) | [Brand guidelines](https://pytorch.org/brand-guidelines/) |
 | `opencv.png` | [OpenCV 공식 저장소](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.png) | [로고 안내](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.md) |
-| `opencode.svg` | [OpenCode 공식 브랜드 페이지](https://opencode.ai/brand) `opencode-logo-transparent-light.svg` (2026-11-14 확인) | [Brand](https://opencode.ai/brand) |
+| `ollama.png` | [Ollama 공식 사이트](https://ollama.com/public/ollama.png) (2026-11-14 확인) | [ollama.com](https://ollama.com) |
 | `postgresql.svg` | [PostgreSQL 공식 위키](https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg) (2026-11-10 확인) | [Trademark Policy](https://www.postgresql.org/about/policies/trademarks/) |
 
 `terminal.svg`는 특정 제품이 아닌 'CLI 도구' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.

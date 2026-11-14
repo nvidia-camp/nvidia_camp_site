@@ -1,6 +1,6 @@
 # OpenCode + 로컬 AI 모델 설치 가이드 (AI 에이전트 실행용)
 
-> 2026-11-14 강사 PC에서 검증한 순서입니다. 화면 캡처는 https://nvidiasesac.vercel.app/setup/opencode/ 에 있습니다.
+> 2026-11-14 강사 PC에서 검증한 순서입니다. 화면 캡처는 https://nvidiasesac.vercel.app/setup/local-ai/ 에 있습니다.
 
 ---
 
