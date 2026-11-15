@@ -92,3 +92,4 @@
 | 2026-11-15 | setup/vscode-extensions | 사용자 캡처 6장 추가(Python · Pylance · Python Debugger · Korean Language Pack · Error Lens · Git Graph), 표를 캡처+설명 줄로 바꿈. 추천은 Error Lens · Git Graph 2개(Rainbow CSV 제외), Jupyter는 캡처 없이 글로. 1280 · 375px · 다크 넘침 없음 | main만 |
 | 2026-11-15 | 홈 · assets/logos | VS Code 확장 가이드 아이콘을 직접 그린 extension.svg에서 VS Code 공식 아이콘(vscode.png, code.visualstudio.com, 64px)으로 교체. 홈 참고 문서 모음에서 확인 | main만 |
 | 2026-11-15 | setup/vscode-extensions · setup/python-venv · 홈 | "VS Code 확장" → "VS Code Extension"으로 이름 변경(제목 · 홈 · 본문). 한국어 메뉴 이름 "확장"은 첫 문장과 아이콘 안내에 한 번씩 병기. 주소는 그대로 /setup/vscode-extensions/ | main만 |
+| 2026-11-15 | setup/path | 사용자 캡처 4장 추가: 계정의 환경 변수 편집 검색, 사용자 변수 Path 선택, 환경 변수 편집 창에 추가된 Tesseract 경로, 새 PowerShell의 tesseract --version. 저장소가 공개라 캡처 속 PC 사용자 이름은 회색 칸으로 가림(20곳), 배경이 비친 가장자리는 잘라 냄 | main만 |
