@@ -188,7 +188,7 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 <header class="head">
   <p class="eyebrow">공통 가이드 · 개발 환경 · Windows 11 · PowerShell · Python 3.13</p>
   <h1>Python 가상환경</h1>
-  <p class="lead">Python 패키지를 용도별로 따로 설치해 두는 폴더입니다. 수업에서는 <b>gpuenv</b>와 <b>backendenv</b> 두 개를 실습 저장소 바깥에 만들고, 설치 목록 파일(<code>requirements-….txt</code>)로 한 번에 설치합니다.</p>
+  <p class="lead">Python 패키지를 용도별로 따로 설치해 두는 폴더입니다. 수업에서는 <b>gpuenv</b>와 <b>backendenv</b> 두 개를 실습 저장소 바깥에 만들거나, 둘을 합친 통합 환경 <b>.venv</b> 하나를 만듭니다. 패키지는 설치 목록 파일(<code>requirements-….txt</code>)로 한 번에 설치합니다.</p>
 </header>
 
 <section class="card" aria-label="한눈에 보기">
@@ -198,25 +198,42 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 │  ├─ requirements-backend.txt
 │  ├─ gpuenv\                     ← GPU 실습용 가상환경
 │  └─ backendenv\                 ← 서버와 DB 실습용 가상환경
-└─ practice_assignment\           ← 실습 저장소. 가상환경을 넣지 않음</pre>
+└─ practice_assignment\           ← 실습 저장소
+   └─ .venv\                      ← (선택) 통합 환경. 위 둘을 하나로 합친 것</pre>
   <div class="table-wrap">
     <table class="stack">
       <thead><tr><th>환경</th><th>쓰는 실습</th><th>주요 패키지</th></tr></thead>
       <tbody>
         <tr><td><code>gpuenv</code></td><td data-label="쓰는 실습">Python 기초 · ML · DL · Vision · LLM과 Transformer(11/13)</td><td data-label="주요 패키지">PyTorch(CUDA) · NumPy · pandas · scikit-learn · OpenCV · ultralytics · transformers</td></tr>
         <tr><td><code>backendenv</code></td><td data-label="쓰는 실습">REST API(11/10) · API와 DB 연동(11/12) · Prompt · Context Engineering(11/16)</td><td data-label="주요 패키지">FastAPI · SQLAlchemy · psycopg · alembic · pytest</td></tr>
+        <tr><td><code>.venv</code> (통합)</td><td data-label="쓰는 실습">위 실습 전부. 환경을 바꾸지 않고 하나로 씁니다</td><td data-label="주요 패키지">gpuenv + backendenv 전부, 같은 버전</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="hint">SQL 실습(11/11)은 Python을 쓰지 않으므로 가상환경이 필요 없습니다. 나누지 않고 하나로 쓰고 싶으면 <a href="#s6">6 통합 환경</a>을 봅니다.</p>
+  <p class="hint"><b>둘 중 한 가지 방식만 하면 됩니다.</b> 나눠 쓰려면 2 → 5를, 하나로 쓰려면 1을 한 뒤 <a href="#s6">6 통합 환경</a>으로 갑니다. SQL 실습(11/11)은 Python을 쓰지 않으므로 가상환경이 필요 없습니다.</p>
 </section>
 
-<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 Python 확인</a><a href="#s2">2 설치 목록 받기</a><a href="#s3">3 만들고 설치</a><a href="#s4">4 켜기 · 확인</a><a href="#s5">5 VS Code 연결</a><a href="#s6">6 통합 환경</a><a href="#s7">7 추가 · 갱신</a><a href="#trouble">막히면</a></nav>
+<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 프로그램 설치</a><a href="#s2">2 설치 목록 받기</a><a href="#s3">3 만들고 설치</a><a href="#s4">4 켜기 · 확인</a><a href="#s5">5 VS Code 연결</a><a href="#s6">6 통합 환경</a><a href="#s7">7 추가 · 갱신</a><a href="#trouble">막히면</a></nav>
 
 <section class="card" aria-labelledby="s1">
-  <div class="step-head"><span class="num">1</span><h2 id="s1">설치된 Python 확인</h2></div>
+  <div class="step-head"><span class="num">1</span><h2 id="s1">먼저 설치할 프로그램</h2></div>
+  <p>가상환경에 들어가지 않고 PC에 직접 설치하는 프로그램입니다. 한 번만 설치합니다.</p>
+  <div class="table-wrap">
+    <table class="stack">
+      <thead><tr><th>프로그램</th><th>버전</th><th>필요한 실습</th><th>받는 곳</th></tr></thead>
+      <tbody>
+        <tr><td><b>Python</b></td><td data-label="버전">3.13 (3.13.x 중 최신)</td><td data-label="필요한 실습">전체</td><td data-label="받는 곳"><a href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener">python.org</a></td></tr>
+        <tr><td><b>Git</b></td><td data-label="버전">최신</td><td data-label="필요한 실습">전체</td><td data-label="받는 곳"><a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">git-scm.com</a></td></tr>
+        <tr><td><b>VS Code</b> + Python 확장</td><td data-label="버전">최신</td><td data-label="필요한 실습">전체</td><td data-label="받는 곳"><a href="https://code.visualstudio.com/" target="_blank" rel="noopener">code.visualstudio.com</a></td></tr>
+        <tr><td><b>NVIDIA 그래픽 드라이버</b></td><td data-label="버전">최신</td><td data-label="필요한 실습">DL부터 (gpuenv)</td><td data-label="받는 곳"><a href="https://www.nvidia.com/ko-kr/drivers/" target="_blank" rel="noopener">nvidia.com 드라이버</a></td></tr>
+        <tr><td><b>Tesseract</b> + 한국어 언어 데이터</td><td data-label="버전">5.5.0</td><td data-label="필요한 실습">문서 AI (11/09)</td><td data-label="받는 곳"><a href="https://tesseract-ocr.github.io/tessdoc/Installation.html" target="_blank" rel="noopener">Tesseract 설치 안내</a> · 설치 후 <a data-site href="../path/">경로 설정 (PATH)</a></td></tr>
+        <tr><td><b>PostgreSQL</b> + pgAdmin 4</td><td data-label="버전">18</td><td data-label="필요한 실습">SQL (11/11) · API와 DB 연동 (11/12)</td><td data-label="받는 곳"><a data-site href="../postgresql/">PostgreSQL 가이드</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">CUDA Toolkit은 따로 설치하지 않습니다. PyTorch를 설치할 때 함께 들어옵니다. Python을 설치할 때는 설치 화면의 <b>py launcher</b> 항목을 켜 둡니다.</p>
   <div class="code">
-    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c1">코드 복사</button></div>
+    <div class="code-head"><span>PowerShell · Python 확인</span><button type="button" data-copy="c1">코드 복사</button></div>
     <pre id="c1">py --list          <span class="c"># 설치된 Python 버전 목록</span>
 py -3.13 --version <span class="c"># Python 3.13.x</span></pre>
   </div>
