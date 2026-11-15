@@ -90,3 +90,4 @@
 | 2026-11-15 | setup/vscode-extensions | 수업(Slack) 안내 확장 3개를 2단계로 추가: Code Runner · Live Server · Material Icon Theme, 사용자가 올린 캡처 3장 포함(ID · 게시자는 Marketplace 확인). Code Runner가 고른 가상환경을 쓰지 않는다는 주의 추가. 단계 번호 1~5로 조정 | main만 |
 | 2026-11-15 | setup/vscode-extensions | 확장 수를 줄임: 설치할 것 6개(수업 안내 3 + Python · Jupyter · Korean Language Pack; Pylance · Python Debugger는 Python 확장과 함께 설치되므로 목록에서 뺌), 추천은 8개 → 3개(Error Lens · Rainbow CSV · Git Graph, "이럴 때 설치" 기준). Ruff · Data Wrangler · REST Client · WSL · Docker 제외. "확장은 적을수록 좋다" 안내 | main만 |
 | 2026-11-15 | setup/vscode-extensions | 사용자 캡처 6장 추가(Python · Pylance · Python Debugger · Korean Language Pack · Error Lens · Git Graph), 표를 캡처+설명 줄로 바꿈. 추천은 Error Lens · Git Graph 2개(Rainbow CSV 제외), Jupyter는 캡처 없이 글로. 1280 · 375px · 다크 넘침 없음 | main만 |
+| 2026-11-15 | 홈 · assets/logos | VS Code 확장 가이드 아이콘을 직접 그린 extension.svg에서 VS Code 공식 아이콘(vscode.png, code.visualstudio.com, 64px)으로 교체. 홈 참고 문서 모음에서 확인 | main만 |
