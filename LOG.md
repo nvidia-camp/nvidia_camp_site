@@ -80,3 +80,4 @@
 | 2026-11-14 | 홈 · 과목 목록 | 요약 없는 Day에 강의 목차 기준 예정 제목(PLANNED_TITLES) + "요약 준비 중" 배지, 과목마다 맨 위 "종합" 줄(없으면 "<과목> N일 종합 · 요약 준비 중"). 1280·375px, 라이트·다크 확인 | main만 |
 | 2026-11-15 | 홈 · 과목 목록 | 요약 준비 중인 "종합" 줄에도 Vision 종합과 같은 연한 파랑 그라데이션. 라이트·다크 확인 | main만 |
 | 2026-11-15 | 전체 | 사용자 요청으로 배포: --release 빌드(비공개 가이드 local-ai·ai-coding·cli 제외)를 deploy에 fast-forward push(5c56a02), main에는 merge -s ours로 기록만 합침. 라이브 확인은 아래 행 | 배포 |
+| 2026-11-15 | setup/path · setup/venv · setup/docker · 홈 | 개발 환경 가이드 3개 초안(공개 전): Windows 경로와 PATH(경로 읽기·폴더 이동·PATH 확인·추가·막히면), Python 가상환경(py -3.13 -m venv .venv — 수업 자료와 같은 방식, 켜기·pip·VS Code 연결·끄기), Docker(WSL 2 → Docker Desktop → 확인 → 기본 명령 → Compose, Docker·Microsoft 공식 문서 2026-11-15 확인). 캡처 없음, Windows PC 실행 확인 전. 로고 python.png·docker.png(공식 사이트), path.svg(직접 그림). 홈 참고 문서 모음 "개발 환경" 칸에 표시, --release에서는 빠짐. 1280·375px·다크 확인 | main만 |

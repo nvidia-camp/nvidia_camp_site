@@ -17,8 +17,10 @@
 | `antigravity.png` | [Antigravity 공식 사이트](https://antigravity.google) `antigravity-logo.png` 276px → 64px (2026-11-14 확인) | Google |
 | `swea.png` | [SW Expert Academy](https://swexpertacademy.com) 파비콘 152px → 64px (2026-11-14 확인) | Samsung |
 | `programmers.png` | [프로그래머스 스쿨](https://school.programmers.co.kr) apple-icon 192px → 64px (2026-11-14 확인) | Grepp |
+| `python.png` | [python.org](https://www.python.org) apple-touch-icon 144px → 64px (2026-11-15 확인) | [PSF Trademark](https://www.python.org/psf/trademarks/) |
+| `docker.png` | [docker.com](https://www.docker.com) 파비콘 192px → 64px (2026-11-15 확인) | [Docker Brand](https://www.docker.com/company/newsroom/media-resources/) |
 | `postgresql.svg` | [PostgreSQL 공식 위키](https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg) (2026-11-10 확인) | [Trademark Policy](https://www.postgresql.org/about/policies/trademarks/) |
 
-`terminal.svg` · `code.svg`는 특정 제품이 아닌 'CLI 도구' · 'AI 코딩 도구' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.
+`terminal.svg` · `code.svg` · `path.svg`는 특정 제품이 아닌 'CLI 도구' · 'AI 코딩 도구' · 'Windows 경로와 PATH' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.
 
 확인일: 2026-11-09. 각 로고의 권리는 원 권리자에게 있습니다.

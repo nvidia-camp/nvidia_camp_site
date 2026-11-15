@@ -69,6 +69,9 @@ CHEATSHEETS = {
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목 또는 공통 묶음, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
+    "path": ("Windows 경로와 PATH", "path.svg", "경로 읽기 · PATH 확인과 추가", "개발 환경", False),
+    "venv": ("Python 가상환경", "python.png", "venv 만들기 · 켜기 · 패키지 설치", "개발 환경", False),
+    "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", False),
     "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", False),
     "cli": ("CLI 도구", "terminal.svg", "AI 에이전트가 쓰는 터미널 도구", "AI 코딩", False),
@@ -249,7 +252,7 @@ def copy_page(src, dest, nav):
 
 # ── 목록 페이지 (홈, 과목) ───────────────────────────────────────────────
 # 이 저장소에서 그린 아이콘: 두 테마 모두에서 보이는 색이라 다크 모드 흰 받침을 깔지 않는다
-OWN_ICONS = {"code.svg", "terminal.svg"}
+OWN_ICONS = {"code.svg", "terminal.svg", "path.svg"}
 
 
 PAGE_CSS = """
