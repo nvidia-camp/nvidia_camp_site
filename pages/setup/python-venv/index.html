@@ -229,6 +229,19 @@ code .chg { font-size: 1em; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chg { color: #9CC0FF; background: rgba(127, 166, 255, 0.16); border-bottom-color: #7FA6FF; } :root:not([data-theme="light"]) pre .chg { color: #FFD98A; background: rgba(255, 217, 138, 0.16); border-bottom-color: #FFD98A; } }
 :root[data-theme="dark"] .chg { color: #9CC0FF; background: rgba(127, 166, 255, 0.16); border-bottom-color: #7FA6FF; }
 :root[data-theme="dark"] pre .chg { color: #FFD98A; background: rgba(255, 217, 138, 0.16); border-bottom-color: #FFD98A; }
+/* 한 가상환경을 사용하는 두 실행 경로 */
+.env-routes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.env-route { display: grid; align-content: start; gap: 0.75rem; min-width: 0; padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-soft); }
+.env-route h3 { margin: 0; color: var(--color-heading); font-size: 1.1rem; }
+.env-route ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5rem; }
+.env-route li { position: relative; display: grid; gap: 0.25rem; min-width: 0; }
+.env-route li + li::before { content: "↓"; position: absolute; top: -1.4rem; left: 0; color: var(--color-primary); font-weight: 700; }
+.env-route li b { color: var(--color-heading); }
+.env-route li span { font-size: 0.9rem; }
+.env-target { display: grid; gap: 0.5rem; padding: 1rem; border: 2px solid var(--color-primary); border-radius: var(--radius-control); }
+.env-target > b { color: var(--color-heading); }
+.env-target > code { display: block; }
+@media (max-width: 720px) { .env-routes { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -262,7 +275,37 @@ code .chg { font-size: 1em; }
   <p class="hint"><b>둘 중 한 가지 방식만 하면 됩니다.</b> 나눠 쓰려면 2 → 5를, 하나로 쓰려면 1을 한 뒤 <a href="#s6">6 통합 환경</a>으로 갑니다. SQL 실습(11/11)은 Python을 쓰지 않으므로 가상환경이 필요 없습니다.</p>
 </section>
 
-<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 프로그램 설치</a><a href="#s2">2 설치 목록 받기</a><a href="#s3">3 만들고 설치</a><a href="#s4">4 켜기 · 확인</a><a href="#s5">5 VS Code 연결</a><a href="#s6">6 통합 환경</a><a href="#s7">7 추가 · 갱신</a><a href="#trouble">막히면</a></nav>
+<nav class="toc" aria-label="단계 바로 가기"><a href="#env-choice">터미널과 VS Code</a><a href="#s1">1 프로그램 설치</a><a href="#s2">2 설치 목록 받기</a><a href="#s3">3 만들고 설치</a><a href="#s4">4 켜기 · 확인</a><a href="#s5">5 VS Code 연결</a><a href="#env-check">같은 Python인지 확인</a><a href="#s6">6 통합 환경</a><a href="#s7">7 추가 · 갱신</a><a href="#trouble">막히면</a></nav>
+
+<section class="card" aria-labelledby="env-choice">
+  <h2 id="env-choice">터미널과 VS Code · 실행할 Python을 고르는 곳이 둘입니다</h2>
+  <p>가상환경은 3단계에서 한 번 만듭니다. 그다음 <b>명령을 직접 입력할 터미널</b>과 <b>코드를 편집하고 실행할 VS Code</b>에서 같은 환경을 골라 줍니다. 아래는 두 곳 모두 <code>gpuenv</code>를 쓰는 예시입니다.</p>
+  <div class="env-routes" aria-label="터미널 활성화와 VS Code 인터프리터 선택의 실행 흐름">
+    <div class="env-route">
+      <h3>터미널 · 명령을 직접 입력할 때</h3>
+      <ol>
+        <li><b>① Activate.ps1 실행</b><code>C:\workspace\<wbr>envs\<wbr>gpuenv\<wbr>Scripts\<wbr>Activate.ps1</code></li>
+        <li><b>② 지금 창의 PATH 순서가 바뀜</b><span><code>gpuenv\Scripts</code>를 맨 앞에 둡니다. 이 창에서 <code>python</code>을 입력하면 여기를 먼저 찾습니다.</span></li>
+        <li><b>③ python으로 실습 실행</b><code>python practice.py</code><span>선택 범위: 지금 쓰는 PowerShell 창</span></li>
+      </ol>
+    </div>
+    <div class="env-route">
+      <h3>VS Code · .py 파일을 실행할 때</h3>
+      <ol>
+        <li><b>① Python: Select Interpreter</b><span>목록에서 <code>gpuenv</code>를 고르거나 그 안의 <code>Scripts\python.exe</code> 경로를 넣습니다.</span></li>
+        <li><b>② Python Extension에 선택을 알려 줌</b><span>코드 자동 완성과 Python 파일 실행에 쓸 환경을 정합니다.</span></li>
+        <li><b>③ Python 파일 실행으로 실습 실행</b><span>실행 메뉴의 <b>Run Python File in Terminal</b>을 사용합니다.</span><span>선택 범위: VS Code에서 작업 중인 폴더·프로젝트</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="env-target">
+    <b>↓ 두 경로에서 사용할 Python 파일</b>
+    <code>C:\workspace\envs\gpuenv\Scripts\python.exe</code>
+    <p>이 Python이 <code>gpuenv\Lib\site-packages</code>에 설치한 패키지를 읽습니다. 같은 환경을 골랐다면 패키지를 다시 설치할 필요가 없습니다.</p>
+  </div>
+  <p class="note"><b>VS Code 안의 터미널도 하나의 터미널입니다.</b> 새 통합 터미널은 설정에 따라 선택한 환경이 자동으로 활성화됩니다. 이미 열려 있던 터미널이나 별도로 연 PowerShell은 다른 환경일 수 있습니다. <a href="#env-check">실제 Python 경로로 확인</a>합니다.</p>
+  <p class="hint"><code>Activate.ps1</code>은 지금 창의 PATH를 바꿉니다. Windows 환경 변수 창에 가상환경 폴더를 영구 등록할 필요는 없습니다.</p>
+</section>
 
 <section class="card" aria-labelledby="s1">
   <div class="step-head"><span class="num">1</span><h2 id="s1">먼저 설치할 프로그램</h2></div>
@@ -346,7 +389,7 @@ C:\workspace\envs\backendenv\Scripts\python.exe -m pip install -r C:\workspace\e
 
 <section class="card" aria-labelledby="s4">
   <div class="step-head"><span class="num">4</span><h2 id="s4">켜기 · 설치 확인</h2></div>
-  <p>실습을 실행하기 전에 그 실습의 환경을 켭니다. PowerShell 창을 새로 열 때마다 다시 켜야 합니다.</p>
+  <p>명령을 직접 입력하는 PowerShell에서 실습에 맞는 환경을 활성화합니다. 직접 새로 연 창에는 다시 활성화합니다. VS Code의 새 통합 터미널에서는 자동으로 활성화될 수도 있으므로, 아래 확인 명령으로 실제 환경을 봅니다.</p>
   <div class="code">
     <div class="code-head"><span>PowerShell · gpuenv 켜고 확인</span><button type="button" data-copy="c4">코드 복사</button></div>
     <pre id="c4">C:\workspace\envs\gpuenv\Scripts\Activate.ps1
@@ -357,7 +400,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"   
     <pre id="c4b">C:\workspace\envs\backendenv\Scripts\Activate.ps1
 python -c "import fastapi, sqlalchemy; print(fastapi.__version__, sqlalchemy.__version__)"   <span class="c"># 0.128.2 2.1.8</span></pre>
   </div>
-  <p>줄 맨 앞에 <b>(gpuenv)</b>나 <b>(backendenv)</b>가 붙으면 켜진 것입니다. 다른 환경으로 바꿀 때는 바꿀 환경의 <code>Activate.ps1</code>을 실행하고, 끌 때는 <code>deactivate</code>를 입력합니다.</p>
+  <p>줄 맨 앞의 <b>(gpuenv)</b>나 <b>(backendenv)</b>는 활성화 표시입니다. 표시 방식은 터미널 설정에 따라 다를 수 있으므로 <a href="#env-check">실제 Python 경로</a>도 확인합니다. 다른 환경으로 바꿀 때는 바꿀 환경의 <code>Activate.ps1</code>을 실행하고, 끌 때는 <code>deactivate</code>를 입력합니다.</p>
   <p class="note"><b>"이 시스템에서 스크립트를 실행할 수 없으므로" 오류가 나면</b> 아래 명령을 한 번 실행한 뒤 다시 켭니다. 내 계정에만 적용됩니다.</p>
   <div class="code">
     <div class="code-head"><span>PowerShell · 한 번만</span><button type="button" data-copy="c4c">코드 복사</button></div>
@@ -368,7 +411,7 @@ python -c "import fastapi, sqlalchemy; print(fastapi.__version__, sqlalchemy.__v
 
 <section class="card" aria-labelledby="s5">
   <div class="step-head"><span class="num">5</span><h2 id="s5">VS Code에 연결</h2></div>
-  <p>가상환경이 저장소 바깥에 있으면 VS Code가 자동으로 찾지 못합니다. 경로를 한 번 직접 알려 줍니다.</p>
+  <p>Python Extension이 코드 편집과 실행에 쓸 Python을 고르는 단계입니다. 터미널에서 활성화했더라도 이 선택을 확인합니다. 저장소 바깥의 환경이 목록에 보이지 않으면 경로를 직접 알려 줍니다.</p>
   <ol class="plain">
     <li>VS Code에서 실습 저장소 폴더를 엽니다 (<b>파일 → 폴더 열기</b>).</li>
     <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> → <b>Python: Select Interpreter</b>를 고릅니다.
@@ -382,6 +425,41 @@ python -c "import fastapi, sqlalchemy; print(fastapi.__version__, sqlalchemy.__v
 C:\workspace\envs\backendenv\Scripts\python.exe</pre>
   </div>
   <p class="hint">오른쪽 아래 상태 표시줄에 <code>('gpuenv')</code>처럼 환경 이름이 보이면 연결된 것입니다. 한 번 넣은 경로는 목록에 남아서, 다음부터는 목록에서 골라 바꿉니다. 캡처의 목록 아래쪽 <b>Workspace</b> 항목은 저장소 폴더 안에 있는 가상환경입니다. 6의 통합 환경 <code>.venv</code>가 이렇게 자동으로 보입니다.</p>
+  <p>선택한 뒤 <b>터미널 → 새 터미널</b>을 엽니다. 아래 확인에서 다른 Python이 나오면 4의 <code>Activate.ps1</code>을 실행해 같은 환경으로 맞춥니다.</p>
+</section>
+
+<section class="card" aria-labelledby="env-check">
+  <h2 id="env-check">같은 Python인지 확인 · 이름보다 실행 경로를 봅니다</h2>
+  <p><code>sys.executable</code>은 지금 코드를 실행하는 Python 파일의 경로입니다. 터미널과 VS Code에서 각각 출력해 비교합니다.</p>
+  <h3>① 터미널에서 확인</h3>
+  <div class="code">
+    <div class="code-head"><span>PowerShell · 실제 실행되는 Python</span><button type="button" data-copy="c-env-terminal">코드 복사</button></div>
+    <pre id="c-env-terminal">python -c "import sys; print(sys.executable)"</pre>
+  </div>
+  <h3>② VS Code의 Python 실행으로 확인</h3>
+  <p>실습 폴더에 <code>check_env.py</code>를 만들고 아래 두 줄을 넣습니다. 명령 팔레트에서 <b>Python: Run Python File in Terminal</b>을 실행합니다.</p>
+  <div class="code">
+    <div class="code-head"><span>check_env.py</span><button type="button" data-copy="c-env-file">코드 복사</button></div>
+    <pre id="c-env-file">import sys
+print(sys.executable)</pre>
+  </div>
+  <div class="env-target">
+    <b>둘 다 gpuenv를 골랐다면 · 기대 결과</b>
+    <code>C:\workspace\envs\gpuenv\Scripts\python.exe</code>
+    <p><code>backendenv</code>나 통합 <code>.venv</code>를 쓴다면 그 환경 안의 <code>Scripts\python.exe</code>가 나옵니다.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="stack">
+      <thead><tr><th>출력한 경로</th><th>맞추는 곳</th></tr></thead>
+      <tbody>
+        <tr><td>터미널 쪽이 다름</td><td>그 터미널에서 쓸 환경의 <code>Activate.ps1</code>을 실행합니다.</td></tr>
+        <tr><td>VS Code 실행 쪽이 다름</td><td><b>Python: Select Interpreter</b>에서 쓸 환경의 <code>python.exe</code>를 다시 고릅니다.</td></tr>
+        <tr><td>두 경로가 같아도 import 오류</td><td>그 환경에 패키지가 설치됐는지 <code>python -m pip list</code>로 확인하고, 3의 설치 목록으로 설치합니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note"><b>노트북(.ipynb)은 커널도 고릅니다.</b> 노트북 오른쪽 위 <b>커널 선택 → Python Environments</b>에서 같은 환경을 고릅니다. 셀에서 위 두 줄을 실행해 경로를 확인할 수 있습니다.</p>
+  <p class="hint">Code Runner의 <b>Run Code</b>는 Python Extension의 실행 명령과 다릅니다. 이 확인에서는 <b>Python: Run Python File in Terminal</b>을 사용합니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s6">
@@ -407,6 +485,7 @@ py -3.13 -m venv .venv
     </table>
   </div>
   <p class="hint"><code>.venv</code> 폴더는 git에 올리지 않습니다. 저장소의 <code>.gitignore</code>에 <code>.venv/</code>가 있는지 확인합니다.</p>
+  <p>VS Code의 <b>Python: Select Interpreter</b>에서도 통합 <code>.venv</code>를 고릅니다. 터미널 활성화와 VS Code 선택이 모두 맞는지 <a href="#env-check">같은 Python인지 확인</a>합니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s7">
@@ -436,8 +515,9 @@ py -3.13 -m venv .venv
         <tr><td><code>Could not open requirements file</code></td><td>파일 위치나 이름이 다릅니다. <code>ls C:\workspace\envs</code>로 확인하고 2의 힌트대로 이름을 고칩니다.</td></tr>
         <tr><td>설치 중 <code>No matching distribution found</code></td><td>Python 버전이 3.13이 아닙니다. 환경을 켠 뒤 <code>python --version</code>으로 확인하고, 다르면 환경 폴더를 지우고 <code>py -3.13</code>으로 다시 만듭니다.</td></tr>
         <tr><td>설치가 중간에 끊김</td><td>3의 둘째 줄을 다시 실행합니다. 받은 것은 건너뛰고 이어서 설치합니다.</td></tr>
-        <tr><td><code>ModuleNotFoundError</code></td><td>다른 환경이 켜져 있습니다. 줄 맨 앞의 환경 이름을 보고, <code>Get-Command python</code>으로 경로를 확인합니다.</td></tr>
-        <tr><td>VS Code 실행 버튼만 오류</td><td>5의 인터프리터 선택이 다른 Python으로 되어 있습니다.</td></tr>
+        <tr><td><code>ModuleNotFoundError</code></td><td><a href="#env-check">실제 Python 경로를 비교</a>합니다. 같은 환경이면 그 환경의 패키지 설치를 확인합니다.</td></tr>
+        <tr><td>터미널에서는 되는데 VS Code 실행만 오류</td><td>5의 인터프리터 선택과 Python 실행 명령을 확인합니다. Code Runner의 <b>Run Code</b>와 구분합니다.</td></tr>
+        <tr><td>VS Code 환경을 바꿨는데 터미널은 예전 환경</td><td>새 통합 터미널을 열어 경로를 확인합니다. 다르면 쓸 환경의 <code>Activate.ps1</code>을 실행합니다.</td></tr>
       </tbody>
     </table>
   </div>
@@ -445,7 +525,7 @@ py -3.13 -m venv .venv
 
 <footer class="refs">
   <span>함께 보기: <a data-site href="../path/">경로 설정 (PATH)</a> · <a data-site href="../docker/">Docker</a></span>
-  <span>공식 문서: <a href="https://docs.python.org/ko/3/library/venv.html" target="_blank" rel="noopener">venv</a> · <a href="https://pip.pypa.io/en/stable/user_guide/#requirements-files" target="_blank" rel="noopener">pip requirements 파일</a></span>
+  <span>공식 문서: <a href="https://docs.python.org/ko/3/library/venv.html" target="_blank" rel="noopener">venv</a> · <a href="https://code.visualstudio.com/docs/python/environments" target="_blank" rel="noopener">VS Code의 Python 환경</a> · <a href="https://code.visualstudio.com/docs/datascience/jupyter-kernel-management" target="_blank" rel="noopener">노트북 커널 선택</a> · <a href="https://pip.pypa.io/en/stable/user_guide/#requirements-files" target="_blank" rel="noopener">pip requirements 파일</a></span>
 </footer>
 
 </main>
