@@ -93,3 +93,4 @@
 | 2026-11-15 | 홈 · assets/logos | VS Code 확장 가이드 아이콘을 직접 그린 extension.svg에서 VS Code 공식 아이콘(vscode.png, code.visualstudio.com, 64px)으로 교체. 홈 참고 문서 모음에서 확인 | main만 |
 | 2026-11-15 | setup/vscode-extensions · setup/python-venv · 홈 | "VS Code 확장" → "VS Code Extension"으로 이름 변경(제목 · 홈 · 본문). 한국어 메뉴 이름 "확장"은 첫 문장과 아이콘 안내에 한 번씩 병기. 주소는 그대로 /setup/vscode-extensions/ | main만 |
 | 2026-11-15 | setup/path | 사용자 캡처 4장 추가: 계정의 환경 변수 편집 검색, 사용자 변수 Path 선택, 환경 변수 편집 창에 추가된 Tesseract 경로, 새 PowerShell의 tesseract --version. 저장소가 공개라 캡처 속 PC 사용자 이름은 회색 칸으로 가림(20곳), 배경이 비친 가장자리는 잘라 냄 | main만 |
+| 2026-11-15 | setup/path | 2단계(폴더 찾기)와 3단계(PATH에 추가)를 GUI · 터미널 두 방법으로 나눔. GUI: 파일 탐색기 주소 표시줄 / 환경 변수 창(캡처 3장). 터미널: Get-ChildItem / [Environment]::SetEnvironmentVariable("Path", …, "User") 3줄과 줄별 뜻. 터미널 추가 명령은 Windows에서 실행 확인 전 | main만 |
