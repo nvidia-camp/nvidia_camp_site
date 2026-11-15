@@ -71,6 +71,7 @@ SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", False),
     "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 설치 목록으로 한 번에 설치 · 통합 환경", "개발 환경", False),
+    "vscode-extensions": ("VS Code 확장", "extension.svg", "기본 확장 5개 · 실습별 추천 확장", "개발 환경", False),
     "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", False),
     "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", False),
@@ -253,7 +254,7 @@ def copy_page(src, dest, nav):
 
 # ── 목록 페이지 (홈, 과목) ───────────────────────────────────────────────
 # 이 저장소에서 그린 아이콘: 두 테마 모두에서 보이는 색이라 다크 모드 흰 받침을 깔지 않는다
-OWN_ICONS = {"code.svg", "terminal.svg", "path.svg"}
+OWN_ICONS = {"code.svg", "terminal.svg", "path.svg", "extension.svg"}
 
 
 PAGE_CSS = """
