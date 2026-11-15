@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Python 가상환경 (venv)</title>
-<meta name="description" content="Windows에서 py -3.13 -m venv로 가상환경을 만들고 켜고 패키지를 설치하고 VS Code에 연결하는 순서">
+<title>Python 가상환경</title>
+<meta name="description" content="용도별 이름의 가상환경(gpuenv · backendenv)을 실습 저장소 바깥에 만들고 켜고 VS Code에 연결하는 순서">
 <style>
 :root {
   --color-primary: #142849;
@@ -180,38 +180,42 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 .cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
 .cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">Python 가상환경</span><span class="cn-right"><a class="cn-dl" href="download.html" download="Python_가상환경_venv.html" title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">Python 가상환경</span><span class="cn-right"><a class="cn-dl" href="download.html" download="Python_가상환경.html" title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <main>
 
 <header class="head">
   <p class="eyebrow">공통 가이드 · 개발 환경 · Windows 11 · PowerShell</p>
-  <h1>Python 가상환경 (venv)</h1>
-  <p class="lead">프로젝트마다 Python 패키지를 따로 설치해 두는 폴더입니다. 수업 실습은 모두 프로젝트 폴더 안의 <code>.venv</code>에서 실행합니다.</p>
+  <h1>Python 가상환경</h1>
+  <p class="lead">Python 패키지를 용도별로 따로 설치해 두는 폴더입니다. 수업에서는 가상환경을 <b>용도별 이름</b>으로 만들고, <b>실습 저장소 바깥</b>에 둡니다.</p>
 </header>
 
 <section class="card" aria-label="한눈에 보기">
+<pre class="screen-box">C:\workspace\
+├─ envs\                    ← 가상환경을 모아 두는 폴더
+│  ├─ gpuenv\               ← GPU 실습용 (PyTorch · CUDA)
+│  └─ backendenv\           ← 백엔드 실습용 (FastAPI · DB)
+└─ practice_assignment\     ← 실습 저장소. 가상환경을 넣지 않음
+   ├─ 20261112\
+   └─ 20261113\</pre>
   <div class="glance">
     <div>
-      <span class="label">왜 쓰나</span>
-      <p>프로젝트마다 필요한 패키지 버전이 다릅니다. 한곳에 모두 설치하면 서로 충돌하므로 프로젝트별로 나눕니다.</p>
+      <span class="label">용도별 이름</span>
+      <p>필요한 패키지가 다른 실습끼리 환경을 나눕니다. 이름만 보고 무엇을 위한 환경인지 압니다.</p>
     </div>
     <div>
-      <span class="label">순서</span>
-      <ol class="plain">
-        <li>만들기 (프로젝트마다 한 번)</li>
-        <li>켜기 (터미널을 열 때마다)</li>
-        <li>패키지 설치</li>
-      </ol>
+      <span class="label">저장소 바깥에 두는 이유</span>
+      <p>여러 날짜 폴더가 같은 환경을 함께 씁니다. 저장소를 지우거나 다시 받아도 환경이 남고, git에 섞이지 않습니다.</p>
     </div>
     <div>
       <span class="label">켜졌다는 표시</span>
-      <p>PowerShell 줄 맨 앞에 <b>(.venv)</b>가 붙습니다.</p>
+      <p>PowerShell 줄 맨 앞에 <b>(gpuenv)</b>처럼 환경 이름이 붙습니다.</p>
     </div>
   </div>
+  <p class="hint">환경 이름과 폴더 위치는 예시입니다. 수업에서 안내하는 이름이 있으면 그 이름을 씁니다.</p>
 </section>
 
-<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 Python 확인</a><a href="#s2">2 만들기</a><a href="#s3">3 켜기</a><a href="#s4">4 패키지 설치</a><a href="#s5">5 VS Code 연결</a><a href="#s6">6 끄기 · 다시 만들기</a></nav>
+<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 Python 확인</a><a href="#s2">2 만들기</a><a href="#s3">3 켜기</a><a href="#s4">4 패키지 설치</a><a href="#s5">5 VS Code 연결</a><a href="#s6">6 바꾸기 · 다시 만들기</a></nav>
 
 <section class="card" aria-labelledby="s1">
   <div class="step-head"><span class="num">1</span><h2 id="s1">설치된 Python 확인</h2></div>
@@ -220,30 +224,40 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
     <pre id="c1">py --list          <span class="c"># 설치된 Python 버전 목록</span>
 py -3.13 --version <span class="c"># Python 3.13.x</span></pre>
   </div>
-  <p class="hint"><code>py</code>는 Windows용 Python에 함께 설치되는 실행기입니다. 버전을 골라 실행할 수 있어서 수업에서는 <code>py -3.13</code>으로 시작합니다.</p>
+  <p class="hint"><code>py</code>는 Windows용 Python에 함께 설치되는 실행기입니다. 버전을 골라 실행할 수 있어서 <code>py -3.13</code>으로 시작합니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s2">
   <div class="step-head"><span class="num">2</span><h2 id="s2">가상환경 만들기</h2></div>
-  <p>프로젝트 폴더로 이동한 뒤 만듭니다. 폴더 안에 <code>.venv</code>가 생기면 된 것입니다.</p>
+  <p>가상환경을 모아 둘 폴더를 만들고, 그 안에 용도별 이름으로 만듭니다. 환경마다 한 번만 합니다.</p>
   <div class="code">
     <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c2">코드 복사</button></div>
-    <pre id="c2">cd C:\workspace\my-project
-py -3.13 -m venv .venv</pre>
+    <pre id="c2">mkdir C:\workspace\envs -Force
+py -3.13 -m venv C:\workspace\envs\gpuenv
+py -3.13 -m venv C:\workspace\envs\backendenv</pre>
   </div>
-  <p class="hint">프로젝트마다 한 번만 합니다. 이름은 <code>.venv</code>로 통일하면 VS Code가 자동으로 찾습니다.</p>
+  <div class="table-wrap">
+    <table class="wrap1">
+      <thead><tr><th>환경</th><th>쓰는 실습</th></tr></thead>
+      <tbody>
+        <tr><td><code>gpuenv</code></td><td>GPU를 쓰는 실습: PyTorch · CNN · YOLO · LLM</td></tr>
+        <tr><td><code>backendenv</code></td><td>서버와 DB 실습: FastAPI · PostgreSQL 연동</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <section class="card" aria-labelledby="s3">
   <div class="step-head"><span class="num">3</span><h2 id="s3">가상환경 켜기</h2></div>
+  <p>어느 폴더에 있든 환경의 전체 경로로 켭니다.</p>
   <div class="code">
     <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c3">코드 복사</button></div>
-    <pre id="c3">.\.venv\Scripts\Activate.ps1</pre>
+    <pre id="c3">C:\workspace\envs\gpuenv\Scripts\Activate.ps1</pre>
   </div>
-  <p>줄 맨 앞에 <b>(.venv)</b>가 붙으면 켜진 것입니다. PowerShell 창을 새로 열 때마다 다시 켜야 합니다.</p>
+  <p>줄 맨 앞에 <b>(gpuenv)</b>가 붙으면 켜진 것입니다. PowerShell 창을 새로 열 때마다 다시 켜야 합니다.</p>
   <div class="code">
     <div class="code-head"><span>확인</span><button type="button" data-copy="c3b">코드 복사</button></div>
-    <pre id="c3b">Get-Command python   <span class="c"># Source가 ...\my-project\.venv\Scripts\python.exe</span></pre>
+    <pre id="c3b">Get-Command python   <span class="c"># Source가 C:\workspace\envs\gpuenv\Scripts\python.exe</span></pre>
   </div>
   <p class="note"><b>"이 시스템에서 스크립트를 실행할 수 없으므로" 오류가 나면</b> 아래 명령을 한 번 실행한 뒤 다시 켭니다. 내 계정에만 적용됩니다.</p>
   <div class="code">
@@ -254,39 +268,44 @@ py -3.13 -m venv .venv</pre>
 
 <section class="card" aria-labelledby="s4">
   <div class="step-head"><span class="num">4</span><h2 id="s4">패키지 설치</h2></div>
-  <p><b>(.venv)</b>가 보이는 상태에서 설치합니다. 실습 폴더에 <code>requirements.txt</code>가 있으면 그 파일로 한 번에 설치합니다.</p>
+  <p>환경을 켠 상태에서 실습 폴더로 이동해 설치합니다. 설치한 패키지는 실습 폴더가 아니라 <b>켜져 있는 환경</b>에 들어갑니다.</p>
   <div class="code">
-    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c4">코드 복사</button></div>
-    <pre id="c4">python -m pip install -r requirements.txt   <span class="c"># 목록대로 한 번에</span>
-python -m pip install requests              <span class="c"># 하나만</span>
+    <div class="code-head"><span>PowerShell · (gpuenv)가 보이는 상태</span><button type="button" data-copy="c4">코드 복사</button></div>
+    <pre id="c4">cd C:\workspace\practice_assignment\20261113
+python -m pip install -r requirements.txt   <span class="c"># 목록대로 한 번에</span>
 python -m pip list                          <span class="c"># 설치된 패키지 확인</span></pre>
   </div>
-  <p class="hint"><code>pip</code> 대신 <code>python -m pip</code>로 쓰면 지금 켜진 가상환경에 설치되는 것이 분명해집니다.</p>
+  <p class="hint"><code>pip</code> 대신 <code>python -m pip</code>로 쓰면 지금 켜진 환경에 설치되는 것이 분명해집니다. 설치 전에 줄 맨 앞의 환경 이름을 확인합니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s5">
   <div class="step-head"><span class="num">5</span><h2 id="s5">VS Code에 연결</h2></div>
+  <p>가상환경이 저장소 바깥에 있으면 VS Code가 자동으로 찾지 못합니다. 경로를 한 번 직접 알려 줍니다.</p>
   <ol class="plain">
-    <li>VS Code에서 프로젝트 폴더를 엽니다 (<b>파일 → 폴더 열기</b>).</li>
-    <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> → <b>Python: Select Interpreter</b>를 입력해 고릅니다.</li>
-    <li>목록에서 <code>.venv</code>가 들어간 항목을 고릅니다.</li>
+    <li>VS Code에서 실습 저장소 폴더를 엽니다 (<b>파일 → 폴더 열기</b>).</li>
+    <li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> → <b>Python: Select Interpreter</b>를 고릅니다.</li>
+    <li><b>Enter interpreter path…</b>를 고르고 아래 경로를 붙여 넣습니다.</li>
   </ol>
-  <p class="hint">오른쪽 아래 상태 표시줄에 <code>('.venv')</code>가 보이면 연결된 것입니다. 그 뒤로 VS Code에서 여는 터미널은 가상환경을 자동으로 켭니다.</p>
+  <div class="code">
+    <div class="code-head"><span>인터프리터 경로</span><button type="button" data-copy="c5">코드 복사</button></div>
+    <pre id="c5">C:\workspace\envs\gpuenv\Scripts\python.exe</pre>
+  </div>
+  <p class="hint">오른쪽 아래 상태 표시줄에 <code>('gpuenv')</code>가 보이면 연결된 것입니다. 한 번 고르면 목록에 남아서, 다음부터는 목록에서 바꿉니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s6">
-  <div class="step-head"><span class="num">6</span><h2 id="s6">끄기 · 다시 만들기</h2></div>
+  <div class="step-head"><span class="num">6</span><h2 id="s6">바꾸기 · 다시 만들기</h2></div>
   <div class="table-wrap">
     <table class="wrap1">
       <thead><tr><th>하고 싶은 것</th><th>방법</th></tr></thead>
       <tbody>
         <tr><td>끄기</td><td><code>deactivate</code></td></tr>
-        <tr><td>켜지 않고 실행</td><td><code>.venv\Scripts\python.exe main.py</code>. 수업 자료의 실행 명령이 이 방식입니다.</td></tr>
-        <tr><td>처음부터 다시</td><td><code>.venv</code> 폴더를 지우고 2부터 다시 합니다. 코드에는 영향이 없습니다.</td></tr>
+        <tr><td>다른 환경으로 바꾸기</td><td>바꿀 환경의 <code>Activate.ps1</code>을 실행합니다. 줄 맨 앞 이름이 바뀝니다.</td></tr>
+        <tr><td>켜지 않고 실행</td><td><code>C:\workspace\envs\gpuenv\Scripts\python.exe main.py</code></td></tr>
+        <tr><td>처음부터 다시</td><td><code>C:\workspace\envs\gpuenv</code> 폴더를 지우고 2부터 다시 합니다. 실습 코드에는 영향이 없습니다.</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="note"><b><code>.venv</code>는 git에 올리지 않습니다.</b> 용량이 크고 PC마다 다릅니다. <code>.gitignore</code>에 <code>.venv/</code>를 적고, 대신 <code>requirements.txt</code>를 올립니다.</p>
 </section>
 
 <section class="card" aria-labelledby="trouble">
@@ -296,8 +315,8 @@ python -m pip list                          <span class="c"># 설치된 패키�
       <thead><tr><th>증상</th><th>할 일</th></tr></thead>
       <tbody>
         <tr><td><code>py</code>를 찾을 수 없음</td><td>Python이 설치되지 않았거나 설치할 때 py launcher가 빠졌습니다. python.org에서 다시 설치합니다.</td></tr>
-        <tr><td><b>(.venv)</b>가 안 보임</td><td>3의 명령을 프로젝트 폴더에서 실행했는지 확인합니다. <code>ls .venv</code>로 폴더가 있는지 봅니다.</td></tr>
-        <tr><td><code>ModuleNotFoundError</code></td><td>가상환경을 켜지 않고 실행했거나 그 환경에 패키지를 설치하지 않았습니다. <code>Get-Command python</code>으로 경로를 확인합니다.</td></tr>
+        <tr><td>환경 이름이 줄 앞에 안 보임</td><td>3의 경로가 맞는지 확인합니다. <code>ls C:\workspace\envs</code>로 폴더가 있는지 봅니다.</td></tr>
+        <tr><td><code>ModuleNotFoundError</code></td><td>환경을 켜지 않았거나, 다른 환경에 패키지를 설치했습니다. <code>Get-Command python</code>으로 경로를 확인합니다.</td></tr>
         <tr><td>VS Code 실행 버튼만 오류</td><td>5의 인터프리터 선택이 다른 Python으로 되어 있습니다.</td></tr>
       </tbody>
     </table>
@@ -305,7 +324,7 @@ python -m pip list                          <span class="c"># 설치된 패키�
 </section>
 
 <footer class="refs">
-  <span>함께 보기: <a data-site href="../path/">Windows 경로와 PATH</a> · <a data-site href="../docker/">Docker</a></span>
+  <span>함께 보기: <a data-site href="../path/">경로 설정 (PATH)</a> · <a data-site href="../docker/">Docker</a></span>
   <span>공식 문서: <a href="https://docs.python.org/ko/3/library/venv.html" target="_blank" rel="noopener">venv</a> · <a href="https://docs.python.org/ko/3/using/windows.html" target="_blank" rel="noopener">Windows에서 Python 사용하기</a></span>
 </footer>
 

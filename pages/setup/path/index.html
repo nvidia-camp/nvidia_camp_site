@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Windows 경로와 PATH</title>
-<meta name="description" content="경로 읽는 법, 폴더 이동, PATH 확인과 추가, 명령을 찾을 수 없을 때">
+<title>경로 설정 (PATH)</title>
+<meta name="description" content="명령을 찾을 수 없을 때 프로그램 폴더를 찾아 Windows PATH에 추가하고 확인하는 순서">
 <style>
 :root {
   --color-primary: #142849;
@@ -176,31 +176,103 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 
 <header class="head">
   <p class="eyebrow">공통 가이드 · 개발 환경 · Windows 11 · PowerShell</p>
-  <h1>Windows 경로와 PATH</h1>
-  <p class="lead">"명령을 찾을 수 없습니다"와 "파일을 찾을 수 없습니다"는 대부분 경로 문제입니다. 경로를 읽는 법과, 명령을 찾는 폴더 목록인 PATH를 설정하는 법을 정리했습니다.</p>
+  <h1>경로 설정 (PATH)</h1>
+  <p class="lead">프로그램을 설치했는데 "명령을 찾을 수 없다"고 나오면 PATH에 그 프로그램의 폴더가 없는 것입니다. 폴더를 찾아 PATH에 추가하는 순서입니다. 예시는 Tesseract입니다.</p>
 </header>
 
 <section class="card" aria-label="한눈에 보기">
   <div class="glance">
     <div>
-      <span class="label">경로</span>
-      <p>파일이나 폴더가 있는 위치입니다. 예: <code>C:\workspace\my-project\main.py</code></p>
-    </div>
-    <div>
       <span class="label">PATH</span>
-      <p><code>python</code>처럼 이름만 입력한 명령을 Windows가 찾아보는 <b>폴더 목록</b>입니다.</p>
+      <p><code>tesseract</code>처럼 이름만 입력한 명령을 Windows가 찾아보는 <b>폴더 목록</b>입니다.</p>
     </div>
     <div>
-      <span class="label">가장 흔한 해결</span>
-      <p>설치 직후 명령을 못 찾으면 PowerShell 창을 <b>닫고 새로 엽니다</b>. 열려 있던 창은 예전 PATH를 씁니다.</p>
+      <span class="label">순서</span>
+      <ol class="plain">
+        <li>명령이 잡히는지 확인</li>
+        <li>넣을 폴더 찾기</li>
+        <li>PATH에 추가</li>
+        <li>새 창에서 확인</li>
+      </ol>
+    </div>
+    <div>
+      <span class="label">먼저 해 볼 것</span>
+      <p>설치 직후라면 PowerShell 창을 <b>닫고 새로 엽니다</b>. 열려 있던 창은 예전 PATH를 씁니다.</p>
     </div>
   </div>
 </section>
 
-<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 경로 읽기</a><a href="#s2">2 폴더 이동</a><a href="#s3">3 PATH 확인</a><a href="#s4">4 PATH에 추가</a><a href="#trouble">막히면</a></nav>
+<nav class="toc" aria-label="단계 바로 가기"><a href="#s1">1 확인</a><a href="#s2">2 폴더 찾기</a><a href="#s3">3 PATH에 추가</a><a href="#s4">4 다시 확인</a><a href="#s5">참고 · 경로 읽기</a><a href="#trouble">막히면</a></nav>
 
 <section class="card" aria-labelledby="s1">
-  <div class="step-head"><span class="num">1</span><h2 id="s1">경로 읽기</h2></div>
+  <div class="step-head"><span class="num">1</span><h2 id="s1">명령이 잡히는지 확인</h2></div>
+  <div class="code">
+    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c1">코드 복사</button></div>
+    <pre id="c1">tesseract --version
+Get-Command tesseract | Select-Object -ExpandProperty Source</pre>
+  </div>
+  <div class="table-wrap">
+    <table class="wrap1">
+      <thead><tr><th>결과</th><th>뜻</th></tr></thead>
+      <tbody>
+        <tr><td><code>C:\Program Files\Tesseract-OCR\tesseract.exe</code>처럼 경로가 나옴</td><td>이미 PATH에 있습니다. 더 할 일이 없습니다.</td></tr>
+        <tr><td>"…인식되지 않습니다" 오류</td><td>PATH에 없습니다. 2로 갑니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">다른 프로그램도 같습니다. <code>0000 --version</code>으로 확인하는 프로그램이면 <code>tesseract</code> 자리에 <code>0000</code>을 넣습니다.</p>
+</section>
+
+<section class="card" aria-labelledby="s2">
+  <div class="step-head"><span class="num">2</span><h2 id="s2">PATH에 넣을 폴더 찾기</h2></div>
+  <p>PATH에는 실행 파일이 아니라 <b>그 파일이 들어 있는 폴더</b>를 넣습니다.</p>
+  <div class="table-wrap">
+    <table class="wrap1">
+      <tbody>
+        <tr><td>실행 파일</td><td><code>C:\Program Files\Tesseract-OCR\tesseract.exe</code></td></tr>
+        <tr><td>PATH에 넣을 값</td><td><code>C:\Program Files\Tesseract-OCR</code> (파일명 <code>tesseract.exe</code>를 뺀 폴더)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>실행 파일이 어디 있는지 모르면 설치 폴더에서 찾습니다.</p>
+  <div class="code">
+    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c2">코드 복사</button></div>
+    <pre id="c2">Get-ChildItem "C:\Program Files", "$env:LOCALAPPDATA\Programs" -Recurse -Filter tesseract.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DirectoryName</pre>
+  </div>
+  <p class="hint">출력된 폴더 경로를 복사해 둡니다. 탐색기에서 설치 폴더를 열고 주소 표시줄을 눌러 복사해도 됩니다.</p>
+</section>
+
+<section class="card" aria-labelledby="s3">
+  <div class="step-head"><span class="num">3</span><h2 id="s3">PATH에 추가</h2></div>
+  <ol class="plain">
+    <li><kbd>Win</kbd> 키 → <b>환경 변수</b> 입력 → <b>계정의 환경 변수 편집</b>을 엽니다.</li>
+    <li>위쪽 <b>사용자 변수</b> 목록에서 <b>Path</b>를 선택하고 <b>편집</b>을 누릅니다.</li>
+    <li><b>새로 만들기</b>를 누르고 2에서 찾은 폴더의 절대 경로를 붙여 넣습니다.</li>
+    <li><b>확인</b>을 두 번 눌러 닫습니다.</li>
+  </ol>
+  <p class="note"><b>기존 항목은 지우지 않습니다.</b> Path에 든 다른 폴더를 지우면 잘 되던 명령이 실행되지 않습니다. 추가만 합니다.</p>
+  <details>
+    <summary>명령으로 지금 창에서만 잠깐 추가하기</summary>
+    <div class="code">
+      <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c3">코드 복사</button></div>
+      <pre id="c3">$env:Path += ";C:\Program Files\Tesseract-OCR"</pre>
+    </div>
+    <p class="hint">창을 닫으면 사라집니다. 맞는 폴더인지 시험해 볼 때 씁니다.</p>
+  </details>
+</section>
+
+<section class="card" aria-labelledby="s4">
+  <div class="step-head"><span class="num">4</span><h2 id="s4">새 창에서 확인</h2></div>
+  <p>PowerShell 창을 <b>닫고 새로 연 뒤</b> 1의 명령을 다시 실행합니다. VS Code 터미널을 쓴다면 VS Code를 다시 시작합니다.</p>
+  <div class="code">
+    <div class="code-head"><span>새 PowerShell</span><button type="button" data-copy="c4">코드 복사</button></div>
+    <pre id="c4">tesseract --version
+$env:Path -split ';'     <span class="c"># PATH에 든 폴더를 한 줄씩. 방금 넣은 폴더가 보이는지 확인</span></pre>
+  </div>
+</section>
+
+<section class="card" aria-labelledby="s5">
+  <h2 id="s5">참고 · 경로 읽기</h2>
   <div class="table-wrap">
     <table class="wrap1">
       <thead><tr><th>표기</th><th>뜻</th></tr></thead>
@@ -209,66 +281,17 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
         <tr><td><code>app\main.py</code></td><td><b>상대 경로</b>. 지금 있는 폴더를 기준으로 한 위치</td></tr>
         <tr><td><code>.</code> · <code>..</code></td><td>지금 폴더 · 한 단계 위 폴더</td></tr>
         <tr><td><code>$HOME</code></td><td>내 사용자 폴더 (<code>C:\Users\내이름</code>)</td></tr>
-        <tr><td><code>"C:\My Files\a.txt"</code></td><td>공백이 있는 경로는 따옴표로 감쌉니다</td></tr>
+        <tr><td><code>"C:\Program Files\…"</code></td><td>공백이 있는 경로를 명령에 쓸 때는 따옴표로 감쌉니다</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="note"><b>프로젝트는 영문 경로에 둡니다.</b> 예: <code>C:\workspace</code>. 한글이나 공백이 들어간 경로(바탕 화면, OneDrive 문서 폴더 등)에서는 일부 도구가 오류를 냅니다.</p>
-</section>
-
-<section class="card" aria-labelledby="s2">
-  <div class="step-head"><span class="num">2</span><h2 id="s2">폴더 이동과 확인</h2></div>
   <div class="code">
-    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c2">코드 복사</button></div>
-    <pre id="c2">pwd                      <span class="c"># 지금 있는 폴더</span>
+    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c5">코드 복사</button></div>
+    <pre id="c5">pwd                      <span class="c"># 지금 있는 폴더</span>
 ls                       <span class="c"># 이 폴더의 파일 목록</span>
 cd C:\workspace\app      <span class="c"># 폴더 이동</span>
-cd ..                    <span class="c"># 한 단계 위로</span>
-cd $HOME                 <span class="c"># 내 사용자 폴더로</span></pre>
+cd ..                    <span class="c"># 한 단계 위로</span></pre>
   </div>
-  <p class="hint">경로를 입력하다가 <kbd>Tab</kbd>을 누르면 이름이 자동으로 채워집니다. 탐색기에서 폴더를 PowerShell 창으로 끌어다 놓아도 경로가 입력됩니다.</p>
-</section>
-
-<section class="card" aria-labelledby="s3">
-  <div class="step-head"><span class="num">3</span><h2 id="s3">PATH 확인</h2></div>
-  <p>명령이 어디에 있는 파일로 실행되는지, PATH에 어떤 폴더가 들어 있는지 봅니다.</p>
-  <div class="code">
-    <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c3">코드 복사</button></div>
-    <pre id="c3">Get-Command python       <span class="c"># python이 실제로 실행되는 파일 위치</span>
-where.exe python         <span class="c"># 같은 이름이 여러 개면 모두 표시. 맨 위가 실행됨</span>
-$env:Path -split ';'     <span class="c"># PATH에 든 폴더를 한 줄씩</span></pre>
-  </div>
-  <p class="hint">"…은(는) cmdlet, 함수, 스크립트 파일 또는 실행할 수 있는 프로그램 이름으로 인식되지 않습니다"는 그 명령이 든 폴더가 PATH에 없다는 뜻입니다.</p>
-</section>
-
-<section class="card" aria-labelledby="s4">
-  <div class="step-head"><span class="num">4</span><h2 id="s4">PATH에 폴더 추가</h2></div>
-  <p>대부분의 설치 프로그램은 PATH를 자동으로 등록합니다. 직접 추가해야 할 때만 아래 순서로 합니다.</p>
-  <ol class="plain">
-    <li><kbd>Win</kbd> 키 → <b>환경 변수</b> 입력 → <b>계정의 환경 변수 편집</b>을 엽니다.</li>
-    <li>위쪽 <b>사용자 변수</b> 목록에서 <b>Path</b>를 고르고 <b>편집</b>을 누릅니다.</li>
-    <li><b>새로 만들기</b>를 누르고 추가할 <b>폴더</b> 경로를 붙여 넣습니다. 실행 파일이 아니라 그 파일이 든 폴더입니다.</li>
-    <li><b>확인</b>을 두 번 눌러 닫습니다.</li>
-    <li>PowerShell 창을 <b>닫고 새로 연 뒤</b> 3의 명령으로 확인합니다.</li>
-  </ol>
-  <div class="table-wrap">
-    <table class="wrap1">
-      <thead><tr><th>구분</th><th>적용 범위</th></tr></thead>
-      <tbody>
-        <tr><td>사용자 변수 Path</td><td>내 계정만. 관리자 권한이 필요 없습니다. 보통 이쪽에 추가합니다.</td></tr>
-        <tr><td>시스템 변수 Path</td><td>이 PC의 모든 계정. 관리자 권한이 필요합니다.</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <details>
-    <summary>지금 창에서만 잠깐 추가하기</summary>
-    <div class="code">
-      <div class="code-head"><span>PowerShell</span><button type="button" data-copy="c4">코드 복사</button></div>
-      <pre id="c4">$env:Path += ";C:\tools\bin"</pre>
-    </div>
-    <p class="hint">창을 닫으면 사라집니다. 시험해 볼 때 씁니다.</p>
-  </details>
-  <p class="note"><b>기존 항목은 지우지 않습니다.</b> Path에 든 다른 폴더를 지우면 잘 되던 명령이 실행되지 않습니다. 추가만 합니다.</p>
 </section>
 
 <section class="card" aria-labelledby="trouble">
