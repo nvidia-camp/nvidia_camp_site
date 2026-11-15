@@ -79,3 +79,4 @@
 | 2026-11-14 | llm/20261116/lecture · 홈 · 메뉴 | 강사님 강의 HTML 게시(강사님 허락): sync_lecture_html.py(nvidia_camp 날짜·세션 폴더 바로 아래 *.html → pages/<과목>/<날짜>/lecture/, 바뀐 것만), build_site.py가 /<과목>/<날짜>/lecture/를 원본 그대로 메뉴 아래 전체 화면(iframe)으로 띄움(강의 HTML의 고정 머리·아래 막대와 겹치지 않게). 홈 Day 줄·Day 메뉴에 "바로 보기", 요약 전이라도 강의 HTML이 있으면 Day 줄과 일정 칸이 강의 페이지로 연결. "강의 자료 ↗"는 Slack 링크 그대로. 첫 사례 Day21 Prompt·Context Engineering. 1280·375px 확인 | main만 |
 | 2026-11-14 | 홈 · 과목 목록 | 요약 없는 Day에 강의 목차 기준 예정 제목(PLANNED_TITLES) + "요약 준비 중" 배지, 과목마다 맨 위 "종합" 줄(없으면 "<과목> N일 종합 · 요약 준비 중"). 1280·375px, 라이트·다크 확인 | main만 |
 | 2026-11-15 | 홈 · 과목 목록 | 요약 준비 중인 "종합" 줄에도 Vision 종합과 같은 연한 파랑 그라데이션. 라이트·다크 확인 | main만 |
+| 2026-11-15 | 전체 | 사용자 요청으로 배포: --release 빌드(비공개 가이드 local-ai·ai-coding·cli 제외)를 deploy에 fast-forward push(5c56a02), main에는 merge -s ours로 기록만 합침. 라이브 확인은 아래 행 | 배포 |
