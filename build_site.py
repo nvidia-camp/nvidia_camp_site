@@ -70,7 +70,7 @@ CHEATSHEETS = {
 SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", False),
-    "python-venv": ("Python 가상환경", "python.png", "용도별 환경을 저장소 바깥에 · 만들기 · 켜기 · VS Code 연결", "개발 환경", False),
+    "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 설치 목록으로 한 번에 설치 · 통합 환경", "개발 환경", False),
     "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", False),
     "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", False),
@@ -81,6 +81,7 @@ COMMON_GROUPS = ["개발 환경", "AI 코딩"]
 # 페이지와 함께 내려받게 둘 파일: 사이트 경로 → [파일 이름]. 페이지에서는 data-site를 붙여 링크한다.
 FILES = {
     "setup/local-ai": ["SETUP_FOR_AI.md"],
+    "setup/python-venv": ["requirements-gpu.txt", "requirements-backend.txt", "requirements-all.txt"],
 }
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
