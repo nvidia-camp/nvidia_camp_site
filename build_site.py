@@ -70,7 +70,7 @@ CHEATSHEETS = {
 SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", False),
-    "venv": ("Python 가상환경", "python.png", "용도별 환경을 저장소 바깥에 · 만들기 · 켜기 · VS Code 연결", "개발 환경", False),
+    "python-venv": ("Python 가상환경", "python.png", "용도별 환경을 저장소 바깥에 · 만들기 · 켜기 · VS Code 연결", "개발 환경", False),
     "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", False),
     "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", False),
