@@ -223,6 +223,12 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
   .chain { grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
   .chain li + li::before { content: "↓"; left: 1rem; top: -1.25rem; transform: none; }
 }
+.chg { color: #1F5FD6; background: rgba(47, 102, 222, 0.12); border-bottom: 2px solid #2F66DE; border-radius: 0.2rem; padding: 0 0.15rem; font-weight: 700; font-family: var(--font-code); }
+pre .chg, .code .chg { color: #FFD98A; background: rgba(255, 217, 138, 0.16); border-bottom-color: #FFD98A; }
+code .chg { font-size: 1em; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chg { color: #9CC0FF; background: rgba(127, 166, 255, 0.16); border-bottom-color: #7FA6FF; } :root:not([data-theme="light"]) pre .chg { color: #FFD98A; background: rgba(255, 217, 138, 0.16); border-bottom-color: #FFD98A; } }
+:root[data-theme="dark"] .chg { color: #9CC0FF; background: rgba(127, 166, 255, 0.16); border-bottom-color: #7FA6FF; }
+:root[data-theme="dark"] pre .chg { color: #FFD98A; background: rgba(255, 217, 138, 0.16); border-bottom-color: #FFD98A; }
 </style>
 </head>
 <body><style>
