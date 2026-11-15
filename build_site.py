@@ -354,7 +354,7 @@ a.cell:hover{transform:scale(1.3)}
 .chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
 .row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
 .pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
-.rows li.all .row.off{background:none}
+.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .ch-side{display:grid;gap:4px;align-content:start}
 .ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
 .ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
