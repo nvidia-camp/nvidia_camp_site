@@ -91,3 +91,4 @@
 | 2026-11-15 | setup/vscode-extensions | 확장 수를 줄임: 설치할 것 6개(수업 안내 3 + Python · Jupyter · Korean Language Pack; Pylance · Python Debugger는 Python 확장과 함께 설치되므로 목록에서 뺌), 추천은 8개 → 3개(Error Lens · Rainbow CSV · Git Graph, "이럴 때 설치" 기준). Ruff · Data Wrangler · REST Client · WSL · Docker 제외. "확장은 적을수록 좋다" 안내 | main만 |
 | 2026-11-15 | setup/vscode-extensions | 사용자 캡처 6장 추가(Python · Pylance · Python Debugger · Korean Language Pack · Error Lens · Git Graph), 표를 캡처+설명 줄로 바꿈. 추천은 Error Lens · Git Graph 2개(Rainbow CSV 제외), Jupyter는 캡처 없이 글로. 1280 · 375px · 다크 넘침 없음 | main만 |
 | 2026-11-15 | 홈 · assets/logos | VS Code 확장 가이드 아이콘을 직접 그린 extension.svg에서 VS Code 공식 아이콘(vscode.png, code.visualstudio.com, 64px)으로 교체. 홈 참고 문서 모음에서 확인 | main만 |
+| 2026-11-15 | setup/vscode-extensions · setup/python-venv · 홈 | "VS Code 확장" → "VS Code Extension"으로 이름 변경(제목 · 홈 · 본문). 한국어 메뉴 이름 "확장"은 첫 문장과 아이콘 안내에 한 번씩 병기. 주소는 그대로 /setup/vscode-extensions/ | main만 |
