@@ -176,6 +176,53 @@ td:first-child code { white-space: nowrap; overflow-wrap: normal; }
 @media (max-width: 640px) { .ext { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; } }
 .way { border-top: 1px solid var(--color-border); padding-top: 0.85rem; margin-top: 0.4rem; display: grid; gap: 0.6rem; }
 .way h3 { margin-top: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--color-heading); }
+.lookup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.lk { display: grid; gap: 0.6rem; align-content: start; padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-soft); }
+.lk p { margin: 0; }
+.lk-title { font-weight: 800; color: var(--color-heading); font-size: 1.05rem; }
+.lk-in { font-size: 0.9rem; color: var(--color-muted); }
+.lk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; counter-reset: lk; }
+.lk-list li { counter-increment: lk; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.3rem 0.75rem; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border); border-radius: 0.5rem; background: var(--color-surface); }
+.lk-list li code { background: none; padding: 0; }
+.lk-list li code::before { content: counter(lk) "  "; color: var(--color-muted); }
+.lk-list li span { font-size: 0.82rem; font-weight: 700; color: var(--color-muted); }
+.lk-list li.hit { border: 2px solid var(--color-primary); }
+.lk-list li.hit span { color: var(--color-primary); }
+.lk-out { font-weight: 700; padding: 0.5rem 0.7rem; border-radius: 0.5rem; }
+.lk-out.fail { border: 1px dashed var(--color-muted); color: var(--color-muted); }
+.lk-out.ok { background: var(--color-primary); color: var(--on-primary); }
+.chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.1rem; counter-reset: ch; }
+.chain li { counter-increment: ch; position: relative; display: grid; gap: 0.2rem; align-content: start; padding: 0.75rem 0.8rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); }
+.chain li b { color: var(--color-heading); }
+.chain li b::before { content: counter(ch) " "; color: var(--color-muted); }
+.chain li span { font-size: 0.85rem; color: var(--color-muted); }
+.chain li + li::before { content: "→"; position: absolute; left: -0.95rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 700; }
+.chain li:nth-child(2), .chain li:nth-child(3) { border: 2px solid var(--color-primary); background: var(--color-soft); }
+.choose { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.pick { display: grid; gap: 0.35rem; align-content: start; padding: 1.1rem 1.2rem; border: 2px solid var(--color-primary); border-radius: var(--radius-card); background: var(--color-surface); text-decoration: none; font-weight: 400; color: var(--color-text); }
+.pick:hover { background: var(--color-soft); }
+.pick b { font-size: 1.2rem; color: var(--color-heading); }
+.pick > span:last-child { font-size: 0.92rem; color: var(--color-muted); }
+.pick-tag, .method-tag { justify-self: start; font-weight: 800; background: var(--color-primary); color: var(--on-primary); border-radius: 999px; padding: 0.1rem 0.8rem; }
+.pick-tag { font-size: 0.85rem; }
+.card.method { border: 2px solid var(--color-primary); }
+.method-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--color-border); }
+.method-head h2 { font-size: 1.45rem; }
+.method-tag { font-size: 1rem; padding: 0.2rem 1rem; }
+.card.method h3 { font-size: 1.1rem; color: var(--color-heading); margin-top: 0.4rem; }
+.trace { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.trace li { position: relative; display: grid; gap: 0.25rem; padding: 0.8rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-soft); }
+.trace li + li { margin-top: 1rem; }
+.trace li + li::before { content: "↓"; position: absolute; top: -1.35rem; left: 1.2rem; color: var(--color-muted); font-weight: 700; }
+.trace li b { color: var(--color-heading); }
+.trace li span { font-size: 0.92rem; }
+.trace .val { display: block; margin-top: 0.2rem; padding: 0.45rem 0.7rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0.5rem; white-space: nowrap; overflow-x: auto; }
+.trace mark { background: var(--color-primary); color: var(--on-primary); border-radius: 0.3rem; padding: 0.05rem 0.25rem; }
+@media (max-width: 760px) {
+  .lookup, .choose { grid-template-columns: minmax(0, 1fr); }
+  .chain { grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
+  .chain li + li::before { content: "↓"; left: 1rem; top: -1.25rem; transform: none; }
+}
 </style>
 </head>
 <body>
