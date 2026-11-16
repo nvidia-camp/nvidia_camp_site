@@ -586,12 +586,12 @@ def chapter_block(key, ds, up, link_head=True):
                         f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
         elif d["tree"]:   # 요약은 없지만 강의 트리가 있으면 그날 페이지(강의 목차)로 간다
-            title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
+            title = day_title(d)
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
                         f'<span class="t">{html.escape(title)}{pend}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
         elif d["date"] <= today or d["lecture"]:   # 요약이 아직 없으면 예정 제목 + '요약 준비 중' (강의 HTML이 있으면 미리 보임)
-            title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
+            title = day_title(d) if d["lecture"] else PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
             rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">{html.escape(title)}{pend}</span>'
                         f'<span class="d">{md(d["date"])}</span></span><span class="lk">{day_links(d, up)}</span></li>')
     return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
@@ -601,7 +601,7 @@ def cover_card(days, subjects, today):
     """지금 과목 표지: 오늘이 속한(없으면 마지막으로 시작한) 과목"""
     key, ds = subjects[-1]
     n_done = len([d for d in ds if d["date"] <= today])
-    shown = [d for d in ds if has_page(d)]   # 요약이 없어도 강의 목차 페이지가 있으면 그날로 간다
+    shown = [d for d in ds if has_page(d) and d["date"] <= today]   # 요약이 없어도 강의 목차가 있으면 그날로 (내일 수업은 제외)
     if shown:
         go_href, go_text = f'{shown[-1]["key"]}/{shown[-1]["ymd"]}/', f'Day{shown[-1]["n"]} · {day_title(shown[-1])}'
     else:
@@ -804,8 +804,8 @@ def tree_block(path, open_=False, css=True):
             continue
         head, _, rest = g["t"].partition(" · ")
         labs, body = pull_labs(g["c"])
-        if body and not body[0]["c"] and body[0]["t"].strip().lower() == (rest or head).strip().lower():
-            body = body[1:]                           # 교시 이름과 같은 첫 화면(교시 표지)은 뺀다
+        name = (rest or head).strip().lower()
+        body = [c for c in body if c["c"] or c["t"].strip().lower() != name]   # 교시 이름과 같은 화면(교시 표지)은 뺀다
         lab = "".join(lab_row(c) for c in labs)
         cards.append(f'<article class="lt-cd"><header><span class="lt-n">{html.escape(head) if rest else ""}</span>'
                      f'<span class="lt-c">화면 {tree_leaves(g)}</span><h3>{html.escape(rest or head)}</h3></header>'
@@ -833,7 +833,15 @@ def day_title(d):
     """그날 제목: 요약의 <h1>, 요약 전이면 예정 제목 → 교재 제목"""
     if d["src"]:
         return page_h1(d["src"])
-    return PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}') or (read_tree(d["tree"])[0] if d["tree"] else "") or f'Day{d["n"]}'
+    return (PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}') or (read_tree(d["tree"])[0] if d["tree"] else "")
+            or (lecture_title(d["lecture"]) if d["lecture"] else "") or f'Day{d["n"]}')
+
+
+def lecture_title(lecture):
+    """강의 HTML의 <title> (예: "Day22 · LLM API 클라이언트" → "LLM API 클라이언트")"""
+    m = re.search(r"<title>(.*?)</title>", (lecture / "index.html").read_text(encoding="utf-8"), re.S)
+    t = html.unescape(m.group(1)).strip() if m else ""
+    return re.sub(r"^Day\s*\d+\s*[·:|-]\s*", "", t)
 
 
 def tree_day_page(d):
@@ -854,7 +862,7 @@ def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
     made = [d for d in days if d["src"]]                 # '요약 N일' 숫자: 실제로 요약을 쓴 날
-    shown = [d for d in days if has_page(d)]             # 최근 수업: 요약 또는 강의 목차가 있는 날
+    shown = [d for d in days if has_page(d) and d["date"] <= today]   # 최근 수업: 오늘까지, 요약 또는 강의 목차가 있는 날
     latest = shown[-1] if shown else None
     pend = '<span class="pend">요약 준비 중</span>'
     recent = "".join(
