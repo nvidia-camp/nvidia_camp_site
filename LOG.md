@@ -113,3 +113,4 @@
 | 2026-11-16 | llm/20261117 · 홈 | Day22 강의 트리 작성(05_LLM_RAG/20261117/Day22_강의트리.md, HTML 내장 데이터 v5 기준 84화면, Day21 형식) → tree.md. 홈 Day22 줄 제목이 비던 문제: 줄 제목을 예정 제목에서만 찾던 것을 교재 제목·강의 HTML 제목까지 보도록 고침. 최근 수업·과목 카드는 오늘까지만(내일 수업 제외). 교시 이름과 같은 화면은 위치와 관계없이 카드에서 뺌 | main만 (공개는 11/17 deploy) |
 | 2026-11-16 | setup/local-ai · setup/cli · 빌드 | 사용자 요청으로 로컬 AI 코딩 · CLI 도구 공개(SETUP 플래그 True). 배포용(--release) 빌드는 오늘 이후 날짜의 수업 자료(강의 HTML·목차)를 자동으로 뺌: main에 Day22를 미리 둔 채 다른 변경을 배포해도 Day22는 11/17 배포 때 공개 | main · 배포 |
 | 2026-11-16 | setup/cli | 사용자 요청으로 다시 숨김(문서 미완성). SETUP 플래그 False, --release 빌드로 재배포 | main · 배포 |
+| 2026-11-16 | setup/ai-coding/agy | 4 모드 카드에 시작 옵션 `agy --dangerously-skip-permissions`(모든 도구 권한 요청 자동 승인, agy 1.5.9 --help로 확인)과 결과 직접 확인 안내 추가. 명령은 한 줄 유지. _work 원본도 같이 수정 | main · 배포 |
