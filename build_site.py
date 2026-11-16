@@ -421,7 +421,7 @@ a.cell:hover{transform:scale(1.3)}
 .mini.view:hover{border-color:var(--accent)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
-.mini.colab{padding:0 8px}.mini.colab img{display:block;width:26px;height:15px}
+.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
 @media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
 
 /* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
@@ -433,7 +433,7 @@ a.cell:hover{transform:scale(1.3)}
 .res a{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--line-2);border-radius:10px;
   background:var(--surface);font-size:14px;font-weight:600;color:var(--heading);transition:border-color .15s,background .15s}
 .res a:hover{border-color:var(--accent);background:var(--soft)}
-.res svg{width:16px;height:16px}.res img{display:block;width:26px;height:15px}
+.res svg{width:16px;height:16px}.res img{display:block;width:27px;height:16px}
 .res .view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
 @media (prefers-color-scheme:dark){.res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box}}
 .tree{border:1px solid var(--line);border-radius:16px;background:var(--surface)}
@@ -543,7 +543,7 @@ def day_links(d, up):
 
 def colab_link(url, cls, text=""):
     """Colab 실습 폴더(Google Drive) 링크: 공식 Colab 로고 (+ 글자)"""
-    img = f'<img src="{image_data(HERE / "assets" / "logos" / "colab.png")}" alt="" width="26" height="15">'
+    img = f'<img src="{image_data(HERE / "assets" / "logos" / "colab.png")}" alt="" width="27" height="16">'
     label = f'<span>{html.escape(text)}</span>' if text else ""
     return (f'<a class="{cls}" href="{html.escape(url)}" target="_blank" rel="noopener" '
             f'title="Colab 실습 폴더 (Google Drive)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)">{img}{label}</a>')

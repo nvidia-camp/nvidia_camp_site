@@ -20,7 +20,7 @@
 | `python.png` | [python.org](https://www.python.org) apple-touch-icon 144px → 64px (2026-11-15 확인) | [PSF Trademark](https://www.python.org/psf/trademarks/) |
 | `docker.png` | [docker.com](https://www.docker.com) 파비콘 192px → 64px (2026-11-15 확인) | [Docker Brand](https://www.docker.com/company/newsroom/media-resources/) |
 | `vscode.png` | [code.visualstudio.com](https://code.visualstudio.com/assets/branding/code-stable.png) 공식 아이콘 → 64px (2026-11-15 확인) | [VS Code Brand](https://code.visualstudio.com/brand) |
-| `colab.png` | [Google Colab](https://colab.research.google.com/img/colab_favicon_256px.png) 파비콘 256px → 64px (2026-11-16 확인) | Google |
+| `colab.png` | Google Colab 공식 컬러 로고(사용자 제공 640px, 여백 잘라 높이 128px) (2026-11-16) | Google |
 | `postgresql.svg` | [PostgreSQL 공식 위키](https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg) (2026-11-10 확인) | [Trademark Policy](https://www.postgresql.org/about/policies/trademarks/) |
 
 `terminal.svg` · `code.svg` · `path.svg`는 특정 제품이 아닌 'CLI 도구' · 'AI 코딩 도구' · 'Windows 경로와 PATH' 가이드용으로 이 저장소에서 직접 그린 아이콘입니다.
