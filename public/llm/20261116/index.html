@@ -166,57 +166,35 @@ pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padd
 .two em { font-style: normal; color: var(--color-muted); }
 
 /* 평가 (실험 도식) */
-.expflow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .5rem; }
-.es { position: relative; display: grid; gap: .1rem; align-content: start; border: 2px solid var(--color-border); border-radius: .8rem; padding: .6rem .6rem .7rem; background: var(--color-surface); }
-.es .n { font: 800 .75rem var(--font-code); color: var(--color-muted); }
-.es strong { color: var(--color-heading); font-size: .95rem; line-height: 1.35; }
-.es small { font-size: .74rem; font-weight: 700; color: var(--color-muted); }
-.es:not(:last-child)::after { content: "→"; position: absolute; right: -.62rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; background: var(--color-surface); z-index: 1; line-height: 1; }
-.es.ctl { border-color: var(--color-primary); }
-.es.var { background: var(--gen-bg); border-color: var(--gen-fg); }
-.es.var strong { color: var(--gen-fg); }
-.es.rec { background: var(--out-bg); border-color: var(--out-fg); }
-.es.rec strong { color: var(--out-fg); }
-.loopback { display: flex; flex-wrap: wrap; gap: .3rem .7rem; align-items: center; border: 2px dashed var(--color-muted); border-radius: .8rem; padding: .45rem .9rem; font-size: .88rem; color: var(--color-muted); }
-.loopback b { color: var(--color-heading); }
-.panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.exp { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.5fr) auto minmax(0, 1.3fr); gap: .6rem; align-items: stretch; }
+.exp > i { font-style: normal; display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; color: var(--color-muted); }
 .pn { border: 1px solid var(--color-border); border-radius: .9rem; padding: .8rem 1rem 1rem; display: grid; gap: .6rem; align-content: start; background: var(--color-canvas); min-width: 0; }
-.pn > h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; font-size: 1rem; }
-.pn > h3 small { font-size: .78rem; font-weight: 700; color: var(--color-muted); }
+.pn > h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; font-size: 1rem; }
+.pn > h3 small { font-size: .76rem; font-weight: 700; color: var(--color-muted); }
 .pn.ctl { border-top: 4px solid var(--color-primary); }
 .pn.var { border-top: 4px solid var(--gen-fg); }
-.pn.rec { border-top: 4px solid var(--out-fg); grid-column: 1 / -1; }
-.pn.dh { border-top: 4px solid var(--in-fg); grid-column: 1 / -1; }
-.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
-.chips span { border: 1px solid var(--color-primary); border-radius: 999px; padding: .1rem .8rem; font-size: .88rem; font-weight: 700; color: var(--color-heading); background: var(--color-surface); }
-.chips span::before { content: "고정 "; font-size: .7rem; color: var(--color-muted); font-weight: 800; }
-.diff { display: grid; gap: .4rem; font: .82rem/1.55 var(--font-code); }
+.pn.rec { border-top: 4px solid var(--out-fg); }
+.chips { display: grid; gap: .35rem; }
+.chips span { border: 1px solid var(--color-primary); border-radius: .6rem; padding: .1rem .7rem; font-size: .88rem; font-weight: 700; color: var(--color-heading); background: var(--color-surface); }
+.diff { display: grid; gap: .4rem; font: .8rem/1.55 var(--font-code); }
 .diff > div { border-radius: .6rem; padding: .5rem .7rem; border: 1px solid var(--color-border); background: var(--color-surface); }
 .diff .tt { font: 800 .82rem var(--font-body); color: var(--color-heading); display: block; margin-bottom: .1rem; }
 .diff .add { background: var(--gen-bg); border-color: var(--gen-fg); color: var(--color-heading); }
 .diff .add b { color: var(--gen-fg); }
 .diff .keep { color: var(--color-muted); }
-.matrix { display: grid; grid-template-columns: 4.5rem repeat(2, minmax(0, 1fr)); gap: .4rem; align-items: stretch; }
-.matrix .h { font-weight: 800; font-size: .85rem; color: var(--color-heading); text-align: center; padding: .2rem 0; }
-.matrix .q { font: 800 .85rem var(--font-code); color: var(--in-fg); display: grid; place-items: center; background: var(--in-bg); border-radius: .5rem; }
-.slot2 { border: 1px dashed var(--color-muted); border-radius: .6rem; padding: .4rem .6rem; display: grid; gap: .15rem; font-size: .78rem; color: var(--color-muted); background: var(--color-surface); }
-.slot2 b { font: 800 .82rem var(--font-code); color: var(--color-heading); }
-.slot2 span { display: flex; flex-wrap: wrap; gap: .2rem .5rem; }
-.slot2 i { font-style: normal; }
-.saved { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
-.saved div { border-radius: .6rem; background: var(--out-bg); border: 1px solid var(--out-fg); padding: .4rem .7rem; font-size: .85rem; }
-.saved b { display: block; color: var(--out-fg); }
-.dhflow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; gap: .4rem; align-items: stretch; }
-.dhflow > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .7rem; font-size: .86rem; background: var(--color-surface); }
+.matrix { display: grid; grid-template-columns: 3rem repeat(2, minmax(0, 1fr)); gap: .35rem; align-items: stretch; }
+.matrix .h { font-weight: 800; font-size: .85rem; color: var(--color-heading); text-align: center; }
+.matrix .q { font: 800 .82rem var(--font-code); color: var(--in-fg); display: grid; place-items: center; background: var(--in-bg); border-radius: .5rem; }
+.matrix .c { border: 1px dashed var(--color-muted); border-radius: .5rem; padding: .35rem 0; text-align: center; font-size: .78rem; color: var(--color-muted); background: var(--color-surface); }
+.exp-foot { display: flex; flex-wrap: wrap; gap: .3rem .8rem; align-items: center; font-size: .9rem; color: var(--color-muted); }
+.exp-foot b { color: var(--color-heading); }
+.dhflow { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; }
+.dhflow > div { flex: 1 1 11rem; border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .8rem; font-size: .88rem; background: var(--color-surface); }
 .dhflow b { display: block; color: var(--color-heading); }
 .dhflow i { font-style: normal; display: grid; place-items: center; font-weight: 800; color: var(--color-muted); }
 .dhflow .d { border-left: 4px solid var(--in-fg); }
 .dhflow .fz { background: var(--gen-bg); border-color: var(--gen-fg); }
 .dhflow .h { border-left: 4px solid var(--hum-fg); }
-.dhflow .re { border: 2px dashed var(--bad-fg); background: var(--bad-bg); }
-.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
-.rules div { border-top: 3px solid var(--color-primary); background: var(--color-surface); border-radius: 0 0 .6rem .6rem; padding: .45rem .8rem; font-size: .88rem; }
-.rules b { display: block; color: var(--color-heading); }
 
 .foot { display: grid; gap: .3rem; font-size: .85rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1rem; }
 
@@ -224,12 +202,10 @@ pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padd
   .flow { grid-template-columns: 1fr; }
   .node:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -.9rem; transform: translateX(50%); }
   .ranges { display: none; }
-  .three, .slots, .know, .cases, .pair2, .ladder, .panels, .saved, .rules { grid-template-columns: 1fr; }
-  .expflow { grid-template-columns: 1fr; }
-  .es:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -.9rem; transform: translateX(50%); }
-  .dhflow { grid-template-columns: 1fr; }
-  .dhflow i { transform: rotate(90deg); }
-  .matrix { grid-template-columns: 3.5rem repeat(2, minmax(0, 1fr)); }
+  .three, .slots, .know, .cases, .pair2, .ladder { grid-template-columns: 1fr; }
+  .exp { grid-template-columns: 1fr; }
+  .exp > i { transform: rotate(90deg); }
+  .dhflow i { display: none; }
   .make { grid-template-columns: 1fr; }
   .make i { transform: rotate(90deg); }
   .blk { padding: 1.1rem 1rem 1.3rem; }
@@ -457,64 +433,38 @@ pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padd
   </div>
   <p class="def"><b>A/B 비교</b>는 두 입력 설계의 차이를 관찰하는 실험입니다. 개선안이 좋아 보이는지는 가설이고, 실제 결과와 실패 기록으로 판단합니다.</p>
   <div class="fig">
-    <div class="expflow" aria-label="실험 순서">
-      <div class="es ctl"><span class="n">1</span><strong>조건 고정</strong><small>Control</small></div>
-      <div class="es var"><span class="n">2</span><strong>한 가지만 변경</strong><small>Variable</small></div>
-      <div class="es"><span class="n">3</span><strong>같은 질문으로 실행</strong><small>Run</small></div>
-      <div class="es"><span class="n">4</span><strong>첫 응답 원문 보존</strong><small>Observe</small></div>
-      <div class="es"><span class="n">5</span><strong>형식·참조 검사<br>사람의 근거 평가</strong><small>Check</small></div>
-      <div class="es rec"><span class="n">6</span><strong>차이와 한계 기록</strong><small>Record</small></div>
-    </div>
-    <div class="loopback"><b>기록 → 입력 개선</b><span>기록을 읽고 고칠 것을 하나 정해, 새 버전으로 1번부터 다시 비교합니다.</span></div>
-
-    <div class="panels">
+    <div class="exp">
       <div class="pn ctl">
-        <h3>1 · 고정하는 것 <small>Control</small></h3>
+        <h3>고정 <small>Control</small></h3>
         <div class="chips"><span>같은 질문</span><span>같은 문맥</span><span>표시된 모델명</span><span>출력 계약</span><span>채점 기준</span></div>
-        <p class="cap">그 외 예제·실행 조건도 A와 B가 같아야 합니다. 조건이 섞이면 차이가 입력 때문인지 알 수 없습니다.</p>
       </div>
+      <i>+</i>
       <div class="pn var">
-        <h3>2 · 바꾸는 것 <small>Variable · 한 가지</small></h3>
+        <h3>바꾸는 것: 한 가지 <small>Variable</small></h3>
         <div class="diff">
-          <div><span class="tt">A · 기준 지시문 (현재 버전의 규칙)</span><span class="keep">[근거 규칙] 제공된 지식을 참고하여 질문에 답합니다. 출처에는 이번 지식의 ID를 적습니다.</span></div>
+          <div><span class="tt">A · 기준 지시문</span><span class="keep">[근거 규칙] 제공된 지식을 참고하여 질문에 답합니다. 출처에는 이번 지식의 ID를 적습니다.</span></div>
           <div class="add"><span class="tt">B · A + 근거 부족 규칙 한 개</span><span class="keep">[근거 규칙] (A와 같음)</span><br><b>+ 답을 뒷받침할 사실이 없으면 insufficient_context로 두고 부족한 정보를 적습니다.</b></div>
         </div>
-        <p class="cap">위 문장은 실습의 예입니다. B는 A에 규칙 한 줄만 더합니다.</p>
       </div>
-
+      <i>→</i>
       <div class="pn rec">
-        <h3>3~6 · 실행하고 기록하는 것 <small>Run · Observe · Check · Record</small></h3>
+        <h3>기록 <small>Record</small></h3>
         <div class="matrix">
           <div></div><div class="h">A</div><div class="h">B</div>
-          <div class="q">D01</div><div class="slot2"><b>D01 · A</b><span><i>원문 ☐</i><i>검사 ☐</i><i>평가 ☐</i></span></div><div class="slot2"><b>D01 · B</b><span><i>원문 ☐</i><i>검사 ☐</i><i>평가 ☐</i></span></div>
-          <div class="q">D02</div><div class="slot2"><b>D02 · A</b><span><i>원문 ☐</i><i>검사 ☐</i><i>평가 ☐</i></span></div><div class="slot2"><b>D02 · B</b><span><i>원문 ☐</i><i>검사 ☐</i><i>평가 ☐</i></span></div>
-          <div class="q">D03</div><div class="slot2"><b>D03 · A</b><span><i>원문 ☐</i><i>검사 ☐</i><i>평가 ☐</i></span></div><div class="slot2"><b>D03 · B</b><span><i>원문 ☐</i><i>검사 ☐</i><i>평가 ☐</i></span></div>
-        </div>
-        <p class="cap">질문 3개 × A/B = 첫 응답 6개. 같은 조건을 한 번 더 반복하면 12개입니다. 응답을 받기 전의 슬롯은 모두 미실행(<code>not_run</code>)이고, 사람 평가가 비어 있으면 미평가(<code>null</code>)입니다. 실패·미실행·미평가를 숨기지 않고 분모를 보존합니다.</p>
-        <div class="saved">
-          <div><b>응답 원문</b>수정하지 않고 첫 응답을 그대로 저장</div>
-          <div><b>실행 조건</b>모델 표시, 상태(미실행·완료 등), 몇 번째 시도인지</div>
-          <div><b>사람의 근거 평가</b>자동 검사가 볼 수 없는 내용 확인</div>
+          <div class="q">D01</div><div class="c">미실행</div><div class="c">미실행</div>
+          <div class="q">D02</div><div class="c">미실행</div><div class="c">미실행</div>
+          <div class="q">D03</div><div class="c">미실행</div><div class="c">미실행</div>
         </div>
       </div>
-
-      <div class="pn dh">
-        <h3>질문 묶음의 순서 <small>Development → Holdout</small></h3>
-        <div class="dhflow">
-          <div class="d"><b>Development (D)</b>개선용 질문으로 A/B를 비교하며 수정</div><i>→</i>
-          <div class="fz"><b>버전·조건 고정</b>Prompt 버전과 비교 조건을 함께 보존</div><i>→</i>
-          <div class="h"><b>Holdout (H)</b>남겨 둔 질문으로 최종 확인</div><i>→</i>
-          <div class="re"><b>H를 본 뒤 고쳤다면</b>새 버전과 새 확인 질문이 필요</div>
-        </div>
-        <p class="cap">같은 질문으로만 고치고 확인하지 않도록 두 묶음을 나눕니다. N은 한 Prompt 버전에서 비교 대상으로 정한 첫 응답 수이고, 사람의 근거 평가는 실제 평가한 수를 분모로 씁니다. 이 교안의 Holdout은 공개된 교육용 묶음입니다.</p>
-      </div>
     </div>
-
-    <div class="rules">
-      <div><b>A/B와 D/H</b>A/B는 Prompt 버전, D/H는 질문 묶음의 용도입니다.</div>
-      <div><b>실제 응답과 샘플</b>실제 모델 응답(<code>manual_chat</code>)과 작성한 샘플(Fixture)은 따로 기록합니다.</div>
-      <div><b>첫 응답과 재시도 후</b>첫 응답과 재시도 후 결과를 따로 봅니다.</div>
+    <p class="cap">조건이 섞이면 차이가 입력 때문인지 알 수 없습니다. 기록은 첫 응답 원문, 검사 결과, 사람의 근거 평가입니다. 응답이 없으면 미실행(<code>not_run</code>), 사람 평가가 비어 있으면 미평가(<code>null</code>)로 남기고 숨기지 않습니다. 위 규칙 문장은 실습의 예입니다.</p>
+    <div class="exp-foot"><b>기록 → 입력 개선</b><span>기록을 읽고 고칠 것 하나를 정해 새 버전으로 다시 비교합니다.</span></div>
+    <div class="dhflow">
+      <div class="d"><b>Development (D)</b>개선용 질문으로 수정</div><i>→</i>
+      <div class="fz"><b>버전·조건 고정</b>Prompt 버전과 비교 조건을 보존</div><i>→</i>
+      <div class="h"><b>Holdout (H)</b>남겨 둔 질문으로 최종 확인</div>
     </div>
+    <p class="cap">H를 본 뒤 다시 고쳤다면 새 버전과 새 확인 질문이 필요합니다. 이 교안의 Holdout은 공개된 교육용 묶음입니다.</p>
   </div>
   <p class="lesson">B가 반드시 이겨야 하는 것이 아닙니다. 어떤 오류가 줄고 새로 생겼는지 설명합니다.</p>
 </section>
