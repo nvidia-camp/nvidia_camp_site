@@ -3,152 +3,217 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Day21 Prompt · Context Engineering · 학습 아카이브</title>
-<link rel="stylesheet" href="../../fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<title>Day21 · Prompt·Context Engineering</title>
 <style>
-:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
-  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
-  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
-  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
-@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
-  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
-  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
-main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
-h1,h2,h3,p,ol,ul{margin:0}
-ol,ul{padding:0;list-style:none}
-h1,h2,h3{color:var(--heading);text-wrap:balance}
-a{color:inherit;text-decoration:none}
-a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
-svg{display:block}
+:root {
+  --color-primary: #142849; --color-heading: #1C2B40; --color-text: #222F44; --color-muted: #52667E;
+  --color-canvas: #F9FBFE; --color-surface: #FFFFFF; --color-soft: #F0F6FD; --color-border: #D8E4F2;
+  --on-primary: #FFFFFF;
+  --in-bg: #E9F3FC; --in-fg: #245C9C;      /* 입력 설계 */
+  --gen-bg: #F1ECFA; --gen-fg: #5B3F8C;    /* 생성 */
+  --out-bg: #E9F5EE; --out-fg: #2E6B45;    /* 출력 확인 */
+  --hum-bg: #FFF3D8; --hum-fg: #7A4F0E;    /* 사람 */
+  --bad-bg: #FBEDE6; --bad-fg: #8A4B2A;    /* 주의·중단 */
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
+  --radius-card: 1rem; --radius-control: .75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+    --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
+    --in-bg: #1C3352; --in-fg: #A9CDF5; --gen-bg: #2B2342; --gen-fg: #CDB8F2;
+    --out-bg: #183526; --out-fg: #9BD8B2; --hum-bg: #3A2E14; --hum-fg: #F2D28B;
+    --bad-bg: #3A2219; --bad-fg: #F0B79A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+  --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
+  --in-bg: #1C3352; --in-fg: #A9CDF5; --gen-bg: #2B2342; --gen-fg: #CDB8F2;
+  --out-bg: #183526; --out-fg: #9BD8B2; --hum-bg: #3A2E14; --hum-fg: #F2D28B;
+  --bad-bg: #3A2219; --bad-fg: #F0B79A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
+main { max-width: 64rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 2.2rem; }
+h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
+h1 { font-size: clamp(1.75rem, 4vw, 2.3rem); letter-spacing: -.02em; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: var(--color-primary); }
+code { font-family: var(--font-code); font-size: .88em; background: var(--color-soft); color: var(--color-heading); padding: .05rem .35rem; border-radius: .35rem; }
+section { display: grid; gap: 1.1rem; min-width: 0; scroll-margin-top: 1rem; }
+/* 구역: 하나의 덩어리로 구분 */
+.blk { background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.7rem; gap: 1.2rem; }
+.blk-h { display: grid; gap: .55rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border); }
+.blk-t { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; }
+.no { font: 800 .85rem var(--font-code); color: var(--on-primary); background: var(--color-primary); border-radius: .45rem; padding: .12rem .6rem; }
+.where { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; font-size: .78rem; color: var(--color-muted); }
+.where b { font-weight: 800; margin-right: .2rem; }
+.where span { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: 0 .6rem; }
+.where span.on { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); font-weight: 800; }
+.where i { font-style: normal; }
+.eyebrow { font-size: .875rem; font-weight: 700; color: var(--color-muted); }
+.head { display: grid; gap: .7rem; }
+.lead { font-size: 1.05rem; max-width: 50rem; }
+.jump { display: flex; flex-wrap: wrap; gap: .4rem .6rem; }
+.jump a { font-size: .88rem; font-weight: 700; text-decoration: none; color: var(--color-heading); border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: .2rem .8rem; }
+.jump a:hover { border-color: var(--color-primary); }
+.tag { display: inline-block; font-size: .78rem; font-weight: 800; color: var(--color-muted); border: 1px solid var(--color-border); border-radius: 999px; padding: .05rem .6rem; margin-left: .5rem; vertical-align: middle; white-space: nowrap; }
+.def { max-width: 50rem; }
+.def b { color: var(--color-heading); }
+.lesson { border-left: 4px solid var(--color-primary); background: var(--color-surface); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; font-weight: 700; color: var(--color-heading); }
+.fig { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; }
+.cap { font-size: .82rem; color: var(--color-muted); }
 
-/* 맨 위: 브랜드 줄 + 문제 풀이 */
-.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
-.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
-.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
-.brand-sep{width:1px;height:22px;background:#D8E4F2}
-.brand p{color:var(--muted);font-size:14px;font-weight:600}
-.links{display:flex;flex-wrap:wrap;gap:8px}
-.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
-  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
-.links a:hover{border-color:var(--accent)}
-.links img{display:block;width:20px;height:20px;border-radius:5px}
-@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+/* 전체 흐름 */
+.ranges { display: grid; grid-template-columns: 1fr 2fr 1fr 2fr; gap: .4rem; font-size: .8rem; font-weight: 800; text-align: center; }
+.ranges span { border-radius: .4rem; padding: .1rem 0; }
+.r-in { background: var(--in-bg); color: var(--in-fg); grid-column: 2; }
+.r-gen { background: var(--gen-bg); color: var(--gen-fg); }
+.r-out { background: var(--out-bg); color: var(--out-fg); }
+.r-door { color: var(--color-muted); }
+.flow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .5rem; align-items: stretch; counter-reset: n; }
+.node { position: relative; display: grid; gap: .15rem; align-content: start; text-align: center; text-decoration: none; color: var(--color-text); border: 2px solid var(--color-border); border-radius: .8rem; padding: .7rem .4rem; background: var(--color-surface); }
+.node strong { color: var(--color-heading); font-size: .98rem; }
+.node span { font-size: .8rem; color: var(--color-muted); line-height: 1.45; }
+.node:not(:last-child)::after { content: "→"; position: absolute; right: -.62rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; background: var(--color-surface); z-index: 1; line-height: 1; }
+a.node:hover { border-color: var(--color-primary); }
+.node.in { background: var(--in-bg); border-color: var(--in-fg); }
+.node.in strong { color: var(--in-fg); }
+.node.gen { background: var(--gen-bg); border-color: var(--gen-fg); }
+.node.gen strong { color: var(--gen-fg); }
+.node.out { background: var(--out-bg); border-color: var(--out-fg); }
+.node.out strong { color: var(--out-fg); }
+.node.hum { background: var(--hum-bg); border-color: var(--hum-fg); }
+.node.hum strong { color: var(--hum-fg); }
+.band { display: flex; flex-wrap: wrap; gap: .3rem .9rem; align-items: baseline; border: 2px dashed var(--color-primary); border-radius: .8rem; padding: .6rem 1rem; }
+.band a { font-weight: 800; color: var(--color-primary); }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.three div { border-top: 3px solid var(--color-primary); background: var(--color-surface); border-radius: 0 0 .6rem .6rem; padding: .5rem .8rem; }
+.three b { color: var(--color-heading); }
+.three p { font-size: .9rem; color: var(--color-muted); }
 
-/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
-.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
-.hero-l{display:grid;gap:22px}
-.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
-.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
-.count b{color:var(--heading)}
-.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
-.recent{border-top:1px solid var(--line-2)}
-.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
-  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
-.recent a:hover{background:var(--soft);padding-left:10px}
-.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
-.recent a:hover .go{opacity:1}
-.recent .go svg{width:16px;height:16px}
-.recent li.on .t{font-weight:700}
-.recent li.on .no{color:var(--accent);font-weight:700}
-.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
-.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
-  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
-  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
-.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
-  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
-.cover>*{position:relative}
-.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
-.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
-.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
-.cover .c-n{font-size:15px;opacity:.72}
-.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
-.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
-.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
-.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
-.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
-.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
-.cover:hover .c-go svg{transform:translateX(4px)}
-@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+/* Prompt */
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.slot { border: 1px solid var(--in-fg); background: var(--in-bg); border-radius: .6rem; padding: .5rem .7rem; display: grid; }
+.slot b { color: var(--in-fg); }
+.slot span { font-size: .85rem; color: var(--color-text); }
+.make { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: .5rem; align-items: center; text-align: center; }
+.make > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .6rem; background: var(--color-canvas); }
+.make b { display: block; color: var(--color-heading); font-size: .92rem; }
+.make small { color: var(--color-muted); font-size: .8rem; }
+.make i { font-style: normal; font-weight: 800; color: var(--color-muted); }
+.make .done { background: var(--in-bg); border-color: var(--in-fg); }
+.pair2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.pair2 > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .6rem .8rem; background: var(--color-surface); }
+.pair2 b { color: var(--color-heading); }
+.pair2 p { font-size: .9rem; }
 
-/* 100일 일정 */
-.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.tl{display:grid;gap:6px;min-width:0}
-.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
-.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
-.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
-.cell.past{background:var(--cell-past)}
-.cell.has{background:var(--primary)}
-a.cell:hover{transform:scale(1.3)}
-.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 
-/* 참고 문서 모음 */
-.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
-.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
-.shelf .col+.col{border-left:1px solid var(--line)}
-.shelf+.chapter{border-top:0}
-.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
-.shelf a:hover{background:var(--soft)}
-.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
-.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
-.ch-refs{display:grid;gap:2px;margin-top:12px}
-.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
-.ch-refs a:hover{background:var(--soft)}
-@media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
-.shelf .soon{margin:2px 0}
-.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+/* Context */
+.know { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.know div { border: 1px solid var(--color-border); border-radius: .6rem; padding: .45rem .7rem; font-size: .9rem; background: var(--color-surface); }
+.know div.pick { border: 2px solid var(--in-fg); background: var(--in-bg); }
+.know code { font-weight: 800; }
+.sel { display: grid; grid-template-columns: auto 1fr; gap: .4rem .8rem; align-items: center; font-size: .92rem; }
+.sel i { font-style: normal; font-weight: 800; color: var(--in-fg); }
+.cases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.cases > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .6rem .8rem; display: grid; gap: .3rem; }
+.cases .ok { border-left: 4px solid var(--out-fg); }
+.cases .lack { border-left: 4px solid var(--hum-fg); }
+.cases code { white-space: normal; }
+.window { display: grid; grid-template-columns: 5fr 2fr 1fr; gap: .3rem; font-size: .82rem; text-align: center; font-weight: 700; }
+.window span { border-radius: .4rem; padding: .35rem .3rem; }
+.window .w1 { background: var(--in-bg); color: var(--in-fg); }
+.window .w2 { background: var(--gen-bg); color: var(--gen-fg); }
+.window .w3 { border: 2px dashed var(--color-muted); color: var(--color-muted); }
 
-/* 과목 = 챕터 */
-.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
-.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
-.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
-.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
-.ch-side{display:grid;gap:4px;align-content:start}
-.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
-.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
-.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
-.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.ch-side .soon{margin-top:6px}
-.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
-.rows li:first-child{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
-.row:hover{background:var(--soft)}
-.row:hover .t{color:var(--accent)}
-.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
-.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
-.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
-.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
-.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
-  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
-.mini:hover{background:var(--soft);border-color:var(--accent)}
-.mini svg{width:14px;height:14px}
-.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
-.mini.view:hover{border-color:var(--accent)}
-.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
-.rows li.all .no{color:var(--accent)}
-.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
-@media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
+/* 검증 */
+pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padding: .8rem 1rem; font: .85rem/1.6 var(--font-code); overflow-x: auto; }
+.ladder { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; counter-reset: s; }
+.step { border-radius: .7rem; padding: .6rem .8rem; display: grid; gap: .1rem; align-content: start; }
+.step b { color: var(--color-heading); }
+.step span { font-size: .85rem; color: var(--color-text); }
+.step small { font-size: .78rem; color: var(--color-muted); }
+.step em { font-style: normal; font-size: .72rem; font-weight: 700; color: var(--color-muted); margin-left: .3rem; }
+.step.auto { background: var(--out-bg); border: 1px solid var(--out-fg); }
+.step.man { background: var(--hum-bg); border: 1px solid var(--hum-fg); }
+.brk { display: grid; grid-template-columns: 3fr 1fr; gap: .5rem; font-size: .82rem; font-weight: 800; text-align: center; }
+.brk span { border-top: 3px solid; padding-top: .2rem; }
+.brk .a { color: var(--out-fg); }
+.brk .m { color: var(--hum-fg); }
+.counter { border: 1px dashed var(--bad-fg); background: var(--bad-bg); border-radius: .7rem; padding: .7rem 1rem; display: grid; gap: .2rem; font-size: .92rem; }
+.counter b { color: var(--bad-fg); }
 
-/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
-.day-head{display:grid;gap:10px;margin:8px 0 22px}
-.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
-.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
-.day-head .sub{font-size:15px;color:var(--muted)}
-.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
+/* 재시도 */
+.branches { display: grid; gap: .5rem; }
+.br { display: grid; grid-template-columns: minmax(0, 1.1fr) auto minmax(0, 1.4fr); gap: .6rem; align-items: stretch; }
+.br > div { border-radius: .7rem; padding: .55rem .8rem; border: 1px solid var(--color-border); background: var(--color-surface); font-size: .92rem; }
+.br b { display: block; color: var(--color-heading); }
+.br small { color: var(--color-muted); }
+.br i { font-style: normal; display: grid; place-items: center; font-weight: 800; color: var(--color-muted); }
+.br.t1 > div:first-child { border-left: 4px solid var(--out-fg); }
+.br.t2 > div:first-child { border-left: 4px solid var(--in-fg); }
+.br.t3 > div:first-child { border-left: 4px solid var(--bad-fg); }
+.two { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; font-weight: 800; color: var(--color-heading); }
+.two span { border: 1px solid var(--color-border); border-radius: .5rem; padding: .15rem .7rem; background: var(--color-canvas); }
+.two em { font-style: normal; color: var(--color-muted); }
 
-@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
-  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
-  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
-@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
+/* 평가 (실험 도식) */
+.exp { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.5fr) auto minmax(0, 1.3fr); gap: .6rem; align-items: stretch; }
+.exp > i { font-style: normal; display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; color: var(--color-muted); }
+.pn { border: 1px solid var(--color-border); border-radius: .9rem; padding: .8rem 1rem 1rem; display: grid; gap: .6rem; align-content: start; background: var(--color-canvas); min-width: 0; }
+.pn > h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; font-size: 1rem; }
+.pn > h3 small { font-size: .76rem; font-weight: 700; color: var(--color-muted); }
+.pn.ctl { border-top: 4px solid var(--color-primary); }
+.pn.var { border-top: 4px solid var(--gen-fg); }
+.pn.rec { border-top: 4px solid var(--out-fg); }
+.chips { display: grid; gap: .35rem; }
+.chips span { border: 1px solid var(--color-primary); border-radius: .6rem; padding: .1rem .7rem; font-size: .88rem; font-weight: 700; color: var(--color-heading); background: var(--color-surface); }
+.diff { display: grid; gap: .4rem; font: .8rem/1.55 var(--font-code); }
+.diff > div { border-radius: .6rem; padding: .5rem .7rem; border: 1px solid var(--color-border); background: var(--color-surface); }
+.diff .tt { font: 800 .82rem var(--font-body); color: var(--color-heading); display: block; margin-bottom: .1rem; }
+.diff .add { background: var(--gen-bg); border-color: var(--gen-fg); color: var(--color-heading); }
+.diff .add b { color: var(--gen-fg); }
+.diff .keep { color: var(--color-muted); }
+.matrix { display: grid; grid-template-columns: 3rem repeat(2, minmax(0, 1fr)); gap: .35rem; align-items: stretch; }
+.matrix .h { font-weight: 800; font-size: .85rem; color: var(--color-heading); text-align: center; }
+.matrix .q { font: 800 .82rem var(--font-code); color: var(--in-fg); display: grid; place-items: center; background: var(--in-bg); border-radius: .5rem; }
+.matrix .c { border: 1px dashed var(--color-muted); border-radius: .5rem; padding: .35rem 0; text-align: center; font-size: .78rem; color: var(--color-muted); background: var(--color-surface); }
+.exp-foot { display: flex; flex-wrap: wrap; gap: .3rem .8rem; align-items: center; font-size: .9rem; color: var(--color-muted); }
+.exp-foot b { color: var(--color-heading); }
+.dhflow { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; }
+.dhflow > div { flex: 1 1 11rem; border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .8rem; font-size: .88rem; background: var(--color-surface); }
+.dhflow b { display: block; color: var(--color-heading); }
+.dhflow i { font-style: normal; display: grid; place-items: center; font-weight: 800; color: var(--color-muted); }
+.dhflow .d { border-left: 4px solid var(--in-fg); }
+.dhflow .fz { background: var(--gen-bg); border-color: var(--gen-fg); }
+.dhflow .h { border-left: 4px solid var(--hum-fg); }
+
+.foot { display: grid; gap: .3rem; font-size: .85rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1rem; }
+
+@media (max-width: 760px) {
+  .flow { grid-template-columns: 1fr; }
+  .node:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -.9rem; transform: translateX(50%); }
+  .ranges { display: none; }
+  .three, .slots, .know, .cases, .pair2, .ladder { grid-template-columns: 1fr; }
+  .exp { grid-template-columns: 1fr; }
+  .exp > i { transform: rotate(90deg); }
+  .dhflow i { display: none; }
+  .make { grid-template-columns: 1fr; }
+  .make i { transform: rotate(90deg); }
+  .blk { padding: 1.1rem 1rem 1.3rem; }
+  .br { grid-template-columns: 1fr; }
+  .br i { padding: .1rem 0; }
+  .brk { display: none; }
+}
 </style>
-<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body><style>
 .cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
@@ -159,10 +224,18 @@ a.cell:hover{transform:scale(1.3)}
 .cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
 .cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../llm/">LLM·RAG</a><span class="cn-here">Day21</span><span class="cn-right"><a href="lecture/">바로 보기</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1794786879396659" target="_blank" rel="noopener">강의 자료 ↗</a></span></nav>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../llm/">LLM·RAG</a><span class="cn-here">Day21</span><span class="cn-right"><a class="cn-dl" href="download.html" download="Day21_Prompt_Context_Engineering.html" title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a><a href="lecture/">바로 보기</a><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1794786879396659" target="_blank" rel="noopener">강의 자료 ↗</a><a href="../../llm/20261113/">‹ Day20</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <main>
-<header class="day-head"><p class="eyebrow">Day21 · 11/16 · LLM·RAG</p>
-<h1>Prompt · Context Engineering</h1><p class="sub">교재 · 좋은 답변을 만드는 Prompt·Context Engineering</p></header>
+
+<header class="head">
+  <p class="eyebrow">Day21 · 2026.11.16 · 생성형 AI·LLM 및 RAG 엔지니어링</p>
+  <h1>Prompt·Context Engineering</h1>
+  <p class="lead">오늘 다루는 것은 LLM을 새로 학습하는 일이 아니라, <b>모델 호출 전의 입력 설계</b>와 <b>호출 후의 출력 확인</b>입니다.</p>
+  <nav class="jump" aria-label="구역 이동">
+    <a href="#map">전체 흐름</a><a href="#prompt">Prompt</a><a href="#context">Context</a><a href="#check">Output Contract · Validation</a><a href="#retry">Retry</a><a href="#ab">A/B Evaluation</a>
+  </nav>
+
 <div class="lt-top"><style>
 .lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
   margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
@@ -220,7 +293,187 @@ a.cell:hover{transform:scale(1.3)}
 <div class="lt-body"><p class="lt-intro"><b>도입</b><span>좋은 답변을 만드는 Prompt·Context Engineering · 목차</span></p><div class="lt-board"><article class="lt-cd"><header><span class="lt-n">1교시</span><span class="lt-c">화면 12</span><h3>prompt engineering 개요</h3></header><ol><li><span>현업의 AI 서비스는 어떻게 연결될까?</span></li><li><span>오늘 배울 부분: 모델에 넣는 입력과 나온 응답</span></li><li><span>Prompt란 무엇인가?</span></li><li><span>Prompt Engineering이란 무엇인가?</span></li><li><span>Context란 무엇인가?</span></li><li><span>같은 자료, 다른 질문</span></li><li><span>지시문과 참고 데이터는 무엇이 다른가?</span></li><li><span>여섯 요소로 지시문 조립하기</span></li><li><span>Prompt Template이란 무엇인가?</span></li><li><span>$question의 $는 왜 붙는가?</span></li><li><span>세 입력값으로 Prompt 구성하기</span></li></ol><p class="lt-lab-row"><b>실습</b><span>01 ·<wbr> Prompt 설계</span></p></article><article class="lt-cd"><header><span class="lt-n">2교시</span><span class="lt-c">화면 10</span><h3>prompt 종류와 관리</h3></header><ol><li><span>Zero-shot Prompting이란 무엇인가?</span></li><li><span>Few-shot Prompting이란 무엇인가?</span></li><li><span>예제로 답변 방식과 정보 부족 처리를 보여줍니다</span></li><li><span>예제에서 가져올 것은 형식이지, 출처가 아닙니다</span></li><li><span>Prompt 버전 관리란 무엇인가?</span></li><li><span>변경 내용과 이유를 함께 기록합니다</span></li><li><span>A/B 비교란 무엇인가?</span></li><li><span>A/B는 한 가지 차이부터</span></li></ol><p class="lt-lab-row"><b>실습</b><span>02 ·<wbr> 예제와 버전 관리</span></p></article><article class="lt-cd"><header><span class="lt-n">3교시</span><span class="lt-c">화면 7</span><h3>prompt 추론 근거</h3></header><ol><li><span>CoT Prompting은 무엇인가?</span></li><li><span>작업 분해란 무엇인가?</span></li><li><span>질문 → 필요한 정보 → 근거 → 상태</span></li><li><span>질문에 필요한 정보가 둘이면, 둘 다 대조합니다</span></li><li><span>정보 부족은 정상 결과일 수 있다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>03 ·<wbr> 작업 분해</span></p></article><article class="lt-cd"><header><span class="lt-n">4교시</span><span class="lt-c">화면 12</span><h3>context engineering</h3></header><ol><li><span>Context Engineering이란 무엇인가?</span></li><li><span>스냅샷(Snapshot)이란 무엇인가?</span></li><li><span>DB에 있는 지식이 모델 입력이 되기까지</span></li><li><span>직렬화(Serialization)란 무엇인가?</span></li><li><span>모델에 전달할 자료 직접 고르기</span></li><li><span>선택·<wbr>중복·<wbr>순서를 코드 한 단계씩 확인합니다</span></li><li><span>Token이란 무엇인가?</span></li><li><span>Context Window란 무엇인가?</span></li><li><span>출력에 사용할 Token도 남겨 둡니다</span></li><li><span>넣지 않은 정보도 기록하기</span></li></ol><p class="lt-lab-row"><b>실습</b><span>04 ·<wbr> Context 구성</span></p></article><article class="lt-cd"><header><span class="lt-n">5교시</span><span class="lt-c">화면 10</span><h3>응답 비교 및 평가</h3></header><ol><li><span>Fixture란 무엇인가?</span></li><li><span>샘플은 샘플, 관찰은 관찰</span></li><li><span>무엇으로 평가하고, 무엇을 성공으로 볼까?</span></li><li><span>개선할 질문과 최종 확인할 질문을 왜 나눌까?</span></li><li><span>A/B는 Prompt 버전, D/H는 질문 묶음입니다</span></li><li><span>Development ·<wbr> Holdout 질문에 적용하기</span></li><li><span>분모와 미평가 건수를 먼저 확인합니다</span></li><li><span>실제 관찰과 지표를 연결하기</span></li></ol><p class="lt-lab-row"><b>실습</b><span>05 ·<wbr> A/B 비교</span></p></article><article class="lt-cd"><header><span class="lt-n">6교시</span><span class="lt-c">화면 15</span><h3>출력 검증</h3></header><ol><li><span>JSON이란 무엇인가?</span></li><li><span>출력 계약이란 무엇인가?</span></li><li><span>JSON Schema란 무엇인가?</span></li><li><span>Pydantic은 무엇을 하는가?</span></li><li><span>검증(Validation)은 무엇을 확인하는가?</span></li><li><span>형식을 요청하는 것과 검사하는 것은 다릅니다</span></li><li><span>네 필드로 정의한 출력 계약</span></li><li><span>자료형이 맞아도 필드의 값이 서로 모순될 수 있습니다</span></li><li><span>101 ·<wbr> &quot;101&quot; ·<wbr> true는 서로 다른 자료형입니다</span></li><li><span>응답 하나를 네 단계로 검사합니다</span></li><li><span>응답을 바꾸며 검사 결과 확인하기</span></li><li><span>출처와 근거 적합성은 어떻게 다른가?</span></li><li><span>존재하는 ID인데도 틀린 인용</span></li></ol><p class="lt-lab-row"><b>실습</b><span>06 ·<wbr> 출력 검증</span></p></article><article class="lt-cd"><header><span class="lt-n">7교시</span><span class="lt-c">화면 7</span><h3>재시도·중단</h3></header><ol><li><span>재시도(Retry)란 무엇인가?</span></li><li><span>오류 유형에 따라 다음 처리를 정합니다</span></li><li><span>최초 한 번, 형식 수정 한 번</span></li><li><span>수정 요청에는 확인된 오류만 전달합니다</span></li><li><span>수정 뒤 통과해도 첫 실패는 지우지 않습니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>07 ·<wbr> 재시도·<wbr>중단</span></p></article><article class="lt-cd"><header><span class="lt-n">8교시</span><span class="lt-c">화면 5</span><h3>전체 연결</h3></header><ol><li><span>처음의 질문으로 다시 돌아오기</span></li><li><span>답변뿐 아니라 비교·<wbr>검증 과정도 평가합니다</span></li><li><span>지시 ·<wbr> 문맥 ·<wbr> 검증 ·<wbr> 개선</span></li></ol><p class="lt-lab-row"><b>실습</b><span>08 ·<wbr> 일일프로젝트</span></p></article></div>
 <p class="lt-note">강의 자료의 화면 제목을 원문 그대로 옮겼습니다. 실습은 각 교시 카드 맨 아래에 모았습니다.</p></div>
 </details></section></div>
-<p class="sum-empty">요약 준비 중입니다.</p>
+</header>
+
+<!-- 전체 흐름: 강사 자료의 그림 -->
+<section id="map" class="blk" aria-labelledby="map-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">지도</span><h2 id="map-h">전체 흐름(Overall Flow): 입력을 만들고, 결과를 확인한다</h2></div>
+  </div>
+  <div class="fig">
+    <div class="ranges" aria-hidden="true"><span class="r-door"></span><span class="r-in">입력 설계</span><span class="r-gen">생성</span><span class="r-out">출력 확인</span></div>
+    <div class="flow">
+      <div class="node"><strong>질문</strong><span>무엇을<br>알고 싶은가?</span></div>
+      <a class="node in" href="#context"><strong>Context</strong><span>필요한<br>자료 선택</span></a>
+      <a class="node in" href="#prompt"><strong>Prompt</strong><span>지시·질문·자료<br>입력 조립</span></a>
+      <div class="node gen"><strong>LLM 응답</strong><span>검사할<br>결과 생성</span></div>
+      <a class="node out" href="#check"><strong>자동 검사</strong><span>문법·구조<br>참조·상태</span></a>
+      <a class="node hum" href="#check"><strong>근거 대조</strong><span>질문·답·원문을<br>사람이 확인</span></a>
+    </div>
+    <div class="band"><a href="#ab">A/B 평가 → 입력 개선</a><span>여러 실행의 조건·응답·실패 기록을 모아 비교합니다.</span></div>
+    <p class="cap">실행 흐름과 평가 흐름을 구분합니다. A/B 평가는 매 요청이 반드시 통과하는 직렬 처리 단계가 아닙니다. 자동 검사가 실패하면 <a href="#retry">재시도(Retry)</a>가 입력 쪽으로 한 번 되돌아갑니다. 노드를 누르면 해당 구역으로 이동합니다.</p>
+  </div>
+  <div class="three">
+    <div><b>지시(Instruction)</b><p>무엇을 하고, 무엇을 하지 말아야 하는가?</p></div>
+    <div><b>문맥(Context)</b><p>이번 답변에 실제로 어떤 정보를 넣는가?</p></div>
+    <div><b>검증(Validation)</b><p>형식이 맞고, 답을 뒷받침하는 근거가 있는가?</p></div>
+  </div>
+  <p class="lesson">좋은 입력을 만드는 일과, 나온 답을 확인하는 일은 함께 필요합니다.</p>
+</section>
+
+<!-- Prompt -->
+<section id="prompt" class="blk" aria-labelledby="prompt-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">01</span><h2 id="prompt-h">Prompt: 무엇을 어떻게 수행할지 전달하는 입력</h2><span class="tag">1 · 2교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span class="on">Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span>자동 검사</span><i>→</i><span>근거 대조</span></div>
+  </div>
+  <p class="def"><b>Prompt</b>에는 지시뿐 아니라 질문·자료·예제·출력 조건을 담을 수 있습니다. <b>Prompt Engineering</b>은 성공 기준을 지시로 표현하고, 결과를 비교하며 개선하는 과정입니다.</p>
+  <div class="fig">
+    <div class="slots">
+      <div class="slot"><b>역할</b><span>누구를 돕는가?</span></div>
+      <div class="slot"><b>작업</b><span>무엇을 수행하는가?</span></div>
+      <div class="slot"><b>입력</b><span>무엇을 읽는가?</span></div>
+      <div class="slot"><b>제약</b><span>어디까지 답하는가?</span></div>
+      <div class="slot"><b>실패</b><span>근거가 없으면?</span></div>
+      <div class="slot"><b>출력</b><span>어떤 형식으로 돌려주는가?</span></div>
+    </div>
+    <div class="make">
+      <div><b>고정된 템플릿(Template)</b><small>작업·범위·실패 기준·출력 계약</small></div>
+      <i>+</i>
+      <div><b>요청마다 바뀌는 값</b><small>이번 질문 + 선택한 지식</small></div>
+      <i>→</i>
+      <div class="done"><b>완성된 Prompt</b><small>모델에 전달할 입력</small></div>
+    </div>
+    <p class="cap">여섯 요소는 이 교안의 설계 틀입니다.</p>
+  </div>
+  <div class="pair2">
+    <div><b>Zero-shot</b><p>입력→출력 예제 없이 작업과 기준을 설명합니다.</p></div>
+    <div><b>Few-shot</b><p>입력→바람직한 출력 예제를 함께 줍니다.</p></div>
+  </div>
+  <p class="lesson">핵심은 문장의 화려함이 아니라 성공·실패를 확인할 수 있는 요청입니다.</p>
+</section>
+
+<!-- Context -->
+<section id="context" class="blk" aria-labelledby="context-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">02</span><h2 id="context-h">Context: 이번 답변에 실제로 제공한 정보</h2><span class="tag">3 · 4교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span class="on">Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span>자동 검사</span><i>→</i><span>근거 대조</span></div>
+  </div>
+  <p class="def"><b>Context Engineering</b>은 필요한 정보를 고르고 배치하며 출처·유효성·길이를 관리하는 일입니다. 여기서는 그중 이번 요청에 선택해 넣은 지식을 다룹니다.</p>
+  <div class="fig">
+    <div class="know">
+      <div class="pick"><code>101</code> 파일 보관 ✔ 선택</div>
+      <div><code>102</code> 서버 실행</div>
+      <div><code>103</code> 질문 작성</div>
+    </div>
+    <div class="sel"><i>→ [101]</i><span>질문에 필요한 자료만 골라 ID·본문·순서를 보존해 전달합니다. 이번에 전달한 근거: “실습 파일은 개인 폴더에 보관합니다.”</span></div>
+    <div class="cases">
+      <div class="ok"><b>“어디에 보관하나요?”</b><span>필요한 사실은 <b>위치</b>입니다. 101의 본문에 있으므로 답과 출처를 제시합니다.</span><code>answered · source_ids: [101]</code></div>
+      <div class="lack"><b>“몇 년 보관하나요?”</b><span>필요한 사실은 <b>기간</b>입니다. 본문에 없으므로 추측하지 않고 부족한 정보를 적습니다.</span><code>insufficient_context · source_ids: []</code></div>
+    </div>
+    <div>
+      <div class="window"><span class="w1">입력: 지시·질문·예제·근거</span><span class="w2">출력용 공간</span><span class="w3">여유</span></div>
+      <p class="cap"><b>Context Window</b>는 한 번의 생성에서 다룰 문맥 길이의 한도입니다. 출력 공간도 남깁니다. 칸의 너비는 실제 비율이 아닙니다.</p>
+    </div>
+  </div>
+  <p class="lesson">자료를 많이 넣는 것보다, 필요한 사실이 실제로 들어 있는지가 중요합니다.</p>
+</section>
+
+<!-- 출력 계약과 검증 -->
+<section id="check" class="blk" aria-labelledby="check-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">03</span><h2 id="check-h">출력 계약(Output Contract)과 검증(Validation): 형식과 내용은 따로 확인한다</h2><span class="tag">6교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span class="on">자동 검사</span><i>→</i><span class="on">근거 대조</span></div>
+  </div>
+  <p class="def"><b>출력 계약</b>은 응답이 따라야 할 필드·자료형·상태별 규칙입니다. <b>검증</b>은 실제 응답이 정한 규칙과 근거에 맞는지 확인하는 과정입니다.</p>
+  <div class="fig">
+    <pre>{
+  "status": "answered",
+  "answer": "개인 폴더에 보관합니다.",
+  "source_ids": [101],
+  "missing_information": ""
+}</pre>
+    <p class="cap"><b>JSON</b>은 데이터를 표현하는 텍스트 형식, <b>Schema</b>는 허용할 필드·자료형을 기술한 명세, <b>Pydantic</b>은 Python에서 데이터 구조를 선언하고 검사하는 라이브러리입니다. 정보가 부족하면 <code>status: insufficient_context</code>, 출처는 <code>[]</code>로 두고 필요한 정보의 이름을 기록합니다.</p>
+    <div class="ladder">
+      <div class="step auto"><b>1 · 문법<em>Syntax</em></b><span>JSON으로 읽히는가?</span><small>괄호·따옴표 등</small></div>
+      <div class="step auto"><b>2 · 구조<em>Schema</em></b><span>계약에 맞는가?</span><small>필수 필드·자료형</small></div>
+      <div class="step auto"><b>3 · 규칙<em>Reference · State</em></b><span>참조·상태가 맞는가?</span><small>이번에 전달한 ID·필드 조합</small></div>
+      <div class="step man"><b>4 · 내용<em>Evidence</em></b><span>원문이 답을 뒷받침하는가?</span><small>질문·주장·인용 대조</small></div>
+    </div>
+    <div class="brk"><span class="a">앞의 세 단계: 자동 검사</span><span class="m">마지막 단계: 사람의 근거 검토</span></div>
+    <div class="counter"><b>반례</b><span>101·102·103을 전달하고, 서버 실행 위치에 “프로젝트 폴더”라고 답하면서 <code>101</code>을 인용했습니다. 제공한 ID이므로 참조 검사는 통과하지만, 101은 파일 보관 자료이므로 근거가 맞지 않습니다.</span></div>
+  </div>
+  <p class="lesson">자동 검사 통과 ≠ 답의 정확성.</p>
+</section>
+
+<!-- 재시도 -->
+<section id="retry" class="blk" aria-labelledby="retry-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">04</span><h2 id="retry-h">재시도(Retry): 원인을 나누고, 멈출 조건을 둔다</h2><span class="tag">7교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span class="on">자동 검사</span><i>→</i><span>근거 대조</span><i>·</i><span>실패하면 입력으로 되돌아감</span></div>
+  </div>
+  <p class="def"><b>재시도</b>는 응답을 다시 요청하는 일입니다. 이번 교안에서는 JSON·Schema 형식 오류만 한 번 수정 요청하며, 모든 실패를 반복하지 않습니다.</p>
+  <div class="fig">
+    <div class="branches">
+      <div class="br t1"><div><b>정상 답 / 정상 정보 부족</b><small>자동 규칙을 통과한 응답</small></div><i>→</i><div><b>생성 종료 → 근거 검토</b><small>정보 부족 판단의 적절성도 확인</small></div></div>
+      <div class="br t2"><div><b>JSON·Schema 오류</b><small>문법·필드·자료형 문제</small></div><i>→</i><div><b>수정 1회 → 다시 검사</b><small>통과하면 검토, 다시 실패하면 중단</small></div></div>
+      <div class="br t3"><div><b>출처·상태 규칙 위반</b><small>없는 출처·모순된 조합</small></div><i>→</i><div><b>자동 재생성 없이 중단</b><small>문맥과 규칙을 다시 점검</small></div></div>
+    </div>
+    <div class="two"><span>최초 응답 1회</span><em>+</em><span>형식 수정 1회</span><em>=</em><span>최대 2회</span></div>
+    <p class="cap">수정할 때 유지할 것은 같은 질문·문맥·출력 계약입니다. 확인된 오류만 요약해서 전달하고, 최초 응답과 수정 응답을 따로 기록합니다.</p>
+  </div>
+  <p class="lesson">형식은 고칠 수 있어도, 재시도가 없는 근거를 만들어 주지는 않습니다.</p>
+</section>
+
+<!-- A/B 평가 -->
+<section id="ab" class="blk" aria-labelledby="ab-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">05</span><h2 id="ab-h">A/B 평가(Evaluation): 한 가지를 바꾸고 같은 기준으로 비교한다</h2><span class="tag">2 · 5 · 8교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span>자동 검사</span><i>→</i><span>근거 대조</span><i>·</i><span class="on">A/B 평가 → 입력 개선</span></div>
+  </div>
+  <p class="def"><b>A/B 비교</b>는 두 입력 설계의 차이를 관찰하는 실험입니다. 개선안이 좋아 보이는지는 가설이고, 실제 결과와 실패 기록으로 판단합니다.</p>
+  <div class="fig">
+    <div class="exp">
+      <div class="pn ctl">
+        <h3>고정 <small>Control</small></h3>
+        <div class="chips"><span>같은 질문</span><span>같은 문맥</span><span>표시된 모델명</span><span>출력 계약</span><span>채점 기준</span></div>
+      </div>
+      <i>+</i>
+      <div class="pn var">
+        <h3>바꾸는 것: 한 가지 <small>Variable</small></h3>
+        <div class="diff">
+          <div><span class="tt">A · 기준 지시문</span><span class="keep">[근거 규칙] 제공된 지식을 참고하여 질문에 답합니다. 출처에는 이번 지식의 ID를 적습니다.</span></div>
+          <div class="add"><span class="tt">B · A + 근거 부족 규칙 한 개</span><span class="keep">[근거 규칙] (A와 같음)</span><br><b>+ 답을 뒷받침할 사실이 없으면 insufficient_context로 두고 부족한 정보를 적습니다.</b></div>
+        </div>
+      </div>
+      <i>→</i>
+      <div class="pn rec">
+        <h3>기록 <small>Record</small></h3>
+        <div class="matrix">
+          <div></div><div class="h">A</div><div class="h">B</div>
+          <div class="q">D01</div><div class="c">첫 응답</div><div class="c">첫 응답</div>
+          <div class="q">D02</div><div class="c">첫 응답</div><div class="c">첫 응답</div>
+          <div class="q">D03</div><div class="c">첫 응답</div><div class="c">첫 응답</div>
+        </div>
+      </div>
+    </div>
+    <p class="cap">조건이 섞이면 차이가 입력 때문인지 알 수 없습니다. 기록은 첫 응답 원문, 검사 결과, 사람의 근거 평가입니다. 아직 응답이 없는 칸은 미실행(<code>not_run</code>), 사람 평가가 비어 있으면 미평가(<code>null</code>)로 남기고 숨기지 않습니다. 위 규칙 문장은 실습의 예입니다.</p>
+    <div class="exp-foot"><b>기록 → 입력 개선</b><span>기록을 읽고 고칠 것 하나를 정해 새 버전으로 다시 비교합니다.</span></div>
+    <div class="dhflow">
+      <div class="d"><b>Development (D)</b>개선용 질문으로 수정</div><i>→</i>
+      <div class="fz"><b>버전·조건 고정</b>Prompt 버전과 비교 조건을 보존</div><i>→</i>
+      <div class="h"><b>Holdout (H)</b>남겨 둔 질문으로 최종 확인</div>
+    </div>
+    <p class="cap">H를 본 뒤 다시 고쳤다면 새 버전과 새 확인 질문이 필요합니다. 이 교안의 Holdout은 공개된 교육용 묶음입니다.</p>
+  </div>
+  <p class="lesson">B가 반드시 이겨야 하는 것이 아닙니다. 어떤 오류가 줄고 새로 생겼는지 설명합니다.</p>
+</section>
+
+<footer class="foot">
+  <p>그림과 정의는 강사님 강의 자료(2026.11.16)의 핵심요약을 따랐습니다. 교시 표시는 강의 목차 기준입니다.</p>
+  <p>이 페이지는 초안입니다.</p>
+</footer>
+
 </main>
 </body>
 </html>

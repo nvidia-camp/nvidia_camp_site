@@ -123,3 +123,4 @@
 | 2026-11-16 | setup/python-venv | 가상환경 가이드 공개 (--release 빌드 반영) | 배포 |
 | 2026-11-16 | setup/path · setup/python-venv | PowerShell · Git Bash 명령 선택 반영 (--release 빌드, Docker · 11/17 이후 자료 제외) | 배포 |
 | 2026-11-16 | setup/vscode-extensions | 캡처 정리(Go Live를 Live Server 항목 안으로, 같은 배율, 가상환경 실행 주의를 Code Runner 설명에) 반영 (--release 빌드) | 배포 |
+| 2026-11-16 | llm/20261116 | release: Day21 요약 공개 (--release 빌드, 11/17 이후 자료·공개 전 가이드는 계속 제외) | deploy |
