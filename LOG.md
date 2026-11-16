@@ -121,3 +121,4 @@
 | 2026-11-16 | setup/ai-coding/agy · opencode | 자동 승인 명령을 작은 보조 문구에서 기존 모드·승인 표의 정규 행으로 이동. 명령어를 표 본문 크기로 표시하고 기능을 함께 설명. 모바일 가로 넘침 없음·main/deploy 반영·공개 2쪽 배포본 일치 확인 | main · 배포 |
 | 2026-11-16 | setup/python-venv | 초보자용으로 구성 재편: 환경 폴더를 practice_assignment\envs 아래(.venv 포함)로 통일하고 명령을 상대경로로. 0 pip로 설치되지 않는 프로그램 · 1 설치 목록(버튼만) · 2 가상환경 만들고 설치(명령 두 줄 강조) · 3 터미널·VS Code 연결(도식 한 장, 캡처 2장에 빨간 네모) · 참고 확인. 통합 환경 6단계·환경 추가 7단계·막히면·명령으로 받기 삭제. vscode-extensions 링크를 #s3로 | main만 (공개 전) |
 | 2026-11-16 | site 배포 | site 저장소의 수정만 main·deploy에 push. VS Code Extension 안내 변경을 공개 배포, Python 가상환경·Docker·Day22는 기존 공개 전 설정 유지. 공개 페이지 배포본 일치 및 미공개 경로 404 확인 | main · 배포 |
+| 2026-11-16 | setup/python-venv | 사용자 요청으로 가상환경 가이드를 공개로 바꾸고 --release 빌드를 deploy에 반영. Docker · 로컬 AI 외 공개 전 가이드와 11/17 자료는 계속 공개 전 | 배포 |
