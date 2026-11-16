@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day4 데이터 분석과 EDA · 학습 아카이브</title>
+<link rel="stylesheet" href="../../fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
+  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
+  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
+  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+h1,h2,h3{color:var(--heading);text-wrap:balance}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+svg{display:block}
+
+/* 맨 위: 브랜드 줄 + 문제 풀이 */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
+.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
+.brand-sep{width:1px;height:22px;background:#D8E4F2}
+.brand p{color:var(--muted);font-size:14px;font-weight:600}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
+.links a:hover{border-color:var(--accent)}
+.links img{display:block;width:20px;height:20px;border-radius:5px}
+@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+
+/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
+.hero-l{display:grid;gap:22px}
+.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
+.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.recent{border-top:1px solid var(--line-2)}
+.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
+  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
+.recent a:hover{background:var(--soft);padding-left:10px}
+.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
+.recent a:hover .go{opacity:1}
+.recent .go svg{width:16px;height:16px}
+.recent li.on .t{font-weight:700}
+.recent li.on .no{color:var(--accent);font-weight:700}
+.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
+.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
+  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
+.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
+  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
+.cover>*{position:relative}
+.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
+.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
+.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.cover .c-n{font-size:15px;opacity:.72}
+.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
+.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
+.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
+.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
+.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
+.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
+.cover:hover .c-go svg{transform:translateX(4px)}
+@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+
+/* 100일 일정 */
+.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.3)}
+.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* 참고 문서 모음 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
+.shelf .col+.col{border-left:1px solid var(--line)}
+.shelf+.chapter{border-top:0}
+.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
+.shelf a:hover{background:var(--soft)}
+.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
+.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
+.ch-refs{display:grid;gap:2px;margin-top:12px}
+.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
+.ch-refs a:hover{background:var(--soft)}
+@media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
+.shelf .soon{margin:2px 0}
+.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+
+/* 과목 = 챕터 */
+.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
+.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
+.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
+.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.ch-side{display:grid;gap:4px;align-content:start}
+.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
+.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
+.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ch-side .soon{margin-top:6px}
+.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.rows li:first-child{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
+.row:hover{background:var(--soft)}
+.row:hover .t{color:var(--accent)}
+.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
+.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
+.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
+.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
+.mini:hover{background:var(--soft);border-color:var(--accent)}
+.mini svg{width:14px;height:14px}
+.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.mini.view:hover{border-color:var(--accent)}
+.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.rows li.all .no{color:var(--accent)}
+.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
+@media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
+
+/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
+.day-head{display:grid;gap:10px;margin:8px 0 22px}
+.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
+.day-head .sub{font-size:15px;color:var(--muted)}
+.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
+
+@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
+  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
+  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
+@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
+</style>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body><style>
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../python/">Python</a><span class="cn-here">Day4</span><span class="cn-right"><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792636285612769" target="_blank" rel="noopener">강의 자료 ↗</a></span></nav>
+<main>
+<header class="day-head"><p class="eyebrow">Day4 · 10/22 · Python</p>
+<h1>데이터 분석과 EDA</h1><p class="sub">교재 · Day 4 · AI 개발을 위한 Python 데이터 처리 기초</p></header>
+<div class="lt-top"><style>
+.lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
+  margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+@media (prefers-color-scheme:dark){.lt-top:not(.lt-light) .lt,.lt-top:not(.lt-light) .lt-res,body>main>.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
+.lt-top{display:grid;gap:12px}
+.lt-res{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);display:flex;flex-wrap:wrap;gap:8px}
+.lt-res a{box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--lt-line);border-radius:10px;
+  background:var(--lt-bg);font-size:14px;font-weight:600;line-height:1;color:var(--lt-head);text-decoration:none;transition:border-color .15s,background .15s}
+.lt-res a:hover{border-color:var(--lt-acc);background:var(--lt-soft)}
+.lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
+.lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
+.lt-res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box;margin-left:-3px}
+.lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
+.lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
+.lt summary::before,.lt summary::after{content:none;display:none}.lt-top{margin-top:16px;text-align:left}
+.lt-box{border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-bg)}
+.lt-box>summary{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;list-style:none;border-radius:16px}
+.lt-box>summary::-webkit-details-marker{display:none}
+.lt-box>summary:hover{background:var(--lt-soft)}
+.lt-box>summary:focus-visible{outline:2px solid var(--lt-acc);outline-offset:2px}
+.lt-t{flex:1;min-width:0;display:grid;gap:2px}
+.lt-t b{font-size:18px;font-weight:800;color:var(--lt-head);letter-spacing:-.02em}
+.lt-t small{font-size:13px;color:var(--lt-muted)}
+.lt-btn{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--lt-acc);background:var(--lt-acc-soft);border-radius:999px;padding:6px 12px}
+.lt-btn::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.lt-box[open] .lt-btn::after{transform:rotate(-135deg) translateX(-2px)}
+.lt-box .lt-btn .c{display:none}.lt-box[open] .lt-btn .o{display:none}.lt-box[open] .lt-btn .c{display:inline}
+.lt-body{display:grid;gap:12px;padding:4px 20px 20px}
+.lt-intro{display:flex;gap:10px;align-items:baseline;font-size:13px;color:var(--lt-muted)}
+.lt-intro b{flex:none;font-size:12px;color:var(--lt-head)}
+.lt-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.lt-cd{display:flex;flex-direction:column;border:1px solid var(--lt-line);border-radius:14px;background:var(--lt-bg);overflow:hidden}
+.lt-cd header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:12px 14px 10px;border-bottom:1px solid var(--lt-line);background:var(--lt-soft)}
+.lt-n{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12px;font-weight:700;color:var(--lt-acc)}
+.lt-c{font-size:11px;color:var(--lt-muted);font-variant-numeric:tabular-nums}
+.lt-cd h3{grid-column:1/-1;font-size:15px;font-weight:700;line-height:1.3;color:var(--lt-head)}
+.lt-cd>ol{flex:1;display:grid;align-content:start;gap:1px;padding:10px 14px 12px}
+.lt-cd li{display:grid;grid-template-columns:4px minmax(0,1fr) auto;column-gap:8px;font-size:13px;line-height:1.45;padding:2px 0}
+.lt-cd li::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--lt-line);margin-top:.6em}
+.lt-cd li em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;color:var(--lt-muted)}
+.lt-cd li.lt-sg{display:block;margin-top:4px}.lt-cd li.lt-sg::before{display:none}.lt-cd li.lt-sg>span{font-size:12px;font-weight:700;color:var(--lt-muted)}
+.lt-cd li.lt-sg ul{padding:0 0 4px 10px}
+.lt-cd li.lt-lab>span{font-weight:700;color:var(--lt-acc)}
+.lt-lab-row{display:flex;gap:8px;align-items:baseline;padding:10px 14px;border-top:1px solid var(--lt-line);background:var(--lt-acc-soft);font-size:13px;font-weight:700;color:var(--lt-acc)}
+.lt-lab-row span{flex:1;min-width:0}.lt-lab-row em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;font-weight:500;opacity:.8}
+.lt-lab-row b{flex:none;font-size:11px;color:#fff;background:var(--lt-acc);border-radius:6px;padding:1px 6px}
+.lt-note{font-size:12px;color:var(--lt-muted)}
+@media (max-width:1000px){.lt-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.lt-board{grid-template-columns:1fr}.lt-body{padding:4px 12px 14px}.lt-box>summary{padding:14px}.lt-t b{font-size:16px}}
+@media print{.lt-box>summary .lt-btn{display:none}}
+</style><div class="lt-res" aria-label="보조 자료"><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792636285612769" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료 ↗</a></div><section class="lt" id="lecture-tree" aria-label="강의 목차">
+<details class="lt-box">
+<summary><span class="lt-t"><b>강의 목차 한눈에 보기</b><small>강사님 강의 자료 기준 · 10개 묶음 · 화면 83개</small></span>
+<span class="lt-btn"><span class="o">펼치기</span><span class="c">접기</span></span></summary>
+<div class="lt-body"><div class="lt-board"><article class="lt-cd"><header><span class="lt-n"></span><span class="lt-c">화면 4</span><h3>수업 준비</h3></header><ol><li class="lt-sg"><span>전날 복습과 당일 목표</span><ul><li><span>AI 개발을 위한 Python 데이터 처리 기초</span><em>p.1</em></li><li><span>어제 우리가 배운 것</span><em>p.2</em></li><li><span>오늘의 목표와 8교시 운영</span><em>p.4</em></li><li><span>오늘 남길 세 가지 결과물</span><em>p.5</em></li></ul></li></ol></article><article class="lt-cd"><header><span class="lt-n">1교시</span><span class="lt-c">화면 9</span><h3>NumPy 복합 연산과 안전한 집계</h3></header><ol><li class="lt-sg"><span>복습과 환경 점검</span><ul><li><span>3분 확인 퀴즈 ·<wbr> Day 3 복습</span><em>p.3</em></li><li><span>실행 환경부터 확인한다</span><em>p.6</em></li></ul></li><li class="lt-sg"><span>축과 broadcasting</span><ul><li><span>배열의 모양과 축을 먼저 읽는다</span><em>p.7</em></li><li><span>broadcasting: 작은 배열을 맞춰 계산</span><em>p.8</em></li><li><span>열별 보정과 행별 보정을 구분한다</span><em>p.9</em></li></ul></li><li class="lt-sg"><span>유효값과 안전한 나눗셈</span><ul><li><span>복합 조건과 결측을 함께 처리한다</span><em>p.10</em></li><li><span>분모가 0인 비율은 계산하지 않는다</span><em>p.11</em></li></ul></li><li class="lt-sg"><span>배열 실습과 확인</span><ul><li><span>3분 퀴즈 ·<wbr> NumPy 심화</span><em>p.13</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>01 ·<wbr> 배열 보정과 안전한 집계</span><em>p.12</em></p></article><article class="lt-cd"><header><span class="lt-n">2교시</span><span class="lt-c">화면 11</span><h3>Pandas 정제와 품질 기록</h3></header><ol><li class="lt-sg"><span>정제 원칙과 데이터 계약</span><ul><li><span>정제는 규칙을 적용하고 기록하는 과정</span><em>p.14</em></li><li><span>오늘의 공통 데이터 ·<wbr> Agent 실행 로그</span><em>p.15</em></li><li><span>원본 데이터 ① ·<wbr> 정상 기록부터 살펴보기</span><em>p.16</em></li><li><span>원본 데이터 ② ·<wbr> 결측·<wbr>오류·<wbr>중복 기록</span><em>p.17</em></li></ul></li><li class="lt-sg"><span>중복·수치·날짜의 처리</span><ul><li><span>완전 중복과 ID 충돌을 구분한다</span><em>p.18</em></li><li><span>문자열·<wbr>숫자 정제는 열별로 적용한다</span><em>p.19</em></li><li><span>실패 기록과 측정 결측을 혼동하지 않는다</span><em>p.20</em></li><li><span>날짜 변환 실패는 NaT로 추적한다</span><em>p.21</em></li></ul></li><li class="lt-sg"><span>품질 보고와 실습</span><ul><li><span>정제 후 품질 보고서 ·<wbr> 숫자를 대조한다</span><em>p.22</em></li><li><span>3분 퀴즈 ·<wbr> 정제 정책</span><em>p.24</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>02 ·<wbr> 데이터 정제와 품질 기록</span><em>p.23</em></p></article><article class="lt-cd"><header><span class="lt-n">3교시</span><span class="lt-c">화면 10</span><h3>다중 집계·피벗·결합</h3></header><ol><li class="lt-sg"><span>다중 지표와 피벗 해석</span><ul><li><span>여러 지표를 한 번에 집계한다</span><em>p.25</em></li><li><span>집계 결과 ·<wbr> 평균만 보면 빠지는 정보</span><em>p.26</em></li><li><span>pivot_table로 비교하는 표를 만든다</span><em>p.27</em></li><li><span>pivot 결과의 NaN은 “0ms”가 아니다</span><em>p.28</em></li></ul></li><li class="lt-sg"><span>메타데이터 결합과 검증</span><ul><li><span>merge는 공통 키로 표를 연결한다</span><em>p.29</em></li><li><span>결합 후 행 수와 미등록 키를 검사한다</span><em>p.30</em></li><li><span>결합이 “성공”해도 결과를 검사한다</span><em>p.31</em></li></ul></li><li class="lt-sg"><span>날짜 미상과 집계 실습</span><ul><li><span>날짜 미상도 그룹에서 숨기지 않는다</span><em>p.32</em></li><li><span>3분 퀴즈 ·<wbr> 집계와 결합</span><em>p.34</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>03 ·<wbr> 집계·<wbr>피벗·<wbr>결합으로 질문에 답하기</span><em>p.33</em></p></article><article class="lt-cd"><header><span class="lt-n">4교시</span><span class="lt-c">화면 10</span><h3>시각화와 해석</h3></header><ol><li class="lt-sg"><span>그래프 선택과 범주 비교</span><ul><li><span>질문에 맞는 그래프를 고른다</span><em>p.35</em></li><li><span>막대그래프 ·<wbr> 역할별 평균 소요시간</span><em>p.36</em></li><li><span>실행 결과 ·<wbr> 빠르다는 것만으로 충분할까?</span><em>p.37</em></li></ul></li><li class="lt-sg"><span>분포와 변수 관계</span><ul><li><span>히스토그램 ·<wbr> 느린 실행의 분포 보기</span><em>p.38</em></li><li><span>실행 결과 ·<wbr> 평균과 분포를 함께 읽는다</span><em>p.39</em></li><li><span>산점도 ·<wbr> 두 변수의 관계 탐색</span><em>p.40</em></li><li><span>실행 결과 ·<wbr> 같은 점에 어떤 조건이 섞였나?</span><em>p.41</em></li></ul></li><li class="lt-sg"><span>그림 검토와 실습</span><ul><li><span>해석할 수 있는 그림의 체크리스트</span><em>p.42</em></li><li><span>3분 퀴즈 ·<wbr> 시각화</span><em>p.44</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>04 ·<wbr> 비교·<wbr>분포·<wbr>관계를 그림으로 설명</span><em>p.43</em></p></article><article class="lt-cd"><header><span class="lt-n">5교시</span><span class="lt-c">화면 9</span><h3>CSV·JSON 왕복 검증</h3></header><ol><li class="lt-sg"><span>파일 형식과 CSV 처리</span><ul><li><span>CSV와 JSON ·<wbr> 목적에 맞게 선택한다</span><em>p.45</em></li><li><span>CSV 읽기 ·<wbr> ID의 앞자리 0을 보존한다</span><em>p.46</em></li><li><span>CSV 저장 후 다시 읽어 검증한다</span><em>p.47</em></li></ul></li><li class="lt-sg"><span>JSON과 경로 구성</span><ul><li><span>중첩 JSON을 분석 가능한 열로 펼친다</span><em>p.48</em></li><li><span>JSON 저장 ·<wbr> NaN은 null로 변환한다</span><em>p.49</em></li><li><span>경로는 프로젝트 위치를 기준으로 만든다</span><em>p.50</em></li></ul></li><li class="lt-sg"><span>재현 조건과 파일 실습</span><ul><li><span>다시 실행 가능한 파일 처리의 조건</span><em>p.51</em></li><li><span>3분 퀴즈 ·<wbr> CSV와 JSON</span><em>p.53</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>05 ·<wbr> CSV·<wbr>JSON 왕복 저장과 확인</span><em>p.52</em></p></article><article class="lt-cd"><header><span class="lt-n">6교시</span><span class="lt-c">화면 10</span><h3>Git 상태와 변경 이력</h3></header><ol><li class="lt-sg"><span>이력·공유·상태 구분</span><ul><li><span>Git과 GitHub ·<wbr> 이력과 공유를 구분한다</span><em>p.54</em></li><li><span>작업 폴더 → 스테이징 → 커밋</span><em>p.55</em></li></ul></li><li class="lt-sg"><span>초기화·커밋·재수정</span><ul><li><span>첫 저장소 만들기 ·<wbr> 프로젝트 루트에서</span><em>p.56</em></li><li><span>변경을 선택해 첫 커밋을 남긴다</span><em>p.57</em></li><li><span>add 뒤에 다시 수정하면 무엇이 저장될까?</span><em>p.58</em></li></ul></li><li class="lt-sg"><span>브랜치·제외 파일·오류 대응</span><ul><li><span>branch는 만들고, switch로 이동한다</span><em>p.59</em></li><li><span>올릴 파일과 제외할 파일을 구분한다</span><em>p.60</em></li><li><span>Git 오류는 상태를 읽고 해결한다</span><em>p.61</em></li></ul></li><li class="lt-sg"><span>Git 실습과 확인</span><ul><li><span>3분 퀴즈 ·<wbr> Git</span><em>p.63</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>06 ·<wbr> 분석 프로젝트의 변경 이력 만들기</span><em>p.62</em></p></article><article class="lt-cd"><header><span class="lt-n">7교시</span><span class="lt-c">화면 10</span><h3>EDA 프로젝트 통합</h3></header><ol><li class="lt-sg"><span>프로젝트 구조와 통합</span><ul><li><span>파일마다 한 가지 책임을 부여한다</span><em>p.65</em></li><li><span>60분 통합 실습 ·<wbr> 이미 만든 코드를 잇는다</span><em>p.66</em></li><li><span>처리 단계를 함수로 연결하고 검증한다</span><em>p.67</em></li></ul></li><li class="lt-sg"><span>기준 결과와 보고서</span><ul><li><span>프로젝트의 기준 결과 ·<wbr> 이 숫자부터 맞춘다</span><em>p.68</em></li><li><span>보고서는 관찰·<wbr>근거·<wbr>한계를 구분한다</span><em>p.69</em></li></ul></li><li class="lt-sg"><span>테스트·리뷰·통합 실습</span><ul><li><span>정상·<wbr>경계·<wbr>실패를 모두 테스트한다</span><em>p.70</em></li><li><span>코드리뷰 ·<wbr> 기능보다 근거를 먼저 묻는다</span><em>p.71</em></li><li><span>3분 퀴즈 ·<wbr> EDA 통합</span><em>p.73</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>일일 프로젝트 ·<wbr> Multi Agent 실행 로그 EDA</span><em>p.64</em></p><p class="lt-lab-row"><b>실습</b><span>07 ·<wbr> EDA 프로젝트 통합</span><em>p.72</em></p></article><article class="lt-cd"><header><span class="lt-n">8교시</span><span class="lt-c">화면 6</span><h3>최종 평가·제출·회고</h3></header><ol><li class="lt-sg"><span>실습평가와 제출 기준</span><ul><li><span>과목 실습평가 ·<wbr> 무엇을 보여 줄 것인가?</span><em>p.74</em></li><li><span>평가 기준 ·<wbr> 100점</span><em>p.76</em></li><li><span>제출 폴더와 산출물 이름을 맞춘다</span><em>p.77</em></li></ul></li><li class="lt-sg"><span>이해 확인과 학습 피드백</span><ul><li><span>마무리 3분 확인 퀴즈</span><em>p.78</em></li><li><span>만족도 조사와 학습 상태 확인</span><em>p.79</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>08 ·<wbr> 최종 검증·<wbr>보고서·<wbr>제출</span><em>p.75</em></p></article><article class="lt-cd"><header><span class="lt-n"></span><span class="lt-c">화면 4</span><h3>전체 정리와 참고자료</h3></header><ol><li class="lt-sg"><span>핵심 정리와 다음 수업</span><ul><li><span>오늘의 핵심 정리</span><em>p.80</em></li><li><span>다음 수업 ·<wbr> EDA에서 머신러닝으로</span><em>p.81</em></li></ul></li><li class="lt-sg"><span>공식 참고자료</span><ul><li><span>공식 참고자료 ·<wbr> 배열과 표</span><em>p.82</em></li><li><span>공식 참고자료 ·<wbr> 시각화·<wbr>파일·<wbr>Git</span><em>p.83</em></li></ul></li></ol></article></div>
+<p class="lt-note">강의 자료의 화면 제목을 원문 그대로 옮겼습니다. 실습은 각 교시 카드 맨 아래에 모았습니다.</p></div>
+</details></section></div>
+<p class="sum-empty">요약 준비 중입니다.</p>
+</main>
+</body>
+</html>

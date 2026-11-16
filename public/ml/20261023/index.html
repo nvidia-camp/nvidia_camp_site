@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day5 데이터 전처리 · 학습 아카이브</title>
+<link rel="stylesheet" href="../../fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
+  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
+  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
+  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+h1,h2,h3{color:var(--heading);text-wrap:balance}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+svg{display:block}
+
+/* 맨 위: 브랜드 줄 + 문제 풀이 */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
+.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
+.brand-sep{width:1px;height:22px;background:#D8E4F2}
+.brand p{color:var(--muted);font-size:14px;font-weight:600}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
+.links a:hover{border-color:var(--accent)}
+.links img{display:block;width:20px;height:20px;border-radius:5px}
+@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+
+/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
+.hero-l{display:grid;gap:22px}
+.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
+.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.recent{border-top:1px solid var(--line-2)}
+.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
+  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
+.recent a:hover{background:var(--soft);padding-left:10px}
+.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
+.recent a:hover .go{opacity:1}
+.recent .go svg{width:16px;height:16px}
+.recent li.on .t{font-weight:700}
+.recent li.on .no{color:var(--accent);font-weight:700}
+.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
+.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
+  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
+.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
+  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
+.cover>*{position:relative}
+.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
+.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
+.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.cover .c-n{font-size:15px;opacity:.72}
+.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
+.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
+.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
+.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
+.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
+.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
+.cover:hover .c-go svg{transform:translateX(4px)}
+@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+
+/* 100일 일정 */
+.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.3)}
+.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* 참고 문서 모음 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
+.shelf .col+.col{border-left:1px solid var(--line)}
+.shelf+.chapter{border-top:0}
+.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
+.shelf a:hover{background:var(--soft)}
+.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
+.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
+.ch-refs{display:grid;gap:2px;margin-top:12px}
+.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
+.ch-refs a:hover{background:var(--soft)}
+@media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
+.shelf .soon{margin:2px 0}
+.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+
+/* 과목 = 챕터 */
+.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
+.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
+.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
+.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.ch-side{display:grid;gap:4px;align-content:start}
+.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
+.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
+.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ch-side .soon{margin-top:6px}
+.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.rows li:first-child{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
+.row:hover{background:var(--soft)}
+.row:hover .t{color:var(--accent)}
+.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
+.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
+.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
+.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
+.mini:hover{background:var(--soft);border-color:var(--accent)}
+.mini svg{width:14px;height:14px}
+.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.mini.view:hover{border-color:var(--accent)}
+.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.rows li.all .no{color:var(--accent)}
+.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
+@media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
+
+/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
+.day-head{display:grid;gap:10px;margin:8px 0 22px}
+.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
+.day-head .sub{font-size:15px;color:var(--muted)}
+.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
+
+@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
+  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
+  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
+@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
+</style>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body><style>
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../ml/">ML</a><span class="cn-here">Day5</span><span class="cn-right"><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792715139274279" target="_blank" rel="noopener">강의 자료 ↗</a></span></nav>
+<main>
+<header class="day-head"><p class="eyebrow">Day5 · 10/23 · ML</p>
+<h1>데이터 전처리</h1><p class="sub">교재 · Day 5 · 머신러닝 모델링 및 성능평가</p></header>
+<div class="lt-top"><style>
+.lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
+  margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+@media (prefers-color-scheme:dark){.lt-top:not(.lt-light) .lt,.lt-top:not(.lt-light) .lt-res,body>main>.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
+.lt-top{display:grid;gap:12px}
+.lt-res{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);display:flex;flex-wrap:wrap;gap:8px}
+.lt-res a{box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--lt-line);border-radius:10px;
+  background:var(--lt-bg);font-size:14px;font-weight:600;line-height:1;color:var(--lt-head);text-decoration:none;transition:border-color .15s,background .15s}
+.lt-res a:hover{border-color:var(--lt-acc);background:var(--lt-soft)}
+.lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
+.lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
+.lt-res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box;margin-left:-3px}
+.lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
+.lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
+.lt summary::before,.lt summary::after{content:none;display:none}.lt-top{margin-top:16px;text-align:left}
+.lt-box{border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-bg)}
+.lt-box>summary{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;list-style:none;border-radius:16px}
+.lt-box>summary::-webkit-details-marker{display:none}
+.lt-box>summary:hover{background:var(--lt-soft)}
+.lt-box>summary:focus-visible{outline:2px solid var(--lt-acc);outline-offset:2px}
+.lt-t{flex:1;min-width:0;display:grid;gap:2px}
+.lt-t b{font-size:18px;font-weight:800;color:var(--lt-head);letter-spacing:-.02em}
+.lt-t small{font-size:13px;color:var(--lt-muted)}
+.lt-btn{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--lt-acc);background:var(--lt-acc-soft);border-radius:999px;padding:6px 12px}
+.lt-btn::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.lt-box[open] .lt-btn::after{transform:rotate(-135deg) translateX(-2px)}
+.lt-box .lt-btn .c{display:none}.lt-box[open] .lt-btn .o{display:none}.lt-box[open] .lt-btn .c{display:inline}
+.lt-body{display:grid;gap:12px;padding:4px 20px 20px}
+.lt-intro{display:flex;gap:10px;align-items:baseline;font-size:13px;color:var(--lt-muted)}
+.lt-intro b{flex:none;font-size:12px;color:var(--lt-head)}
+.lt-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.lt-cd{display:flex;flex-direction:column;border:1px solid var(--lt-line);border-radius:14px;background:var(--lt-bg);overflow:hidden}
+.lt-cd header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:12px 14px 10px;border-bottom:1px solid var(--lt-line);background:var(--lt-soft)}
+.lt-n{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12px;font-weight:700;color:var(--lt-acc)}
+.lt-c{font-size:11px;color:var(--lt-muted);font-variant-numeric:tabular-nums}
+.lt-cd h3{grid-column:1/-1;font-size:15px;font-weight:700;line-height:1.3;color:var(--lt-head)}
+.lt-cd>ol{flex:1;display:grid;align-content:start;gap:1px;padding:10px 14px 12px}
+.lt-cd li{display:grid;grid-template-columns:4px minmax(0,1fr) auto;column-gap:8px;font-size:13px;line-height:1.45;padding:2px 0}
+.lt-cd li::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--lt-line);margin-top:.6em}
+.lt-cd li em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;color:var(--lt-muted)}
+.lt-cd li.lt-sg{display:block;margin-top:4px}.lt-cd li.lt-sg::before{display:none}.lt-cd li.lt-sg>span{font-size:12px;font-weight:700;color:var(--lt-muted)}
+.lt-cd li.lt-sg ul{padding:0 0 4px 10px}
+.lt-cd li.lt-lab>span{font-weight:700;color:var(--lt-acc)}
+.lt-lab-row{display:flex;gap:8px;align-items:baseline;padding:10px 14px;border-top:1px solid var(--lt-line);background:var(--lt-acc-soft);font-size:13px;font-weight:700;color:var(--lt-acc)}
+.lt-lab-row span{flex:1;min-width:0}.lt-lab-row em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;font-weight:500;opacity:.8}
+.lt-lab-row b{flex:none;font-size:11px;color:#fff;background:var(--lt-acc);border-radius:6px;padding:1px 6px}
+.lt-note{font-size:12px;color:var(--lt-muted)}
+@media (max-width:1000px){.lt-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.lt-board{grid-template-columns:1fr}.lt-body{padding:4px 12px 14px}.lt-box>summary{padding:14px}.lt-t b{font-size:16px}}
+@media print{.lt-box>summary .lt-btn{display:none}}
+</style><div class="lt-res" aria-label="보조 자료"><a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792715139274279" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료 ↗</a></div><section class="lt" id="lecture-tree" aria-label="강의 목차">
+<details class="lt-box">
+<summary><span class="lt-t"><b>강의 목차 한눈에 보기</b><small>강사님 강의 자료 기준 · 10개 묶음 · 화면 85개</small></span>
+<span class="lt-btn"><span class="o">펼치기</span><span class="c">접기</span></span></summary>
+<div class="lt-body"><div class="lt-board"><article class="lt-cd"><header><span class="lt-n"></span><span class="lt-c">화면 8</span><h3>수업 준비</h3></header><ol><li class="lt-sg"><span>복습과 학습 목표</span><ul><li><span>머신러닝 모델링 및 성능평가</span><em>p.1</em></li><li><span>어제 우리가 배운 것</span><em>p.2</em></li><li><span>3분 확인 퀴즈 ·<wbr> Day4 복습</span><em>p.3</em></li><li><span>오늘의 목표와 8교시 운영</span><em>p.4</em></li><li><span>오늘 만드는 것과 다음 수업의 경계</span><em>p.5</em></li></ul></li><li class="lt-sg"><span>전체 흐름과 환경</span><ul><li><span>머신러닝의 전체 흐름과 오늘의 범위</span><em>p.6</em></li><li><span>머신러닝의 전체 흐름과 오늘의 범위</span><em>p.7</em></li><li><span>기존 가상환경에서 버전을 먼저 확인한다</span><em>p.8</em></li></ul></li></ol></article><article class="lt-cd"><header><span class="lt-n">1교시</span><span class="lt-c">화면 9</span><h3>문제 정의와 입력·정답 구분</h3></header><ol><li class="lt-sg"><span>학습 방식과 예측 목적</span><ul><li><span>머신러닝은 무엇을 배우는가?</span><em>p.9</em></li><li><span>문제 유형은 무엇을 얻고 싶은지로 정한다</span><em>p.10</em></li><li><span>0과 1이면 회귀일까, 분류일까?</span><em>p.11</em></li><li><span>학습과 추론은 입력이 다르다</span><em>p.12</em></li></ul></li><li class="lt-sg"><span>공통 사례와 데이터 계약</span><ul><li><span>공통 사례 ·<wbr> 실행 전에 요청 실패를 예상한다</span><em>p.13</em></li><li><span>같은 표에 있어도 역할은 다르다</span><em>p.14</em></li><li><span>합성 데이터 100행 중 처음 5행</span><em>p.15</em></li><li><span>입력 X와 정답 y를 분리한다</span><em>p.16</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>01 ·<wbr> 문제 정의와 입력 열 선택</span><em>p.17</em></p></article><article class="lt-cd"><header><span class="lt-n">2교시</span><span class="lt-c">화면 10</span><h3>누수 진단과 전처리 원칙</h3></header><ol><li class="lt-sg"><span>누수 유형과 입력 감사</span><ul><li><span>데이터 누수 ·<wbr> 답을 미리 본 평가</span><em>p.18</em></li><li><span>이 열은 어느 시점에 생겼는가?</span><em>p.19</em></li><li><span>누수는 여러 위치에서 생긴다</span><em>p.20</em></li><li><span>입력 열 감사 ·<wbr> 포함할까, 제외할까?</span><em>p.21</em></li></ul></li><li class="lt-sg"><span>통계 누수와 정제 정책</span><ul><li><span>분할 전에 평균을 구하면 무엇이 바뀔까?</span><em>p.22</em></li><li><span>출력으로 누수를 설명한다</span><em>p.23</em></li><li><span>모든 정제를 분할 뒤로 미뤄야 할까?</span><em>p.24</em></li></ul></li><li class="lt-sg"><span>평가 오염과 진단 실습</span><ul><li><span>test를 fit하지 않아도 오염될 수 있다</span><em>p.25</em></li><li><span>3분 확인 퀴즈 ·<wbr> 누수 진단</span><em>p.26</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>02 ·<wbr> 누수 탐지와 전처리 순서 수정</span><em>p.27</em></p></article><article class="lt-cd"><header><span class="lt-n">3교시</span><span class="lt-c">화면 9</span><h3>데이터 분할과 무결성</h3></header><ol><li class="lt-sg"><span>분할의 역할과 두 단계 실행</span><ul><li><span>Train·<wbr>Validation·<wbr>Test의 역할</span><em>p.28</em></li><li><span>100행을 60 : 20 : 20으로 나누는 예</span><em>p.29</em></li><li><span>1차 분할 ·<wbr> test 20행을 보관한다</span><em>p.30</em></li><li><span>2차 분할 ·<wbr> 개발용에서 valid를 만든다</span><em>p.31</em></li></ul></li><li class="lt-sg"><span>설정 한계와 무결성 검사</span><ul><li><span>stratify와 random_state가 보장하지 않는 것</span><em>p.32</em></li><li><span>분할의 교집합과 X/y 정렬을 검사한다</span><em>p.33</em></li><li><span>무작위·<wbr>그룹·<wbr>시간 중 무엇으로 나눌까?</span><em>p.34</em></li></ul></li><li class="lt-sg"><span>분할 확인과 실습</span><ul><li><span>3분 확인 퀴즈 ·<wbr> 데이터 분할</span><em>p.35</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>03 ·<wbr> 60·<wbr>20·<wbr>20 분할과 무결성 검사</span><em>p.36</em></p></article><article class="lt-cd"><header><span class="lt-n">4교시</span><span class="lt-c">화면 10</span><h3>수치형 결측과 변환</h3></header><ol><li class="lt-sg"><span>전처리 API와 학습 상태</span><ul><li><span>scikit-learn 객체의 공통 동사</span><em>p.37</em></li><li><span>전처리도 학습 상태를 갖는다</span><em>p.38</em></li></ul></li><li class="lt-sg"><span>결측 정책과 중앙값</span><ul><li><span>수치형 결측 ·<wbr> 어떤 값을 채울까?</span><em>p.39</em></li><li><span>SimpleImputer ·<wbr> train 중앙값을 재사용한다</span><em>p.40</em></li><li><span>작은 배열과 공통 데이터의 대표값</span><em>p.41</em></li></ul></li><li class="lt-sg"><span>표준화와 수치 경로</span><ul><li><span>스케일링 ·<wbr> 단위를 맞추는 변환</span><em>p.42</em></li><li><span>StandardScaler ·<wbr> 새 값은 1보다 클 수 있다</span><em>p.43</em></li><li><span>수치형 처리 순서를 Pipeline으로 묶는다</span><em>p.44</em></li></ul></li><li class="lt-sg"><span>수치 변환 확인과 실습</span><ul><li><span>3분 확인 퀴즈 ·<wbr> 수치형 전처리</span><em>p.45</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>04 ·<wbr> 결측 대체와 수치형 변환</span><em>p.46</em></p></article><article class="lt-cd"><header><span class="lt-n">5교시</span><span class="lt-c">화면 9</span><h3>범주형 결측과 미지 범주</h3></header><ol><li class="lt-sg"><span>범주 의미와 결측 대체</span><ul><li><span>범주형도 결측과 새 값을 만나게 된다</span><em>p.47</em></li><li><span>종류를 0·<wbr>1·<wbr>2로 바꾸면 생기는 오해</span><em>p.48</em></li><li><span>범주형 결측 ·<wbr> train의 최빈값으로 채운다</span><em>p.49</em></li></ul></li><li class="lt-sg"><span>One-hot과 범주 경로</span><ul><li><span>One-hot 입력과 출력 ·<wbr> 열 순서를 고정한다</span><em>p.50</em></li><li><span>OneHotEncoder ·<wbr> 새 범주 처리 정책</span><em>p.51</em></li><li><span>범주형 경로 ·<wbr> 대체 후 인코딩한다</span><em>p.52</em></li></ul></li><li class="lt-sg"><span>입력 점검과 실습</span><ul><li><span>범주형 변환의 네 가지 점검</span><em>p.53</em></li><li><span>3분 확인 퀴즈 ·<wbr> 범주형 전처리</span><em>p.54</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>05 ·<wbr> 범주형 결측과 미지 범주 변환</span><em>p.55</em></p></article><article class="lt-cd"><header><span class="lt-n">6교시</span><span class="lt-c">화면 11</span><h3>열별 전처리와 기준선</h3></header><ol><li class="lt-sg"><span>ColumnTransformer와 출력 특성</span><ul><li><span>열별 처리는 ColumnTransformer, 순서는 Pipeline</span><em>p.56</em></li><li><span>전체 구조 ·<wbr> 입력 4열에서 수치 8열로</span><em>p.57</em></li><li><span>ColumnTransformer ·<wbr> 두 경로의 결과를 합친다</span><em>p.58</em></li><li><span>변환된 열 이름과 행 ID를 보존한다</span><em>p.59</em></li><li><span>8개 출력 열은 어디에서 왔는가?</span><em>p.60</em></li></ul></li><li class="lt-sg"><span>Dummy 기준선과 결과 해석</span><ul><li><span>기준선 ·<wbr> 아무 패턴도 쓰지 않으면 몇 점일까?</span><em>p.61</em></li><li><span>전처리와 기준선을 하나의 Pipeline으로</span><em>p.62</em></li><li><span>0.70이라는 점수만 보고 좋아하면 안 된다</span><em>p.63</em></li><li><span>같은 결과를 성공·<wbr>실패로 나누어 읽는다</span><em>p.64</em></li></ul></li><li class="lt-sg"><span>새 요청과 통합 실습</span><ul><li><span>새 요청 ·<wbr> 정답 없이도 변환과 예측한다</span><em>p.65</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>06 ·<wbr> 열별 전처리와 기준선 연결</span><em>p.66</em></p></article><article class="lt-cd"><header><span class="lt-n">7교시</span><span class="lt-c">화면 10</span><h3>검증·저장·프로젝트 통합</h3></header><ol><li class="lt-sg"><span>누수 감사와 입력 검사</span><ul><li><span>Pipeline만 썼다고 누수 검사가 끝나지 않는다</span><em>p.67</em></li><li><span>valid 값이 바뀌어도 학습 통계는 그대로</span><em>p.68</em></li><li><span>새 범주와 누락된 열은 다른 오류다</span><em>p.69</em></li><li><span>검증 결과를 읽는 순서</span><em>p.70</em></li><li><span>완료 조건을 코드로 검사한다</span><em>p.71</em></li></ul></li><li class="lt-sg"><span>분할 기록과 모델 복원</span><ul><li><span>분할 ID를 파일로 남긴다</span><em>p.72</em></li><li><span>저장한 Pipeline을 다시 읽어 예측을 대조한다</span><em>p.73</em></li></ul></li><li class="lt-sg"><span>프로젝트 구조·보고·통합 실습</span><ul><li><span>실습 시 작성할 프로젝트 구조</span><em>p.74</em></li><li><span>보고서에는 결과의 근거를 남긴다</span><em>p.75</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>07 ·<wbr> 전처리·<wbr>분할 프로젝트 통합</span><em>p.76</em></p></article><article class="lt-cd"><header><span class="lt-n">8교시</span><span class="lt-c">화면 5</span><h3>최종 검증과 설명</h3></header><ol><li class="lt-sg"><span>통합 활동과 평가</span><ul><li><span>60분 통합 활동 ·<wbr> 앞에서 만든 코드를 잇는다</span><em>p.77</em></li><li><span>형성평가 기준 ·<wbr> 점수가 아니라 실험 구조</span><em>p.78</em></li></ul></li><li class="lt-sg"><span>테스트와 마무리 확인</span><ul><li><span>정상·<wbr>경계·<wbr>실패 입력을 구분해 검증한다</span><em>p.80</em></li><li><span>마무리 3분 확인 퀴즈</span><em>p.81</em></li></ul></li></ol><p class="lt-lab-row"><b>실습</b><span>08 ·<wbr> 최종 검증·<wbr>설명·<wbr>다음 수업 준비</span><em>p.79</em></p></article><article class="lt-cd"><header><span class="lt-n"></span><span class="lt-c">화면 4</span><h3>전체 정리와 참고자료</h3></header><ol><li class="lt-sg"><span>핵심 정리와 다음 수업</span><ul><li><span>오늘의 핵심 정리</span><em>p.82</em></li><li><span>다음 수업 ·<wbr> 구조는 유지하고 모델을 바꾼다</span><em>p.83</em></li></ul></li><li class="lt-sg"><span>공식 참고자료</span><ul><li><span>공식 참고자료 ·<wbr> 문제 정의와 분할</span><em>p.84</em></li><li><span>공식 참고자료 ·<wbr> 전처리와 Pipeline</span><em>p.85</em></li></ul></li></ol></article></div>
+<p class="lt-note">강의 자료의 화면 제목을 원문 그대로 옮겼습니다. 실습은 각 교시 카드 맨 아래에 모았습니다.</p></div>
+</details></section></div>
+<p class="sum-empty">요약 준비 중입니다.</p>
+</main>
+</body>
+</html>

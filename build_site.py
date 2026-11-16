@@ -301,7 +301,11 @@ def insert_after_title(text, block):
     end = text.find("</header>", m.end())
     nxt = min([i for i in (text.find("<section", m.end()), text.find("<h2", m.end())) if i != -1], default=len(text))
     if end != -1 and end < nxt:
-        at = end + len("</header>")
+        # 머리 안쪽 끝(제목과 같은 폭의 감싸개 안)에 넣는다: <header><div class="wrap">…</div></header>이면 그 </div> 앞
+        inner = text[m.end():end].rstrip()
+        before = text[text.rfind("<header", 0, m.start()):m.start()]
+        wrapped = before.count("<div") - before.count("</div>") > 0      # 제목이 머리 안의 <div> 감싸개 속에 있다
+        at = m.end() + len(inner) - len("</div>") if wrapped and inner.endswith("</div>") else end
     else:
         at = text.find("</h1>", m.end()) + len("</h1>")
     light = "" if "prefers-color-scheme" in text else " lt-light"   # 다크 모드가 없는 요약은 블록도 밝게 둔다
@@ -554,15 +558,16 @@ def chapter_block(key, ds, up, link_head=True):
     """과목 한 블록: 왼쪽 챕터 번호·이름·범위, 오른쪽 종합 + Day 목록(요약이 없으면 제목 + '요약 준비 중')"""
     made = [d for d in ds if d["src"]]
     has_all = (PAGES / key / "all" / "index.html").exists()
+    has_page = made or has_all or any(d["tree"] for d in ds)   # 과목 페이지가 만들어지는 조건 (main과 같게)
     today = datetime.date.today().isoformat()
     name = html.escape(ds[0]["short"])
-    if link_head and (made or has_all):
+    if link_head and has_page:
         name = f'<a href="{up}{key}/">{name}</a>'
     rng = day_range(ds)
     refs = "".join(f'<a href="{up}{p}" title="{html.escape(desc)}">{logo_span(lg)}<span>{html.escape(n)}</span></a>'
                    for p, n, lg, desc in refs_of(key))
     refs = f'<div class="ch-refs" aria-label="참고 문서">{refs}</div>' if refs else ""
-    status = (f'<span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>' if made or has_all
+    status = (f'<span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>' if has_page
               else '<span class="soon">준비 중</span>')
     side = (f'<div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span><h2 title="{html.escape(ds[0]["subject"])}">{name}</h2>'
             f'<span class="ch-meta">{rng}</span>{status}{refs}</div>')
@@ -707,6 +712,7 @@ TREE_CSS = """<style>
 .lt-res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box;margin-left:-3px}
 .lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
 .lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
+.lt summary::before,.lt summary::after{content:none;display:none}.lt-top{margin-top:16px;text-align:left}
 .lt-box{border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-bg)}
 .lt-box>summary{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;list-style:none;border-radius:16px}
 .lt-box>summary::-webkit-details-marker{display:none}
@@ -885,7 +891,7 @@ def main():
             continue
         if ds[0]["date"] <= today:
             started.append((key, ds))
-        if any(d["src"] for d in ds) or (PAGES / key / "all" / "index.html").exists():
+        if any(d["src"] or d["tree"] for d in ds) or (PAGES / key / "all" / "index.html").exists():
             subjects.append((key, ds))
 
     print("매일 요약")

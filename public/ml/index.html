@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML · 학습 아카이브</title>
+<link rel="stylesheet" href="../fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
+  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
+  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
+  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
+  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+h1,h2,h3{color:var(--heading);text-wrap:balance}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
+svg{display:block}
+
+/* 맨 위: 브랜드 줄 + 문제 풀이 */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
+.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
+.brand-sep{width:1px;height:22px;background:#D8E4F2}
+.brand p{color:var(--muted);font-size:14px;font-weight:600}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
+.links a:hover{border-color:var(--accent)}
+.links img{display:block;width:20px;height:20px;border-radius:5px}
+@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+
+/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
+.hero-l{display:grid;gap:22px}
+.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
+.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
+.count b{color:var(--heading)}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.recent{border-top:1px solid var(--line-2)}
+.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
+  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
+.recent a:hover{background:var(--soft);padding-left:10px}
+.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
+.recent a:hover .go{opacity:1}
+.recent .go svg{width:16px;height:16px}
+.recent li.on .t{font-weight:700}
+.recent li.on .no{color:var(--accent);font-weight:700}
+.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
+.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
+  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
+.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
+  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
+.cover>*{position:relative}
+.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
+.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
+.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
+.cover .c-n{font-size:15px;opacity:.72}
+.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
+.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
+.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
+.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
+.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
+.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
+.cover:hover .c-go svg{transform:translateX(4px)}
+@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+
+/* 100일 일정 */
+.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tl{display:grid;gap:6px;min-width:0}
+.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
+.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
+.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
+.cell.past{background:var(--cell-past)}
+.cell.has{background:var(--primary)}
+a.cell:hover{transform:scale(1.3)}
+.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* 참고 문서 모음 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
+.shelf .col+.col{border-left:1px solid var(--line)}
+.shelf+.chapter{border-top:0}
+.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
+.shelf a:hover{background:var(--soft)}
+.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
+.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
+.ch-refs{display:grid;gap:2px;margin-top:12px}
+.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
+.ch-refs a:hover{background:var(--soft)}
+@media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
+.shelf .soon{margin:2px 0}
+.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+
+/* 과목 = 챕터 */
+.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
+.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
+.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
+.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.ch-side{display:grid;gap:4px;align-content:start}
+.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
+.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
+.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ch-side .soon{margin-top:6px}
+.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
+.rows li:first-child{border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
+.row:hover{background:var(--soft)}
+.row:hover .t{color:var(--accent)}
+.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
+.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
+.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
+.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
+.mini:hover{background:var(--soft);border-color:var(--accent)}
+.mini svg{width:14px;height:14px}
+.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.mini.view:hover{border-color:var(--accent)}
+.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
+.rows li.all .no{color:var(--accent)}
+.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
+@media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
+
+/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
+.day-head{display:grid;gap:10px;margin:8px 0 22px}
+.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
+.day-head .sub{font-size:15px;color:var(--muted)}
+.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
+
+@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
+  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
+  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
+@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
+</style>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body><style>
+.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../">← 학습 아카이브</a><span class="cn-here">ML</span><span class="cn-right"><!--download--></span></nav>
+<main>
+<section class="chapter" id="ml"><div class="ch-side"><span class="ch-no">02</span><h2 title="머신러닝 모델링 및 성능평가">ML</h2><span class="ch-meta">Day5–8</span><span class="ch-meta">요약 0 / 4일</span><div class="ch-refs" aria-label="참고 문서"><a href="../cheatsheet/sklearn/" title="머신러닝 · 모델 평가"><span class="ref-logo"><img src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjY3NSIgdmlld0JveD0iMCAwIDEyNTEgNjc1IiB3aWR0aD0iMTI1MSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtOTU5Ljk0MDA2MyA1NzMuMDY1OTc5YzE1Mi40MTA0MDEtMTUyLjQwMTU1IDE3Ny43NDA5NjctMzc0LjE1NzAxMyA1Ni41NzM5MTQtNDk1LjMxNTA2My0xMjEuMTQ4OTg3LTEyMS4xNDQ0NzEtMzQyLjg5NTM4Ni05NS44MTg0ODItNDk1LjI5NjkzNiA1Ni41NzM5NzQtMTUyLjQwMTU1IDE1Mi4zOTcxMjUtMTA4LjMxNDk3MiA0NDMuNTU2MDkxLTU2LjU2NDk3MiA0OTUuMzE1MDAzIDQxLjgxODQ4MiA0MS44MTg1NDIgMzQyLjg5NTUzOCA5NS44MTg1NDIgNDk1LjI4Nzk5NC01Ni41NzM5MTR6IiBmaWxsPSIjZjg5OTM5Ii8+PHBhdGggZD0ibTMzNC41NzUwNDMgMzUyLjg0OTU0OGMtODguNDE1OTg1LTg4LjQxNjA0Ni0yMTcuMDg5MDM1LTEwMy4xMzU1MjgtMjg3LjQwMTUzNS0zMi44Mjc1NzUtNzAuMjk0NDc2IDcwLjI5OTA0MS01NS41OTc0ODEgMTk4Ljk4OTk5IDMyLjgzNjQ4NyAyODcuMzkyNTc4IDg4LjQzNDAzNiA4OC40NDI5OTMgMjU3LjM3NzU0OCA2Mi44NjA0NzMgMjg3LjM4MzUyOSAzMi44Mjc0NTMgMjQuMjgxOTgzLTI0LjI0MTQ1NSA1NS42MjQ0ODEtMTk4Ljk2NzQ2OC0zMi44MTg0ODEtMjg3LjM5MjQ1NnoiIGZpbGw9IiMzNDk5Y2QiLz48ZyBmaWxsPSIjMDEwMTAxIj48cGF0aCBkPSJtNjM5LjY0MzQ5NCA1MzUuNzExNDg3Yy0xNS42MTk1MDcgMTQuMzc3NTAyLTI5LjMyMjAyMiAyNC45ODg1MjUtNDEuMDk4NDUgMzEuODA1OTY5LTExLjc3NjU1IDYuODQwMDg4LTIzLjAwODU0NSAxMC4yNTU0OTMtMzMuNjk2MDQ1IDEwLjI1NTQ5My0xMi4yOTM5NDUgMC0yMi4yMTIwMzYtNC43NjU1MDMtMjkuNzMxNDQ1LTE0LjMwMDkwMy03LjUzMzAyLTkuNTQ0NTU2LTExLjI4NjAxMS0yMi4zNDI1MjktMTEuMjg2MDExLTM4LjQ0MzU0MyAwLTI0LjEyNDQ1IDUuMjI4OTQzLTUzLjA4NjQ4NiAxNS42ODY5NTEtODYuODU0NDYxIDEwLjQ0MDA2My0zMy43OTUwNDQgMjMuMTUyNTI3LTY0LjkzNTA4OSAzOC4wODM0OTYtOTMuNDI0NTYxbDQzLjc4MDQ1Ni0xNi4yMDg5NTRjMS4zNzI2Mi0uNDU5MTA2IDIuNDE2NTY1LS42OTI5NjIgMy4xMDk1NTgtLjY5Mjk2MiAzLjMyMTA0NSAwIDYuMDY1OTc5IDIuNDQ3ODc2IDguMTcyMDU5IDcuMzIxNDExIDIuMTI4NDE3IDQuODk2MDU3IDMuMTk5NDYyIDExLjQ3NDk0NSAzLjE5OTQ2MiAxOS43NDYwMDIgMCAyMy40NDA1ODItNS4zOTU1MDcgNDYuMTM0MDY0LTE2LjIwODkyMyA2OC4wODA1MDUtMTAuODA5MDgyIDIxLjk1NTQ3NS0yNy42OTMwNTQgNDUuMzg2OTYzLTUwLjY3MDA0NCA3MC4zMjE1MzQtLjkyMjU0NiAxMS45NTE5MDQtMS4zODE1MzEgMjAuMTU5OTEyLTEuMzgxNTMxIDI0LjY0NjQ4NCAwIDEwLjAwMzQxOCAxLjgzNTk5OSAxNy45MTg5NDUgNS41MTI1MTMgMjMuNzgyNDcxIDMuNjgwOTY5IDUuODcyNDk3IDguNTU4OTYgOC43ODg1NzQgMTQuNjUxOTc3IDguNzg4NTc0IDYuMjE0NDc4IDAgMTIuODE2MDQtMi4yMjMxNDUgMTkuODI3MDI2LTYuNzA1MTM5IDYuOTk3NTU5LTQuNDkwOTA2IDE3LjY4NTA1OS0xMy43ODc5NjQgMzIuMDQ0NDM0LTI3LjkzMTQ1OHYxOS44MTM1Mzh6bS02Ni4wMDU5ODItNjcuMzc4NDc5YzE0LjU4OTA1MS0xNi4yMjI1MzQgMjYuNDM3NS0zNC40MTYwMTYgMzUuNTA5NDYxLTU0LjU0NDQ5NSA5LjA3MjA4Mi0yMC4xMzc1MTIgMTMuNjAzNTc2LTM3LjQ1ODAwOCAxMy42MDM1NzYtNTEuOTcwNTUgMC00LjIzMDAxMS0uNjI1NTQ5LTcuNjY3OTA4LTEuODgxMDQyLTEwLjI1MDkxNi0xLjI2NDUyNy0yLjU4NzU1NS0yLjg4NDQ2MS0zLjg4ODA2MS00LjgzMzAwOC0zLjg4ODA2MS00LjIzNDQzNiAwLTEwLjQyMTkzNiAxMC41ODM5NTMtMTguNTI2NDg5IDMxLjc1NjUzLTguMTA0NDkyIDIxLjE2ODAzLTE2LjA2MDU0NyA1MC44MDUwMjQtMjMuODcyNDk4IDg4Ljg5NzQ5MnoiLz48cGF0aCBkPSJtNzY4LjU3NzU3NiA1MzUuNzExNDg3Yy0xNC41ODkwNTEgMTQuMzc3NTAyLTI3LjY4NDAyMSAyNC45ODg1MjUtMzkuMjk0MDA3IDMxLjgwNTk2OS0xMS42MTAwNDYgNi44NDAwODgtMjQuNDA4MDIgMTAuMjU1NDkzLTM4LjQzNDU3IDEwLjI1NTQ5My0xNS42Mjg0MTggMC0yOC4yMzc0MjctNC45OTk1MTEtMzcuODQ0OTcxLTE0Ljk4NDk4NS05LjU4OTQxNi0xMC4wMTI1MTItMTQuMzc3NDQxLTIzLjE1Njk4My0xNC4zNzc0NDEtMzkuNDc4NTE2IDAtMjQuMzUzOTQzIDguNDM3NS00Ni4zOTA0NzIgMjUuMzQ4NTExLTY2LjA5NTk0NyAxNi44NzUtMTkuNzE0NTY5IDM1LjYxMjk3Ni0yOS41NjUwNjMgNTYuMTc4MDM5LTI5LjU2NTA2MyAxMC42ODc1IDAgMTkuMjM3NDg4IDIuNzY3NjA4IDI1LjY4MTUxOSA4LjI3OTk5OCA2LjQzNDkzNiA1LjUyMTU3NiA5LjY1MjQwNSAxMi43NTMwODMgOS42NTI0MDUgMjEuNzE3MDcyIDAgMjMuNzkxNDQzLTI1LjI3NjQ5IDQzLjA4MzAzOC03NS44MzM5MjQgNTcuOTEwNDYxIDQuNTg5OTY2IDIyLjM5NjYwNyAxNi41OTU5NDcgMzMuNjEwNDc0IDM2LjAxODAwNiAzMy42MTA0NzQgNy41ODY4NTMgMCAxNC44MTg0ODEtMi4wMzg1MTMgMjEuNzA3ODg1LTYuMTA2NTA2IDYuOTA3NDcxLTQuMDg1OTM4IDE3LjI5ODA5Ni0xMy4xNDg5MjYgMzEuMjAzMDY0LTI3LjE1NzQ3MXYxOS44MDkwMjF6bS05MC4zMTUwNjQtMzEuODc4MDUyYzI5LjQwNzUzMi04LjI3OTk5OSA0NC4xMjI2Mi0yMy41NTI5MTcgNDQuMTIyNjItNDUuODQ1OTQ3IDAtMTEuMDI5NDgtNC4wMjc1ODgtMTYuNTQxOTkyLTEyLjA2MDEyLTE2LjU0MTk5Mi03LjU4Njk3NSAwLTE0LjgxODQ4MSA1Ljc2NDUyNi0yMS43MDgwMDggMTcuMzI1MDEyLTYuOTExOTI2IDExLjU0MjU0MS0xMC4zNTQ0OTIgMjYuNTU0NTA0LTEwLjM1NDQ5MiA0NS4wNjI5Mjd6Ii8+PHBhdGggZD0ibTk1Mi42NTQ0MTkgNTM1LjcxMTQ4N2MtMTguMzg2OTYzIDE3LjQ2NDUzOC0zMS41NDUwNDQgMjguODUzOTQzLTM5LjQ2NDkwNSAzNC4xNDYwNTctNy45MjkxMzggNS4yODI4OTgtMTUuNTExNTk3IDcuOTE5OTIyLTIyLjc1NjUzMSA3LjkxOTkyMi0xOC4xNTc1MzEgMC0yNi43MTIwMzYtMTYuMDI0NTM2LTI1LjY4MTUxOC00OC4wODcwMzYtMTEuNDg4NTI2IDE2LjQyNTExLTIyLjA5NTAzMiAyOC41NDgwOTUtMzEuODA1OTY5IDM2LjM3ODA1MS05LjcwMjAyNyA3LjgxMjAxMi0xOS43MjM1MTEgMTEuNzA4OTg1LTMwLjA3ODEyNSAxMS43MDg5ODUtMTAuMDk3OTAxIDAtMTguNjgzODk5LTQuNzI5NDkyLTI1Ljc2MjM5MS0xNC4yMTA5MzgtNy4wNzg2MTMtOS40ODE1MDYtMTAuNTkzMDE3LTIxLjEwOTU1OC0xMC41OTMwMTctMzQuOTExMDEgMC0xNy4yMjYwMTQgNC43Mjk0OTItMzMuNjYwMDM1IDE0LjIwMTkwNC00OS4yOTc1NzcgOS40OTA1NC0xNS42Mjg0NDkgMjEuNjQwNjI1LTI4LjI1NTQ2MyAzNi40NTkxMDctMzcuOTA3OTI5IDE0LjgxODQ4MS05LjY1MjU4OCAyNy45MzE1MTgtMTQuNDg1NDczIDM5LjI5Mzk0NS0xNC40ODU0NzMgMTQuMzY4NDY5IDAgMjQuNDI2MDg2IDYuNjEwNDczIDMwLjE3MjQ4NSAxOS44MTc5OTNsMzUuMjI2MDEzLTE5LjQ2NzEwMmg5LjY2NjAxNmwtMTUuMjE0NTM4IDUwLjQ5NDUzN2MtNy44MTE5NTEgMjUuNDAyNDM1LTExLjczMTUwNyA0Mi44MTMwMTktMTEuNzMxNTA3IDUyLjIzMTQ3NiAwIDkuODc3NTAyIDMuNDk2NTgyIDE0LjgxODQ4MSAxMC41MTIwMjQgMTQuODE4NDgxIDQuNDYzOTg5IDAgOS40MDQ5NjgtMi4zODA0MzIgMTQuODA5NTctNy4xNTQ5NjggNS40MDQ0MTktNC43NzQ1MzYgMTIuOTczNDUtMTIuMDQxOTkyIDIyLjczODQwNC0yMS44MDcwMDd2MTkuODEzNTM4em0tMTI2LjE2NjQ0MyA5LjQ5MDUzOWMxMS40ODg0MDMgMCAyMi4zMTU0My05Ljc5MTk5MiAzMi41MDM0NzktMjkuMzgwNjE1IDEwLjE3MDA0NC0xOS41OTc0MTIgMTUuMjUwNTQ5LTM3LjY3ODQwNiAxNS4yNTA1NDktNTQuMjIwMzk4IDAtNi40MjYwMjUtMS40NDkwOTYtMTEuNDYxNDg3LTQuMzA2NTE4LTE1LjA3NTAxMi0yLjg4NDU4My0zLjYzMTUzMS02LjczMTk5NS01LjQzMTUxOS0xMS41NDcwNTgtNS40MzE1MTktMTEuNDk3NDM3IDAtMjIuMzk2NDI0IDkuNzY1MDc2LTMyLjY2MDk1IDI5LjMwMzk1Ni0xMC4yODI1MzIgMTkuNTM5MDYyLTE1LjQzNDk5OCAzNy41MjEwNTctMTUuNDM0OTk4IDUzLjkzNzEzMyAwIDYuMjE0NDE3IDEuNTMwMDMgMTEuMjQwOTA2IDQuNTcxOTYxIDE1LjA5Mjg5NiAzLjA0MTk5MiAzLjg1MjA1MSA2LjkwMzAxNSA1Ljc3MzU1OSAxMS42MjM1MzUgNS43NzM1NTl6Ii8+PHBhdGggZD0ibTEwODEuNDEyOTY0IDUzNS43MTE0ODdjLTI4Ljg0NDk3MSAyOC4yNjQ1MjYtNTEuMDgzOTg1IDQyLjQwODAyLTY2LjcwODAwOCA0Mi40MDgwMi03LjAxNTQ0MiAwLTEyLjkzNzUtMi45NjEwNi0xNy43NTI1NjMtOC44NjA1OTYtNC44MTQ4ODEtNS45MjE4NzUtNy4yNDAzNTctMTMuMjUyMzgtNy4yNDAzNTctMjEuOTkxNDU1IDAtMTYuMjAwMDEyIDguNjg0OTM3LTM3LjkwNzg5OCAyNi4wMzI0NzEtNjUuMTQ2NDU0LTguNTA5NTgzIDQuMzY5NTM4LTE3LjgwNjQ1OCA3LjQwMjQzNi0yNy45MjI1NDcgOS4xMzA0NjMtNy40NzAwMzEgMTMuNzg3OTY0LTE5LjE5Njk2IDI4LjYxNTUzOS0zNS4xNjI5NjMgNDQuNDU1NTA1aC0zLjk1NTUwNnYtMTUuNDkzNDY5YzguOTU0OTU2LTkuMzA1OTY5IDE3LjA1OTQ0OC0xOS4zMDk1NyAyNC4yOTk5ODgtMjkuOTk3MDctOS44OTU1NjktNC4zNjk0MTYtMTQuODI3NDU0LTEwLjg2Mjg4NS0xNC44Mjc0NTQtMTkuNDY2OTggMC04Ljg2MDQ3NCAzLjAwNTk4Mi0xOC4zMDU5NyA5LjA1Mzk1NS0yOC4zNzI0MzcgNi4wMzAwMy0xMC4wNDQwMDYgMTQuMzI4MDAzLTE1LjA2NTk3OSAyNC45MDc1MzItMTUuMDY1OTc5IDguOTYzOTI4IDAgMTMuNDM2OTUxIDQuNTgwODcyIDEzLjQzNjk1MSAxMy43Nzg5MzEgMCA3LjI0MDUzOS0yLjU4MzAwOCAxNy41NzcwMjYtNy43NjI1MTIgMzEuMDI3NTg4IDE5LjA3MTA0NS0yLjA3NDUyNCAzNS43MzQ1NTgtMTYuNjU0NjAyIDQ5Ljk5MDUzOS00My43ODA1MThsMTUuNjc4MTAxLS42OTMxMTUtMTYuMDI5MDUzIDQ0LjEyMjYyYy02LjY2MDAzNCAxOC42MTY0NTUtMTAuOTcwOTQ3IDMxLjI5NzQyNC0xMi45MTk1NTYgMzguMDExNDQ0LTEuOTQ4NjA4IDYuNzE0MDE5LTIuOTM0MDgyIDEyLjY3MjAyNy0yLjkzNDA4MiAxNy44MzM1ODcgMCA0LjgzMjg4NiAxLjEyNSA4LjY5Mzg0OCAzLjM1NzA1NiAxMS41NDY4NzUgMi4yNDEwODkgMi44OTM1NTUgNS4yNjUwMTUgNC4zMTU1NTIgOS4wNTM5NTUgNC4zMTU1NTIgNC4xMzA5ODIgMCA4LjEwNDYxNC0xLjQxMjk2NCAxMS44OTM1NTUtNC4yMTIwMzYgMy43ODkwNjItMi44Mzk1MzkgMTIuMjkzOTQ1LTEwLjYxNTQ3OSAyNS41MTUwMTQtMjMuMzY4NDA4djE5LjgxNzkzMnoiLz48cGF0aCBkPSJtMTI1MC42NzYwMjUgNTM1LjcxMTQ4N2MtMjYuNTQxMDE1IDI4LjA1MzAzOS00OS4zMDY1MTggNDIuMDY1OTc5LTY4LjI1NTk4MSA0Mi4wNjU5NzktNy42OTk0NjMgMC0xMy45MDUwMjktMi43MDAwNzMtMTguNjE2NDU1LTguMTA0NDkyLTQuNzIwNTgxLTUuMzk1NTA4LTcuMDc0MDk3LTEyLjYzMTUzMS03LjA3NDA5Ny0yMS43MDgwMDggMC0xMi4yOTQwMDcgNS4wNjI1LTMxLjA4NTkzOCAxNS4xNzg1ODktNTYuMzUzNDI0IDUuMzk1NTA4LTEzLjU2MzAxOSA4LjEwNDQ5Mi0yMi4xOTQwMzEgOC4xMDQ0OTItMjUuODU3MDI1IDAtMy42ODEwOTItMS40NDg5NzQtNS41MjE1NzYtNC4zMDY1MTgtNS41MjE1NzYtMS42MDY1NjggMC0zLjc0NDAxOS44MTAwODktNi4zODA5ODIgMi40MDc1MDEtMi40MjU1MzcgMS42MDY1MDYtNS4yMzgwMzcgMy44NjU1MzktOC40NTU1NjYgNi43MzIwMjUtMi44NjY0NTUgMi42MzY5OTMtNi4wOTMwMTggNS44NTQ0NjItOS42NTI0NjYgOS42MzQ0Ni0zLjEwOTQ5NyAzLjI0NDUzOC02LjQ0Mzk3IDYuOTE2NTk2LTkuOTg1NTk2IDExLjAzODUxNGwtOS42NjU4OTMgMTEuMjE0MDE5Yy00LjI0MzQwOCA1LjE2NjA0Ny02Ljg4OTUyNyAxMC42MTU1NC03LjkyMDA0NCAxNi4zNjY0NTYtMS43MzI1NDQgOS43NjUwNzUtMi44NzU0ODggMTguNzM4MDM3LTMuNDU2MDU1IDI2LjkwNTUxNy0uMzUwOTUyIDYuMDc1MDEyLS41MTc0NTYgMTQuMjgzMDgxLS41MTc0NTYgMjQuNjQ2NjA3bC0zOC4wOTI0MDcgOC45NDU4NjFjLTEuMjU1NDkzLTE1LjUxMTQxMy0xLjg5OTA0OC0yNy4wNjI4NjYtMS44OTkwNDgtMzQuNjM2NDEzIDAtMTguNDk5NDUxIDIuMTU1NTE4LTM2LjAyNjkxNyA2LjQ3MDk0Ny01Mi41NjkwMzEgNC4zMDY1MTktMTYuNTU5OTk4IDExLjIyMzE0NS0zNS4xNjI5OTQgMjAuNzY3NDU2LTU1Ljg1Mzk0M2w0Mi4wNDgwOTYtOC4wOTU1ODFjLTguODQyNDA3IDIzLjc5MTU5Ni0xNC42NDI5NDQgNDIuNTExNTk3LTE3LjQwMTQ4OSA1Ni4xNzgwNCAxOC44NDU5NDctMjEuMDIzOTg3IDMzLjc4NjAxMS0zNS41NzcwMjcgNDQuODYwNDczLTQzLjY5MDQzIDExLjA1NjUxOS04LjEwNDYxNCAyMC45MDI0NjYtMTIuMTM2NTk3IDI5LjUwNjU5Mi0xMi4xMzY1OTcgNS44NDUzMzcgMCAxMC43MzIzIDIuMjA1MTA5IDE0LjYyNSA2LjYxOTU2OCAzLjkxMDQwMSA0LjQxODk0NSA1Ljg1NDM3IDkuOTY3NDY4IDUuODU0MzcgMTYuNjAwNDY0IDAgMTEuMDIwNTA4LTQuOTQwOTE4IDI5LjE3ODA0LTE0LjgwOTU3IDU0LjQ2ODAxOC02Ljc4NTg4OSAxNy4zNDMwMTctMTAuMTc4OTU1IDI4LjU5NzUzNC0xMC4xNzg5NTUgMzMuNzk1MDQ0IDAgNi45MTY0NDIgMi44MjE2NTUgMTAuMzcyNDk3IDguNDY0NiAxMC4zNzI0OTcgOC40MDE0ODkgMCAyMi4wMDkzOTktMTEuMDkyNTI5IDQwLjc4Nzk2My0zMy4yNjg1NTV6Ii8+PC9nPjxwYXRoIGQ9Im02OTIuNzQzNDY5IDI5NS4yNTg1MTRoMTAxMy41ODkwNTF2Mzc3Ljc2NjAyMmgtMTAxMy41ODkwNTF6IiBmaWxsPSJub25lIi8+PHRleHQgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9IkhlbHZldGljYSIgZm9udC1zaXplPSIxMDMuODU3NzUiIHg9IjY4OCIgeT0iMzcwIj5zY2lraXQ8L3RleHQ+PHBhdGggZD0ibTEwMTUuMDU1OTY5IDYyMC45MDU1MThoMTQ2NC40NDQwMzF2MTkzLjMzMzU1N2gtMTQ2NC40NDQwMzF6IiBmaWxsPSJub25lIi8+PC9zdmc+Cg==" alt="" width="32" height="22"></span><span>scikit-learn 치트시트</span></a></div></div><ol class="rows"><li class="all"><span class="row off"><span class="no">종합</span><span class="t">ML 4일 종합<span class="pend">요약 준비 중</span></span><span class="d">4일</span></span><span class="lk"></span></li><li><a class="row" href="../ml/20261028/"><span class="no">Day8</span><span class="t">모델 평가와 군집<span class="pend">요약 준비 중</span></span><span class="d">10/28</span></a><span class="lk"><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793146759759379" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li><li><a class="row" href="../ml/20261027/"><span class="no">Day7</span><span class="t">트리와 앙상블<span class="pend">요약 준비 중</span></span><span class="d">10/27</span></a><span class="lk"><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793092592447099" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li><li><a class="row" href="../ml/20261026/"><span class="no">Day6</span><span class="t">회귀와 분류 모델<span class="pend">요약 준비 중</span></span><span class="d">10/26</span></a><span class="lk"><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792980731605349" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li><li><a class="row" href="../ml/20261023/"><span class="no">Day5</span><span class="t">데이터 전처리<span class="pend">요약 준비 중</span></span><span class="d">10/23</span></a><span class="lk"><a class="mini" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1792715139274279" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>강의 자료</a></span></li></ol></section>
+</main>
+</body>
+</html>
