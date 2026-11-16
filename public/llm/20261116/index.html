@@ -39,7 +39,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
-main { max-width: 64rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 3.2rem; }
+main { max-width: 64rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 2.2rem; }
 h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
 h1 { font-size: clamp(1.75rem, 4vw, 2.3rem); letter-spacing: -.02em; }
 h2 { font-size: 1.45rem; }
@@ -48,6 +48,16 @@ p { margin: 0; }
 a { color: var(--color-primary); }
 code { font-family: var(--font-code); font-size: .88em; background: var(--color-soft); color: var(--color-heading); padding: .05rem .35rem; border-radius: .35rem; }
 section { display: grid; gap: 1.1rem; min-width: 0; scroll-margin-top: 1rem; }
+/* 구역: 하나의 덩어리로 구분 */
+.blk { background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.7rem; gap: 1.2rem; }
+.blk-h { display: grid; gap: .55rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border); }
+.blk-t { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; }
+.no { font: 800 .85rem var(--font-code); color: var(--on-primary); background: var(--color-primary); border-radius: .45rem; padding: .12rem .6rem; }
+.where { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; font-size: .78rem; color: var(--color-muted); }
+.where b { font-weight: 800; margin-right: .2rem; }
+.where span { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: 0 .6rem; }
+.where span.on { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); font-weight: 800; }
+.where i { font-style: normal; }
 .eyebrow { font-size: .875rem; font-weight: 700; color: var(--color-muted); }
 .head { display: grid; gap: .7rem; }
 .lead { font-size: 1.05rem; max-width: 50rem; }
@@ -57,7 +67,7 @@ section { display: grid; gap: 1.1rem; min-width: 0; scroll-margin-top: 1rem; }
 .tag { display: inline-block; font-size: .78rem; font-weight: 800; color: var(--color-muted); border: 1px solid var(--color-border); border-radius: 999px; padding: .05rem .6rem; margin-left: .5rem; vertical-align: middle; white-space: nowrap; }
 .def { max-width: 50rem; }
 .def b { color: var(--color-heading); }
-.lesson { border-left: 4px solid var(--color-primary); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; font-weight: 700; color: var(--color-heading); }
+.lesson { border-left: 4px solid var(--color-primary); background: var(--color-surface); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; font-weight: 700; color: var(--color-heading); }
 .fig { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; }
 .cap { font-size: .82rem; color: var(--color-muted); }
 
@@ -85,7 +95,7 @@ a.node:hover { border-color: var(--color-primary); }
 .band { display: flex; flex-wrap: wrap; gap: .3rem .9rem; align-items: baseline; border: 2px dashed var(--color-primary); border-radius: .8rem; padding: .6rem 1rem; }
 .band a { font-weight: 800; color: var(--color-primary); }
 .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
-.three div { border-top: 3px solid var(--color-primary); background: var(--color-soft); border-radius: 0 0 .6rem .6rem; padding: .5rem .8rem; }
+.three div { border-top: 3px solid var(--color-primary); background: var(--color-surface); border-radius: 0 0 .6rem .6rem; padding: .5rem .8rem; }
 .three b { color: var(--color-heading); }
 .three p { font-size: .9rem; color: var(--color-muted); }
 
@@ -95,7 +105,7 @@ a.node:hover { border-color: var(--color-primary); }
 .slot b { color: var(--in-fg); }
 .slot span { font-size: .85rem; color: var(--color-text); }
 .make { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: .5rem; align-items: center; text-align: center; }
-.make > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .6rem; background: var(--color-soft); }
+.make > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .6rem; background: var(--color-canvas); }
 .make b { display: block; color: var(--color-heading); font-size: .92rem; }
 .make small { color: var(--color-muted); font-size: .8rem; }
 .make i { font-style: normal; font-weight: 800; color: var(--color-muted); }
@@ -107,7 +117,7 @@ a.node:hover { border-color: var(--color-primary); }
 
 /* 구분 짝 */
 .vs { display: grid; gap: .5rem; }
-.vs h3 { font-size: .88rem; color: var(--color-muted); font-weight: 800; }
+.vs h3 { font-size: .9rem; color: var(--color-heading); font-weight: 800; }
 .vs-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: .6rem; align-items: stretch; }
 .vs-row > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .8rem; background: var(--color-surface); font-size: .92rem; }
 .vs-row b { color: var(--color-heading); display: block; }
@@ -140,6 +150,7 @@ pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padd
 .step b { color: var(--color-heading); }
 .step span { font-size: .85rem; color: var(--color-text); }
 .step small { font-size: .78rem; color: var(--color-muted); }
+.step em { font-style: normal; font-size: .72rem; font-weight: 700; color: var(--color-muted); margin-left: .3rem; }
 .step.auto { background: var(--out-bg); border: 1px solid var(--out-fg); }
 .step.man { background: var(--hum-bg); border: 1px solid var(--hum-fg); }
 .brk { display: grid; grid-template-columns: 3fr 1fr; gap: .5rem; font-size: .82rem; font-weight: 800; text-align: center; }
@@ -160,7 +171,7 @@ pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padd
 .br.t2 > div:first-child { border-left: 4px solid var(--in-fg); }
 .br.t3 > div:first-child { border-left: 4px solid var(--bad-fg); }
 .two { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; font-weight: 800; color: var(--color-heading); }
-.two span { border: 1px solid var(--color-border); border-radius: .5rem; padding: .15rem .7rem; background: var(--color-soft); }
+.two span { border: 1px solid var(--color-border); border-radius: .5rem; padding: .15rem .7rem; background: var(--color-canvas); }
 .two em { font-style: normal; color: var(--color-muted); }
 
 /* 평가 */
@@ -182,12 +193,7 @@ pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padd
 .dh b { color: var(--color-heading); }
 .dh p { font-size: .9rem; }
 
-/* 증상 표 */
-.tw { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; min-width: 34rem; }
-th, td { text-align: left; padding: .6rem .8rem; border-bottom: 1px solid var(--color-border); vertical-align: top; font-size: .93rem; }
-th { background: var(--color-soft); color: var(--color-heading); font-size: .85rem; }
-td:first-child { font-weight: 700; color: var(--color-heading); }
+
 .foot { display: grid; gap: .3rem; font-size: .85rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1rem; }
 
 @media (max-width: 760px) {
@@ -197,6 +203,7 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
   .three, .slots, .know, .cases, .pair2, .ab, .dh, .ladder { grid-template-columns: 1fr; }
   .make { grid-template-columns: 1fr; }
   .make i { transform: rotate(90deg); }
+  .blk { padding: 1.1rem 1rem 1.3rem; }
   .vs-row, .br { grid-template-columns: 1fr; }
   .vs-row .sym, .br i { padding: .1rem 0; }
   .brk { display: none; }
@@ -221,7 +228,7 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
   <h1>Prompt·Context Engineering</h1>
   <p class="lead">오늘 다루는 것은 LLM을 새로 학습하는 일이 아니라, <b>모델 호출 전의 입력 설계</b>와 <b>호출 후의 출력 확인</b>입니다.</p>
   <nav class="jump" aria-label="구역 이동">
-    <a href="#prompt">Prompt</a><a href="#context">Context</a><a href="#check">출력 계약·검증</a><a href="#retry">재시도</a><a href="#ab">A/B 평가</a><a href="#symptom">문제가 생기면</a>
+    <a href="#map">전체 흐름</a><a href="#prompt">Prompt</a><a href="#context">Context</a><a href="#check">Output Contract · Validation</a><a href="#retry">Retry</a><a href="#ab">A/B Evaluation</a>
   </nav>
 
 <div class="lt-top"><style>
@@ -284,8 +291,10 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
 </header>
 
 <!-- 전체 흐름: 강사 자료의 그림 -->
-<section id="map" aria-labelledby="map-h">
-  <h2 id="map-h">전체 흐름: 입력을 만들고, 결과를 확인한다</h2>
+<section id="map" class="blk" aria-labelledby="map-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">지도</span><h2 id="map-h">전체 흐름(Overall Flow): 입력을 만들고, 결과를 확인한다</h2></div>
+  </div>
   <div class="fig">
     <div class="ranges" aria-hidden="true"><span class="r-door"></span><span class="r-in">입력 설계</span><span class="r-gen">생성</span><span class="r-out">출력 확인</span></div>
     <div class="flow">
@@ -297,19 +306,22 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
       <a class="node hum" href="#check"><strong>근거 대조</strong><span>질문·답·원문을<br>사람이 확인</span></a>
     </div>
     <div class="band"><a href="#ab">A/B 평가 → 입력 개선</a><span>여러 실행의 조건·응답·실패 기록을 모아 비교합니다.</span></div>
-    <p class="cap">실행 흐름과 평가 흐름을 구분합니다. A/B 평가는 매 요청이 반드시 통과하는 직렬 처리 단계가 아닙니다. 자동 검사가 실패하면 <a href="#retry">재시도</a>가 입력 쪽으로 한 번 되돌아갑니다.</p>
+    <p class="cap">실행 흐름과 평가 흐름을 구분합니다. A/B 평가는 매 요청이 반드시 통과하는 직렬 처리 단계가 아닙니다. 자동 검사가 실패하면 <a href="#retry">재시도(Retry)</a>가 입력 쪽으로 한 번 되돌아갑니다. 노드를 누르면 해당 구역으로 이동합니다.</p>
   </div>
   <div class="three">
-    <div><b>지시</b><p>무엇을 하고, 무엇을 하지 말아야 하는가?</p></div>
-    <div><b>문맥</b><p>이번 답변에 실제로 어떤 정보를 넣는가?</p></div>
-    <div><b>검증</b><p>형식이 맞고, 답을 뒷받침하는 근거가 있는가?</p></div>
+    <div><b>지시(Instruction)</b><p>무엇을 하고, 무엇을 하지 말아야 하는가?</p></div>
+    <div><b>문맥(Context)</b><p>이번 답변에 실제로 어떤 정보를 넣는가?</p></div>
+    <div><b>검증(Validation)</b><p>형식이 맞고, 답을 뒷받침하는 근거가 있는가?</p></div>
   </div>
   <p class="lesson">좋은 입력을 만드는 일과, 나온 답을 확인하는 일은 함께 필요합니다.</p>
 </section>
 
 <!-- Prompt -->
-<section id="prompt" aria-labelledby="prompt-h">
-  <h2 id="prompt-h">Prompt: 무엇을 어떻게 수행할지 전달하는 입력 <span class="tag">1 · 2교시</span></h2>
+<section id="prompt" class="blk" aria-labelledby="prompt-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">01</span><h2 id="prompt-h">Prompt: 무엇을 어떻게 수행할지 전달하는 입력</h2><span class="tag">1 · 2교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span class="on">Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span>자동 검사</span><i>→</i><span>근거 대조</span></div>
+  </div>
   <p class="def"><b>Prompt</b>에는 지시뿐 아니라 질문·자료·예제·출력 조건을 담을 수 있습니다. <b>Prompt Engineering</b>은 성공 기준을 지시로 표현하고, 결과를 비교하며 개선하는 과정입니다.</p>
   <div class="fig">
     <div class="slots">
@@ -321,7 +333,7 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
       <div class="slot"><b>출력</b><span>어떤 형식으로 돌려주는가?</span></div>
     </div>
     <div class="make">
-      <div><b>고정된 템플릿</b><small>작업·범위·실패 기준·출력 계약</small></div>
+      <div><b>고정된 템플릿(Template)</b><small>작업·범위·실패 기준·출력 계약</small></div>
       <i>+</i>
       <div><b>요청마다 바뀌는 값</b><small>이번 질문 + 선택한 지식</small></div>
       <i>→</i>
@@ -334,17 +346,20 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
     <div><b>Few-shot</b><p>입력→바람직한 출력 예제를 함께 줍니다.</p></div>
   </div>
   <div class="vs">
-    <h3>헷갈리기 쉬운 짝</h3>
-    <div class="vs-row"><div class="a"><b>지시</b>무엇을 하라고 시키는 문장</div><div class="sym">≠</div><div class="b"><b>참고 자료</b>지식 본문은 데이터입니다. 앱의 실행 명령이 아닙니다</div></div>
-    <div class="vs-row"><div class="a"><b>예제를 준다</b>답의 모양을 보여 줍니다</div><div class="sym">≠</div><div class="b"><b>모델을 학습시킨다</b>입력에 예제를 넣어도 가중치는 바뀌지 않습니다</div></div>
-    <div class="vs-row"><div class="a"><b>예제의 출처 ID</b>예제 안에서만 쓰는 번호</div><div class="sym">≠</div><div class="b"><b>이번 질문의 출처 ID</b>본 질문에 복사하면 안 됩니다</div></div>
+    <h3>구분할 것</h3>
+    <div class="vs-row"><div class="a"><b>지시(Instruction)</b>모델에게 무엇을 할지 알려 주는 문장입니다.</div><div class="sym">≠</div><div class="b"><b>참고 자료(Reference data)</b>지식 본문은 읽을 데이터입니다. 앱이 실행할 명령이 아닙니다.</div></div>
+    <div class="vs-row"><div class="a"><b>Few-shot 예제</b>입력에 예제를 함께 넣습니다.</div><div class="sym">≠</div><div class="b"><b>모델 학습(가중치 업데이트)</b>예제를 넣어도 모델 가중치는 바뀌지 않습니다.</div></div>
+    <div class="vs-row"><div class="a"><b>예제의 출처 ID</b>예제 안에서만 쓰는 번호입니다.</div><div class="sym">≠</div><div class="b"><b>이번 질문의 출처 ID</b>이번에 전달한 지식의 ID입니다. 예제의 ID를 복사하면 안 됩니다.</div></div>
   </div>
   <p class="lesson">핵심은 문장의 화려함이 아니라 성공·실패를 확인할 수 있는 요청입니다.</p>
 </section>
 
 <!-- Context -->
-<section id="context" aria-labelledby="context-h">
-  <h2 id="context-h">Context: 이번 답변에 실제로 제공한 정보 <span class="tag">3 · 4교시</span></h2>
+<section id="context" class="blk" aria-labelledby="context-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">02</span><h2 id="context-h">Context: 이번 답변에 실제로 제공한 정보</h2><span class="tag">3 · 4교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span class="on">Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span>자동 검사</span><i>→</i><span>근거 대조</span></div>
+  </div>
   <p class="def"><b>Context Engineering</b>은 필요한 정보를 고르고 배치하며 출처·유효성·길이를 관리하는 일입니다. 여기서는 그중 이번 요청에 선택해 넣은 지식을 다룹니다.</p>
   <div class="fig">
     <div class="know">
@@ -354,8 +369,8 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
     </div>
     <div class="sel"><i>→ [101]</i><span>질문에 필요한 자료만 골라 ID·본문·순서를 보존해 전달합니다. 이번에 전달한 근거: “실습 파일은 개인 폴더에 보관합니다.”</span></div>
     <div class="cases">
-      <div class="ok"><b>“어디에 보관하나요?”</b><span>필요한 사실은 <b>위치</b>. 101의 본문에 있으므로 답과 출처를 제시합니다.</span><code>answered · source_ids: [101]</code></div>
-      <div class="lack"><b>“몇 년 보관하나요?”</b><span>필요한 사실은 <b>기간</b>. 본문에 없으므로 추측하지 않고 부족한 정보를 적습니다.</span><code>insufficient_context · source_ids: []</code></div>
+      <div class="ok"><b>“어디에 보관하나요?”</b><span>필요한 사실은 <b>위치</b>입니다. 101의 본문에 있으므로 답과 출처를 제시합니다.</span><code>answered · source_ids: [101]</code></div>
+      <div class="lack"><b>“몇 년 보관하나요?”</b><span>필요한 사실은 <b>기간</b>입니다. 본문에 없으므로 추측하지 않고 부족한 정보를 적습니다.</span><code>insufficient_context · source_ids: []</code></div>
     </div>
     <div>
       <div class="window"><span class="w1">입력: 지시·질문·예제·근거</span><span class="w2">출력용 공간</span><span class="w3">여유</span></div>
@@ -363,17 +378,20 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
     </div>
   </div>
   <div class="vs">
-    <h3>헷갈리기 쉬운 짝</h3>
-    <div class="vs-row"><div class="a"><b>DB에 있는 것</b>저장된 지식 전체</div><div class="sym">≠</div><div class="b"><b>이번에 전달한 것</b>관련성·전달 권한·유효한 버전·길이를 확인해 고른 것</div></div>
-    <div class="vs-row"><div class="a"><b>정보 부족</b>정상적인 종료 결과입니다</div><div class="sym">≠</div><div class="b"><b>실패</b>없는 사실을 지어내는 것이 실패입니다</div></div>
+    <h3>구분할 것</h3>
+    <div class="vs-row"><div class="a"><b>DB에 있는 것</b>저장된 지식 전체입니다.</div><div class="sym">≠</div><div class="b"><b>이번에 전달한 것(Context)</b>관련성·전달 권한·유효한 버전·길이를 확인해 고른 지식입니다.</div></div>
+    <div class="vs-row"><div class="a"><b>정보 부족(<code>insufficient_context</code>)</b>자료에 답이 없을 때의 정상적인 종료 결과입니다.</div><div class="sym">≠</div><div class="b"><b>실패</b>자료에 없는 사실을 지어내는 것이 실패입니다.</div></div>
   </div>
   <p class="lesson">자료를 많이 넣는 것보다, 필요한 사실이 실제로 들어 있는지가 중요합니다.</p>
 </section>
 
 <!-- 출력 계약과 검증 -->
-<section id="check" aria-labelledby="check-h">
-  <h2 id="check-h">출력 계약과 검증: 형식과 내용은 따로 확인한다 <span class="tag">6교시</span></h2>
-  <p class="def"><b>출력 계약(Output Contract)</b>은 응답이 따라야 할 필드·자료형·상태별 규칙입니다. <b>검증</b>은 실제 응답이 정한 규칙과 근거에 맞는지 확인하는 과정입니다.</p>
+<section id="check" class="blk" aria-labelledby="check-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">03</span><h2 id="check-h">출력 계약(Output Contract)과 검증(Validation): 형식과 내용은 따로 확인한다</h2><span class="tag">6교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span class="on">자동 검사</span><i>→</i><span class="on">근거 대조</span></div>
+  </div>
+  <p class="def"><b>출력 계약</b>은 응답이 따라야 할 필드·자료형·상태별 규칙입니다. <b>검증</b>은 실제 응답이 정한 규칙과 근거에 맞는지 확인하는 과정입니다.</p>
   <div class="fig">
     <pre>{
   "status": "answered",
@@ -381,27 +399,30 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
   "source_ids": [101],
   "missing_information": ""
 }</pre>
-    <p class="cap"><b>JSON</b> 데이터를 표현하는 텍스트 형식 · <b>Schema</b> 허용할 필드·자료형을 기술한 명세 · <b>Pydantic</b> Python에서 데이터 구조를 선언하고 검사 · 정보 부족이면 <code>status: insufficient_context</code>, 출처는 <code>[]</code>, 필요한 정보의 이름을 기록합니다.</p>
+    <p class="cap"><b>JSON</b>은 데이터를 표현하는 텍스트 형식, <b>Schema</b>는 허용할 필드·자료형을 기술한 명세, <b>Pydantic</b>은 Python에서 데이터 구조를 선언하고 검사하는 라이브러리입니다. 정보가 부족하면 <code>status: insufficient_context</code>, 출처는 <code>[]</code>로 두고 필요한 정보의 이름을 기록합니다.</p>
     <div class="ladder">
-      <div class="step auto"><b>1 · 문법</b><span>JSON으로 읽히는가?</span><small>괄호·따옴표 등</small></div>
-      <div class="step auto"><b>2 · 구조</b><span>계약에 맞는가?</span><small>필수 필드·자료형</small></div>
-      <div class="step auto"><b>3 · 규칙</b><span>참조·상태가 맞는가?</span><small>이번에 전달한 ID·필드 조합</small></div>
-      <div class="step man"><b>4 · 내용</b><span>원문이 답을 뒷받침하는가?</span><small>질문·주장·인용 대조</small></div>
+      <div class="step auto"><b>1 · 문법<em>Syntax</em></b><span>JSON으로 읽히는가?</span><small>괄호·따옴표 등</small></div>
+      <div class="step auto"><b>2 · 구조<em>Schema</em></b><span>계약에 맞는가?</span><small>필수 필드·자료형</small></div>
+      <div class="step auto"><b>3 · 규칙<em>Reference · State</em></b><span>참조·상태가 맞는가?</span><small>이번에 전달한 ID·필드 조합</small></div>
+      <div class="step man"><b>4 · 내용<em>Evidence</em></b><span>원문이 답을 뒷받침하는가?</span><small>질문·주장·인용 대조</small></div>
     </div>
     <div class="brk"><span class="a">앞의 세 단계: 자동 검사</span><span class="m">마지막 단계: 사람의 근거 검토</span></div>
-    <div class="counter"><b>반례</b><span>101·102·103을 전달하고, 서버 실행 위치에 “프로젝트 폴더”라고 답하면서 <code>101</code>을 인용했습니다. 제공 ID이므로 참조 검사는 통과하지만, 101은 파일 보관 자료이므로 근거 불일치입니다.</span></div>
+    <div class="counter"><b>반례</b><span>101·102·103을 전달하고, 서버 실행 위치에 “프로젝트 폴더”라고 답하면서 <code>101</code>을 인용했습니다. 제공한 ID이므로 참조 검사는 통과하지만, 101은 파일 보관 자료이므로 근거가 맞지 않습니다.</span></div>
   </div>
   <div class="vs">
-    <h3>헷갈리기 쉬운 짝</h3>
-    <div class="vs-row"><div class="a"><b>형식을 요청한다</b>Prompt에 출력 계약을 적는다</div><div class="sym">≠</div><div class="b"><b>형식을 검사한다</b>코드가 JSON·Schema·참조·상태로 따로 확인한다</div></div>
-    <div class="vs-row"><div class="a"><b>출처 ID가 존재한다</b>이번에 전달한 ID와 맞다</div><div class="sym">≠</div><div class="b"><b>그 본문이 답을 뒷받침한다</b>사람이 질문·답·원문을 대조한다</div></div>
+    <h3>구분할 것</h3>
+    <div class="vs-row"><div class="a"><b>형식을 요청</b>Prompt에 출력 계약을 적습니다.</div><div class="sym">≠</div><div class="b"><b>형식을 검사</b>코드가 JSON·Schema·참조·상태를 따로 확인합니다.</div></div>
+    <div class="vs-row"><div class="a"><b>출처 ID가 존재함(참조 검사)</b>이번에 전달한 ID와 일치합니다.</div><div class="sym">≠</div><div class="b"><b>본문이 답을 뒷받침함</b>사람이 질문·답·원문을 대조합니다.</div></div>
   </div>
   <p class="lesson">자동 검사 통과 ≠ 답의 정확성.</p>
 </section>
 
 <!-- 재시도 -->
-<section id="retry" aria-labelledby="retry-h">
-  <h2 id="retry-h">재시도: 원인을 나누고, 멈출 조건을 둔다 <span class="tag">7교시</span></h2>
+<section id="retry" class="blk" aria-labelledby="retry-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">04</span><h2 id="retry-h">재시도(Retry): 원인을 나누고, 멈출 조건을 둔다</h2><span class="tag">7교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span class="on">자동 검사</span><i>→</i><span>근거 대조</span><i>·</i><span>실패하면 입력으로 되돌아감</span></div>
+  </div>
   <p class="def"><b>재시도</b>는 응답을 다시 요청하는 일입니다. 이번 교안에서는 JSON·Schema 형식 오류만 한 번 수정 요청하며, 모든 실패를 반복하지 않습니다.</p>
   <div class="fig">
     <div class="branches">
@@ -410,19 +431,22 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
       <div class="br t3"><div><b>출처·상태 규칙 위반</b><small>없는 출처·모순된 조합</small></div><i>→</i><div><b>자동 재생성 없이 중단</b><small>문맥과 규칙을 다시 점검</small></div></div>
     </div>
     <div class="two"><span>최초 응답 1회</span><em>+</em><span>형식 수정 1회</span><em>=</em><span>최대 2회</span></div>
-    <p class="cap">수정할 때 유지할 것: 같은 질문·문맥·출력 계약. 확인된 오류만 요약하고, 최초·수정 응답을 따로 기록합니다.</p>
+    <p class="cap">수정할 때 유지할 것은 같은 질문·문맥·출력 계약입니다. 확인된 오류만 요약해서 전달하고, 최초 응답과 수정 응답을 따로 기록합니다.</p>
   </div>
   <div class="vs">
-    <h3>헷갈리기 쉬운 짝</h3>
-    <div class="vs-row"><div class="a"><b>형식 오류</b>고쳐서 한 번 다시 요청한다</div><div class="sym">≠</div><div class="b"><b>규칙 오류</b>같은 방식으로 반복하지 않고 멈춘다</div></div>
-    <div class="vs-row"><div class="a"><b>첫 응답</b>처음 나온 원문</div><div class="sym">≠</div><div class="b"><b>수정 후 결과</b>통과해도 첫 실패는 지우지 않는다</div></div>
+    <h3>구분할 것</h3>
+    <div class="vs-row"><div class="a"><b>형식 오류(<code>json_error</code>·<code>schema_error</code>)</b>한 번 수정 요청합니다.</div><div class="sym">≠</div><div class="b"><b>규칙 오류(<code>unknown_source</code> 등)</b>같은 방식으로 반복하지 않고 중단합니다.</div></div>
+    <div class="vs-row"><div class="a"><b>첫 응답</b>처음 나온 원문입니다.</div><div class="sym">≠</div><div class="b"><b>수정 후 결과</b>통과해도 첫 실패 기록은 지우지 않습니다.</div></div>
   </div>
   <p class="lesson">형식은 고칠 수 있어도, 재시도가 없는 근거를 만들어 주지는 않습니다.</p>
 </section>
 
 <!-- A/B 평가 -->
-<section id="ab" aria-labelledby="ab-h">
-  <h2 id="ab-h">A/B 평가: 한 가지를 바꾸고 같은 기준으로 비교한다 <span class="tag">2 · 5 · 8교시</span></h2>
+<section id="ab" class="blk" aria-labelledby="ab-h">
+  <div class="blk-h">
+    <div class="blk-t"><span class="no">05</span><h2 id="ab-h">A/B 평가(Evaluation): 한 가지를 바꾸고 같은 기준으로 비교한다</h2><span class="tag">2 · 5 · 8교시</span></div>
+    <div class="where" aria-label="전체 흐름에서의 위치"><b>흐름에서</b><span>질문</span><i>→</i><span>Context</span><i>→</i><span>Prompt</span><i>→</i><span>LLM 응답</span><i>→</i><span>자동 검사</span><i>→</i><span>근거 대조</span><i>·</i><span class="on">A/B 평가 → 입력 개선</span></div>
+  </div>
   <p class="def"><b>A/B 비교</b>는 두 입력 설계의 차이를 관찰하는 실험입니다. 개선안이 좋아 보이는지는 가설이고, 실제 결과와 실패 기록으로 판단합니다.</p>
   <div class="fig">
     <div class="fixed"><b>공통 조건 고정</b><span>같은 질문 · 문맥 · 표시된 모델명 · 출력 계약 · 채점 기준</span></div>
@@ -435,36 +459,20 @@ td:first-child { font-weight: 700; color: var(--color-heading); }
       <div class="d"><b>Development (D)</b><p>개선용 질문으로 수정하고, Prompt 버전과 비교 조건을 고정합니다.</p></div>
       <div class="h"><b>Holdout (H)</b><p>남겨 둔 질문으로 최종 확인합니다.</p></div>
     </div>
-    <p class="cap">N은 한 Prompt 버전에서 비교 대상으로 정한 첫 응답 수입니다. 사람의 근거 평가는 실제 평가한 수를 분모로 씁니다. Holdout 결과로 다시 고쳤다면 새 버전·새 확인 질문이 필요합니다. 이 교안의 Holdout은 공개된 교육용 묶음입니다.</p>
+    <p class="cap">N은 한 Prompt 버전에서 비교 대상으로 정한 첫 응답 수입니다. 사람의 근거 평가는 실제 평가한 수를 분모로 씁니다. Holdout 결과로 다시 고쳤다면 새 버전과 새 확인 질문이 필요합니다. 이 교안의 Holdout은 공개된 교육용 묶음입니다.</p>
   </div>
   <div class="vs">
-    <h3>헷갈리기 쉬운 짝</h3>
-    <div class="vs-row"><div class="a"><b>A/B</b>Prompt 버전</div><div class="sym">≠</div><div class="b"><b>D/H</b>질문 묶음의 용도 (Development·Holdout의 첫 글자)</div></div>
-    <div class="vs-row"><div class="a"><b>실제 모델 응답 <code>manual_chat</code></b>모델 출력의 관찰</div><div class="sym">≠</div><div class="b"><b>Fixture</b>작성한 샘플로 검사기를 확인한 결과. 따로 기록</div></div>
-    <div class="vs-row"><div class="a"><b>미실행</b>raw가 없는 항목</div><div class="sym">≠</div><div class="b"><b>미평가</b>사람 평가가 비어 있음(<code>null</code>). 0점이 아님</div></div>
+    <h3>구분할 것</h3>
+    <div class="vs-row"><div class="a"><b>A/B</b>Prompt 버전입니다.</div><div class="sym">≠</div><div class="b"><b>D/H</b>질문 묶음의 용도입니다. Development·Holdout의 첫 글자입니다.</div></div>
+    <div class="vs-row"><div class="a"><b>실제 모델 응답(<code>manual_chat</code>)</b>모델 출력을 관찰한 것입니다.</div><div class="sym">≠</div><div class="b"><b>Fixture</b>작성한 샘플로 검사기를 확인한 결과입니다. 따로 기록합니다.</div></div>
+    <div class="vs-row"><div class="a"><b>미실행(<code>not_run</code>)</b>응답 원문(raw)이 없는 항목입니다.</div><div class="sym">≠</div><div class="b"><b>미평가(<code>null</code>)</b>사람 평가가 비어 있습니다. 0점이 아닙니다.</div></div>
   </div>
   <p class="lesson">B가 반드시 이겨야 하는 것이 아닙니다. 어떤 오류가 줄고 새로 생겼는지 설명합니다.</p>
 </section>
 
-<!-- 문제가 생기면 -->
-<section id="symptom" aria-labelledby="symptom-h">
-  <h2 id="symptom-h">문제가 생기면 어디를 보나</h2>
-  <p class="def">위 구역을 증상에서 거꾸로 읽은 표입니다.</p>
-  <div class="tw"><table>
-    <thead><tr><th>이런 증상이면</th><th>의심할 곳</th><th>쓰는 수단</th></tr></thead>
-    <tbody>
-      <tr><td>답이 근거 없이 단정한다</td><td>자료에 필요한 사실이 없거나, 근거 규칙이 약하다</td><td><a href="#context">Context 선택</a> · 근거 규칙을 한 줄 추가해 <a href="#ab">A/B</a>로 비교</td></tr>
-      <tr><td>JSON이 깨지거나 필드가 빠진다</td><td>출력 계약이 약하거나 모델이 형식을 놓쳤다</td><td><a href="#check">출력 계약·검증</a> → <a href="#retry">형식 수정 1회</a></td></tr>
-      <tr><td>출처가 없는 ID이거나 상태가 모순된다</td><td>문맥과 규칙의 문제 (재시도로 풀리지 않는다)</td><td><a href="#retry">중단</a>하고 Context·규칙을 점검</td></tr>
-      <tr><td>형식은 맞는데 내용이 틀렸다</td><td>자동 검사가 볼 수 없는 영역</td><td><a href="#check">사람의 근거 검토</a></td></tr>
-      <tr><td>어느 Prompt가 나은지 모르겠다</td><td>비교 조건이 섞였거나, 같은 질문으로 고치고 확인했다</td><td><a href="#ab">한 가지만 바꾼 A/B, D/H 분리</a></td></tr>
-    </tbody>
-  </table></div>
-</section>
-
 <footer class="foot">
   <p>그림과 정의는 강사님 강의 자료(2026.11.16)의 핵심요약을 따랐습니다. 교시 표시는 강의 목차 기준입니다.</p>
-  <p>맨 아래 표는 위 내용을 증상에서 거꾸로 정리한 것이며 강의 자료의 표가 아닙니다. 이 페이지는 초안입니다.</p>
+  <p>이 페이지는 초안입니다.</p>
 </footer>
 
 </main>

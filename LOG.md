@@ -130,3 +130,4 @@
 | 2026-11-16 | setup/vscode-extensions | 가상환경 실행 주의(Run Code vs Python 실행 버튼)를 아래 별도 박스에서 Code Runner 항목의 오른쪽 설명으로 이동. 항목 사진은 위쪽 정렬 | main만 |
 | 2026-11-16 | setup/vscode-extensions | Go Live는 별도 Extension이 아니라 Live Server의 버튼이므로 별도 항목을 없애고 Live Server 항목 안(카드 캡처 아래)으로 이동, 설명도 Live Server 설명에 합침 | main만 |
 | 2026-11-16 | llm/20261116 | Day21 요약 초안: 강사 핵심요약 6구역 그림을 흐름 그림 위에 얹고, 개념 사이 구분(≠)을 이음새로 배치. 끝에 증상→의심할 곳→수단 표. 구성안 포함. 코드·실측 없음 | main만 |
+| 2026-11-16 | llm/20261116 | Day21 초안 수정: 구역을 번호 박스로 나누고 머리에 흐름상 위치 표시, 설명을 합니다체로 풀고 전문 용어에 원어 병기, 마지막 증상 표 삭제 | main만 |
