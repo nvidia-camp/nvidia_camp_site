@@ -1,6 +1,6 @@
 # 통합 환경 .venv · gpuenv와 backendenv를 한 환경에 (Python 3.13, Windows)
 # 두 목록을 그대로 합친 것입니다. 버전은 requirements-gpu.txt · requirements-backend.txt와 같습니다.
-# 설치: .venv\Scripts\python.exe -m pip install -r requirements-all.txt
+# 설치(practice_assignment 폴더에서): envs\.venv\Scripts\python.exe -m pip install -r envs\requirements-all.txt
 
 # ===== gpuenv =====
 # --- PyTorch (CUDA 12.8) ---

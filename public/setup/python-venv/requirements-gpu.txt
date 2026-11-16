@@ -1,6 +1,6 @@
 # gpuenv · GPU 실습용 (Python 3.13, Windows)
 # 쓰는 실습: Python 기초 · ML · DL · Vision · LLM과 Transformer(11/13)
-# 설치: C:\workspace\envs\gpuenv\Scripts\python.exe -m pip install -r C:\workspace\envs\requirements-gpu.txt
+# 설치(practice_assignment 폴더에서): envs\gpuenv\Scripts\python.exe -m pip install -r envs\requirements-gpu.txt
 
 # --- PyTorch (CUDA 12.8) ---
 # NVIDIA GPU가 없으면 아래 세 줄의 cu128을 cpu로 바꿉니다.
