@@ -601,9 +601,9 @@ def cover_card(days, subjects, today):
     """지금 과목 표지: 오늘이 속한(없으면 마지막으로 시작한) 과목"""
     key, ds = subjects[-1]
     n_done = len([d for d in ds if d["date"] <= today])
-    made = [d for d in ds if d["src"]]
-    if made:
-        go_href, go_text = f'{made[-1]["key"]}/{made[-1]["ymd"]}/', f'Day{made[-1]["n"]} · {page_h1(made[-1]["src"])}'
+    shown = [d for d in ds if has_page(d)]   # 요약이 없어도 강의 목차 페이지가 있으면 그날로 간다
+    if shown:
+        go_href, go_text = f'{shown[-1]["key"]}/{shown[-1]["ymd"]}/', f'Day{shown[-1]["n"]} · {day_title(shown[-1])}'
     else:
         go_href, go_text = f'#{key}', f'{ds[0]["short"]} 보기'
     return (f'<a class="cover" href="{go_href}"><span class="wm" aria-hidden="true">{CHAPTER[key]:02d}</span>'
@@ -621,11 +621,11 @@ def timeline(days, today):
         if d["subject"] != current:
             groups.append((d["short"], []))
             current = d["subject"]
-        state = "has" if d["src"] else ("past" if d["date"] <= today else "")
+        state = "has" if has_page(d) else ("past" if d["date"] <= today else "")
         if d["date"] == last:
             state += " today"
         tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["subject"]}')
-        if d["src"]:
+        if has_page(d):
             groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" title="{tip}" aria-label="{tip}"></a>')
         elif d["lecture"]:
             tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료 바로 보기')
@@ -824,6 +824,18 @@ def tree_block(path, open_=False, css=True):
 </details></section>"""
 
 
+def has_page(d):
+    """그날 볼 페이지가 있는가: 요약 또는 강의 목차"""
+    return bool(d["src"] or d["tree"])
+
+
+def day_title(d):
+    """그날 제목: 요약의 <h1>, 요약 전이면 예정 제목 → 교재 제목"""
+    if d["src"]:
+        return page_h1(d["src"])
+    return PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}') or (read_tree(d["tree"])[0] if d["tree"] else "") or f'Day{d["n"]}'
+
+
 def tree_day_page(d):
     """요약이 아직 없는 날: 머리 + 자료 줄 + 강의 목차(강사님 자료 기준) + 요약 준비 중 표시"""
     book, _ = read_tree(d["tree"])
@@ -841,13 +853,15 @@ def tree_day_page(d):
 def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
-    made = [d for d in days if d["src"]]
-    latest = made[-1] if made else None
+    made = [d for d in days if d["src"]]                 # '요약 N일' 숫자: 실제로 요약을 쓴 날
+    shown = [d for d in days if has_page(d)]             # 최근 수업: 요약 또는 강의 목차가 있는 날
+    latest = shown[-1] if shown else None
+    pend = '<span class="pend">요약 준비 중</span>'
     recent = "".join(
         f'<li class="{"on" if d is latest else ""}"><a href="{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-        f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span>'
+        f'<span class="t">{html.escape(day_title(d))}{"" if d["src"] else pend}</span><span class="d">{md(d["date"])}</span>'
         f'<span class="go">{ICON_ARROW}</span></a></li>'
-        for d in reversed(made[-4:]))
+        for d in reversed(shown[-4:]))
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
                        f'<img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" width="20" height="20">{name} ↗</a>'
                        for name, logo, url in PRACTICE)
