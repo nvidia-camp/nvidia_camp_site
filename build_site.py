@@ -436,10 +436,7 @@ a.cell:hover{transform:scale(1.3)}
 .res svg{width:16px;height:16px}.res img{display:block;width:27px;height:16px}
 .res .view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
 @media (prefers-color-scheme:dark){.res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box}}
-.sec-h{display:flex;align-items:baseline;gap:10px;margin:36px 0 12px;padding-top:24px;border-top:1px solid var(--line-2)}
-.sec-h h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
-.sec-src{font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 9px}
-.sum-empty{padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
+.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
 
 @media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
   .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
@@ -755,7 +752,7 @@ def tree_block(path, open_=False):
 
 
 def tree_day_page(d):
-    """요약이 아직 없는 날: 머리 + 자료 줄 + 강의 목차(강사님 자료 기준) + 요약 자리(보조강사 해석, 준비 중)"""
+    """요약이 아직 없는 날: 머리 + 자료 줄 + 강의 목차(강사님 자료 기준) + 요약 준비 중 표시"""
     book, _ = read_tree(d["tree"])
     title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}') or book or f'Day{d["n"]}'
     res = []
@@ -770,8 +767,7 @@ def tree_day_page(d):
 <h1>{html.escape(title)}</h1>{sub}</header>
 <div class="res" aria-label="보조 자료">{"".join(res)}</div>
 {tree_block(d["tree"])}
-<section aria-label="요약"><div class="sec-h"><h2>요약</h2><span class="sec-src">보조강사 해석</span></div>
-<p class="sum-empty">요약 준비 중입니다.</p></section>"""
+<p class="sum-empty">요약 준비 중입니다.</p>"""
     nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}', lecture=d["link"],
                    view="lecture/" if d["lecture"] else None).replace(DOWNLOAD_MARK, "")
     return list_page(f'Day{d["n"]} {title} · {SITE_NAME}', body, nav, up="../../")
