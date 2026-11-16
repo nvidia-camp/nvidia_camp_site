@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CLI 도구</title>
-<meta name="description" content="AI 코딩 에이전트와 사람이 함께 쓰는 터미널 도구: gh, uv, ruff, gitleaks, jq">
+<meta name="description" content="AI 코딩 에이전트의 문서 조회·결과 검증·서비스 연결에 도움이 되는 CLI 도구 소개">
 <style>
 :root {
   --color-primary: #142849;
@@ -53,7 +53,7 @@ kbd { font-family: var(--font-body); font-size: 0.85em; font-weight: 700; color:
 .eyebrow { font-size: 0.875rem; font-weight: 700; color: var(--color-muted); }
 .lead { color: var(--color-muted); }
 
-.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.5rem; display: grid; gap: 1rem; min-width: 0; }
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.5rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; }
 .card.soft { background: var(--color-soft); }
 
 /* 한눈에 */
@@ -123,6 +123,8 @@ dialog.zoom img { display: block; max-width: 96vw; max-height: 94vh; border-radi
   main { padding-top: 1.5rem; }
   .glance { grid-template-columns: minmax(0, 1fr); }
   .card { padding: 1.1rem; }
+  .step-head { flex-wrap: wrap; }
+  .step-head h2 { flex: 1 1 10rem; min-width: 0; }
   td:first-child { white-space: normal; }
 }
 @media print {
@@ -247,7 +249,7 @@ code .chg { font-size: 1em; }
 <header class="head">
   <p class="eyebrow">공통 가이드 · Windows · OpenCode · Claude Code · Codex 공통</p>
   <h1>CLI 도구</h1>
-  <p class="lead">PC에 한 번 설치하면 어떤 AI 코딩 에이전트든 터미널에서 그대로 씁니다. 사람도 같은 명령을 씁니다.</p>
+  <p class="lead">CLI를 쓰면 AI 코딩 에이전트가 문서를 조회하고, 서비스 상태를 확인하고, 작업 결과를 검증할 수 있습니다. 사람도 같은 명령으로 확인할 수 있습니다.</p>
 </header>
 
 <section class="card" aria-labelledby="why">
@@ -296,19 +298,37 @@ code .chg { font-size: 1em; }
 </section>
 
 <section class="card" aria-labelledby="s3">
-  <div class="step-head"><span class="num">3</span><h2 id="s3">필요할 때 더</h2><span class="opt">선택</span></div>
+  <div class="step-head"><span class="num">3</span><h2 id="s3">에이전트에게 연결하면 유용한 CLI</h2><span class="opt">선택</span></div>
+  <p>지금 작업에 필요한 도구를 골라 연결합니다. 도구 이름을 누르면 공식 사용 안내로 이동합니다.</p>
+
+  <h3>문서 조회 · 자료 읽기 · 결과 확인</h3>
   <div class="table-wrap">
     <table class="stack">
-      <thead><tr><th>도구</th><th>하는 일</th><th>설치</th></tr></thead>
+      <thead><tr><th>도구</th><th>이럴 때</th><th>에이전트에게 도움이 되는 점</th></tr></thead>
       <tbody>
-        <tr><td><code>ctx7</code></td><td>라이브러리 최신 문서 찾기</td><td>설치 없이 <code>npx ctx7 …</code></td></tr>
-        <tr><td><code>xh</code></td><td>만든 API를 직접 호출해 확인</td><td><code>winget install ducaale.xh</code></td></tr>
-        <tr><td><code>sqlite3</code></td><td>SQLite DB 조회</td><td><code>winget install SQLite.SQLite</code></td></tr>
-        <tr><td><code>markitdown</code></td><td>PDF · Word · PPT를 마크다운으로</td><td><code>uv tool install markitdown</code></td></tr>
-        <tr><td><code>delta</code> · <code>lazygit</code></td><td>AI가 바꾼 코드를 사람이 검토</td><td><code>winget install dandavison.delta JesseDuffield.lazygit</code></td></tr>
+        <tr><td><a href="https://github.com/upstash/context7/blob/master/packages/cli/README.md">Context7</a><br><code>ctx7</code></td><td data-label="이럴 때">라이브러리를 사용해 코딩할 때</td><td data-label="도움">필요한 문서와 코드 예제를 조회해 사용법을 확인합니다.</td></tr>
+        <tr><td><a href="https://github.com/microsoft/playwright-cli">Playwright CLI</a><br><code>playwright-cli</code></td><td data-label="이럴 때">웹페이지를 만들거나 수정할 때</td><td data-label="도움">브라우저를 열고 버튼을 클릭하며 화면과 동작을 확인합니다.</td></tr>
+        <tr><td><a href="https://github.com/microsoft/markitdown">MarkItDown</a><br><code>markitdown</code></td><td data-label="이럴 때">문서를 AI의 입력 자료로 쓸 때</td><td data-label="도움">PDF · Word · PPT의 내용을 Markdown으로 변환해 읽고 활용합니다.</td></tr>
+        <tr><td><a href="https://github.com/BurntSushi/ripgrep">ripgrep</a><br><code>rg</code></td><td data-label="이럴 때">프로젝트의 코드를 찾을 때</td><td data-label="도움">함수 이름이나 오류 문구를 검색해 관련 파일과 코드 위치를 찾습니다.</td></tr>
+        <tr><td><a href="https://jqlang.org/manual/">jq</a><br><code>jq</code> · 기본 묶음</td><td data-label="이럴 때">API 응답이나 JSON이 길 때</td><td data-label="도움">필요한 필드만 추려 읽을 내용을 줄이고 데이터를 비교합니다.</td></tr>
       </tbody>
     </table>
   </div>
+
+  <h3>서비스 조회 · 작업 수행</h3>
+  <div class="table-wrap">
+    <table class="stack">
+      <thead><tr><th>서비스 · CLI</th><th>이럴 때</th><th>에이전트에게 도움이 되는 점</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://docs.github.com/en/github-cli/github-cli/about-github-cli">GitHub</a><br><code>gh</code> · 기본 묶음</td><td data-label="이럴 때">GitHub 프로젝트를 작업할 때</td><td data-label="도움">이슈 · PR · CI 실패 로그를 읽어 작업할 내용과 오류 원인을 파악합니다.</td></tr>
+        <tr><td><a href="https://docs.docker.com/reference/cli/docker/">Docker</a><br><code>docker</code></td><td data-label="이럴 때">앱이나 DB를 컨테이너로 실행할 때</td><td data-label="도움">컨테이너를 실행하고 상태와 로그를 확인해 실행 환경을 점검합니다.</td></tr>
+        <tr><td><a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html">AWS</a><br><code>aws</code></td><td data-label="이럴 때">AWS의 서버 · 저장소를 다룰 때</td><td data-label="도움">클라우드 자원의 실제 설정과 상태를 조회하고 필요한 작업을 수행합니다.</td></tr>
+        <tr><td><a href="https://cloud.google.com/sdk/docs/overview">Google Cloud</a><br><code>gcloud</code></td><td data-label="이럴 때">Google Cloud의 앱을 관리할 때</td><td data-label="도움">프로젝트와 배포 상태를 조회하고 로그를 읽어 문제를 확인합니다.</td></tr>
+        <tr><td><a href="https://vercel.com/docs/cli">Vercel</a><br><code>vercel</code></td><td data-label="이럴 때">웹사이트를 Vercel에 배포할 때</td><td data-label="도움">사이트를 배포하고 배포 상태와 로그를 확인합니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">설치한 도구는 아래 4처럼 안내문에 적어 에이전트가 언제 쓸지 알 수 있게 합니다. 서비스 CLI는 해당 계정의 로그인과 권한 설정이 필요할 수 있습니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s4">

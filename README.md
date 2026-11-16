@@ -30,6 +30,8 @@ DESIGN.md                  ← 모든 페이지 공통 디자인 원칙
 
 브랜치: `main`은 작업용(push하면 미리보기), `deploy`는 실제 사이트(https://nvidiasesac.vercel.app/).
 
+기본 완료 기준은 수정·검증 → `main` 커밋·push → 실제 사이트 배포·확인까지입니다. 사용자가 미리보기만 요청하거나 공개를 보류한 자료는 그 범위를 따릅니다.
+
 ```bash
 cd ~/workspace/nvidia_camp/site
 uv run sync_lectures.py                # (시트가 바뀌었을 때) gws-work로 읽기만 함

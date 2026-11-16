@@ -114,3 +114,4 @@
 | 2026-11-16 | setup/local-ai · setup/cli · 빌드 | 사용자 요청으로 로컬 AI 코딩 · CLI 도구 공개(SETUP 플래그 True). 배포용(--release) 빌드는 오늘 이후 날짜의 수업 자료(강의 HTML·목차)를 자동으로 뺌: main에 Day22를 미리 둔 채 다른 변경을 배포해도 Day22는 11/17 배포 때 공개 | main · 배포 |
 | 2026-11-16 | setup/cli | 사용자 요청으로 다시 숨김(문서 미완성). SETUP 플래그 False, --release 빌드로 재배포 | main · 배포 |
 | 2026-11-16 | setup/ai-coding/agy | 4 모드 카드에 시작 옵션 `agy --dangerously-skip-permissions`(모든 도구 권한 요청 자동 승인, agy 1.5.9 --help로 확인)과 결과 직접 확인 안내 추가. 명령은 한 줄 유지. _work 원본도 같이 수정 | main · 배포 |
+| 2026-11-16 | setup/cli | 추천란을 "에이전트에게 연결하면 유용한 CLI"로 변경: Context7 · Playwright CLI · MarkItDown · ripgrep · jq의 작업 보조 용도와 GitHub · Docker · AWS · Google Cloud · Vercel의 서비스 활용을 상황·효과·공식 링크로 소개. 설치 명령 목록을 설명으로 교체, 머리말·메타 설명 갱신. 기존 스타일 재사용, 모바일 200% 글자 확대의 가로 넘침 수정. 빌드·375/768/1280px 라이트/다크·오프라인 HTML·구조 검사 통과. 공개 플래그 True로 전환 | 배포 준비 |
