@@ -373,6 +373,7 @@ C:\workspace\envs\gpuenv\Scripts\python.exe -m pip install -r C:\workspace\envs\
     <pre id="c3b">py -3.13 -m venv C:\workspace\envs\backendenv
 C:\workspace\envs\backendenv\Scripts\python.exe -m pip install -r C:\workspace\envs\requirements-backend.txt</pre>
   </div>
+  <p class="note"><b>핵심은 <code>pip install -r 설치목록.txt</code> 한 줄입니다.</b> 위 명령은 환경을 켜지 않고도 정확한 환경에 설치되도록 Python 경로를 앞에 붙인 형태입니다. 4단계에서 환경을 켠 뒤에는 짧게 <code>pip install -r C:\workspace\envs\requirements-gpu.txt</code>만 입력해도 같은 결과입니다.</p>
   <div class="table-wrap">
     <table class="stack">
       <thead><tr><th>명령의 부분</th><th>뜻</th></tr></thead>
@@ -400,6 +401,17 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"   
     <pre id="c4b">C:\workspace\envs\backendenv\Scripts\Activate.ps1
 python -c "import fastapi, sqlalchemy; print(fastapi.__version__, sqlalchemy.__version__)"   <span class="c"># 0.128.2 2.1.8</span></pre>
   </div>
+  <h3>환경을 켠 상태에서 패키지 설치 · requirements.txt</h3>
+  <p>줄 맨 앞에 <b>(gpuenv)</b>나 <b>(backendenv)</b>가 보이면, 그 환경에 설치 목록 파일을 짧은 명령 한 줄로 설치합니다. <code>pip install -r</code>는 "파일(<code>-r</code>)에 적힌 패키지를 모두 설치하라"는 뜻입니다.</p>
+  <div class="code">
+    <div class="code-head"><span>PowerShell · gpuenv를 켠 상태에서</span><button type="button" data-copy="c4d">코드 복사</button></div>
+    <pre id="c4d">pip install -r C:\workspace\envs\requirements-gpu.txt</pre>
+  </div>
+  <div class="code">
+    <div class="code-head"><span>PowerShell · backendenv를 켠 상태에서</span><button type="button" data-copy="c4e">코드 복사</button></div>
+    <pre id="c4e">pip install -r C:\workspace\envs\requirements-backend.txt</pre>
+  </div>
+  <p class="hint">파일이 있는 폴더로 먼저 이동했다면(<code>cd C:\workspace\envs</code>) <code>pip install -r requirements-gpu.txt</code>처럼 파일 이름만 써도 됩니다. 앞에 <b>(환경 이름)</b>이 없으면 다른 Python에 설치되므로 먼저 환경을 켭니다.</p>
   <p>줄 맨 앞의 <b>(gpuenv)</b>나 <b>(backendenv)</b>는 활성화 표시입니다. 표시 방식은 터미널 설정에 따라 다를 수 있으므로 <a href="#env-check">실제 Python 경로</a>도 확인합니다. 다른 환경으로 바꿀 때는 바꿀 환경의 <code>Activate.ps1</code>을 실행하고, 끌 때는 <code>deactivate</code>를 입력합니다.</p>
   <p class="note"><b>"이 시스템에서 스크립트를 실행할 수 없으므로" 오류가 나면</b> 아래 명령을 한 번 실행한 뒤 다시 켭니다. 내 계정에만 적용됩니다.</p>
   <div class="code">
@@ -474,6 +486,7 @@ py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r C:\workspace\envs\requirements-all.txt
 .venv\Scripts\Activate.ps1</pre>
   </div>
+  <p class="hint">환경을 켠 상태(줄 앞에 <b>(.venv)</b>)라면 <code>pip install -r C:\workspace\envs\requirements-all.txt</code>만 입력해도 됩니다.</p>
   <div class="table-wrap">
     <table class="stack">
       <thead><tr><th></th><th>나눠 쓰기 (gpuenv · backendenv)</th><th>통합 (.venv)</th></tr></thead>
@@ -495,7 +508,7 @@ py -3.13 -m venv .venv
       <thead><tr><th>상황</th><th>방법</th></tr></thead>
       <tbody>
         <tr><td>새 환경이 안내됨</td><td>같은 순서입니다. 새 <code>requirements-이름.txt</code>를 <code>C:\workspace\envs</code>에 받고, 3의 두 줄에서 <code>gpuenv</code>와 파일 이름을 새 이름으로 바꿔 실행합니다.</td></tr>
-        <tr><td>설치 목록이 바뀜</td><td>파일을 다시 받아 덮어쓰고, 3의 둘째 줄(<code>pip install -r …</code>)만 다시 실행합니다. 바뀐 패키지만 설치됩니다.</td></tr>
+        <tr><td>설치 목록이 바뀜</td><td>파일을 다시 받아 덮어쓰고, 환경을 켠 뒤 <code>pip install -r C:\workspace\envs\requirements-gpu.txt</code>(backendenv는 <code>requirements-backend.txt</code>, 통합 <code>.venv</code>는 <code>requirements-all.txt</code>)를 다시 실행합니다. 3의 둘째 줄과 같은 결과입니다. 바뀐 패키지만 설치됩니다.</td></tr>
         <tr><td>환경이 꼬임</td><td>그 환경 폴더(예: <code>C:\workspace\envs\gpuenv</code>)를 지우고 3을 다시 합니다. 실습 코드에는 영향이 없습니다.</td></tr>
         <tr><td>지금 설치된 것 보기</td><td>환경을 켠 뒤 <code>python -m pip list</code></td></tr>
       </tbody>
