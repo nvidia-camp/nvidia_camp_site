@@ -118,3 +118,4 @@
 | 2026-11-16 | setup/ai-coding 공통·4개 도구 | 공통 페이지 상단에 OpenCode auto · Claude Code Skip · Codex YOLO · agy Skip 실행 명령과 복사 버튼을 모으고 각 도구 페이지 상단에도 표시. OpenCode의 deny 유지와 Codex의 샌드박스 해제 차이를 설명, 기존 모드 안내를 상단 명령과 연결. 로컬 CLI help·Codex YOLO 별칭·공식 문서 확인. main·deploy 반영, 공통·개별 5쪽 200 및 배포본 일치 확인 | main · 배포 |
 | 2026-11-16 | setup/ai-coding 공통·4개 도구 | 자동 승인 안내 강조 축소: 공통 페이지와 개별 페이지 상단의 실행 카드를 제거하고, 각 도구의 기존 권한·모드 설명 안에 명령과 짧은 설명만 유지. main·deploy 반영 및 공개 5쪽 배포본 일치 확인 | main · 배포 |
 | 2026-11-16 | setup/python-venv | 초보자용으로 `pip install -r 설치목록.txt` 짧은 명령을 4단계(환경 켠 뒤 gpuenv · backendenv)·6단계·7단계에 추가하고 3단계에 핵심 한 줄 설명 추가. 긴 경로 형태만 있어 안 보이던 문제 | main만 (공개 전) |
+| 2026-11-16 | setup/ai-coding/agy · opencode | 자동 승인 명령을 작은 보조 문구에서 기존 모드·승인 표의 정규 행으로 이동. 명령어를 표 본문 크기로 표시하고 기능을 함께 설명 | 배포 준비 |
