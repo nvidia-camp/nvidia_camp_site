@@ -28,6 +28,7 @@ import base64
 import datetime
 import json
 import html
+import posixpath
 import re
 import shutil
 import sys
@@ -197,6 +198,31 @@ def strip_local_links(text):
     return "".join(parts), count
 
 
+HIDDEN_LINK = re.compile(r'<a\b[^>]*\bhref="([^"#]*)(#[^"]*)?"[^>]*>(.*?)</a>', re.S)
+
+
+def strip_hidden_links(text, dest):
+    """--release에서만: 공개 전 설치 가이드로 가는 링크를 글자로 바꾼다 (라이브에서 404가 나지 않게)."""
+    if not RELEASE:
+        return text, 0
+    hidden = {f"setup/{k}" for k, v in SETUP.items() if not v[4]}
+
+    def repl(m):
+        href = m.group(1)
+        if not href or "://" in href or href.startswith(("mailto:", "/")):
+            return m.group(0)
+        target = posixpath.normpath(posixpath.join(dest, href)).strip("/")
+        if any(target == h or target.startswith(h + "/") for h in hidden):
+            return f"<span>{m.group(3)}</span>"
+        return m.group(0)
+
+    parts = SCRIPT_BLOCK.split(text)
+    for i in range(0, len(parts), 2):
+        parts[i] = HIDDEN_LINK.sub(repl, parts[i])
+    new = "".join(parts)
+    return new, len(HIDDEN_LINK.findall(text)) - len(HIDDEN_LINK.findall(new))
+
+
 def download_name(text):
     """받는 파일 이름: 페이지 <title>에서 · ( ) 공백을 _로. 예: Day10_최적화와_규제.html"""
     m = re.search(r"<title>(.*?)</title>", text, re.S)
@@ -236,6 +262,7 @@ def copy_lecture(src, dest, nav):
 
 def copy_page(src, dest, nav):
     original = (src / "index.html").read_text(encoding="utf-8")
+    original, n_hidden = strip_hidden_links(original, dest)
     text, n_links = strip_local_links(original)
     link = (f'<a class="cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
             f'title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a>')
@@ -249,6 +276,7 @@ def copy_page(src, dest, nav):
     for name in FILES.get(dest, []):
         shutil.copy2(src / name, out / name)
     note = f" (사이트에 없는 링크 {n_links}개를 글자로)" if n_links else ""
+    note += f" (공개 전 가이드 링크 {n_hidden}개를 글자로)" if n_hidden else ""
     print(f"  /{dest}/ ← {src.relative_to(HERE)}{note}")
 
 
