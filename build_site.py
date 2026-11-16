@@ -77,9 +77,9 @@ SETUP = {
     "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 설치 목록으로 한 번에 설치 · 통합 환경", "개발 환경", False),
     "vscode-extensions": ("VS Code Extension", "vscode.png", "수업 안내 3개 · Python 기본 3개 · 추천 2개", "개발 환경", True),
     "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
-    "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", False),
+    "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", True),
     "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", True),
-    "cli": ("CLI 도구", "terminal.svg", "AI 에이전트가 쓰는 터미널 도구", "AI 코딩", False),
+    "cli": ("CLI 도구", "terminal.svg", "AI 에이전트가 쓰는 터미널 도구", "AI 코딩", True),
 }
 # 과정 전체에서 쓰는 가이드의 묶음과 순서. 홈 '공통 가이드' 섹션에 묶음마다 한 줄씩 나온다.
 COMMON_GROUPS = ["개발 환경", "AI 코딩"]
@@ -129,6 +129,8 @@ def read_days():
         part = row["day"].split("-")[1] if "-" in row["day"] else "1"
         folder = ymd if part == "1" else f"{ymd}-{part}"      # 같은 날 두 번째 회차: 20261102-2
         src = PAGES / key / folder if key else None
+        if RELEASE and row["date"] > datetime.date.today().isoformat():
+            src = None   # deploy용: 내일 이후 수업 자료(강의 HTML·목차)는 그날 배포할 때까지 뺀다 (main에는 미리 둘 수 있다)
         days.append({
             "n": row["day"], "date": row["date"], "ymd": folder, "key": key, "short": short,
             "subject": row["subject"], "link": row["link"],
