@@ -433,10 +433,10 @@ envs\.venv\Scripts\python.exe -m pip install -r envs\requirements-all.txt</pre>
     document.body.dataset.shell = mode;
     pres.forEach(function (p) { p.textContent = mode === 'bash' ? p.dataset.bash : p.dataset.ps; });
     document.querySelectorAll('[data-shell-btn]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.shellBtn === mode ? 'true' : 'false'); });
-    try { localStorage.setItem('venv-shell', mode); } catch (e) {}
+    try { localStorage.setItem('shell', mode); } catch (e) {}
   }
   document.querySelectorAll('[data-shell-btn]').forEach(function (b) { b.addEventListener('click', function () { apply(b.dataset.shellBtn); }); });
-  var saved = 'ps'; try { saved = localStorage.getItem('venv-shell') || 'ps'; } catch (e) {}
+  var saved = 'ps'; try { saved = localStorage.getItem('shell') || 'ps'; } catch (e) {}
   if (saved === 'bash') apply('bash');
 })();
 document.querySelectorAll('[data-copy]').forEach(function (btn) {
