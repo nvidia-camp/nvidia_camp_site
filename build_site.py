@@ -436,39 +436,10 @@ a.cell:hover{transform:scale(1.3)}
 .res svg{width:16px;height:16px}.res img{display:block;width:27px;height:16px}
 .res .view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
 @media (prefers-color-scheme:dark){.res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box}}
-.tree{border:1px solid var(--line);border-radius:16px;background:var(--surface)}
-.tree>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 20px;cursor:pointer;list-style:none}
-.tree>summary::-webkit-details-marker,.tr-g>summary::-webkit-details-marker{display:none}
-.tree>summary::before,.tr-g>summary::before{content:"";flex:none;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
-  transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
-.tree[open]>summary::before,.tr-g[open]>summary::before{transform:rotate(45deg)}
-.tr-h{font-size:18px;font-weight:700;color:var(--heading)}
-.tr-m{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.tr-body{display:grid;gap:14px;padding:0 20px 20px}
-.tr-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px 14px;border-radius:12px;background:var(--soft)}
-.tr-flow a{font-size:13px;font-weight:600;color:var(--heading);padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
-.tr-flow a:hover{border-color:var(--accent);color:var(--accent)}
-.tr-flow i{font-style:normal;color:var(--muted);font-size:12px}
-.tr-tools{display:flex;gap:6px;justify-content:flex-end}
-.tr-tools button{font:600 12px/1 var(--font);color:var(--heading);background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:7px 10px;cursor:pointer}
-.tr-tools button:hover{border-color:var(--accent)}
-.tr-groups{display:grid;gap:8px}
-.tr-g{border:1px solid var(--line);border-radius:12px;scroll-margin-top:16px}
-.tr-g[open]{border-color:var(--line-2)}
-.tr-g>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none;border-radius:12px}
-.tr-g>summary:hover{background:var(--soft)}
-.tr-gn{flex:none;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);min-width:44px}
-.tr-gt{flex:1;min-width:0;font-weight:600;color:var(--heading)}
-.tr-gc{flex:none;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.tr-g ul{display:grid;gap:2px;padding:2px 14px 14px 90px}
-.tr-g ul ul{padding:2px 0 6px 14px;border-left:2px solid var(--line)}
-.tr-g li>span.tr-s{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:8px 0 2px}
-.tr-g li.tr-l{display:flex;gap:10px;justify-content:space-between;font-size:15px;padding:3px 0}
-.tr-g li.tr-l .tr-p{flex:none;font-family:var(--mono);font-size:12px;color:var(--muted)}
-.tr-g li.lab span:first-child{font-weight:700;color:var(--accent)}
-.tr-g li.lab span:first-child::before{content:"실습";font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:6px;padding:1px 6px;margin-right:8px;vertical-align:1px}
-.tr-note{font-size:13px;color:var(--muted)}
-@media (max-width:600px){.tr-body{padding:0 12px 14px}.tree>summary{padding:14px 12px}.tr-g ul{padding:2px 12px 12px 14px}.tr-gn{min-width:0}}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin:36px 0 12px;padding-top:24px;border-top:1px solid var(--line-2)}
+.sec-h h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.sec-src{font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 9px}
+.sum-empty{padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
 
 @media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
   .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
@@ -693,46 +664,98 @@ def tree_leaves(n):
 
 
 def tree_item(n):
+    """카드 안 한 줄: 화면 제목(+ PDF 쪽). 가운데 묶음이 있으면 작은 소제목 아래로 넣는다."""
     t = n["t"]
     pg = PDF_PAGE.search(t)
     if pg:
         t = t[:pg.start()]
     if n["c"]:
-        return f'<li><span class="tr-s">{html.escape(t)}</span><ul>{"".join(tree_item(c) for c in n["c"])}</ul></li>'
-    lab = " lab" if LAB.search(t) else ""
-    page = f'<span class="tr-p">{html.escape(pg.group(1).replace("PDF ", ""))}</span>' if pg else ""
-    return f'<li class="tr-l{lab}"><span>{html.escape(t)}</span>{page}</li>'
+        return f'<li class="lt-sg"><span>{html.escape(t)}</span><ul>{"".join(tree_item(c) for c in n["c"])}</ul></li>'
+    page = f'<em>{html.escape(pg.group(1).replace("PDF ", ""))}</em>' if pg else ""
+    return f'<li{" class=lt-lab" if LAB.search(t) else ""}><span>{html.escape(t)}</span>{page}</li>'
 
 
-def tree_block(path, open_=True):
-    """'강의 목차 한눈에 보기': 흐름 칩 + 묶음별 접기/펼치기 + 원문 화면 제목"""
+def tree_flat(n):
+    return [n] if not n["c"] else [x for c in n["c"] for x in tree_flat(c)]
+
+
+# '강의 목차 한눈에 보기' 블록의 스타일. 요약 페이지에도 그대로 끼워 넣을 수 있게 .lt 안에서만 쓰고 색도 따로 둔다.
+TREE_CSS = """<style>
+.lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
+  margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+@media (prefers-color-scheme:dark){.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
+.lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
+.lt-box{border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-bg)}
+.lt-box>summary{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;list-style:none;border-radius:16px}
+.lt-box>summary::-webkit-details-marker{display:none}
+.lt-box>summary:hover{background:var(--lt-soft)}
+.lt-box>summary:focus-visible{outline:2px solid var(--lt-acc);outline-offset:2px}
+.lt-t{flex:1;min-width:0;display:grid;gap:2px}
+.lt-t b{font-size:18px;font-weight:800;color:var(--lt-head);letter-spacing:-.02em}
+.lt-t small{font-size:13px;color:var(--lt-muted)}
+.lt-btn{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--lt-acc);background:var(--lt-acc-soft);border-radius:999px;padding:6px 12px}
+.lt-btn::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.lt-box[open] .lt-btn::after{transform:rotate(-135deg) translateX(-2px)}
+.lt-box .lt-btn .c{display:none}.lt-box[open] .lt-btn .o{display:none}.lt-box[open] .lt-btn .c{display:inline}
+.lt-body{display:grid;gap:12px;padding:4px 20px 20px}
+.lt-intro{display:flex;gap:10px;align-items:baseline;font-size:13px;color:var(--lt-muted)}
+.lt-intro b{flex:none;font-size:12px;color:var(--lt-head)}
+.lt-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.lt-cd{display:flex;flex-direction:column;border:1px solid var(--lt-line);border-radius:14px;background:var(--lt-bg);overflow:hidden}
+.lt-cd header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:12px 14px 10px;border-bottom:1px solid var(--lt-line);background:var(--lt-soft)}
+.lt-n{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12px;font-weight:700;color:var(--lt-acc)}
+.lt-c{font-size:11px;color:var(--lt-muted);font-variant-numeric:tabular-nums}
+.lt-cd h3{grid-column:1/-1;font-size:15px;font-weight:700;line-height:1.3;color:var(--lt-head)}
+.lt-cd>ol{flex:1;display:grid;align-content:start;gap:1px;padding:10px 14px 12px}
+.lt-cd li{display:flex;justify-content:space-between;gap:8px;font-size:13px;line-height:1.45;padding:2px 0}
+.lt-cd li>span::before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--lt-line);margin:0 8px 2px 0;vertical-align:middle}
+.lt-cd li em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;color:var(--lt-muted)}
+.lt-cd li.lt-sg{display:block}.lt-cd li.lt-sg>span{font-size:12px;font-weight:700;color:var(--lt-muted)}.lt-cd li.lt-sg>span::before{display:none}
+.lt-cd li.lt-sg ul{padding:0 0 4px 10px}
+.lt-cd li.lt-lab>span{font-weight:700;color:var(--lt-acc)}
+.lt-lab-row{display:flex;gap:8px;align-items:baseline;padding:10px 14px;border-top:1px solid var(--lt-line);background:var(--lt-acc-soft);font-size:13px;font-weight:700;color:var(--lt-acc)}
+.lt-lab-row b{flex:none;font-size:11px;color:#fff;background:var(--lt-acc);border-radius:6px;padding:1px 6px}
+.lt-note{font-size:12px;color:var(--lt-muted)}
+@media (max-width:1000px){.lt-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.lt-board{grid-template-columns:1fr}.lt-body{padding:4px 12px 14px}.lt-box>summary{padding:14px}.lt-t b{font-size:16px}}
+@media print{.lt-box>summary .lt-btn{display:none}}
+</style>"""
+
+
+def tree_block(path, open_=False):
+    """'강의 목차 한눈에 보기'(강사님 강의 자료 기준): 누르면 교시 카드 판이 펼쳐진다.
+    교시마다 카드 하나에 원문 화면 제목을 모두 적고, 실습은 카드 맨 아래 띠로 둔다."""
     _, groups = read_tree(path)
-    heads, cards = [], []
-    for i, g in enumerate(groups, 1):
+    intro = [g for g in groups if g["t"].partition(" · ")[0] == "도입" and tree_leaves(g) <= 3]
+    cards = []
+    for g in groups:
+        if g in intro:
+            continue
         head, _, rest = g["t"].partition(" · ")
-        rest = rest or ""
-        heads.append(f'<a href="#g{i}" data-open="g{i}">{html.escape(head)}</a>')
-        cards.append(f'<details class="tr-g" id="g{i}"><summary><span class="tr-gn">{html.escape(head) if rest else ""}</span>'
-                     f'<span class="tr-gt">{html.escape(rest or head)}</span><span class="tr-gc">{tree_leaves(g)}</span></summary>'
-                     f'<ul>{"".join(tree_item(c) for c in g["c"])}</ul></details>')
+        labs = [c for c in g["c"] if not c["c"] and LAB.search(c["t"])]
+        body = [c for c in g["c"] if c not in labs]
+        if body and not body[0]["c"] and body[0]["t"].strip().lower() == (rest or head).strip().lower():
+            body = body[1:]                           # 교시 이름과 같은 첫 화면(교시 표지)은 뺀다
+        lab = "".join(f'<p class="lt-lab-row"><b>실습</b>{html.escape(re.sub(r"^실습\s*", "", c["t"]))}</p>' for c in labs)
+        cards.append(f'<article class="lt-cd"><header><span class="lt-n">{html.escape(head) if rest else ""}</span>'
+                     f'<span class="lt-c">화면 {tree_leaves(g)}</span><h3>{html.escape(rest or head)}</h3></header>'
+                     f'<ol>{"".join(tree_item(c) for c in body)}</ol>{lab}</article>')
+    strip = ""
+    if intro:
+        items = " · ".join(html.escape(n["t"]) for g in intro for n in tree_flat(g))
+        strip = f'<p class="lt-intro"><b>도입</b><span>{items}</span></p>'
     total = sum(tree_leaves(g) for g in groups)
-    return f"""<details class="tree" id="tree"{" open" if open_ else ""}>
-<summary><span class="tr-h">강의 목차 한눈에 보기</span><span class="tr-m">{len(groups)}묶음 · 화면 {total}개</span></summary>
-<div class="tr-body">
-<nav class="tr-flow" aria-label="강의 흐름">{'<i>→</i>'.join(heads)}</nav>
-<div class="tr-tools"><button type="button" data-all="1">모두 펼치기</button><button type="button" data-all="0">모두 접기</button></div>
-<div class="tr-groups">{"".join(cards)}</div>
-<p class="tr-note">교재(강의 자료)의 원문 화면 제목과 순서 그대로입니다. 오른쪽 숫자는 묶음 안의 화면 수입니다.</p>
-</div></details>
-<script>(function(){{var t=document.getElementById("tree");if(!t)return;
-t.querySelectorAll("[data-all]").forEach(function(b){{b.addEventListener("click",function(){{var o=b.dataset.all==="1";
-t.querySelectorAll(".tr-g").forEach(function(g){{g.open=o}})}})}});
-t.querySelectorAll("[data-open]").forEach(function(a){{a.addEventListener("click",function(){{var g=document.getElementById(a.dataset.open);if(g)g.open=true}})}});
-}})();</script>"""
+    return f"""{TREE_CSS}<section class="lt" id="lecture-tree" aria-label="강의 목차">
+<details class="lt-box"{" open" if open_ else ""}>
+<summary><span class="lt-t"><b>강의 목차 한눈에 보기</b><small>강사님 강의 자료 기준 · {len(cards)}개 묶음 · 화면 {total}개</small></span>
+<span class="lt-btn"><span class="o">펼치기</span><span class="c">접기</span></span></summary>
+<div class="lt-body">{strip}<div class="lt-board">{"".join(cards)}</div>
+<p class="lt-note">강의 자료의 화면 제목을 원문 그대로 옮겼습니다. 실습은 각 교시 카드 맨 아래에 모았습니다.</p></div>
+</details></section>"""
 
 
 def tree_day_page(d):
-    """요약이 아직 없는 날: 그날 페이지 = 머리 + 자료 줄 + 강의 목차 한눈에 보기"""
+    """요약이 아직 없는 날: 머리 + 자료 줄 + 강의 목차(강사님 자료 기준) + 요약 자리(보조강사 해석, 준비 중)"""
     book, _ = read_tree(d["tree"])
     title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}') or book or f'Day{d["n"]}'
     res = []
@@ -744,9 +767,11 @@ def tree_day_page(d):
         res.append(colab_link(d["colab"], "colab", "Colab 실습 ↗"))
     sub = f'<p class="sub">교재 · {html.escape(book)}</p>' if book and book != title else ""
     body = f"""<header class="day-head"><p class="eyebrow">Day{d["n"]} · {md(d["date"])} · {html.escape(d["short"])}</p>
-<h1>{html.escape(title)}<span class="pend">요약 준비 중</span></h1>{sub}</header>
+<h1>{html.escape(title)}</h1>{sub}</header>
 <div class="res" aria-label="보조 자료">{"".join(res)}</div>
-{tree_block(d["tree"])}"""
+{tree_block(d["tree"])}
+<section aria-label="요약"><div class="sec-h"><h2>요약</h2><span class="sec-src">보조강사 해석</span></div>
+<p class="sum-empty">요약 준비 중입니다.</p></section>"""
     nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}', lecture=d["link"],
                    view="lecture/" if d["lecture"] else None).replace(DOWNLOAD_MARK, "")
     return list_page(f'Day{d["n"]} {title} · {SITE_NAME}', body, nav, up="../../")
