@@ -122,3 +122,4 @@
 | 2026-11-16 | setup/python-venv | 초보자용으로 구성 재편: 환경 폴더를 practice_assignment\envs 아래(.venv 포함)로 통일하고 명령을 상대경로로. 0 pip로 설치되지 않는 프로그램 · 1 설치 목록(버튼만) · 2 가상환경 만들고 설치(명령 두 줄 강조) · 3 터미널·VS Code 연결(도식 한 장, 캡처 2장에 빨간 네모) · 참고 확인. 통합 환경 6단계·환경 추가 7단계·막히면·명령으로 받기 삭제. vscode-extensions 링크를 #s3로 | main만 (공개 전) |
 | 2026-11-16 | setup/python-venv | 가상환경 가이드 공개 (--release 빌드 반영) | 배포 |
 | 2026-11-16 | setup/path · setup/python-venv | PowerShell · Git Bash 명령 선택 반영 (--release 빌드, Docker · 11/17 이후 자료 제외) | 배포 |
+| 2026-11-16 | setup/vscode-extensions | 캡처 정리(Go Live를 Live Server 항목 안으로, 같은 배율, 가상환경 실행 주의를 Code Runner 설명에) 반영 (--release 빌드) | 배포 |
