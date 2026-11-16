@@ -12,6 +12,9 @@
     pages/cheatsheet/<이름>/   치트시트      → /cheatsheet/<이름>/ (CHEATSHEETS에 이름·과목 등록)
     pages/setup/<이름>/        설치 가이드   → /setup/<이름>/      (SETUP에 이름·과목·공개 여부 등록)
     pages/setup/<이름>/<하위>/ 가이드 안 페이지 → /setup/<이름>/<하위>/ (SETUP_PAGES에 순서·이름 등록)
+    pages/<과목>/<YYYYMMDD>/tree.md  강의 트리(교재 구성) → 요약이 아직 없으면 그날 페이지가 '강의 목차 한눈에 보기'가 된다.
+        원본은 작업 폴더의 Day<N>_강의트리.md(또는 Day<N>_강의구조_핵심설명.md)를 복사한 것. 첫 ```text 블록만 읽는다.
+- Colab 실습 폴더(Google Drive)는 COLAB에 주소를 등록하면 홈 Day 줄·그날 페이지에 Colab 로고로 나온다.
 - 홈: 맨 위 제목·최근 수업·지금 과목 표지 → 100일 일정 → 참고 문서 모음 → 과목별 챕터(Day 목록).
   참고 문서 모음은 공통 묶음(COMMON_GROUPS)별 설치 가이드 칸 + '과목 참고 문서' 칸(치트시트·과목 설치 가이드).
 - 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 각 요약 페이지 글꼴은 건드리지 않는다.
@@ -94,6 +97,10 @@ SETUP_PAGES = {
 DAY_SUBPAGES = {
     "llm/20261112": [("practice", "오전 실습 가이드")],
 }
+# Colab 실습 폴더: "과목/날짜" → Google Drive 폴더 주소 (공유: 링크가 있는 모든 사용자 · 뷰어). Day 줄·그날 페이지에 Colab 로고로 나온다.
+COLAB = {
+    "llm/20261116": "https://drive.google.com/drive/folders/19rB2g83VexXoU47XW-Br_QkKtCgBKo0f",
+}
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
 
@@ -127,6 +134,9 @@ def read_days():
             "src": src if src and (src / "index.html").exists() else None,
             # 사이트에 올린 강의 HTML (sync_lecture_html.py) → '바로 보기'
             "lecture": src / "lecture" if src and (src / "lecture" / "index.html").exists() else None,
+            # 강의 트리(교재 구성) → '강의 목차 한눈에 보기'
+            "tree": src / "tree.md" if src and (src / "tree.md").exists() else None,
+            "colab": COLAB.get(f"{key}/{folder}"),
         })
     return days
 
@@ -411,6 +421,54 @@ a.cell:hover{transform:scale(1.3)}
 .mini.view:hover{border-color:var(--accent)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
+.mini.colab{padding:0 8px}.mini.colab img{display:block;width:26px;height:15px}
+@media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
+
+/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
+.day-head{display:grid;gap:10px;margin:8px 0 22px}
+.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
+.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
+.day-head .sub{font-size:15px;color:var(--muted)}
+.res{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.res a{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--line-2);border-radius:10px;
+  background:var(--surface);font-size:14px;font-weight:600;color:var(--heading);transition:border-color .15s,background .15s}
+.res a:hover{border-color:var(--accent);background:var(--soft)}
+.res svg{width:16px;height:16px}.res img{display:block;width:26px;height:15px}
+.res .view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+@media (prefers-color-scheme:dark){.res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box}}
+.tree{border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.tree>summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 20px;cursor:pointer;list-style:none}
+.tree>summary::-webkit-details-marker,.tr-g>summary::-webkit-details-marker{display:none}
+.tree>summary::before,.tr-g>summary::before{content:"";flex:none;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+.tree[open]>summary::before,.tr-g[open]>summary::before{transform:rotate(45deg)}
+.tr-h{font-size:18px;font-weight:700;color:var(--heading)}
+.tr-m{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tr-body{display:grid;gap:14px;padding:0 20px 20px}
+.tr-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px 14px;border-radius:12px;background:var(--soft)}
+.tr-flow a{font-size:13px;font-weight:600;color:var(--heading);padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.tr-flow a:hover{border-color:var(--accent);color:var(--accent)}
+.tr-flow i{font-style:normal;color:var(--muted);font-size:12px}
+.tr-tools{display:flex;gap:6px;justify-content:flex-end}
+.tr-tools button{font:600 12px/1 var(--font);color:var(--heading);background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:7px 10px;cursor:pointer}
+.tr-tools button:hover{border-color:var(--accent)}
+.tr-groups{display:grid;gap:8px}
+.tr-g{border:1px solid var(--line);border-radius:12px;scroll-margin-top:16px}
+.tr-g[open]{border-color:var(--line-2)}
+.tr-g>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none;border-radius:12px}
+.tr-g>summary:hover{background:var(--soft)}
+.tr-gn{flex:none;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);min-width:44px}
+.tr-gt{flex:1;min-width:0;font-weight:600;color:var(--heading)}
+.tr-gc{flex:none;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tr-g ul{display:grid;gap:2px;padding:2px 14px 14px 90px}
+.tr-g ul ul{padding:2px 0 6px 14px;border-left:2px solid var(--line)}
+.tr-g li>span.tr-s{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:8px 0 2px}
+.tr-g li.tr-l{display:flex;gap:10px;justify-content:space-between;font-size:15px;padding:3px 0}
+.tr-g li.tr-l .tr-p{flex:none;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.tr-g li.lab span:first-child{font-weight:700;color:var(--accent)}
+.tr-g li.lab span:first-child::before{content:"실습";font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:6px;padding:1px 6px;margin-right:8px;vertical-align:1px}
+.tr-note{font-size:13px;color:var(--muted)}
+@media (max-width:600px){.tr-body{padding:0 12px 14px}.tree>summary{padding:14px 12px}.tr-g ul{padding:2px 12px 12px 14px}.tr-gn{min-width:0}}
 
 @media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
   .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
@@ -478,7 +536,17 @@ def day_links(d, up):
         out.append(f'<a class="mini" href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료</a>')
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
         out.append(f'<a class="mini" href="{href}{sub}/">{ICON_ARROW}{html.escape(label)}</a>')
+    if d["colab"]:
+        out.append(colab_link(d["colab"], "mini colab"))
     return "".join(out)
+
+
+def colab_link(url, cls, text=""):
+    """Colab 실습 폴더(Google Drive) 링크: 공식 Colab 로고 (+ 글자)"""
+    img = f'<img src="{image_data(HERE / "assets" / "logos" / "colab.png")}" alt="" width="26" height="15">'
+    label = f'<span>{html.escape(text)}</span>' if text else ""
+    return (f'<a class="{cls}" href="{html.escape(url)}" target="_blank" rel="noopener" '
+            f'title="Colab 실습 폴더 (Google Drive)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)">{img}{label}</a>')
 
 
 def logo_span(logo):
@@ -532,6 +600,11 @@ def chapter_block(key, ds, up, link_head=True):
         if d["src"]:
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
                         f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
+                        f'<span class="lk">{day_links(d, up)}</span></li>')
+        elif d["tree"]:   # 요약은 없지만 강의 트리가 있으면 그날 페이지(강의 목차)로 간다
+            title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
+            rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
+                        f'<span class="t">{html.escape(title)}{pend}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
         elif d["date"] <= today or d["lecture"]:   # 요약이 아직 없으면 예정 제목 + '요약 준비 중' (강의 HTML이 있으면 미리 보임)
             title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
@@ -587,6 +660,96 @@ def image_data(image):
     mime = "image/svg+xml" if image.suffix == ".svg" else "image/png"
     data = base64.b64encode(image.read_bytes()).decode("ascii")
     return f"data:{mime};base64,{data}"
+
+
+# ── 강의 트리 (교재 구성) ──────────────────────────────────────────────
+TREE_LINE = re.compile(r"^([│ ]*)([├└]─ )?(.*)$")
+PDF_PAGE = re.compile(r"\s*\((PDF p\.[^)]*)\)\s*$")
+LAB = re.compile(r"^실습\s*\d|일일\s*프로젝트")
+
+
+def read_tree(path):
+    """tree.md의 첫 ```text 블록 → (교재 제목 또는 None, [묶음 {t, c}])"""
+    m = re.search(r"```text\n(.*?)```", path.read_text(encoding="utf-8"), re.S)
+    assert m, f"```text 블록 없음: {path}"
+    roots, stack = [], []
+    for line in m.group(1).splitlines():
+        if not line.strip():
+            continue
+        prefix, conn, label = TREE_LINE.match(line).groups()
+        depth = len(prefix) // 3 + 1 if conn else 0
+        node = {"t": label.strip(), "c": []}
+        while stack and stack[-1][0] >= depth:
+            stack.pop()
+        (stack[-1][1]["c"] if stack else roots).append(node)
+        stack.append((depth, node))
+    if len(roots) == 1 and roots[0]["c"]:      # 맨 위 한 줄이 교재 제목인 형식 (Day21)
+        return roots[0]["t"], roots[0]["c"]
+    return None, roots
+
+
+def tree_leaves(n):
+    return 1 if not n["c"] else sum(tree_leaves(c) for c in n["c"])
+
+
+def tree_item(n):
+    t = n["t"]
+    pg = PDF_PAGE.search(t)
+    if pg:
+        t = t[:pg.start()]
+    if n["c"]:
+        return f'<li><span class="tr-s">{html.escape(t)}</span><ul>{"".join(tree_item(c) for c in n["c"])}</ul></li>'
+    lab = " lab" if LAB.search(t) else ""
+    page = f'<span class="tr-p">{html.escape(pg.group(1).replace("PDF ", ""))}</span>' if pg else ""
+    return f'<li class="tr-l{lab}"><span>{html.escape(t)}</span>{page}</li>'
+
+
+def tree_block(path, open_=True):
+    """'강의 목차 한눈에 보기': 흐름 칩 + 묶음별 접기/펼치기 + 원문 화면 제목"""
+    _, groups = read_tree(path)
+    heads, cards = [], []
+    for i, g in enumerate(groups, 1):
+        head, _, rest = g["t"].partition(" · ")
+        rest = rest or ""
+        heads.append(f'<a href="#g{i}" data-open="g{i}">{html.escape(head)}</a>')
+        cards.append(f'<details class="tr-g" id="g{i}"><summary><span class="tr-gn">{html.escape(head) if rest else ""}</span>'
+                     f'<span class="tr-gt">{html.escape(rest or head)}</span><span class="tr-gc">{tree_leaves(g)}</span></summary>'
+                     f'<ul>{"".join(tree_item(c) for c in g["c"])}</ul></details>')
+    total = sum(tree_leaves(g) for g in groups)
+    return f"""<details class="tree" id="tree"{" open" if open_ else ""}>
+<summary><span class="tr-h">강의 목차 한눈에 보기</span><span class="tr-m">{len(groups)}묶음 · 화면 {total}개</span></summary>
+<div class="tr-body">
+<nav class="tr-flow" aria-label="강의 흐름">{'<i>→</i>'.join(heads)}</nav>
+<div class="tr-tools"><button type="button" data-all="1">모두 펼치기</button><button type="button" data-all="0">모두 접기</button></div>
+<div class="tr-groups">{"".join(cards)}</div>
+<p class="tr-note">교재(강의 자료)의 원문 화면 제목과 순서 그대로입니다. 오른쪽 숫자는 묶음 안의 화면 수입니다.</p>
+</div></details>
+<script>(function(){{var t=document.getElementById("tree");if(!t)return;
+t.querySelectorAll("[data-all]").forEach(function(b){{b.addEventListener("click",function(){{var o=b.dataset.all==="1";
+t.querySelectorAll(".tr-g").forEach(function(g){{g.open=o}})}})}});
+t.querySelectorAll("[data-open]").forEach(function(a){{a.addEventListener("click",function(){{var g=document.getElementById(a.dataset.open);if(g)g.open=true}})}});
+}})();</script>"""
+
+
+def tree_day_page(d):
+    """요약이 아직 없는 날: 그날 페이지 = 머리 + 자료 줄 + 강의 목차 한눈에 보기"""
+    book, _ = read_tree(d["tree"])
+    title = PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}') or book or f'Day{d["n"]}'
+    res = []
+    if d["lecture"]:
+        res.append(f'<a class="view" href="lecture/">{ICON_VIEW}바로 보기</a>')
+    if d["link"]:
+        res.append(f'<a href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료 ↗</a>')
+    if d["colab"]:
+        res.append(colab_link(d["colab"], "colab", "Colab 실습 ↗"))
+    sub = f'<p class="sub">교재 · {html.escape(book)}</p>' if book and book != title else ""
+    body = f"""<header class="day-head"><p class="eyebrow">Day{d["n"]} · {md(d["date"])} · {html.escape(d["short"])}</p>
+<h1>{html.escape(title)}<span class="pend">요약 준비 중</span></h1>{sub}</header>
+<div class="res" aria-label="보조 자료">{"".join(res)}</div>
+{tree_block(d["tree"])}"""
+    nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}', lecture=d["link"],
+                   view="lecture/" if d["lecture"] else None).replace(DOWNLOAD_MARK, "")
+    return list_page(f'Day{d["n"]} {title} · {SITE_NAME}', body, nav, up="../../")
 
 
 def home_page(days, subjects, today):
@@ -657,14 +820,22 @@ def main():
             copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
                       nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label))
 
+    print("강의 목차 (요약 전)")
+    for d in days:
+        if d["tree"] and not d["src"]:
+            out = PUBLIC / d["key"] / d["ymd"]
+            out.mkdir(parents=True, exist_ok=True)
+            (out / "index.html").write_text(tree_day_page(d), encoding="utf-8")
+            print(f'  /{d["key"]}/{d["ymd"]}/ ← {d["tree"].relative_to(HERE)} (강의 목차 한눈에 보기)')
+
     print("강의 자료 바로 보기")
     for d in days:
         if not d["lecture"]:
             continue
         crumbs = [(d["short"], f'{d["key"]}/')]
-        if d["src"]:
+        if d["src"] or d["tree"]:
             crumbs.append((f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/'))
-        here = "강의 자료" if d["src"] else f'Day{d["n"]} 강의 자료'
+        here = "강의 자료" if d["src"] or d["tree"] else f'Day{d["n"]} 강의 자료'
         copy_lecture(d["lecture"], f'{d["key"]}/{d["ymd"]}/lecture', nav_html(3, crumbs, here=here, lecture=d["link"]))
 
     print("과목")
