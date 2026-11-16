@@ -126,3 +126,4 @@
 | 2026-11-16 | setup/python-venv | PowerShell · Git Bash 선택을 맨 위 막대에서 각 명령 블록(2단계 환경 3개 · 3단계 켜기)의 머리글 탭으로 이동. 한 곳에서 바꾸면 모든 블록이 같이 바뀜. 명령이 같은 블록은 "터미널" 라벨 | main만 |
 | 2026-11-16 | setup/path | PowerShell · Git Bash 선택을 명령 블록 머리글 탭으로 추가(지금 상태 확인 · B-1 폴더 찾기 · B-2 PATH 저장 · 임시 시험 · 폴더 이동). Git Bash는 find · ~/.bashrc에 export 한 줄(Git Bash에만 적용, 나머지는 방법 A) · /c/ 경로. 본문의 PowerShell 표현을 터미널로. 선택은 가상환경 가이드와 같은 키로 공유. Git Bash 명령은 Windows 실행 확인 전 | main만 |
 | 2026-11-16 | setup/vscode-extensions | 캡처 정리: Go Live 캡처에서 관계없는 채팅 화면을 빼고 상태 표시줄만 남겨 Go Live에 빨간 네모, Code Runner 캡처의 잘린 긴 설명 목록 제거, 확장 카드 캡처 11장을 같은 배율로 표시(캡처마다 폭이 달라 글자 크기가 들쭉날쭉하던 문제) | main만 |
+| 2026-11-16 | setup/vscode-extensions | Go Live 캡처의 빨간 네모 위치 수정(Go Live 항목 둘레로), 캡처 아래에 따로 있던 설명을 다른 항목처럼 오른쪽 설명 칸으로 이동하고 구분선 맞춤 | main만 |
