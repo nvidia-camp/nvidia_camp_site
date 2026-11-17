@@ -198,7 +198,6 @@ NAV_CSS = f"""<style>
 .cn-nav .cn-ico svg{{display:block;width:1.15rem;height:1.15rem}}
 .cn-nav .cn-slack img{{display:block;width:1.15rem;height:1.15rem}}
 .cn-nav .cn-right{{align-items:center}}
-.cn-nav .cn-view{{display:inline-flex;align-items:center;gap:.4rem}}.cn-nav .cn-view svg{{display:block;width:1rem;height:1rem}}
 .cn-nav [data-tip]{{position:relative}}
 .cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
   white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 {FONT};box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}}
@@ -281,7 +280,7 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = [DOWNLOAD_MARK]
     if view:
-        right.append(f'<a class="cn-view" href="{html.escape(view)}" aria-label="강의 자료 보기">{ICON_VIEW}강의 자료</a>')
+        right.append(f'<a class="cn-ico" href="{html.escape(view)}" data-tip="강의 자료 보기" aria-label="강의 자료 보기">{ICON_VIEW}</a>')
     if lecture:   # 사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack이 곧 강의 자료
         tip = "Slack 강의 자료 게시물 (새 탭)" if view or on_lecture else "강의 자료 · Slack 게시물 (새 탭)"
         right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" data-tip="{tip}" aria-label="{tip}">'
@@ -551,17 +550,16 @@ a.cell:hover{transform:scale(1.3)}
 .row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
 .row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
 .lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
-.mini{position:relative;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px;border-radius:8px;border:0;
-  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s}
-.mini:hover{background:var(--soft)}
-[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;z-index:50;white-space:nowrap;
-  padding:5px 9px;border-radius:6px;background:#0B1730;color:#fff;font-size:12px;font-weight:500;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3);pointer-events:none}
+.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
+.mini:hover{background:var(--soft);border-color:var(--accent)}
 .mini svg{width:14px;height:14px}
-.mini.view{color:var(--accent)}.mini.view:hover{background:var(--accent-soft)}
+.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.mini.view:hover{border-color:var(--accent)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
 .mini.slack{padding:0 8px}.mini.slack img{display:block;width:16px;height:16px}
-.mini.colab{padding:0 6px}.mini.colab img{display:block;width:27px;height:16px}
+.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
 /* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
 .day-head{display:grid;gap:10px;margin:8px 0 22px}
 .day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
@@ -646,7 +644,7 @@ def slack_link(url, cls, text=""):
     img = f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">'
     label = f'<span>{html.escape(text)}</span>' if text else ""
     return (f'<a class="{cls}" href="{html.escape(url)}" target="_blank" rel="noopener" '
-            f'{"" if text else "data-tip=\"Slack 강의 자료 게시물 (새 탭)\" "}aria-label="Slack (새 탭)">{img}{label}</a>')
+            f'title="Slack" aria-label="Slack (새 탭)">{img}{label}</a>')
 
 
 def colab_link(url, cls, text=""):
@@ -654,7 +652,7 @@ def colab_link(url, cls, text=""):
     img = f'<img src="{image_data(HERE / "assets" / "logos" / "colab.png")}" alt="" width="27" height="16">'
     label = f'<span>{html.escape(text)}</span>' if text else ""
     return (f'<a class="{cls}" href="{html.escape(url)}" target="_blank" rel="noopener" '
-            f'data-tip="Colab 실습 폴더 · Google Drive (새 탭)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)">{img}{label}</a>')
+            f'title="Colab 실습 폴더 (Google Drive)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)">{img}{label}</a>')
 
 
 def logo_span(logo):
@@ -832,16 +830,13 @@ TREE_CSS = """<style>
 @media (prefers-color-scheme:dark){.lt-top:not(.lt-light) .lt,.lt-top:not(.lt-light) .lt-res,body>main>.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
 .lt-top{display:grid;gap:12px}
 .lt-res{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);display:flex;flex-wrap:wrap;gap:8px}
-.lt-res{gap:4px}
-.lt-res a{position:relative;box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 10px;border:0;border-radius:10px;
-  background:none;font-size:14px;font-weight:600;line-height:1;color:var(--lt-head);text-decoration:none;transition:background .15s}
-.lt-res a:hover{background:var(--lt-soft)}
-.lt-res [data-tip]:hover::after,.lt-res [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:0;right:auto;z-index:50;white-space:nowrap;
-  padding:5px 9px;border-radius:6px;background:#0B1730;color:#fff;font-size:12px;font-weight:500;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3);pointer-events:none}
+.lt-res a{box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--lt-line);border-radius:10px;
+  background:var(--lt-bg);font-size:14px;font-weight:600;line-height:1;color:var(--lt-head);text-decoration:none;transition:border-color .15s,background .15s}
+.lt-res a:hover{border-color:var(--lt-acc);background:var(--lt-soft)}
 .lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
-.lt-res a.view{color:var(--lt-acc)}.lt-res a.view:hover{background:var(--lt-acc-soft)}
+.lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
 .lt-res a.slack img{width:16px;height:16px}
-.lt-res a.slack:not(:has(span)){padding:0 10px}
+.lt-res a.slack:not(:has(span)){padding:0 11px}
 .lt-res a.colab img{display:block}
 .lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
 .lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
@@ -893,7 +888,7 @@ def day_resources(d):
     if d["link"]:
         res.append(slack_link(d["link"], "slack", "" if d["lecture"] else "강의 자료"))
     if d["colab"]:
-        res.append(colab_link(d["colab"], "colab"))
+        res.append(colab_link(d["colab"], "colab", "Colab 실습 ↗"))
     return f'<div class="lt-res" aria-label="보조 자료">{"".join(res)}</div>' if res else ""
 
 
