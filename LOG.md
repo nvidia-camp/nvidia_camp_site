@@ -126,3 +126,4 @@
 | 2026-11-16 | llm/20261116 | release: Day21 요약 공개 (--release 빌드, 11/17 이후 자료·공개 전 가이드는 계속 제외) | deploy |
 | 2026-11-17 | llm/20261117 | release: Day22 강의 공개 (--release 빌드, 오늘 기준 · Docker 가이드는 계속 제외) | deploy |
 | 2026-11-17 | llm/20261117 | Day22 Colab 실습 폴더 링크 추가 (--release 빌드) | 배포 |
+| 2026-11-17 | llm/20261117 | release: Day22 요약 공개 (--release 빌드, 공개 전 가이드는 계속 제외) | deploy |
