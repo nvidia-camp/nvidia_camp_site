@@ -3,152 +3,255 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Day22 LLM API 클라이언트 · 학습 아카이브</title>
-<link rel="stylesheet" href="../../fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<title>Day22 · LLM API 클라이언트</title>
 <style>
-:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
-  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
-  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
-  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
-@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
-  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
-  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
-main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
-h1,h2,h3,p,ol,ul{margin:0}
-ol,ul{padding:0;list-style:none}
-h1,h2,h3{color:var(--heading);text-wrap:balance}
-a{color:inherit;text-decoration:none}
-a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
-svg{display:block}
+:root {
+  --color-primary: #142849; --color-heading: #1C2B40; --color-text: #222F44; --color-muted: #52667E;
+  --color-canvas: #F9FBFE; --color-surface: #FFFFFF; --color-soft: #F0F6FD; --color-border: #D8E4F2;
+  --on-primary: #FFFFFF;
+  --in-bg: #E9F3FC; --in-fg: #245C9C;      /* 입력 설계 */
+  --gen-bg: #F1ECFA; --gen-fg: #5B3F8C;    /* 생성 */
+  --out-bg: #E9F5EE; --out-fg: #2E6B45;    /* 출력 확인 */
+  --hum-bg: #FFF3D8; --hum-fg: #7A4F0E;    /* 사람 */
+  --bad-bg: #FBEDE6; --bad-fg: #8A4B2A;    /* 주의·중단 */
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
+  --radius-card: 1rem; --radius-control: .75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+    --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
+    --in-bg: #1C3352; --in-fg: #A9CDF5; --gen-bg: #2B2342; --gen-fg: #CDB8F2;
+    --out-bg: #183526; --out-fg: #9BD8B2; --hum-bg: #3A2E14; --hum-fg: #F2D28B;
+    --bad-bg: #3A2219; --bad-fg: #F0B79A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+  --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
+  --in-bg: #1C3352; --in-fg: #A9CDF5; --gen-bg: #2B2342; --gen-fg: #CDB8F2;
+  --out-bg: #183526; --out-fg: #9BD8B2; --hum-bg: #3A2E14; --hum-fg: #F2D28B;
+  --bad-bg: #3A2219; --bad-fg: #F0B79A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
+main { max-width: 64rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 2.2rem; }
+h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
+h1 { font-size: clamp(1.75rem, 4vw, 2.3rem); letter-spacing: -.02em; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: var(--color-primary); }
+code { font-family: var(--font-code); font-size: .88em; background: var(--color-soft); color: var(--color-heading); padding: .05rem .35rem; border-radius: .35rem; }
+section { display: grid; gap: 1.1rem; min-width: 0; scroll-margin-top: 1rem; }
+/* 구역: 하나의 덩어리로 구분 */
+.blk { background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.7rem; gap: 1.2rem; }
+.blk-h { display: grid; gap: .55rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border); }
+.blk-t { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; }
+.no { font: 800 .85rem var(--font-code); color: var(--on-primary); background: var(--color-primary); border-radius: .45rem; padding: .12rem .6rem; }
+.where { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; font-size: .78rem; color: var(--color-muted); }
+.where b { font-weight: 800; margin-right: .2rem; }
+.where span { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: 0 .6rem; }
+.where span.on { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); font-weight: 800; }
+.where i { font-style: normal; }
+.eyebrow { font-size: .875rem; font-weight: 700; color: var(--color-muted); }
+.head { display: grid; gap: .7rem; }
+.lead { font-size: 1.05rem; max-width: 50rem; }
+.jump { display: flex; flex-wrap: wrap; gap: .4rem .6rem; }
+.jump a { font-size: .88rem; font-weight: 700; text-decoration: none; color: var(--color-heading); border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: .2rem .8rem; }
+.jump a:hover { border-color: var(--color-primary); }
+.tag { display: inline-block; font-size: .78rem; font-weight: 800; color: var(--color-muted); border: 1px solid var(--color-border); border-radius: 999px; padding: .05rem .6rem; margin-left: .5rem; vertical-align: middle; white-space: nowrap; }
+.def { max-width: 50rem; }
+.def b { color: var(--color-heading); }
+.lesson { border-left: 4px solid var(--color-primary); background: var(--color-surface); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; font-weight: 700; color: var(--color-heading); }
+.fig { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; }
+.cap { font-size: .82rem; color: var(--color-muted); }
 
-/* 맨 위: 브랜드 줄 + 문제 풀이 */
-.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
-.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
-.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
-.brand-sep{width:1px;height:22px;background:#D8E4F2}
-.brand p{color:var(--muted);font-size:14px;font-weight:600}
-.links{display:flex;flex-wrap:wrap;gap:8px}
-.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
-  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
-.links a:hover{border-color:var(--accent)}
-.links img{display:block;width:20px;height:20px;border-radius:5px}
-@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
+/* 전체 흐름 */
+.ranges { display: grid; grid-template-columns: 1fr 2fr 1fr 2fr; gap: .4rem; font-size: .8rem; font-weight: 800; text-align: center; }
+.ranges span { border-radius: .4rem; padding: .1rem 0; }
+.r-in { background: var(--in-bg); color: var(--in-fg); grid-column: 2; }
+.r-gen { background: var(--gen-bg); color: var(--gen-fg); }
+.r-out { background: var(--out-bg); color: var(--out-fg); }
+.r-door { color: var(--color-muted); }
+.flow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .5rem; align-items: stretch; counter-reset: n; }
+.node { position: relative; display: grid; gap: .15rem; align-content: start; text-align: center; text-decoration: none; color: var(--color-text); border: 2px solid var(--color-border); border-radius: .8rem; padding: .7rem .4rem; background: var(--color-surface); }
+.node strong { color: var(--color-heading); font-size: .98rem; }
+.node span { font-size: .8rem; color: var(--color-muted); line-height: 1.45; }
+.node:not(:last-child)::after { content: "→"; position: absolute; right: -.62rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; background: var(--color-surface); z-index: 1; line-height: 1; }
+a.node:hover { border-color: var(--color-primary); }
+.node.in { background: var(--in-bg); border-color: var(--in-fg); }
+.node.in strong { color: var(--in-fg); }
+.node.gen { background: var(--gen-bg); border-color: var(--gen-fg); }
+.node.gen strong { color: var(--gen-fg); }
+.node.out { background: var(--out-bg); border-color: var(--out-fg); }
+.node.out strong { color: var(--out-fg); }
+.node.hum { background: var(--hum-bg); border-color: var(--hum-fg); }
+.node.hum strong { color: var(--hum-fg); }
+.band { display: flex; flex-wrap: wrap; gap: .3rem .9rem; align-items: baseline; border: 2px dashed var(--color-primary); border-radius: .8rem; padding: .6rem 1rem; }
+.band a { font-weight: 800; color: var(--color-primary); }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+.three div { border-top: 3px solid var(--color-primary); background: var(--color-surface); border-radius: 0 0 .6rem .6rem; padding: .5rem .8rem; }
+.three b { color: var(--color-heading); }
+.three p { font-size: .9rem; color: var(--color-muted); }
 
-/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
-.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
-.hero-l{display:grid;gap:22px}
-.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
-.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
-.count b{color:var(--heading)}
-.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
-.recent{border-top:1px solid var(--line-2)}
-.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
-  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
-.recent a:hover{background:var(--soft);padding-left:10px}
-.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
-.recent a:hover .go{opacity:1}
-.recent .go svg{width:16px;height:16px}
-.recent li.on .t{font-weight:700}
-.recent li.on .no{color:var(--accent);font-weight:700}
-.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
-.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
-  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
-  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
-.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
-  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
-.cover>*{position:relative}
-.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
-.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
-.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
-.cover .c-n{font-size:15px;opacity:.72}
-.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
-.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
-.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
-.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
-.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
-.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
-.cover:hover .c-go svg{transform:translateX(4px)}
-@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
+/* Prompt */
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.slot { border: 1px solid var(--in-fg); background: var(--in-bg); border-radius: .6rem; padding: .5rem .7rem; display: grid; }
+.slot b { color: var(--in-fg); }
+.slot span { font-size: .85rem; color: var(--color-text); }
+.make { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: .5rem; align-items: center; text-align: center; }
+.make > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .6rem; background: var(--color-canvas); }
+.make b { display: block; color: var(--color-heading); font-size: .92rem; }
+.make small { color: var(--color-muted); font-size: .8rem; }
+.make i { font-style: normal; font-weight: 800; color: var(--color-muted); }
+.make .done { background: var(--in-bg); border-color: var(--in-fg); }
+.pair2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.pair2 > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .6rem .8rem; background: var(--color-surface); }
+.pair2 b { color: var(--color-heading); }
+.pair2 p { font-size: .9rem; }
 
-/* 100일 일정 */
-.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.tl{display:grid;gap:6px;min-width:0}
-.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
-.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
-.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
-.cell.past{background:var(--cell-past)}
-.cell.has{background:var(--primary)}
-a.cell:hover{transform:scale(1.3)}
-.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 
-/* 참고 문서 모음 */
-.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
-.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
-.shelf .col+.col{border-left:1px solid var(--line)}
-.shelf+.chapter{border-top:0}
-.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
-.shelf a:hover{background:var(--soft)}
-.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
-.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
-.ch-refs{display:grid;gap:2px;margin-top:12px}
-.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
-.ch-refs a:hover{background:var(--soft)}
-@media (prefers-color-scheme:dark){.ref-logo:not(.own){background:#FFFFFF;padding:3px 5px}}
-.shelf .soon{margin:2px 0}
-.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
+/* Context */
+.know { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.know div { border: 1px solid var(--color-border); border-radius: .6rem; padding: .45rem .7rem; font-size: .9rem; background: var(--color-surface); }
+.know div.pick { border: 2px solid var(--in-fg); background: var(--in-bg); }
+.know code { font-weight: 800; }
+.sel { display: grid; grid-template-columns: auto 1fr; gap: .4rem .8rem; align-items: center; font-size: .92rem; }
+.sel i { font-style: normal; font-weight: 800; color: var(--in-fg); }
+.cases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.cases > div { border: 1px solid var(--color-border); border-radius: .7rem; padding: .6rem .8rem; display: grid; gap: .3rem; }
+.cases .ok { border-left: 4px solid var(--out-fg); }
+.cases .lack { border-left: 4px solid var(--hum-fg); }
+.cases code { white-space: normal; }
+.window { display: grid; grid-template-columns: 5fr 2fr 1fr; gap: .3rem; font-size: .82rem; text-align: center; font-weight: 700; }
+.window span { border-radius: .4rem; padding: .35rem .3rem; }
+.window .w1 { background: var(--in-bg); color: var(--in-fg); }
+.window .w2 { background: var(--gen-bg); color: var(--gen-fg); }
+.window .w3 { border: 2px dashed var(--color-muted); color: var(--color-muted); }
 
-/* 과목 = 챕터 */
-.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
-.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
-.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
-.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
-.ch-side{display:grid;gap:4px;align-content:start}
-.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
-.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
-.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
-.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.ch-side .soon{margin-top:6px}
-.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
-.rows li:first-child{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
-.row:hover{background:var(--soft)}
-.row:hover .t{color:var(--accent)}
-.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
-.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
-.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
-.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
-.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
-  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
-.mini:hover{background:var(--soft);border-color:var(--accent)}
-.mini svg{width:14px;height:14px}
-.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
-.mini.view:hover{border-color:var(--accent)}
-.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
-.rows li.all .no{color:var(--accent)}
-.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
-@media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
+/* 검증 */
+pre { margin: 0; background: #1B2435; color: #FFFFFF; border-radius: .7rem; padding: .8rem 1rem; font: .85rem/1.6 var(--font-code); overflow-x: auto; }
+.ladder { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; counter-reset: s; }
+.step { border-radius: .7rem; padding: .6rem .8rem; display: grid; gap: .1rem; align-content: start; }
+.step b { color: var(--color-heading); }
+.step span { font-size: .85rem; color: var(--color-text); }
+.step small { font-size: .78rem; color: var(--color-muted); }
+.step em { font-style: normal; font-size: .72rem; font-weight: 700; color: var(--color-muted); margin-left: .3rem; }
+.step.auto { background: var(--out-bg); border: 1px solid var(--out-fg); }
+.step.man { background: var(--hum-bg); border: 1px solid var(--hum-fg); }
+.brk { display: grid; grid-template-columns: 3fr 1fr; gap: .5rem; font-size: .82rem; font-weight: 800; text-align: center; }
+.brk span { border-top: 3px solid; padding-top: .2rem; }
+.brk .a { color: var(--out-fg); }
+.brk .m { color: var(--hum-fg); }
+.counter { border: 1px dashed var(--bad-fg); background: var(--bad-bg); border-radius: .7rem; padding: .7rem 1rem; display: grid; gap: .2rem; font-size: .92rem; }
+.counter b { color: var(--bad-fg); }
 
-/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
-.day-head{display:grid;gap:10px;margin:8px 0 22px}
-.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
-.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
-.day-head .sub{font-size:15px;color:var(--muted)}
-.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
+/* 재시도 */
+.branches { display: grid; gap: .5rem; }
+.br { display: grid; grid-template-columns: minmax(0, 1.1fr) auto minmax(0, 1.4fr); gap: .6rem; align-items: stretch; }
+.br > div { border-radius: .7rem; padding: .55rem .8rem; border: 1px solid var(--color-border); background: var(--color-surface); font-size: .92rem; }
+.br b { display: block; color: var(--color-heading); }
+.br small { color: var(--color-muted); }
+.br i { font-style: normal; display: grid; place-items: center; font-weight: 800; color: var(--color-muted); }
+.br.t1 > div:first-child { border-left: 4px solid var(--out-fg); }
+.br.t2 > div:first-child { border-left: 4px solid var(--in-fg); }
+.br.t3 > div:first-child { border-left: 4px solid var(--bad-fg); }
+.two { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; font-weight: 800; color: var(--color-heading); }
+.two span { border: 1px solid var(--color-border); border-radius: .5rem; padding: .15rem .7rem; background: var(--color-canvas); }
+.two em { font-style: normal; color: var(--color-muted); }
 
-@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
-  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
-  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
-@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
+/* 평가 (실험 도식) */
+.exp { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.5fr) auto minmax(0, 1.3fr); gap: .6rem; align-items: stretch; }
+.exp > i { font-style: normal; display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; color: var(--color-muted); }
+.pn { border: 1px solid var(--color-border); border-radius: .9rem; padding: .8rem 1rem 1rem; display: grid; gap: .6rem; align-content: start; background: var(--color-canvas); min-width: 0; }
+.pn > h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; font-size: 1rem; }
+.pn > h3 small { font-size: .76rem; font-weight: 700; color: var(--color-muted); }
+.pn.ctl { border-top: 4px solid var(--color-primary); }
+.pn.var { border-top: 4px solid var(--gen-fg); }
+.pn.rec { border-top: 4px solid var(--out-fg); }
+.chips { display: grid; gap: .35rem; }
+.chips span { border: 1px solid var(--color-primary); border-radius: .6rem; padding: .1rem .7rem; font-size: .88rem; font-weight: 700; color: var(--color-heading); background: var(--color-surface); }
+.diff { display: grid; gap: .4rem; font: .8rem/1.55 var(--font-code); }
+.diff > div { border-radius: .6rem; padding: .5rem .7rem; border: 1px solid var(--color-border); background: var(--color-surface); }
+.diff .tt { font: 800 .82rem var(--font-body); color: var(--color-heading); display: block; margin-bottom: .1rem; }
+.diff .add { background: var(--gen-bg); border-color: var(--gen-fg); color: var(--color-heading); }
+.diff .add b { color: var(--gen-fg); }
+.diff .keep { color: var(--color-muted); }
+.matrix { display: grid; grid-template-columns: 3rem repeat(2, minmax(0, 1fr)); gap: .35rem; align-items: stretch; }
+.matrix .h { font-weight: 800; font-size: .85rem; color: var(--color-heading); text-align: center; }
+.matrix .q { font: 800 .82rem var(--font-code); color: var(--in-fg); display: grid; place-items: center; background: var(--in-bg); border-radius: .5rem; }
+.matrix .c { border: 1px dashed var(--color-muted); border-radius: .5rem; padding: .35rem 0; text-align: center; font-size: .78rem; color: var(--color-muted); background: var(--color-surface); }
+.exp-foot { display: flex; flex-wrap: wrap; gap: .3rem .8rem; align-items: center; font-size: .9rem; color: var(--color-muted); }
+.exp-foot b { color: var(--color-heading); }
+.dhflow { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; }
+.dhflow > div { flex: 1 1 11rem; border: 1px solid var(--color-border); border-radius: .7rem; padding: .5rem .8rem; font-size: .88rem; background: var(--color-surface); }
+.dhflow b { display: block; color: var(--color-heading); }
+.dhflow i { font-style: normal; display: grid; place-items: center; font-weight: 800; color: var(--color-muted); }
+.dhflow .d { border-left: 4px solid var(--in-fg); }
+.dhflow .fz { background: var(--gen-bg); border-color: var(--gen-fg); }
+.dhflow .h { border-left: 4px solid var(--hum-fg); }
+
+.foot { display: grid; gap: .3rem; font-size: .85rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1rem; }
+
+/* Day22 추가 */
+.flow.n4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.node.pri { background: var(--color-primary); border-color: var(--color-primary); }
+.node.pri strong { color: var(--on-primary); }
+.node.pri span { color: var(--on-primary); opacity: .85; }
+.node code { background: transparent; color: inherit; padding: 0; font-weight: 800; }
+.flow.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.flow.n2 .node::after { content: none; }
+.box2, .box3 { display: grid; gap: .6rem; }
+.box2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.box3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bx { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: .8rem; padding: .7rem .9rem; display: grid; gap: .25rem; align-content: start; }
+.bx p { font-size: .92rem; }
+.bx.keep { border-left: 4px solid var(--in-fg); }
+.bx.add { border-left: 4px solid var(--out-fg); }
+.bx.warn { border-left: 4px solid var(--hum-fg); }
+.bx.stop { border-left: 4px solid var(--bad-fg); }
+.tbl { width: 100%; border-collapse: collapse; font-size: .92rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: .7rem; overflow: hidden; }
+.tbl th, .tbl td { text-align: left; padding: .5rem .8rem; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.tbl th { background: var(--color-soft); color: var(--color-heading); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td:first-child { font-family: var(--font-code); font-weight: 700; color: var(--color-heading); word-break: break-all; }
+.eq { border: 2px dashed var(--color-primary); border-radius: .8rem; padding: .7rem 1rem; text-align: center; color: var(--color-heading); background: var(--color-surface); }
+.eq b { display: block; font-size: 1.05rem; }
+.subset { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: .8rem; padding: .7rem .9rem; display: grid; gap: .5rem; }
+.subset .inner { border: 2px dashed var(--gen-fg); background: var(--gen-bg); color: var(--gen-fg); border-radius: .6rem; padding: .4rem .7rem; font-size: .9rem; font-weight: 700; }
+.tline { display: grid; grid-template-columns: 1fr 3fr 1fr; gap: .4rem; text-align: center; font-weight: 800; font-size: .9rem; }
+.tline > div { border-radius: .6rem; padding: .45rem .5rem; display: grid; gap: .1rem; }
+.tline small { font-weight: 600; color: var(--color-muted); }
+.tline .p1 { background: var(--in-bg); color: var(--in-fg); }
+.tline .p2 { background: var(--gen-bg); color: var(--gen-fg); }
+.tline .p3 { background: var(--out-bg); color: var(--out-fg); }
+.loop { display: flex; flex-wrap: wrap; gap: .4rem .6rem; align-items: center; font-weight: 700; color: var(--color-heading); }
+.loop span { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: .6rem; padding: .25rem .8rem; }
+.loop i { font-style: normal; color: var(--color-muted); font-weight: 800; }
+.bridge { border-left: 4px solid var(--color-primary); padding-left: .9rem; }
+@media (max-width: 760px) {
+  .flow.n4, .flow.n2, .box2, .box3 { grid-template-columns: 1fr; }
+  .tline { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr; }
+  .node:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -.9rem; transform: translateX(50%); }
+  .ranges { display: none; }
+  .three, .slots, .know, .cases, .pair2, .ladder { grid-template-columns: 1fr; }
+  .exp { grid-template-columns: 1fr; }
+  .exp > i { transform: rotate(90deg); }
+  .dhflow i { display: none; }
+  .make { grid-template-columns: 1fr; }
+  .make i { transform: rotate(90deg); }
+  .blk { padding: 1.1rem 1rem 1.3rem; }
+  .br { grid-template-columns: 1fr; }
+  .br i { padding: .1rem 0; }
+  .brk { display: none; }
+}
 </style>
-<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body><style>
 .cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
@@ -159,10 +262,18 @@ a.cell:hover{transform:scale(1.3)}
 .cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
 .cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../llm/">LLM·RAG</a><span class="cn-here">Day22</span><span class="cn-right"><a href="lecture/">바로 보기</a></span></nav>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../llm/">LLM·RAG</a><span class="cn-here">Day22</span><span class="cn-right"><a class="cn-dl" href="download.html" download="Day22_LLM_API_클라이언트.html" title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a><a href="lecture/">바로 보기</a><a href="../../llm/20261116/">‹ Day21</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <main>
-<header class="day-head"><p class="eyebrow">Day22 · 11/17 · LLM·RAG</p>
-<h1>LLM API 클라이언트</h1></header>
+
+<header class="head">
+  <p class="eyebrow">Day22 · 2026.11.17 · 생성형 AI·LLM 및 RAG 엔지니어링</p>
+  <h1>LLM API 클라이언트</h1>
+  <p class="lead">AI Agent가 재사용할 모델 호출·검증·기록의 흐름입니다.</p>
+  <nav class="jump" aria-label="구역 이동">
+    <a href="#whole">모델 호출</a><a href="#request">입력·출력 검사</a><a href="#stream">Streaming</a><a href="#retry">오류·재시도</a><a href="#metrics">비용·시간</a><a href="#cache">캐시·모델 선택</a>
+  </nav>
+
 <div class="lt-top"><style>
 .lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
   margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
@@ -220,7 +331,71 @@ a.cell:hover{transform:scale(1.3)}
 <div class="lt-body"><p class="lt-intro"><b>도입</b><span>LLM API 클라이언트 · 목차</span></p><div class="lt-board"><article class="lt-cd"><header><span class="lt-n">1교시</span><span class="lt-c">화면 11</span><h3>LLM API 개요와 인증</h3></header><ol><li><span>AI Agent에서 모델 호출은 어디에 있을까?</span></li><li><span>LLM API란 무엇인가?</span></li><li><span>SDK와 LLM Client는 무엇이 다른가?</span></li><li><span>API 인증과 권한을 구분합니다</span></li><li><span>기존 가상환경은 유지하고, 설정은 실습별로 나눕니다</span></li><li><span>기본 모델과 실제로 확인한 범위를 구분합니다</span></li><li><span>Python 호출이 요청과 응답으로 바뀌는 과정</span></li><li><span>응답 객체에서 읽을 정보</span></li><li><span>바꾸는 것은 응답을 받는 방법입니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>01 ·<wbr> 첫 응답을 받고 연결을 설명한다</span></p></article><article class="lt-cd"><header><span class="lt-n">2교시</span><span class="lt-c">화면 12</span><h3>메시지 구성과 Structured Outputs</h3></header><ol><li><span>instructions와 input은 어떤 내용을 담을까?</span></li><li><span>선택한 지식만 요청에 들어갑니다</span></li><li><span>Structured Outputs란 무엇인가?</span></li><li><span>WireAnswer와 KnowledgeAnswer는 역할이 다릅니다</span></li><li><span>API에 전달할 네 필드 Schema</span></li><li><span>HTTP 상태·<wbr>생성 상태·<wbr>업무 상태를 나눕니다</span></li><li><span>먼저 응답이 검증 가능한 상태인지 확인합니다</span></li><li><span>로컬 계약은 그대로 유지합니다</span></li><li><span>출처가 존재하는가와 답을 뒷받침하는가는 다릅니다</span></li><li><span>호출과 검증을 연결합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>02 ·<wbr> 전날 계약으로 실제 지식 답변을 받는다</span></p></article><article class="lt-cd"><header><span class="lt-n">3교시</span><span class="lt-c">화면 10</span><h3>Streaming과 응답 처리</h3></header><ol><li><span>Streaming이란 무엇인가?</span></li><li><span>SSE는 무엇인가?</span></li><li><span>delta는 새로 도착한 텍스트 조각입니다</span></li><li><span>이벤트가 도착할 때 무엇을 할까?</span></li><li><span>중간 버퍼와 최종 Response를 따로 둡니다</span></li><li><span>Latency는 어느 구간의 시간인가?</span></li><li><span>첫 표시가 빨라도 완료는 나중입니다</span></li><li><span>부분 출력과 확정된 결과의 사용 범위</span></li></ol><p class="lt-lab-row"><b>실습</b><span>03 ·<wbr> 스트리밍의 시작과 완료를 확인한다</span></p></article><article class="lt-cd"><header><span class="lt-n">4교시</span><span class="lt-c">화면 12</span><h3>Rate Limit과 오류·재시도</h3></header><ol><li><span>오류는 발생한 위치부터 구분합니다</span></li><li><span>Rate Limit은 무엇을 제한할까?</span></li><li><span>같은 429라도 기다릴 문제와 멈출 문제가 다릅니다</span></li><li><span>통신 재시도와 형식 수정은 다른 요청입니다</span></li><li><span>생성 횟수와 전송 횟수를 함께 제한합니다</span></li><li><span>SDK와 앱 중 한 곳에서 재시도를 관리합니다</span></li><li><span>Backoff와 Jitter는 왜 필요한가?</span></li><li><span>최소 대기와 남은 예산을 비교합니다</span></li><li><span>Timeout은 “서버가 아무것도 하지 않았다”가 아닙니다</span></li><li><span>실패 시나리오를 진행하며 전송 횟수를 셉니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>04 ·<wbr> 오류별로 중단·<wbr>대기를 구분한다</span></p></article><article class="lt-cd"><header><span class="lt-n">5교시</span><span class="lt-c">화면 11</span><h3>Token Usage·비용·Latency</h3></header><ol><li><span>Token Usage는 API가 보고한 사용량입니다</span></li><li><span>값을 못 받은 것과 실제 0을 구분합니다</span></li><li><span>None·<wbr>0·<wbr>not_run은 서로 다른 상태입니다</span></li><li><span>비용 추정은 사용량 × 적용 단가입니다</span></li><li><span>사용량을 바꾸면 비용의 어느 부분이 변할까?</span></li><li><span>한 작업·<wbr>한 생성·<wbr>한 전송을 구분합니다</span></li><li><span>source_mode는 결과를 얻은 방법입니다</span></li><li><span>마지막 성공으로 앞선 실패를 덮지 않습니다</span></li><li><span>출력·<wbr>전송·<wbr>전체 예산을 함께 봅니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>05 ·<wbr> 답변마다 시간·<wbr>사용량·<wbr>비용 근거를 남긴다</span></p></article><article class="lt-cd"><header><span class="lt-n">6교시</span><span class="lt-c">화면 10</span><h3>Response Cache와 Prompt Caching</h3></header><ol><li><span>Cache란 무엇인가?</span></li><li><span>세 가지 Cache는 재사용하는 대상이 다릅니다</span></li><li><span>Cache key에는 어떤 조건을 담을까?</span></li><li><span>같은 ID라도 본문이 바뀌면 다른 key입니다</span></li><li><span>TTL은 재사용할 수 있는 유효 기간입니다</span></li><li><span>승인·<wbr>만료·<wbr>문맥 변경에 따라 경로가 바뀝니다</span></li><li><span>Prompt Caching은 이전 답변을 복사하지 않습니다</span></li><li><span>읽을 때도 유효성을 다시 확인합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>06 ·<wbr> 캐시 히트와 무효화를 확인한다</span></p></article><article class="lt-cd"><header><span class="lt-n">7교시</span><span class="lt-c">화면 8</span><h3>Model Routing과 클라이언트 설계</h3></header><ol><li><span>Model Routing은 호출 전에 모델을 고르는 정책입니다</span></li><li><span>모드와 권한에 따라 모델을 선택합니다</span></li><li><span>실행 결과와 답변 객체를 분리합니다</span></li><li><span>바뀌는 이유가 다른 책임을 분리합니다</span></li><li><span>모델 비교에서도 조건을 고정합니다</span></li><li><span>Agent는 이 호출 계층을 재사용합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>07 ·<wbr> 모델 선택과 같은 결과 계약을 확인한다</span></p></article><article class="lt-cd"><header><span class="lt-n">8교시</span><span class="lt-c">화면 8</span><h3>전체 연결</h3></header><ol><li><span>하나의 요청을 끝까지 연결합니다</span></li><li><span>이미 본 질문으로 무엇을 확인할까?</span></li><li><span>세 질문의 기대 행동을 원문에서 확인합니다</span></li><li><span>입력·<wbr>검증·<wbr>운영 기록이 연결되어야 합니다</span></li><li><span>결과표는 실제 실행한 뒤 채웁니다</span></li><li><span>다음에는 “어떤 지식을 넣을까?”를 자동화합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>08 ·<wbr> AI 지식 답변 생성기 v2를 시연한다</span></p></article></div>
 <p class="lt-note">강의 자료의 화면 제목을 원문 그대로 옮겼습니다. 실습은 각 교시 카드 맨 아래에 모았습니다.</p></div>
 </details></section></div>
-<p class="sum-empty">요약 준비 중입니다.</p>
+</header>
+
+<section id="whole" class="blk" aria-labelledby="whole-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">01</span><h2 id="whole-h">모델을 호출하는 한 번의 작업</h2><span class="tag">1교시</span></div></div>
+  <p class="def">API는 프로그램 간 접점입니다. 이 과정에서는 각 실습의 .env에서 API 키를 읽어 OpenAI에 직접 연결합니다. LLM Client는 호출과 우리 서비스의 정책을 묶습니다.</p>
+  <p class="cap">기존 가상환경을 계속 사용하고 필요한 패키지만 추가합니다. 터미널은 Git Bash, 설정은 실습별 .env, 기본 모델은 <code>gpt-5.4-mini-2026-03-17</code>입니다.</p>
+  <div class="fig"><div class="flow n4"><div class="node in"><strong>질문·Context</strong><span>선택한 근거만</span></div><div class="node pri"><strong>LLM Client</strong><span>인증·모델·전송</span></div><div class="node gen"><strong>외부 LLM</strong><span>생성·응답</span></div><div class="node out"><strong>검증·기록</strong><span>상태·근거·usage</span></div></div></div>
+  <div class="box2"><div class="bx keep"><h3>그대로 유지하는 것</h3><p>Prompt·선택 지식·KnowledgeAnswer·출처 규칙·사람의 근거 검토를 이어 사용합니다.</p></div><div class="bx add"><h3>오늘 추가하는 것</h3><p>API 수신, Streaming, 오류 정책, 비용·시간 기록, 캐시와 모델 선택을 연결합니다.</p></div></div>
+  <p class="lesson">검색과 도구 실행은 이후에 추가됩니다. 모델의 JSON 응답은 도구를 실행해도 된다는 권한이 아닙니다.</p>
+
+</section>
+
+<section id="request" class="blk" aria-labelledby="request-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">02</span><h2 id="request-h">입력의 역할과 출력의 검사</h2><span class="tag">2교시</span></div></div>
+  <div class="box2"><div class="bx"><h3>instructions</h3><p>앱이 정한 작업·제약·실패 기준·출력 규칙입니다.</p></div><div class="bx"><h3>input</h3><p>이번 질문과 실제 선택한 지식입니다. DB 전체가 자동으로 전달되지는 않습니다.</p></div></div>
+  <div class="fig"><div class="flow n4"><div class="node in"><strong>WireAnswer</strong><span>API에 보낼 Schema</span></div><div class="node gen"><strong>완료 판정</strong><span>거절·불완전 분리</span></div><div class="node out"><strong>KnowledgeAnswer</strong><span>로컬 구조·규칙</span></div><div class="node hum"><strong>근거 검토</strong><span>주장과 원문 대조</span></div></div><table class="tbl"><tr><th>상태가 속한 곳</th><th>무엇을 뜻하는가</th></tr><tr><td>HTTP 200</td><td>통신의 응답 상태</td></tr><tr><td>response.status = completed</td><td>모델 생성 응답의 완료</td></tr><tr><td>answer_object.status = answered / insufficient_context</td><td>자료로 답변 가능 / 제공된 정보 부족</td></tr></table></div>
+  <p class="lesson">Structured Outputs는 구조를 제약합니다. 구조 통과 ≠ 근거 적합 ≠ 사람 승인입니다.</p>
+
+</section>
+
+<section id="stream" class="blk" aria-labelledby="stream-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">03</span><h2 id="stream-h">먼저 보여도, 아직 확정할 수는 없습니다</h2><span class="tag">3교시</span></div></div>
+  <p class="def"><b>Streaming</b>은 생성 중 일부를 먼저 받는 방식입니다. <b>SSE(Server-Sent Events)</b>는 서버가 HTTP 연결로 이벤트를 이어 보내는 방식이고, <b>delta</b>는 새 텍스트 조각입니다.</p>
+  <div class="fig"><div class="flow n2"><div class="node "><strong><code>response.created</code></strong><span>시작</span></div><div class="node gen"><strong><code>response.output_text.delta</code></strong><span>부분 미리보기</span></div><div class="node gen"><strong><code>response.output_text.done</code></strong><span>텍스트 항목 종료</span></div><div class="node pri"><strong><code>response.completed</code></strong><span>전체 응답 확인</span></div></div></div>
+  <div class="box2"><div class="bx add"><h3>완료 응답을 받은 경우</h3><p>최종 원문과 usage를 확인하고 기존 검증기로 넘깁니다. 근거 검토는 여전히 남습니다.</p></div><div class="bx warn"><h3>중단·거절·불완전인 경우</h3><p>이유를 기록하고 부분 JSON을 정상 답변으로 쓰지 않습니다. 성공 캐시에 저장하지 않습니다.</p></div></div>
+  <p class="lesson">조각 10개 ≠ 출력 10 Token. 첫 텍스트가 빠름 ≠ 총 완료 시간이 짧음.</p>
+
+</section>
+
+<section id="retry" class="blk" aria-labelledby="retry-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">04</span><h2 id="retry-h">실패 원인에 따라 다음 행동이 다릅니다</h2><span class="tag">4교시</span></div></div>
+  <div class="eq"><b>실패 원인 · 상태 · 남은 예산 확인</b></div>
+  <div class="box3"><div class="bx stop"><h3>설정·권한·한도</h3><p>401·403·잘못된 요청·할당량 문제는 반복 전송으로 고치지 않습니다. 설정을 확인하고 중단합니다.</p></div><div class="bx add"><h3>일시적 제한</h3><p>429의 세부 원인을 확인합니다. Retry-After의 최소 대기와 남은 시간·횟수를 지킨 경우에만 다시 보냅니다.</p></div><div class="bx warn"><h3>출력·수신 문제</h3><p>JSON·Schema 형식만 한 번 수정합니다. 거절·출처 오류·정보 부족·timeout은 같은 수정 루프로 보내지 않습니다.</p></div></div>
+  <div class="eq">생성 최대 2회 × 생성당 전송 최대 2회<b>전체 실제 전송 최대 4회</b></div>
+  <p class="cap">이 값은 교안의 정책입니다. SDK 추가 재시도는 0회로 두고 앱에서 관리합니다. Timeout·스트림 중단의 자동 재전송도 하지 않는 수업 정책입니다.</p>
+  <p class="lesson">Exponential backoff는 실패가 반복될수록 대기 시간을 늘리는 방식이고, Jitter는 재시도 시점을 분산하는 작은 무작위 지연입니다. 서버의 최소 대기를 줄여서 다시 보내지 않습니다.</p>
+
+</section>
+
+<section id="metrics" class="blk" aria-labelledby="metrics-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">05</span><h2 id="metrics-h">포함 관계와 측정 구간을 맞춥니다</h2><span class="tag">5교시</span></div></div>
+  <div class="box2"><div class="subset"><b>input_tokens · 전체 입력</b><div class="inner">cached_tokens는 이 안의 일부</div></div><div class="subset"><b>output_tokens · 전체 출력</b><div class="inner">reasoning_tokens는 이 안의 일부</div></div></div>
+  <div class="eq">[(입력 − 캐시 입력) × 일반 단가 + 캐시 입력 × 캐시 단가 + 출력 × 출력 단가]<b>÷ 1,000,000</b></div>
+  <p class="cap">USD / 1M tokens 단가를 적용하는 교안의 표준 텍스트 계산식입니다. 단가·모델·서비스 모드가 달라지면 적용 범위도 확인합니다.</p>
+  <div class="fig"><div class="tline"><div class="p1">준비</div><div class="p2">API 요청<small>시작 → 첫 텍스트 → 종료</small></div><div class="p3">검증</div></div><table class="tbl"><tr><th>지표</th><th>측정 구간</th></tr><tr><td>first_text_ms</td><td>요청 시작 → 첫 비어 있지 않은 텍스트</td></tr><tr><td>request_ms</td><td>요청 시작 → 종료·실패</td></tr><tr><td>e2e_ms</td><td>준비·대기·재시도·검증을 포함한 전체</td></tr></table></div>
+  <p class="def"><code>generation_no</code>는 생성 번호, <code>send_attempt</code>는 그 생성의 전송 시도입니다. 처음 실패를 마지막 성공으로 덮지 않습니다.</p>
+  <p class="lesson">None = 미관측, 0 = 관측된 0, not_run = 미실행. 알려진 비용의 소계와 미확인 전송을 따로 기록합니다.</p>
+
+</section>
+
+<section id="cache" class="blk" aria-labelledby="cache-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">06</span><h2 id="cache-h">재사용과 모델 선택은 서로 다른 정책입니다</h2><span class="tag">6·7교시</span></div></div>
+  <div class="box3"><div class="bx keep"><h3>Response Cache</h3><p>승인된 최종 답변을 재사용합니다. 유효한 hit이면 새 API 전송을 생략할 수 있습니다.</p></div><div class="bx add"><h3>Prompt Caching</h3><p>같은 입력 앞부분의 계산을 재사용합니다. 새 API 요청과 새로운 출력 생성은 계속됩니다.</p></div><div class="bx"><h3>KV Cache</h3><p>모델의 Key·Value 상태를 재사용합니다. 최종 답변을 보관하는 앱 저장소가 아닙니다.</p></div></div>
+  <div class="fig"><div class="loop"><span>입력·모델·권한·계약</span><i>→</i><span>Cache key</span><i>→</i><span>TTL·승인·현재 검사</span><i>→</i><span>hit / miss</span></div></div>
+  <p class="def"><b>TTL(Time To Live)</b>은 유효 기간입니다. 같은 질문이어도 지식 본문이나 권한이 바뀌면 예전 답을 재사용하지 않습니다. SHA-256 해시는 식별용이지 암호화가 아닙니다.</p>
+  <div class="fig"><div class="flow n4"><div class="node in"><strong>mode</strong><span>fast / quality</span></div><div class="node in"><strong>허용 목록</strong><span>권한·기능·예산</span></div><div class="node pri"><strong>한 모델 선택</strong><span>route_reason 기록</span></div><div class="node out"><strong>같은 검증</strong><span>동일한 출력 계약</span></div></div></div>
+  <p class="lesson">Model Routing은 호출 전 모델 선택입니다. fast·quality는 교안의 모드명이지 우열 보장이 아닙니다.</p>
+
+</section>
+
+<footer class="foot">
+  <p>내용은 강사님 강의 자료(2026.11.17)의 핵심요약을 그대로 옮기고, 이 사이트의 디자인에 맞춰 배치만 바꿨습니다. 기준: Day22_Lecture_20261117(2).pptx · 모델·단가 관련 공식 문서 대조 2026.11.15</p>
+  <p>강사 제공 로그에서는 기본 모델의 일반 텍스트 생성만 확인했습니다. Structured Outputs·Streaming·비교 모델은 별도 확인하며, 수강생은 자신의 키와 환경에서 실행합니다.</p>
+</footer>
+
 </main>
 </body>
 </html>
