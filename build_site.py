@@ -197,6 +197,7 @@ NAV_CSS = f"""<style>
 .cn-nav .cn-ico{{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}}
 .cn-nav .cn-ico svg{{display:block;width:1.15rem;height:1.15rem}}
 .cn-nav .cn-slack img{{display:block;width:1.15rem;height:1.15rem}}
+.cn-nav .cn-colab{{width:auto;padding:0 .3rem}}.cn-nav .cn-colab img{{display:block;width:1.7rem;height:1rem}}
 .cn-nav .cn-right{{align-items:center}}
 .cn-nav [data-tip]{{position:relative}}
 .cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
@@ -270,7 +271,7 @@ def add_theme(text, nav, dark):
     return text, (nav if n else THEME_HEAD + nav)
 
 
-def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view=None, on_lecture=False):
+def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view=None, on_lecture=False, colab=None):
     """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)
     on_lecture: 지금 사이트의 강의 HTML 화면이다 (Slack은 로고만)"""
     up = "../" * depth
@@ -285,6 +286,9 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         tip = "Slack 강의 자료 게시물 (새 탭)" if view or on_lecture else "강의 자료 · Slack 게시물 (새 탭)"
         right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" data-tip="{tip}" aria-label="{tip}">'
                      f'<img src="{image_data(HERE / "assets" / "logos" / "slack-white.svg")}" alt="" width="16" height="16"></a>')
+    if colab:
+        right.append(f'<a class="cn-ico cn-colab" href="{html.escape(colab)}" target="_blank" rel="noopener" data-tip="Colab 실습 폴더 · Google Drive (새 탭)" '
+                     f'aria-label="Colab 실습 폴더 (Google Drive, 새 탭)"><img src="{image_data(HERE / "assets" / "logos" / "colab-white.png")}" alt="" width="27" height="16"></a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:
@@ -879,22 +883,9 @@ TREE_CSS = """<style>
 </style>"""
 
 
-def day_resources(d):
-    """그날 자료 줄: 강의 자료(사이트의 강의 HTML) · Slack · Colab. 요약 페이지에도 끼우므로 스타일은 TREE_CSS(.lt-res)에 둔다.
-    사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack 링크에 '강의 자료'를 붙인다."""
-    res = []
-    if d["lecture"]:
-        res.append(f'<a class="view" href="lecture/">{ICON_VIEW}강의 자료</a>')
-    if d["link"]:
-        res.append(slack_link(d["link"], "slack", "" if d["lecture"] else "강의 자료"))
-    if d["colab"]:
-        res.append(colab_link(d["colab"], "colab", "Colab 실습 ↗"))
-    return f'<div class="lt-res" aria-label="보조 자료">{"".join(res)}</div>' if res else ""
-
-
 def day_top(d):
-    """요약 페이지 제목 아래 블록: 자료 줄 + 강의 목차 한눈에 보기"""
-    return TREE_CSS + day_resources(d) + (tree_block(d["tree"], css=False) if d["tree"] else "")
+    """요약 페이지 제목 아래 블록: 강의 목차 한눈에 보기 (자료 링크는 상단 메뉴에 둔다)"""
+    return TREE_CSS + (tree_block(d["tree"], css=False) if d["tree"] else "")
 
 
 def pull_labs(nodes):
@@ -982,7 +973,7 @@ def tree_day_page(d):
 <h1>{html.escape(title)}</h1>{sub}</header>
 <div class="lt-top">{day_top(d)}</div>
 <p class="sum-empty">요약 준비 중입니다.</p>"""
-    nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}', lecture=d["link"],
+    nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}', lecture=d["link"], colab=d["colab"],
                    view="lecture/" if d["lecture"] else None).replace(DOWNLOAD_MARK, "")
     return list_page(f'Day{d["n"]} {title} · {SITE_NAME}', body, nav, up="../../")
 
@@ -1051,8 +1042,8 @@ def main():
         prev = (f'Day{made[i-1]["n"]}', f'{made[i-1]["key"]}/{made[i-1]["ymd"]}/') if i > 0 else None
         nxt = (f'Day{made[i+1]["n"]}', f'{made[i+1]["key"]}/{made[i+1]["ymd"]}/') if i + 1 < len(made) else None
         nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
-                       prev=prev, next_=nxt, lecture=d["link"], view="lecture/" if d["lecture"] else None)
-        copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav, top=day_top(d) if d["tree"] or d["colab"] else "")
+                       prev=prev, next_=nxt, lecture=d["link"], colab=d["colab"], view="lecture/" if d["lecture"] else None)
+        copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav, top=day_top(d) if d["tree"] else "")
         for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
             copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
                       nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label))
@@ -1073,7 +1064,7 @@ def main():
         if d["src"] or d["tree"]:
             crumbs.append((f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/'))
         here = "강의 자료" if d["src"] or d["tree"] else f'Day{d["n"]} 강의 자료'
-        copy_lecture(d["lecture"], f'{d["key"]}/{d["ymd"]}/lecture', nav_html(3, crumbs, here=here, lecture=d["link"], on_lecture=True))
+        copy_lecture(d["lecture"], f'{d["key"]}/{d["ymd"]}/lecture', nav_html(3, crumbs, here=here, lecture=d["link"], on_lecture=True, colab=d["colab"]))
 
     print("과목")
     for key, ds in subjects:
