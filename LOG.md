@@ -134,3 +134,4 @@
 | 2026-11-17 | 전체 | release: '바로 보기' → '강의 자료', Slack은 로고만 (Day23·Docker 제외, --release 빌드) | 배포 |
 | 2026-11-17 | 홈 | release: SWEA·Programmers 링크 화살표 제거 (main 9b568e9, Day23·Docker 제외, --release 빌드) | 배포 |
 | 2026-11-17 | 전체 | release: 다크 모드 로고 받침 투명 통일 · Ollama 공식 다크 로고 (main bdb8552, Day23·Docker 제외, --release 빌드) | 배포 |
+| 2026-11-17 | 전체 | release: 요약 페이지 Pretendard 적용, 상단 메뉴 아이콘(다운로드·눈·Slack·Colab)·말풍선, 요약 안 자료 줄 제거, 홈 Day 줄 자료 버튼 옅은 면·말풍선 (Day23·Docker 제외) | deploy |
