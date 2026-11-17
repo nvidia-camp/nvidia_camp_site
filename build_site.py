@@ -21,7 +21,8 @@
 - 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 요약 페이지도 같은 Pretendard를 쓴다(--font-body 앞에 두고 /fonts 링크, 2026-11-17).
 - 각 폴더의 index.html을 public/에 복사하고, 사이트 메뉴·통계를 뺀 원본을 download.html로 함께 둔다(메뉴의 "HTML 받기"). PDF는 만들지 않는다(2026-11-14 폐지).
 - 강사님 강의 HTML(sync_lecture_html.py가 pages/<과목>/<날짜>/lecture/에 옮김)은 원본 그대로 /<과목>/<날짜>/lecture/에
-  메뉴 아래 전체 화면으로 띄운다. 홈 Day 줄·Day 페이지 메뉴의 '바로 보기'로 열고, '강의 자료 ↗'는 지금처럼 Slack 링크.
+  메뉴 아래 전체 화면으로 띄운다. 홈 Day 줄·Day 페이지 메뉴의 '강의 자료'로 열고, Slack 게시물은 로고만 둔다
+  (사이트에 강의 HTML이 없는 날은 Slack 링크가 '강의 자료').
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
 - Day 번호·날짜·과목·강의 자료 링크는 lectures.json(sync_lectures.py가 학습 자료 시트에서 만듦)에서 읽는다.
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
@@ -137,7 +138,7 @@ def read_days():
             "n": row["day"], "date": row["date"], "ymd": folder, "key": key, "short": short,
             "subject": row["subject"], "link": row["link"],
             "src": src if src and (src / "index.html").exists() else None,
-            # 사이트에 올린 강의 HTML (sync_lecture_html.py) → '바로 보기'
+            # 사이트에 올린 강의 HTML (sync_lecture_html.py) → '강의 자료'
             "lecture": src / "lecture" if src and (src / "lecture" / "index.html").exists() else None,
             # 강의 트리(교재 구성) → '강의 목차 한눈에 보기'
             "tree": src / "tree.md" if src and (src / "tree.md").exists() else None,
@@ -262,8 +263,9 @@ def add_theme(text, nav, dark):
     return text, (nav if n else THEME_HEAD + nav)
 
 
-def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view=None):
-    """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)"""
+def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view=None, on_lecture=False):
+    """crumbs: [(이름, 루트 기준 경로)], here: 현재 위치 글자, prev/next_: (이름, 경로)
+    on_lecture: 지금 사이트의 강의 HTML 화면이다 (Slack은 로고만)"""
     up = "../" * depth
     left = [f'<a href="{up or "./"}">← {SITE_NAME}</a>']
     left += [f'<a href="{up}{path}">{html.escape(name)}</a>' for name, path in crumbs]
@@ -271,10 +273,11 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = [DOWNLOAD_MARK]
     if view:
-        right.append(f'<a href="{html.escape(view)}">바로 보기</a>')
-    if lecture:
-        right.append(f'<a class="cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="강의 자료 (Slack)" aria-label="강의 자료 (Slack, 새 탭)">'
-                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">강의 자료</a>')
+        right.append(f'<a href="{html.escape(view)}">강의 자료</a>')
+    if lecture:   # 사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack이 곧 강의 자료
+        text = "" if view or on_lecture else "강의 자료"
+        right.append(f'<a class="cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="Slack" aria-label="Slack (새 탭)">'
+                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">{text}</a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:
@@ -614,11 +617,11 @@ def list_page(title, body, nav="", up=""):
 
 
 def day_links(d, up):
-    """Day 한 줄 오른쪽의 작은 버튼: 바로 보기(사이트의 강의 HTML) · 강의 자료(Slack 원본) · 하위 페이지"""
+    """Day 한 줄 오른쪽의 작은 버튼: 강의 자료(사이트의 강의 HTML) · Slack 로고 · 하위 페이지"""
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     out = []
     if d["lecture"]:
-        out.append(f'<a class="mini view" href="{href}lecture/">{ICON_VIEW}바로 보기</a>')
+        out.append(f'<a class="mini view" href="{href}lecture/">{ICON_VIEW}강의 자료</a>')
     if d["link"]:
         out.append(slack_link(d["link"], "mini slack"))
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
@@ -629,11 +632,11 @@ def day_links(d, up):
 
 
 def slack_link(url, cls, text=""):
-    """강의 자료(Slack 원본) 링크: Slack 로고 (+ 글자). 화살표 대신 로고로 도착지를 보인다."""
+    """Slack 게시물 링크: Slack 로고 (+ 글자). 화살표 대신 로고로 도착지를 보인다."""
     img = f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">'
     label = f'<span>{html.escape(text)}</span>' if text else ""
     return (f'<a class="{cls}" href="{html.escape(url)}" target="_blank" rel="noopener" '
-            f'title="강의 자료 (Slack)" aria-label="강의 자료 (Slack, 새 탭)">{img}{label}</a>')
+            f'title="Slack" aria-label="Slack (새 탭)">{img}{label}</a>')
 
 
 def colab_link(url, cls, text=""):
@@ -740,7 +743,7 @@ def timeline(days, today):
         if has_page(d):
             groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" title="{tip}" aria-label="{tip}"></a>')
         elif d["lecture"]:
-            tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료 바로 보기')
+            tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료')
             groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/lecture/" title="{tip}" aria-label="{tip}"></a>')
         elif d["link"]:
             tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료')
@@ -822,6 +825,7 @@ TREE_CSS = """<style>
 .lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
 .lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
 .lt-res a.slack img{width:16px;height:16px}
+.lt-res a.slack:not(:has(span)){padding:0 11px}
 .lt-res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box;margin-left:-3px}
 .lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
 .lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
@@ -865,12 +869,13 @@ TREE_CSS = """<style>
 
 
 def day_resources(d):
-    """그날 자료 줄: 바로 보기 · 강의 자료 · Colab. 요약 페이지에도 끼우므로 스타일은 TREE_CSS(.lt-res)에 둔다."""
+    """그날 자료 줄: 강의 자료(사이트의 강의 HTML) · Slack · Colab. 요약 페이지에도 끼우므로 스타일은 TREE_CSS(.lt-res)에 둔다.
+    사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack 링크에 '강의 자료'를 붙인다."""
     res = []
     if d["lecture"]:
-        res.append(f'<a class="view" href="lecture/">{ICON_VIEW}바로 보기</a>')
+        res.append(f'<a class="view" href="lecture/">{ICON_VIEW}강의 자료</a>')
     if d["link"]:
-        res.append(slack_link(d["link"], "slack", "강의 자료"))
+        res.append(slack_link(d["link"], "slack", "" if d["lecture"] else "강의 자료"))
     if d["colab"]:
         res.append(colab_link(d["colab"], "colab", "Colab 실습 ↗"))
     return f'<div class="lt-res" aria-label="보조 자료">{"".join(res)}</div>' if res else ""
@@ -1049,7 +1054,7 @@ def main():
             (out / "index.html").write_text(tree_day_page(d), encoding="utf-8")
             print(f'  /{d["key"]}/{d["ymd"]}/ ← {d["tree"].relative_to(HERE)} (강의 목차 한눈에 보기)')
 
-    print("강의 자료 바로 보기")
+    print("강의 자료 (사이트 안 강의 HTML)")
     for d in days:
         if not d["lecture"]:
             continue
@@ -1057,7 +1062,7 @@ def main():
         if d["src"] or d["tree"]:
             crumbs.append((f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/'))
         here = "강의 자료" if d["src"] or d["tree"] else f'Day{d["n"]} 강의 자료'
-        copy_lecture(d["lecture"], f'{d["key"]}/{d["ymd"]}/lecture', nav_html(3, crumbs, here=here, lecture=d["link"]))
+        copy_lecture(d["lecture"], f'{d["key"]}/{d["ymd"]}/lecture', nav_html(3, crumbs, here=here, lecture=d["link"], on_lecture=True))
 
     print("과목")
     for key, ds in subjects:
