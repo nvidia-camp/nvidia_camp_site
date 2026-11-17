@@ -554,12 +554,13 @@ a.cell:hover{transform:scale(1.3)}
 .row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
 .row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
 .lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
-.mini{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--line-2);
-  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,border-color .15s}
-.mini:hover{background:var(--soft);border-color:var(--accent)}
+.mini{position:relative;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:0;background:var(--soft);
+  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,box-shadow .15s}
+.mini:hover{box-shadow:inset 0 0 0 1px var(--accent)}
+.mini[data-tip]:hover::after,.mini[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;z-index:50;white-space:nowrap;
+  padding:5px 9px;border-radius:6px;background:#0B1730;color:#fff;font-size:12px;font-weight:500;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3);pointer-events:none}
 .mini svg{width:14px;height:14px}
-.mini.view{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
-.mini.view:hover{border-color:var(--accent)}
+.mini.view{background:var(--accent-soft);color:var(--accent)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
 .mini.slack{padding:0 8px}.mini.slack img{display:block;width:16px;height:16px}
@@ -635,11 +636,11 @@ def day_links(d, up):
     if d["lecture"]:
         out.append(f'<a class="mini view" href="{href}lecture/">{ICON_VIEW}강의 자료</a>')
     if d["link"]:
-        out.append(slack_link(d["link"], "mini slack"))
+        out.append(slack_link(d["link"], "mini slack").replace('title="Slack"', 'data-tip="Slack 강의 자료 게시물 (새 탭)"'))
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
         out.append(f'<a class="mini" href="{href}{sub}/">{ICON_ARROW}{html.escape(label)}</a>')
     if d["colab"]:
-        out.append(colab_link(d["colab"], "mini colab"))
+        out.append(colab_link(d["colab"], "mini colab").replace('title="Colab 실습 폴더 (Google Drive)"', 'data-tip="Colab 실습 폴더 · Google Drive (새 탭)"'))
     return "".join(out)
 
 
