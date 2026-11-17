@@ -7,6 +7,14 @@
 - Part 1 기본 가이드: 0 큰 그림 → 1 처음 한 번 → 2 매일 루프 → 3 upstream → 4 브랜치·머지 → 5 되돌리기 → 6 .gitignore → 7 치트시트.
 - Part 2 실전 세팅(맨 아래): 강사님 실습 저장소를 upstream(push 막음)으로, 내 빈 저장소를 origin으로 두고 날짜 폴더만 `git restore -s upstream/main -- 폴더`로 가져온다. 기준 저장소: nvidia-camp/practice의 GIT_ROUTINE.md. 사용자 결정: 이 방식은 기본 가이드의 3번에 해당하는 실제 상황 세팅이라 중심이 아니고 맨 아래에 둔다.
 
+## 탭 5쪽으로 나눔 (2026-11-17)
+
+- 사용자: 한 페이지에 아래로 쭉 나열하면 보기 어렵다 → 페이지 안의 페이지(탭). PostgreSQL·AI 코딩 가이드와 같은 `SETUP_PAGES` 탭.
+- ① 기본(`/setup/git/`) · ② 원본 따라가기(`upstream/`) · ③ 브랜치 · 머지(`branch/`) · ④ 되돌리기 · .gitignore(`undo/`) · ⑤ 실전 세팅(`practice/`).
+- 탭 하나에 그림 하나 · 주제 하나. 그림 카드가 맨 위(0번), 명령 카드가 아래. 치트시트는 ① 맨 아래.
+- ④에도 그림을 넣음(사용자 질문 "그림이 없어도 될까?"): ①의 네 칸 + stash 선반. add .에서 .env가 튕겨 나오고, restore --staged·stash·pop·restore·revert·push 순서.
+- 스크립트는 다섯 쪽이 같다. `mount(id)`가 그 쪽에 있는 그림만 켠다.
+
 ## 움직이는 그림
 
 - 사용자가 가장 중요하게 본 부분: 작업 폴더 → Staging → 로컬 저장소 → GitHub의 위계와 이동.
