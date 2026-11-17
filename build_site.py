@@ -989,7 +989,7 @@ def home_page(days, subjects, today):
         f'<span class="go">{ICON_ARROW}</span></a></li>'
         for d in reversed(shown[-4:]))
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
-                       f'<img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" width="20" height="20">{name} ↗</a>'
+                       f'<img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" width="20" height="20">{name}</a>'
                        for name, logo, url in PRACTICE)
     sesac = image_data(HERE / "assets" / "branding" / "sesac.png")
     nvidia = image_data(HERE / "assets" / "branding" / "nvidia.svg")
