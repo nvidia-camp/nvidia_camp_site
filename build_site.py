@@ -103,6 +103,9 @@ DAY_SUBPAGES = {
 }
 # Colab 실습 폴더: "과목/날짜" → Google Drive 폴더 주소 (공유: 링크가 있는 모든 사용자 · 뷰어). Day 줄·그날 페이지에 Colab 로고로 나온다.
 COLAB = {
+    "python/20261020": "https://drive.google.com/drive/folders/1B5op7ctuxo9d9V7YmH_S9Jt3hhZ3vS_d",
+    "python/20261021": "https://drive.google.com/drive/folders/1rufeODQSFSmxpUGNgPEhzI5xtoqU4D4L",
+    "python/20261022": "https://drive.google.com/drive/folders/10f0R6X9P8fOgoNVWN4CHBs1hW-q0Hb69",
     "llm/20261113": "https://drive.google.com/drive/folders/14TnoVzqT0i4RWOdbONdwqW5a4Ce_vhEn",
     "llm/20261116": "https://drive.google.com/drive/folders/19rB2g83VexXoU47XW-Br_QkKtCgBKo0f",
     "llm/20261117": "https://drive.google.com/drive/folders/1jS8l2wm3YetcbodRCHgFhREVKyqgcvbN",

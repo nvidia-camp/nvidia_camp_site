@@ -159,4 +159,5 @@
 | 2026-11-17 | 강의 화면 | 강사님 강의 HTML의 사이트 화면(view.html)만 본문 글꼴을 Pretendard 96%(PretendardLecture)로 변경. 받기(download.html)는 원본 그대로. 강의 CSP에 self 허용, font: 줄임 표기·inherit 처리 보정. 11/16·17·18 244장 비교: 줄바꿈 변화 1장, 도식 넘침 0 | main만 |
 | 2026-11-17 | setup/git | Git · GitHub 가이드 초안: Part 1 기본(0 큰 그림 ~ 7 치트시트) + Part 2 실전 세팅(강사님 저장소에서 폴더 골라 받기, nvidia-camp/practice 기준). 움직이는 그림 4개(작업 폴더→Staging→로컬 저장소→GitHub, fork·upstream, 브랜치·머지, 폴더 골라 받기). 명령은 임시 저장소에서 실행 확인. 1280·390 × 라이트·다크 가로 넘침 0. SETUP 공개=False | main만 (미공개) |
 | 2026-11-17 | setup/git | 한 페이지 나열 → 탭 5쪽(기본 · 원본 따라가기 · 브랜치 · 머지 · 되돌리기 · .gitignore · 실전 세팅)으로 나눔. ④에 되돌리기 그림 추가(stash 선반, .env 튕김, revert 커밋) | main만 (미공개) |
+| 2026-11-17 | python/20261020~20261022 · 홈 | Python Day 2~4 Colab 실습 폴더(Drive, 노트북 10개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main → 배포 |
 | 2026-11-17 | setup/git | ① 기본 탭의 '처음 한 번만 하는 설정'을 접힌 토글로(이미 설정을 마친 수강생 기준). 1280·390 열고 닫기 · 가로 넘침 0 | main만 (미공개) |
