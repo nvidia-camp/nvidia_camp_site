@@ -183,13 +183,15 @@ dialog.zoom img { display: block; max-width: 96vw; max-height: 94vh; border-radi
 </style>
 </head>
 <body><style>
-.cn-nav{box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
   padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 .cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
 .cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
 .cn-nav .cn-here{opacity:.7}
 .cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
 .cn-nav .cn-dl{background:rgba(255,255,255,.14);padding:.125rem .6rem}
+html{scroll-padding-top:3rem}
+@media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
 @media print{.cn-nav{display:none}}
 </style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../../">← 학습 아카이브</a><a href="../../../setup/postgresql/">PostgreSQL 가이드</a><span class="cn-here">pgAdmin 사용법</span><span class="cn-right"><a class="cn-dl" href="download.html" download="PostgreSQL_가이드_pgAdmin_사용법.html" title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a><a href="../../../setup/postgresql/">‹ 셋업</a><a href="../../../setup/postgresql/psql/">psql ›</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>

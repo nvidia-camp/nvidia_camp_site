@@ -128,3 +128,4 @@
 | 2026-11-17 | llm/20261117 | Day22 Colab 실습 폴더 링크 추가 (--release 빌드) | 배포 |
 | 2026-11-17 | llm/20261117 | release: Day22 요약 공개 (--release 빌드, 공개 전 가이드는 계속 제외) | deploy |
 | 2026-11-17 | 전체 | release: 요약 Pretendard 적용 · Day22 하단 출처 한 줄 (Day23·Docker 제외, --release 빌드) | 배포 |
+| 2026-11-17 | 전체 | release: 상단 메뉴줄 스티키 고정 (Day23·Docker 제외, --release 빌드) | 배포 |
