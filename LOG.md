@@ -132,3 +132,4 @@
 | 2026-11-17 | 전체 | release: 글꼴 Pretendard 통일 장치 · 강의 자료 Slack 로고 (Day23·Docker 제외, --release 빌드) | 배포 |
 | 2026-11-17 | llm/20261117 | release: Day22 강의 자료(Slack) 링크 반영 (Day23·Docker 제외, --release 빌드) | 배포 |
 | 2026-11-17 | 전체 | release: '바로 보기' → '강의 자료', Slack은 로고만 (Day23·Docker 제외, --release 빌드) | 배포 |
+| 2026-11-17 | 홈 | release: SWEA·Programmers 링크 화살표 제거 (main 9b568e9, Day23·Docker 제외, --release 빌드) | 배포 |
