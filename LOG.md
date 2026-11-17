@@ -164,3 +164,4 @@
 | 2026-11-17 | setup/git | ② 탭 이름 '원본 따라가기' → 'upstream'(용어 그대로). 제목·탭·상단 경로·⑤ 탭의 참조 문구 함께 수정 | main만 (미공개) |
 | 2026-11-17 | setup/git | ③ 탭 이름 '브랜치 · 머지' → 'branch · merge'(용어 그대로). 제목·탭·상단 경로 함께 | main만 (미공개) |
 | 2026-11-17 | setup/git | ④ 탭 이름 → 'undo · .gitignore'. SETUP 공개=True로 전환(배포 준비) | main |
+| 2026-11-17 | setup/git/practice | 머리말의 예시 저장소(nvidia-camp/practice · GIT_ROUTINE.md) 안내 문구 삭제 | 배포 |
