@@ -130,10 +130,13 @@ pre code{background:none;color:inherit;padding:0}
 .cn-nav .cn-ico svg{display:block;width:1.15rem;height:1.15rem}
 .cn-nav .cn-slack img{display:block;width:1.15rem;height:1.15rem}
 .cn-nav .cn-right{align-items:center}
+.cn-nav [data-tip]{position:relative}
+.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
+  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}
 html{scroll-padding-top:3rem}
 @media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">PyTorch 치트시트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="PyTorch_핵심_치트시트_전체_흐름과_파라미터.html" title="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">PyTorch 치트시트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="PyTorch_핵심_치트시트_전체_흐름과_파라미터.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <main class="page">
 <header>

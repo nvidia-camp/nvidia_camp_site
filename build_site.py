@@ -198,6 +198,9 @@ NAV_CSS = f"""<style>
 .cn-nav .cn-ico svg{{display:block;width:1.15rem;height:1.15rem}}
 .cn-nav .cn-slack img{{display:block;width:1.15rem;height:1.15rem}}
 .cn-nav .cn-right{{align-items:center}}
+.cn-nav [data-tip]{{position:relative}}
+.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
+  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 {FONT};box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}}
 html{{scroll-padding-top:3rem}}
 @media (max-width:600px){{.cn-nav{{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}}.cn-nav .cn-right{{flex-wrap:nowrap}}html{{scroll-padding-top:2.5rem}}}}
 @media print{{.cn-nav{{display:none}}}}
@@ -229,7 +232,7 @@ function apply(){
     p[0].media.mediaText=f?p[1].replace(RX,f==='dark'?'(min-width:0px)':'(max-width:0px) and (min-width:1px)'):p[1]}
   root.setAttribute('data-theme',m);root.style.colorScheme=f;
   var b=d.querySelectorAll('.theme-toggle'),t=m==='dark'?'밝은 화면으로 보기':'어두운 화면으로 보기';
-  for(var k=0;k<b.length;k++){b[k].setAttribute('aria-label',t);b[k].title=t}}
+  for(var k=0;k<b.length;k++){b[k].setAttribute('aria-label',t);b[k].setAttribute('data-tip',t)}}
 d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.theme-toggle');if(!b)return;
   var m=root.getAttribute('data-theme')==='dark'?'light':'dark';put(m===(mq.matches?'dark':'light')?'':m);apply()});
 mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
@@ -250,7 +253,7 @@ d.addEventListener('DOMContentLoaded',function(){if(mo)mo.disconnect();apply()})
   background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
 @media print{.theme-toggle{display:none!important}}
 </style>"""
-THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기">'
+THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기">'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
              'stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>'
              '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
@@ -277,10 +280,10 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = [DOWNLOAD_MARK]
     if view:
-        right.append(f'<a class="cn-ico" href="{html.escape(view)}" title="강의 자료 보기" aria-label="강의 자료 보기">{ICON_DOC}</a>')
+        right.append(f'<a class="cn-ico" href="{html.escape(view)}" data-tip="강의 자료 보기" aria-label="강의 자료 보기">{ICON_DOC}</a>')
     if lecture:   # 사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack이 곧 강의 자료
         tip = "Slack 강의 자료 게시물 (새 탭)" if view or on_lecture else "강의 자료 · Slack 게시물 (새 탭)"
-        right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="{tip}" aria-label="{tip}">'
+        right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" data-tip="{tip}" aria-label="{tip}">'
                      f'<img src="{image_data(HERE / "assets" / "logos" / "slack-white.svg")}" alt="" width="16" height="16"></a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
@@ -352,7 +355,7 @@ def copy_lecture(src, dest, nav):
     m = re.search(r"<title>(.*?)</title>", original, re.S)
     title = m.group(1).strip() if m else "강의 자료"
     link = (f'<a class="cn-ico cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
-            f'title="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
+            f'data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
     page = f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -381,7 +384,7 @@ def copy_page(src, dest, nav, top=""):
     if top:
         text = insert_after_title(text, top)
     link = (f'<a class="cn-ico cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
-            f'title="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
+            f'data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
     nav = nav.replace(DOWNLOAD_MARK, link)
     if not dest.endswith("/lecture"):    # 강사님 원본 강의 페이지는 글꼴도 그대로 둔다
         text = unify_fonts(text, dest)
@@ -749,14 +752,14 @@ def timeline(days, today):
             state += " today"
         tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · {d["subject"]}')
         if has_page(d):
-            groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" title="{tip}" aria-label="{tip}"></a>')
+            groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/" data-tip="{tip}" aria-label="{tip}"></a>')
         elif d["lecture"]:
             tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료')
-            groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/lecture/" title="{tip}" aria-label="{tip}"></a>')
+            groups[-1][1].append(f'<a class="cell {state}" href="{d["key"]}/{d["ymd"]}/lecture/" data-tip="{tip}" aria-label="{tip}"></a>')
         elif d["link"]:
             tip = html.escape(f'Day{d["n"]} · {md(d["date"])} · 강의 자료')
             groups[-1][1].append(f'<a class="cell {state}" href="{html.escape(d["link"])}" target="_blank" rel="noopener" '
-                                 f'title="{tip}" aria-label="{tip}"></a>')
+                                 f'data-tip="{tip}" aria-label="{tip}"></a>')
         else:
             groups[-1][1].append(f'<span class="cell {state}" title="{tip}"></span>')
     return "".join(f'<div class="tl"><span class="tl-name">{name}</span><span class="tl-cells">{"".join(c)}</span></div>'
