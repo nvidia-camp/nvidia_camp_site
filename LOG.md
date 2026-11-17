@@ -165,3 +165,4 @@
 | 2026-11-17 | setup/git/practice | 머리말의 예시 저장소 안내 문구 삭제. main acd7aee에서 --release 빌드 | 배포 |
 | 2026-11-17 | setup/git | upstream 별칭 설명 · 미등록 오류 대처 한 줄씩. main cbedc66에서 --release 빌드 | 배포 |
 | 2026-11-17 | setup/git | 36b6e67(upstream 별칭 설명 · 미등록 오류 대처)을 되돌림. 사용자 요청 없이 추가된 문장. main d82b3a6에서 --release 빌드 | 배포 |
+| 2026-11-17 | ml/20261023~28 | Colab 실습 폴더 링크 라이브 반영 | 배포 |
