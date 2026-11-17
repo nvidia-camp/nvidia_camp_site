@@ -79,7 +79,7 @@ SETUP = {
     "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
     "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · branch · merge · .gitignore", "개발 환경", True),
     "vscode-extensions": ("VS Code Extension", "vscode.png", "수업 안내 3개 · Python 기본 3개 · 추천 2개", "개발 환경", True),
-    "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
+    "docker": ("Docker", "docker.png", "이미지 · 컨테이너 · Dockerfile · port · volume · compose", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", True),
     "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", True),
     "cli": ("CLI 도구", "terminal.svg", "AI 에이전트의 문서 조회 · 결과 검증 · 서비스 연결", "AI 코딩", True),
@@ -94,6 +94,7 @@ FILES = {
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
+    "docker": [("", "기본"), ("build", "Dockerfile · build"), ("port-volume", "port · volume"), ("compose", "compose")],
     "git": [("", "기본"), ("upstream", "upstream"), ("branch", "branch · merge"), ("undo", "undo · .gitignore"), ("practice", "실전 세팅")],
     "ai-coding": [("", "공통"), ("opencode", "OpenCode"), ("claude-code", "Claude Code"), ("codex", "Codex"), ("agy", "agy")],
 }

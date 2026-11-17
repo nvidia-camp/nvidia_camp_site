@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dockerfile · build</title>
+<meta name="description" content="Dockerfile 3줄로 내 이미지를 만들고 실행하는 흐름: build가 층을 쌓고, 코드를 고치면 다시 build">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root {
+  --color-primary: #142849;
+  --color-heading: #1C2B40;
+  --color-text: #222F44;
+  --color-muted: #52667E;
+  --color-canvas: #F9FBFE;
+  --color-surface: #FFFFFF;
+  --color-soft: #F0F6FD;
+  --color-border: #D8E4F2;
+  --color-code-bg: #1B2435;
+  --color-code-text: #FFFFFF;
+  --code-muted: #9AACC4;
+  --on-primary: #FFFFFF;
+  --accent: #2F66DE;
+  --accent-soft: rgba(47, 102, 222, 0.12);
+  --font-body: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+    --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C;
+    --color-code-bg: #0A111E; --on-primary: #0E1626; --accent: #7FA6FF; --accent-soft: rgba(127, 166, 255, 0.16); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+  --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C;
+  --color-code-bg: #0A111E; --on-primary: #0E1626; --accent: #7FA6FF; --accent-soft: rgba(127, 166, 255, 0.16); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
+main { max-width: 56rem; margin-inline: auto; padding: 2.5rem 1rem 4.5rem; display: grid; gap: 1.5rem; }
+h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); letter-spacing: -0.02em; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: var(--color-primary); text-underline-offset: 0.2em; font-weight: 600; }
+:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+code { font-family: var(--font-code); font-size: 0.9em; background: var(--color-soft); color: var(--color-heading); padding: 0.05rem 0.4rem; border-radius: 0.35rem; overflow-wrap: anywhere; }
+
+.head { display: grid; gap: 0.75rem; }
+.eyebrow { font-size: 0.875rem; font-weight: 700; color: var(--color-muted); }
+.lead { color: var(--color-muted); }
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.5rem; display: grid; gap: 1rem; min-width: 0; }
+.card.method { border: 2px solid var(--color-primary); }
+.step-head { display: flex; align-items: center; gap: 0.75rem; }
+.num { flex: none; display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; background: var(--color-primary); color: var(--on-primary); font-weight: 700; font-variant-numeric: tabular-nums; }
+.card h3 { margin-top: 0.4rem; color: var(--color-primary); }
+.hint { font-size: 0.88rem; color: var(--color-muted); }
+.note { border-left: 4px solid var(--color-primary); background: var(--color-soft); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: 0.75rem 1rem; }
+.note b:first-child { color: var(--color-heading); margin-right: 0.35rem; }
+.toc { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.toc a { font-size: 0.85rem; font-weight: 600; color: var(--color-heading); text-decoration: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 0.3rem 0.75rem; background: var(--color-surface); }
+.toc a:hover { border-color: var(--color-primary); }
+.toc a.p2 { background: var(--color-soft); }
+section[id], h2[id] { scroll-margin-top: 3.5rem; }
+.part { display: grid; gap: 0.5rem; margin-top: 1rem; padding-top: 1.5rem; border-top: 2px solid var(--color-border); }
+.part h2 { font-size: 1.5rem; }
+.part .tag { justify-self: start; font-size: 0.8rem; font-weight: 800; background: var(--color-primary); color: var(--on-primary); border-radius: 999px; padding: 0.1rem 0.8rem; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.75rem; padding: 0 1.1rem; border-radius: var(--radius-control); background: var(--color-primary); color: var(--on-primary); text-decoration: none; font-weight: 700; }
+.btn:hover { text-decoration: underline; }
+.btn.sub { background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-border); }
+
+/* 표 */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-border); }
+th { font-size: 0.8rem; color: var(--color-muted); background: var(--color-soft); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 700; color: var(--color-heading); }
+td code { white-space: nowrap; overflow-wrap: normal; }
+
+/* 코드 */
+.code { background: var(--color-code-bg); color: var(--color-code-text); border-radius: var(--radius-control); overflow: hidden; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.4rem 0.9rem; font-size: 0.8rem; color: var(--code-muted); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.code-head button { font: inherit; font-size: 0.78rem; color: #CFE0F5; background: transparent; border: 1px solid rgba(207, 224, 245, 0.4); border-radius: 999px; padding: 0.1rem 0.65rem; cursor: pointer; min-height: 1.75rem; }
+.code-head button:hover { background: rgba(255, 255, 255, 0.08); }
+.code pre { margin: 0; padding: 0.75rem 0.9rem; overflow-x: auto; font: 0.9rem/1.7 var(--font-code); white-space: pre; }
+.code .c { color: var(--code-muted); }
+.code-head .seg { display: inline-flex; border: 1px solid rgba(207, 224, 245, 0.4); border-radius: 999px; overflow: hidden; flex: none; }
+.code-head .seg button { font-size: 0.8rem; min-height: 1.9rem; padding: 0.15rem 0.85rem; background: transparent; color: #CFE0F5; border: 0; border-radius: 0; }
+.code-head .seg button[aria-pressed="true"] { background: #CFE0F5; color: #1B2435; }
+.code-head .lbl { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.screen-box { margin: 0; padding: 0.8rem 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-soft); font: 0.88rem/1.7 var(--font-code); color: var(--color-heading); overflow-x: auto; white-space: pre; }
+.screen-box .mk { color: var(--accent); font-weight: 700; }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.two > div { display: grid; gap: 0.6rem; align-content: start; min-width: 0; }
+.flowline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; font-size: 0.92rem; }
+.flowline span { border: 1px solid var(--color-border); background: var(--color-soft); border-radius: 0.5rem; padding: 0.15rem 0.6rem; font-weight: 600; color: var(--color-heading); }
+.flowline i { font-style: normal; color: var(--color-muted); font-weight: 700; }
+
+/* ───────── 움직이는 그림 ───────── */
+.scene { display: grid; gap: 0.85rem; min-width: 0; }
+.stage { position: relative; }
+.zone { position: relative; z-index: 1; display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); min-width: 0; }
+.zone .zh { padding: 0.5rem 0.7rem 0.15rem; display: grid; gap: 0.05rem; }
+.zone .zh b { font-size: 0.95rem; color: var(--color-heading); display: flex; align-items: center; gap: 0.35rem; }
+.zone .zh b svg { width: 1.05rem; height: 1.05rem; flex: none; color: var(--color-primary); }
+.zone .zh span { font-size: 0.74rem; color: var(--color-muted); line-height: 1.4; }
+.zone.cloud { border: 2px solid var(--color-primary); background: var(--color-surface); }
+.zone.ro { border-style: dashed; }
+.box-pc { position: relative; z-index: 0; border: 2px solid var(--color-primary); border-radius: var(--radius-card); background: var(--color-soft); }
+.box-label { position: relative; z-index: 1; padding: 0.5rem 0.85rem 0; font-weight: 800; color: var(--color-heading); display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; }
+.box-label svg { width: 1.1rem; height: 1.1rem; color: var(--color-primary); }
+.box-label small { font-weight: 600; color: var(--color-muted); font-size: 0.78rem; }
+.arw { position: relative; z-index: 1; display: grid; place-items: center; align-content: center; gap: 0.05rem; color: var(--color-muted); font-size: 0.75rem; font-weight: 700; text-align: center; transition: color 0.25s; min-width: 0; }
+.arw i { font-style: normal; font-size: 1.25rem; line-height: 1; display: inline-block; }
+.arw i::before { content: attr(data-d); }
+.arw code { background: none; padding: 0; font-size: 0.8rem; color: inherit; white-space: nowrap; }
+.arw.on { color: var(--accent); }
+.arw.on i { animation: nudge 0.7s ease 2; }
+.arw.off { opacity: 0.25; }
+.arw.blk { color: var(--color-muted); }
+.arw.blk.on { color: var(--accent); animation: shake 0.5s ease 2; }
+@keyframes nudge { 50% { transform: scale(1.35); } }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.pullbar { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.3rem 0.75rem; border: 1px dashed var(--color-border); border-radius: 999px; color: var(--color-muted); font-size: 0.8rem; font-weight: 700; transition: color 0.25s, border-color 0.25s; }
+.pullbar code { background: none; padding: 0; color: inherit; white-space: nowrap; }
+.pullbar i { font-style: normal; font-size: 1.1rem; }
+.pullbar i::before { content: attr(data-d); }
+.pullbar.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+.tok { position: absolute; top: 0; left: 0; height: 34px; display: flex; align-items: center; gap: 0.35rem; padding: 0 0.5rem; border: 1px solid var(--color-border); border-radius: 0.55rem; background: var(--color-surface); color: var(--color-heading); font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; z-index: 2; box-shadow: 0 1px 2px rgba(20, 40, 73, 0.08); transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.3s, opacity 0.35s, border-color 0.3s, background 0.3s; }
+.tok svg { width: 0.95rem; height: 0.95rem; flex: none; color: var(--color-muted); }
+.tok .t { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.tok .h { font-family: var(--font-code); color: var(--accent); font-weight: 700; flex: none; }
+.tok .dot { width: 0.6rem; height: 0.6rem; border-radius: 999px; background: var(--color-primary); flex: none; }
+.tok.new { border: 2px solid var(--accent); }
+.tok.ghost { border-style: dashed; background: transparent; color: var(--color-muted); box-shadow: none; }
+.tok.other { border-style: dashed; }
+.tok.flying { z-index: 5; box-shadow: 0 8px 20px rgba(20, 40, 73, 0.22); }
+.tok.flash { animation: flash 0.9s ease; }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(47, 102, 222, 0.6); } 100% { box-shadow: 0 0 0 12px rgba(47, 102, 222, 0); } }
+.bd { flex: none; font-size: 0.68rem; font-weight: 800; border-radius: 999px; padding: 0 0.4rem; line-height: 1.5; }
+.bd.m { color: var(--accent); border: 1px solid var(--accent); }
+.bd.s { background: var(--color-soft); color: var(--color-primary); border: 1px solid var(--color-border); }
+.bd.u { background: var(--accent); color: #FFFFFF; }
+.instant .tok, .instant .graph * { transition: none !important; animation: none !important; }
+
+/* 그림 아래 설명 · 단계 버튼 */
+.readout { display: grid; gap: 0.45rem; }
+.term { background: var(--color-code-bg); color: var(--color-code-text); border-radius: var(--radius-control); padding: 0.6rem 0.9rem; font: 0.92rem/1.6 var(--font-code); min-height: 2.75rem; overflow-x: auto; white-space: pre; }
+.term .pr { color: var(--code-muted); }
+.term .act { color: #CFE0F5; font-family: var(--font-body); }
+.say { font-size: 0.97rem; color: var(--color-text); min-height: 1.7em; }
+.out { font-size: 0.85rem; color: var(--color-muted); display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: baseline; }
+.out[hidden] { display: none; }
+.out b { font-size: 0.75rem; font-weight: 800; color: var(--color-muted); border: 1px solid var(--color-border); border-radius: 999px; padding: 0 0.45rem; }
+.ctl { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.ctl button { font: inherit; font-size: 0.85rem; font-weight: 700; min-height: 2.5rem; padding: 0.2rem 0.8rem 0.2rem 0.4rem; display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-heading); cursor: pointer; }
+.ctl button .n { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: var(--color-soft); color: var(--color-primary); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.ctl button:hover { border-color: var(--color-primary); }
+.ctl button.done { color: var(--color-muted); }
+.ctl button[aria-pressed="true"] { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); }
+.ctl button[aria-pressed="true"] .n { background: var(--on-primary); color: var(--color-primary); }
+.ctl .play { margin-left: auto; padding: 0.2rem 0.95rem; background: var(--color-soft); }
+.ctl .play[aria-pressed="true"] { background: var(--color-surface); color: var(--color-heading); border-color: var(--color-primary); }
+
+@media (max-width: 720px) {
+  main { padding-top: 1.5rem; }
+  .card { padding: 1.1rem; }
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .arw i::before, .pullbar i::before { content: attr(data-m); }
+  .zone .zh span { font-size: 0.7rem; }
+  .ctl .play { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tok, .arw, .arw i { transition: none !important; animation: none !important; }
+}
+@media print {
+  body { background: #fff; }
+  .card { break-inside: avoid; }
+  .code-head button, .ctl { display: none; }
+}
+details.fold { display: block; }
+details.fold > * + * { margin-top: 1rem; }
+details.fold::details-content { min-width: 0; }
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold .sum-t { display: grid; gap: 0.1rem; min-width: 0; }
+details.fold .more { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 2.25rem; padding: 0 0.8rem; border: 1px solid var(--color-border); border-radius: 999px; font-size: 0.85rem; font-weight: 700; color: var(--color-primary); background: var(--color-surface); }
+details.fold .more::after { content: "▾"; transition: transform 0.2s; }
+details.fold[open] .more::after { transform: rotate(180deg); }
+details.fold .more .c, details.fold[open] .more .o { display: none; }
+details.fold[open] .more .c { display: inline; }
+details.fold:not([open]) { background: var(--color-soft); }
+details.fold > summary:hover .more { border-color: var(--color-primary); }
+@media print { details.fold > *:not(summary) { display: block !important; } }
+/* 가이드 안 페이지 탭 */
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tabs a { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.5rem; padding: 0.35rem 0.95rem 0.35rem 0.45rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text); text-decoration: none; font-weight: 600; }
+.tabs a:hover { border-color: var(--color-primary); }
+.tabs .n { display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: var(--color-soft); color: var(--color-primary); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.tabs a[aria-current="page"] { background: var(--color-primary); border-color: var(--color-primary); color: var(--on-primary); }
+.tabs a[aria-current="page"] .n { background: var(--on-primary); color: var(--color-primary); }
+.zone.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+ol.plain { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.3rem; }
+.refs { font-size: 0.875rem; color: var(--color-muted); display: grid; gap: 0.25rem; }
+.tok.ctr svg, .tok.vol svg, .tok.layer svg { color: var(--color-primary); }
+.zone.wall { border: 3px solid var(--color-primary); }
+
+/* 그림 ① Docker Hub → 이미지 → 컨테이너 → 브라우저 */
+.dk1 { display: grid; grid-template-columns: minmax(0, 1fr) 3.1rem minmax(0, 1fr) 3.1rem minmax(0, 1fr) 3.1rem minmax(0, 1fr); row-gap: 0.55rem; }
+.dk1 .z-hub { grid-row: 1 / 3; grid-column: 1; }
+.dk1 .a-pull { grid-row: 2; grid-column: 2; margin-bottom: 0.65rem; }
+.dk1 .box-pc { grid-row: 1 / 3; grid-column: 3 / 8; }
+.dk1 .box-label { grid-row: 1; grid-column: 3 / 8; }
+.dk1 .z-img { grid-row: 2; grid-column: 3; margin: 0 0 0.65rem 0.65rem; }
+.dk1 .a-run { grid-row: 2; grid-column: 4; margin-bottom: 0.65rem; }
+.dk1 .z-ctr { grid-row: 2; grid-column: 5; margin-bottom: 0.65rem; }
+.dk1 .a-port { grid-row: 2; grid-column: 6; margin-bottom: 0.65rem; }
+.dk1 .z-web { grid-row: 2; grid-column: 7; margin: 0 0.65rem 0.65rem 0; }
+
+/* 그림 ②·④ 내 PC 안의 세 칸, 그림 ③ 두 칸 */
+.dk5 { display: grid; grid-template-columns: minmax(0, 1fr) 4.4rem minmax(0, 1.1fr) 4.4rem minmax(0, 1fr); row-gap: 0.55rem; }
+.dk3 { display: grid; grid-template-columns: minmax(0, 1fr) 6rem minmax(0, 1fr); row-gap: 0.55rem; }
+.dk5 .box-pc, .dk3 .box-pc { grid-row: 1 / 3; grid-column: 1 / -1; }
+.dk5 .box-label, .dk3 .box-label { grid-row: 1; grid-column: 1 / -1; }
+.dk5 > .c1, .dk3 > .c1 { grid-row: 2; grid-column: 1; margin: 0 0 0.65rem 0.65rem; }
+.dk5 > .c2, .dk3 > .c2 { grid-row: 2; grid-column: 2; margin-bottom: 0.65rem; }
+.dk5 > .c3 { grid-row: 2; grid-column: 3; margin-bottom: 0.65rem; }
+.dk3 > .c3 { grid-row: 2; grid-column: 3; margin: 0 0.65rem 0.65rem 0; }
+.dk5 > .c4 { grid-row: 2; grid-column: 4; margin-bottom: 0.65rem; }
+.dk5 > .c5 { grid-row: 2; grid-column: 5; margin: 0 0.65rem 0.65rem 0; }
+
+@media (max-width: 720px) {
+  .dk1, .dk5, .dk3 { grid-template-columns: minmax(0, 1fr); row-gap: 0.3rem; }
+  .dk .arw { grid-auto-flow: column; gap: 0.5rem; justify-content: center; }
+  .dk .box-label { padding-bottom: 0.3rem; }
+  .dk1 .z-hub { grid-row: 1; grid-column: 1; }
+  .dk1 .a-pull { grid-row: 2; grid-column: 1; margin: 0.2rem 0; }
+  .dk1 .box-pc { grid-row: 3 / 9; grid-column: 1; }
+  .dk1 .box-label { grid-row: 3; grid-column: 1; }
+  .dk1 .z-img { grid-row: 4; grid-column: 1; margin: 0 0.65rem; }
+  .dk1 .a-run { grid-row: 5; grid-column: 1; margin: 0; }
+  .dk1 .z-ctr { grid-row: 6; grid-column: 1; margin: 0 0.65rem; }
+  .dk1 .a-port { grid-row: 7; grid-column: 1; margin: 0; }
+  .dk1 .z-web { grid-row: 8; grid-column: 1; margin: 0 0.65rem 0.65rem; }
+  .dk5 .box-pc { grid-row: 1 / 7; grid-column: 1; }
+  .dk3 .box-pc { grid-row: 1 / 5; grid-column: 1; }
+  .dk5 .box-label, .dk3 .box-label { grid-column: 1; }
+  .dk5 > .c1, .dk3 > .c1 { grid-row: 2; grid-column: 1; margin: 0 0.65rem; }
+  .dk5 > .c2, .dk3 > .c2 { grid-row: 3; grid-column: 1; margin: 0; }
+  .dk5 > .c3 { grid-row: 4; grid-column: 1; margin: 0 0.65rem; }
+  .dk3 > .c3 { grid-row: 4; grid-column: 1; margin: 0 0.65rem 0.65rem; }
+  .dk5 > .c4 { grid-row: 5; grid-column: 1; margin: 0; }
+  .dk5 > .c5 { grid-row: 6; grid-column: 1; margin: 0 0.65rem 0.65rem; }
+}
+
+</style>
+</head>
+<body>
+<main>
+<header class="head">
+  <p class="eyebrow">공통 가이드 · 개발 환경 · Windows 11 · PowerShell · Git Bash</p>
+  <h1>Dockerfile · build</h1>
+  <p class="lead">Docker Hub의 이미지 말고 내 코드가 든 이미지가 필요하면 직접 만듭니다. 만드는 순서를 Dockerfile에 적고 build합니다.</p>
+</header>
+
+<nav class="tabs" aria-label="Docker 가이드 페이지"><a data-site href="../"><span class="n">1</span>기본</a><a data-site href="../build/" aria-current="page"><span class="n">2</span>Dockerfile · build</a><a data-site href="../port-volume/"><span class="n">3</span>port · volume</a><a data-site href="../compose/"><span class="n">4</span>compose</a></nav>
+
+<section class="card method" aria-labelledby="b0">
+  <div class="step-head"><span class="num">0</span><h2 id="b0">큰 그림 · Dockerfile로 이미지를 쌓습니다</h2></div>
+  <p>Dockerfile 한 줄이 이미지의 층(layer) 하나가 됩니다. 아래 버튼을 누르면 해당 단계가 다시 재생됩니다.</p>
+  <div class="scene" id="sc-build">
+    <div class="stage dk dk5">
+      <div class="box-pc"></div>
+      <div class="box-label"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 17h6M10 14v3" stroke="currentColor" stroke-width="1.6"/></svg>내 PC</div>
+      <div class="zone c1" data-zone="src" data-cap="2"><div class="zh"><b>프로젝트 폴더</b><span>내 코드 · Dockerfile</span></div><div class="zb"></div></div>
+      <div class="arw c2" data-arrow="build"><i data-d="→" data-m="↓"></i><code>build</code></div>
+      <div class="zone c3" data-zone="img" data-cap="3"><div class="zh"><b>이미지 myapp</b><span>Image · 층을 쌓은 설치본</span></div><div class="zb"></div></div>
+      <div class="arw c4" data-arrow="run"><i data-d="→" data-m="↓"></i><code>run</code></div>
+      <div class="zone wall c5" data-zone="ctr" data-cap="2"><div class="zh"><b>컨테이너</b><span>Container · 실행한 것</span></div><div class="zb"></div></div>
+    </div>
+    <div class="readout" aria-live="polite"><div class="term"></div><p class="say"></p><p class="out" hidden><b></b><code></code></p></div>
+    <div class="ctl" role="group" aria-label="단계"></div>
+  </div>
+</section>
+
+<section class="card" aria-labelledby="b1">
+  <div class="step-head"><span class="num">1</span><h2 id="b1">Dockerfile · 3줄</h2></div>
+  <div class="two">
+    <div>
+      <pre class="screen-box">myapp/
+├─ app.py
+└─ Dockerfile     <span class="mk">← 확장자 없음</span></pre>
+      <div class="code">
+        <div class="code-head"><span>app.py</span><button type="button" data-copy="c-app">코드 복사</button></div>
+        <pre id="c-app">print("Hello from container!")</pre>
+      </div>
+      <div class="code">
+        <div class="code-head"><span>Dockerfile</span><button type="button" data-copy="c-df">코드 복사</button></div>
+        <pre id="c-df">FROM python:3.13-slim
+COPY app.py .
+CMD ["python", "app.py"]</pre>
+      </div>
+    </div>
+    <div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>줄</th><th>하는 일</th></tr></thead>
+          <tbody>
+            <tr><td><code>FROM</code></td><td>바탕이 될 이미지. Docker Hub에서 받아 옵니다</td></tr>
+            <tr><td><code>COPY</code></td><td>내 PC의 파일을 이미지 안으로 복사</td></tr>
+            <tr><td><code>RUN</code></td><td>이미지를 만들 때 명령 실행 (라이브러리 설치)</td></tr>
+            <tr><td><code>CMD</code></td><td>컨테이너를 실행할 때 할 명령</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card" aria-labelledby="b2">
+  <div class="step-head"><span class="num">2</span><h2 id="b2">build · run</h2></div>
+  <div class="code">
+    <div class="code-head"><span>PowerShell · Git Bash 공통 · myapp 폴더에서</span><button type="button" data-copy="c-build">코드 복사</button></div>
+    <pre id="c-build">docker build -t myapp .   <span class="c"># 지금 폴더(.)의 Dockerfile로 이미지 myapp 만들기</span>
+docker run myapp          <span class="c"># 실행 → Hello from container!</span></pre>
+  </div>
+  <p class="hint">코드를 고치면 다시 <code>build</code>해야 이미지에 반영됩니다. <code>-t</code>는 이미지 이름(tag)이고, 끝의 <code>.</code>을 빠뜨리지 않습니다.</p>
+</section>
+
+<section class="card" aria-labelledby="b3">
+  <div class="step-head"><span class="num">3</span><h2 id="b3">라이브러리가 필요할 때</h2></div>
+  <p><code>requirements.txt</code>를 먼저 복사해 설치하고, 코드는 그다음에 복사합니다.</p>
+  <div class="code">
+    <div class="code-head"><span>Dockerfile</span><button type="button" data-copy="c-df2">코드 복사</button></div>
+    <pre id="c-df2">FROM python:3.13-slim
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY app.py .
+CMD ["python", "app.py"]</pre>
+  </div>
+  <p class="hint">이 순서면 app.py만 고쳤을 때 설치 층은 CACHED로 건너뛰어 build가 빠릅니다.</p>
+</section>
+
+</main>
+<script>
+(function () {
+  /* ── 셸 탭 · 복사 ── */
+  var pres = document.querySelectorAll('pre[data-bash]');
+  pres.forEach(function (p) { p.dataset.ps = p.textContent; });
+  function applyShell(mode) {
+    document.body.dataset.shell = mode;
+    pres.forEach(function (p) { p.textContent = mode === 'bash' ? p.dataset.bash : p.dataset.ps; });
+    document.querySelectorAll('[data-shell-btn]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.shellBtn === mode ? 'true' : 'false'); });
+    try { localStorage.setItem('shell', mode); } catch (e) {}
+  }
+  document.querySelectorAll('[data-shell-btn]').forEach(function (b) { b.addEventListener('click', function () { applyShell(b.dataset.shellBtn); }); });
+  var saved = 'ps'; try { saved = localStorage.getItem('shell') || 'ps'; } catch (e) {}
+  if (saved === 'bash') applyShell('bash');
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copy).textContent;
+      var done = function () { btn.textContent = '복사됨'; setTimeout(function () { btn.textContent = '코드 복사'; }, 1500); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, function () {}); }
+    });
+  });
+
+  /* ── 움직이는 그림 ── */
+  var REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var PH = 850, H = 34, GAP = 6, PAD = 8, MINW = 132;
+  var ICON = {
+    file: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1.5h5l3 3v10H4z M9 1.5v3h3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+    folder: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 3.5h4.5l1.5 1.5h7v8.5h-13z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>'
+  };
+  function F(n) { return ICON.file + '<span class="t">' + n + '</span>'; }
+  function D(n) { return ICON.folder + '<span class="t">' + n + '</span>'; }
+  function C(h, m) { return '<span class="dot"></span><span class="h">' + h + '</span><span class="t">' + m + '</span>'; }
+
+  function tokenOps(stage) {
+    var zones = {}, toks = {}, arrows = [].slice.call(stage.querySelectorAll('[data-arrow]'));
+    arrows.forEach(function (a) { a._html = a.innerHTML; a._cls = a.className; });
+    stage.querySelectorAll('[data-zone]').forEach(function (z) {
+      zones[z.dataset.zone] = { body: z.querySelector('.zb'), cap: +z.dataset.cap || 2, minw: +z.dataset.minw || MINW, list: [] };
+    });
+    function rel(el) { var a = el.getBoundingClientRect(), s = stage.getBoundingClientRect(); return { x: a.left - s.left, y: a.top - s.top, w: a.width }; }
+    function layout() {
+      var geo = {};
+      Object.keys(zones).forEach(function (k) {
+        var z = zones[k], bw = z.body.getBoundingClientRect().width - 2 * PAD;
+        var cols = Math.max(1, Math.floor((bw + GAP) / (z.minw + GAP))), rows = Math.ceil(z.cap / cols);
+        z.body.style.minHeight = (rows * H + (rows - 1) * GAP + 2 * PAD) + 'px';
+        geo[k] = { cols: cols, w: (bw - (cols - 1) * GAP) / cols };
+      });
+      Object.keys(zones).forEach(function (k) {
+        var z = zones[k], r = rel(z.body), g = geo[k];
+        z.list.forEach(function (id, i) {
+          var t = toks[id], c = i % g.cols, rr = Math.floor(i / g.cols);
+          t.style.width = g.w + 'px';
+          t.style.transform = 'translate(' + (r.x + PAD + c * (g.w + GAP)) + 'px,' + (r.y + PAD + rr * (H + GAP)) + 'px)';
+        });
+      });
+    }
+    function detach(id) { Object.keys(zones).forEach(function (k) { var l = zones[k].list, i = l.indexOf(id); if (i > -1) l.splice(i, 1); }); }
+    function fly(t) { t.classList.add('flying'); setTimeout(function () { t.classList.remove('flying'); }, 800); }
+    var o = {
+      reset: function () {
+        Object.keys(toks).forEach(function (id) { toks[id].remove(); }); toks = {};
+        Object.keys(zones).forEach(function (k) { zones[k].list = []; });
+        arrows.forEach(function (a) { a.innerHTML = a._html; a.className = a._cls; });
+      },
+      relayout: layout,
+      clearNew: function () { Object.keys(toks).forEach(function (id) { toks[id].classList.remove('new', 'flash'); }); stage.querySelectorAll('[data-arrow]').forEach(function (a) { a.classList.remove('on'); }); },
+      add: function (id, cls, html, zone) {
+        var t = document.createElement('div'); t.className = 'tok ' + cls; t.innerHTML = html; t.setAttribute('aria-hidden', 'true');
+        t.style.transition = 'none'; t.style.opacity = '0'; stage.appendChild(t); toks[id] = t; zones[zone].list.push(id); layout();
+        void t.offsetWidth; t.style.transition = ''; t.style.opacity = '1';
+      },
+      move: function (id, zone) { detach(id); zones[zone].list.push(id); fly(toks[id]); layout(); },
+      copy: function (src, id, zone, cls, html) {
+        var s = toks[src], t = document.createElement('div');
+        t.className = 'tok ' + (cls || s.className.replace(/\b(tok|flash|flying)\b/g, '').trim()); t.innerHTML = html || s.innerHTML; t.setAttribute('aria-hidden', 'true');
+        t.style.transition = 'none'; t.style.transform = s.style.transform; t.style.width = s.style.width; stage.appendChild(t); toks[id] = t;
+        void t.offsetWidth; t.style.transition = ''; zones[zone].list.push(id); fly(t); layout();
+      },
+      set: function (id, cls, html) { var t = toks[id]; t.className = 'tok ' + cls; if (html) t.innerHTML = html; },
+      badge: function (id, text, kind) {
+        var t = toks[id], b = t.querySelector('.bd');
+        if (!text) { if (b) b.remove(); return; }
+        if (!b) { b = document.createElement('span'); t.appendChild(b); }
+        b.className = 'bd ' + kind; b.textContent = text;
+      },
+      remove: function (id) { var t = toks[id]; if (!t) return; detach(id); delete toks[id]; t.style.opacity = '0'; setTimeout(function () { t.remove(); }, 400); layout(); },
+      flash: function (id) { var t = toks[id]; t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); },
+      label: function (name, text) { stage.querySelectorAll('[data-arrow="' + name + '"] code').forEach(function (c) { c.textContent = text; }); },
+      cls: function (name, add, rm) { stage.querySelectorAll('[data-arrow="' + name + '"]').forEach(function (a) { if (add) a.classList.add(add); if (rm) a.classList.remove(rm); }); },
+      arrow: function (name) { stage.querySelectorAll('[data-arrow="' + name + '"]').forEach(function (a) { a.classList.add('on'); }); }
+    };
+    if (window.ResizeObserver) new ResizeObserver(function () { stage.classList.add('instant'); layout(); void stage.offsetWidth; stage.classList.remove('instant'); }).observe(stage);
+    return o;
+  }
+
+  function Scene(root, ops, def) {
+    var steps = def.steps, cur = -1, timers = [], playing = false, playT = null, touched = false;
+    var term = root.querySelector('.term'), say = root.querySelector('.say'), out = root.querySelector('.out'), ctl = root.querySelector('.ctl');
+    var btns = steps.map(function (s, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span class="n">' + (i + 1) + '</span>' + s.label;
+      b.addEventListener('click', function () { touched = true; stop(); go(i); }); ctl.appendChild(b); return b;
+    });
+    var pb = document.createElement('button'); pb.type = 'button'; pb.className = 'play'; ctl.appendChild(pb);
+    pb.addEventListener('click', function () { touched = true; playing ? stop() : play(); });
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+    function show(s) {
+      if (s.cmd) term.innerHTML = [].concat(s.cmd).map(function (c) { return '<span class="pr">&gt; </span>' + esc(c); }).join('\n');
+      else term.innerHTML = '<span class="act">' + esc(s.act || '') + '</span>';
+      say.textContent = s.say;
+      if (s.out) { out.hidden = false; out.querySelector('b').textContent = s.out[0]; out.querySelector('code').textContent = s.out[1]; } else out.hidden = true;
+    }
+    function go(k) {
+      timers.forEach(clearTimeout); timers = [];
+      root.classList.add('instant');
+      ops.reset(); def.init(ops);
+      for (var i = 0; i < k; i++) { ops.clearNew(); steps[i].phases.forEach(function (p) { p(ops); }); }
+      ops.clearNew(); ops.relayout(); void root.offsetWidth; root.classList.remove('instant');
+      if (k >= 0) {
+        var s = steps[k];
+        s.phases.forEach(function (p, j) { if (j === 0 || REDUCE) p(ops); else timers.push(setTimeout(function () { p(ops); }, j * PH)); });
+        show(s);
+      } else show(def.start);
+      cur = k;
+      btns.forEach(function (b, i) { b.setAttribute('aria-pressed', i === k ? 'true' : 'false'); b.classList.toggle('done', i < k); });
+    }
+    function tick() {
+      var next = cur + 1;
+      if (next >= steps.length) { go(-1); playT = setTimeout(tick, 1600); return; }
+      go(next); playT = setTimeout(tick, (steps[next].phases.length - 1) * PH + 2300);
+    }
+    function play() { playing = true; pb.textContent = '❚❚ 멈춤'; pb.setAttribute('aria-pressed', 'true'); if (cur >= steps.length - 1) go(-1); playT = setTimeout(tick, cur < 0 ? 900 : 200); }
+    function stop() { playing = false; clearTimeout(playT); pb.textContent = '▶ 자동 재생'; pb.setAttribute('aria-pressed', 'false'); }
+    stop(); go(-1);
+    if (!REDUCE && window.IntersectionObserver) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting && !touched && !playing) play();
+          else if (!e.isIntersecting && playing && !touched) stop();
+        });
+      }, { threshold: 0.45 }).observe(root.querySelector('.stage'));
+    }
+  }
+
+  function mount(id, mk, def) { var r = document.getElementById(id); if (r) Scene(r, mk(r.querySelector('.stage')), def); }
+
+  var IC = {
+    img: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l6 3-6 3-6-3z M2 8l6 3 6-3 M2 11l6 3 6-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+    ctr: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5 5.5v5M8 5.5v5M11 5.5v5" stroke="currentColor" stroke-width="1.3"/></svg>',
+    vol: '<svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="3.8" rx="5.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>',
+    web: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 5.5h13" stroke="currentColor" stroke-width="1.3"/></svg>',
+    tbl: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2 6.5h12M2 9.8h12M6.5 3v10" stroke="currentColor" stroke-width="1.3"/></svg>'
+  };
+  function T(ic, n) { return IC[ic] + '<span class="t">' + n + '</span>'; }
+  function L(k, n) { return IC.img + '<span class="h">' + k + '</span><span class="t">' + n + '</span>'; }
+  var RUN_DB = 'docker run -d --name db -e POSTGRES_PASSWORD=1234 -v pgdata:/var/lib/postgresql postgres';
+
+  /* ① 기본: Docker Hub → 이미지 → 컨테이너 → 브라우저 */
+  mount('sc-run', tokenOps, {
+    start: { act: '처음 상태', say: 'Docker Hub에는 이미지가 많이 있고, 내 PC에는 아직 아무것도 없습니다.', out: ['docker images', '(비어 있음)'] },
+    init: function (o) { o.add('h1', 'img', T('img', 'nginx'), 'hub'); o.add('h2', 'img', T('img', 'postgres'), 'hub'); o.add('h3', 'img', T('img', 'python'), 'hub'); },
+    steps: [
+      { label: 'pull', cmd: 'docker pull nginx', say: 'Docker Hub에서 nginx 이미지를 내 PC로 받아 옵니다. 이미지는 프로그램과 실행 환경을 담은 설치본입니다.', out: ['출력', 'Status: Downloaded newer image for nginx:latest'],
+        phases: [function (o) { o.arrow('pull'); o.copy('h1', 'i1', 'img', 'img new'); }] },
+      { label: 'run', cmd: 'docker run -d -p 8080:80 --name web nginx', say: '이미지로 컨테이너 web을 만들어 실행합니다. 컨테이너는 이미지를 실행한 것입니다.', out: ['출력', '46d2846e4310…  (새 컨테이너의 ID)'],
+        phases: [function (o) { o.arrow('run'); o.copy('i1', 'c1', 'ctr', 'ctr new', T('ctr', 'web')); }, function (o) { o.badge('c1', '실행 중', 'u'); }] },
+      { label: 'ps', cmd: 'docker ps', say: '실행 중인 컨테이너를 봅니다. 이름 web과 포트 8080→80이 보입니다.', out: ['docker ps', 'nginx   Up 2 seconds   0.0.0.0:8080->80/tcp   web'],
+        phases: [function (o) { o.flash('c1'); }] },
+      { label: '브라우저', act: '브라우저에서 localhost:8080 열기', say: '내 PC의 8080 포트가 컨테이너의 80 포트로 이어져, 컨테이너 안 웹 서버의 화면이 열립니다.', out: ['브라우저', 'Welcome to nginx!'],
+        phases: [function (o) { o.arrow('port'); o.add('w1', 'page new', T('web', 'Welcome to nginx!'), 'web'); }] },
+      { label: 'stop', cmd: 'docker stop web', say: '컨테이너를 멈춥니다. 지워지지는 않아서 docker ps -a에는 남아 있습니다.', out: ['docker ps -a', 'nginx   Exited (0)   web'],
+        phases: [function (o) { o.set('c1', 'ctr ghost'); o.badge('c1', '멈춤', 's'); o.remove('w1'); }] },
+      { label: 'rm', cmd: 'docker rm web', say: '컨테이너를 지웁니다. 이미지 nginx는 그대로 남습니다.', out: ['docker images', 'nginx:latest'],
+        phases: [function (o) { o.remove('c1'); }, function (o) { o.flash('i1'); }] },
+      { label: 'run 다시', cmd: 'docker run -d -p 8080:80 --name web nginx', say: '이미지가 이미 있으니 pull 없이 바로 새 컨테이너가 뜹니다. 한 이미지로 컨테이너를 몇 번이든 만들 수 있습니다.',
+        phases: [function (o) { o.arrow('run'); o.copy('i1', 'c2', 'ctr', 'ctr new', T('ctr', 'web')); }, function (o) { o.badge('c2', '실행 중', 'u'); }] }
+    ]
+  });
+
+  /* ② Dockerfile → build → 이미지 → run */
+  mount('sc-build', tokenOps, {
+    start: { act: '처음 상태', say: '프로젝트 폴더에 app.py만 있습니다. 이미지는 아직 없습니다.' },
+    init: function (o) { o.add('a', 'file', F('app.py'), 'src'); },
+    steps: [
+      { label: 'Dockerfile', act: '프로젝트 폴더에 Dockerfile 작성 (3줄)', say: '이미지를 만드는 순서를 적은 파일입니다. 확장자 없이 이름이 Dockerfile입니다.',
+        phases: [function (o) { o.add('d', 'file new', F('Dockerfile'), 'src'); o.flash('d'); }] },
+      { label: 'build', cmd: 'docker build -t myapp .', say: 'Dockerfile을 한 줄씩 실행하며 층(layer)을 쌓습니다. 다 쌓은 결과가 이미지 myapp입니다.', out: ['docker images', 'myapp:latest'],
+        phases: [function (o) { o.arrow('build'); o.copy('d', 'l1', 'img', 'layer new', L('FROM', 'python:3.13-slim')); },
+                 function (o) { o.arrow('build'); o.copy('a', 'l2', 'img', 'layer new', L('COPY', 'app.py')); },
+                 function (o) { o.arrow('build'); o.copy('d', 'l3', 'img', 'layer new', L('CMD', 'python app.py')); }] },
+      { label: 'run', cmd: 'docker run myapp', say: '이미지로 컨테이너를 만들어 CMD를 실행합니다. 프로그램이 끝나면 컨테이너도 함께 멈춥니다.', out: ['출력', 'Hello from container!'],
+        phases: [function (o) { o.arrow('run'); o.copy('l3', 'c1', 'ctr', 'ctr new', T('ctr', 'myapp')); }, function (o) { o.badge('c1', '실행 중', 'u'); },
+                 function (o) { o.set('c1', 'ctr ghost'); o.badge('c1', '종료', 's'); }] },
+      { label: 'app.py 수정', act: 'VS Code에서 app.py를 고치고 저장', say: '폴더의 파일만 바뀌었습니다. 이미 만든 이미지 안의 app.py는 예전 그대로입니다.',
+        phases: [function (o) { o.badge('a', '수정', 'm'); o.flash('a'); }] },
+      { label: 'build 다시', cmd: 'docker build -t myapp .', say: '바뀐 층부터 다시 쌓습니다. FROM 층은 바뀌지 않아 저장해 둔 것(CACHED)을 그대로 씁니다.', out: ['출력', '=> CACHED [1/2] FROM docker.io/library/python:3.13-slim'],
+        phases: [function (o) { o.arrow('build'); o.badge('l1', 'CACHED', 's'); o.flash('l1'); o.badge('a', null); },
+                 function (o) { o.arrow('build'); o.set('l2', 'layer new'); o.flash('l2'); o.set('l3', 'layer new'); o.flash('l3'); }] },
+      { label: 'run 다시', cmd: 'docker run myapp', say: '새 이미지로 만든 컨테이너라 고친 코드가 실행됩니다. run할 때마다 컨테이너가 하나씩 새로 생깁니다.', out: ['출력', 'Hello again!'],
+        phases: [function (o) { o.arrow('run'); o.copy('l3', 'c2', 'ctr', 'ctr new', T('ctr', 'myapp')); }, function (o) { o.badge('c2', '실행 중', 'u'); },
+                 function (o) { o.set('c2', 'ctr ghost'); o.badge('c2', '종료', 's'); }] }
+    ]
+  });
+
+  /* ③-1 port: 벽에 통로 뚫기 */
+  mount('sc-port', tokenOps, {
+    start: { act: '처음 상태', say: '브라우저는 내 PC에 있고, 컨테이너는 벽으로 막힌 상자입니다.' },
+    init: function () {},
+    steps: [
+      { label: 'run (-p 없이)', cmd: 'docker run -d --name web nginx', say: '컨테이너 안에서 nginx가 80 포트로 기다립니다. 이 포트는 컨테이너 안에만 열려 있습니다.', out: ['docker ps', 'PORTS   80/tcp'],
+        phases: [function (o) { o.add('c', 'ctr new', T('ctr', 'web · nginx :80'), 'ct'); }] },
+      { label: '접속 실패', act: '브라우저에서 localhost:8080 열기', say: '내 PC의 8080 포트는 어디에도 이어져 있지 않습니다. 요청이 벽에 막힙니다.', out: ['브라우저', '사이트에 연결할 수 없음'],
+        phases: [function (o) { o.add('q', 'req new', T('web', 'localhost:8080'), 'br'); }, function (o) { o.arrow('port'); }, function (o) { o.badge('q', '실패', 'm'); }] },
+      { label: '-p 붙여 다시', cmd: ['docker rm -f web', 'docker run -d -p 8080:80 --name web nginx'], say: '-p 8080:80으로 내 PC의 8080과 컨테이너의 80을 잇는 통로를 뚫고 다시 실행합니다.', out: ['docker ps', 'PORTS   0.0.0.0:8080->80/tcp'],
+        phases: [function (o) { o.remove('c'); o.remove('q'); },
+                 function (o) { o.add('c2', 'ctr new', T('ctr', 'web · nginx :80'), 'ct'); o.cls('port', null, 'blk'); o.label('port', '-p 8080:80'); o.arrow('port'); }] },
+      { label: '접속 성공', act: '브라우저에서 localhost:8080 다시 열기', say: '8080으로 들어온 요청이 통로를 지나 컨테이너의 80으로 갑니다. nginx 화면이 열립니다.', out: ['브라우저', 'Welcome to nginx!'],
+        phases: [function (o) { o.add('q2', 'req new', T('web', 'localhost:8080'), 'br'); },
+                 function (o) { o.arrow('port'); o.move('q2', 'ct'); },
+                 function (o) { o.copy('q2', 'p', 'br', 'page new', T('web', 'Welcome to nginx!')); o.remove('q2'); }] }
+    ]
+  });
+
+  /* ③-2 volume: 컨테이너 밖 저장 공간 */
+  mount('sc-vol', tokenOps, {
+    start: { act: '처음 상태', say: '-v 없이 실행한 db 컨테이너 안에 users 테이블을 만들어 둔 상태입니다.' },
+    init: function (o) { o.add('c', 'ctr', T('ctr', 'db · postgres'), 'ct'); o.add('t', 'tbl', T('tbl', 'users 테이블'), 'ct'); },
+    steps: [
+      { label: 'rm', cmd: 'docker rm -f db', say: '컨테이너를 지우면 그 안에 쌓인 데이터도 함께 사라집니다. 다시 띄우면 빈 DB로 시작합니다.',
+        phases: [function (o) { o.remove('c'); o.remove('t'); }] },
+      { label: 'run -v', cmd: RUN_DB, say: '-v로 볼륨 pgdata를 컨테이너의 데이터 폴더에 연결합니다. 볼륨은 컨테이너 밖에서 Docker가 관리하는 저장 공간입니다.',
+        phases: [function (o) { o.add('c2', 'ctr new', T('ctr', 'db · postgres'), 'ct'); },
+                 function (o) { o.cls('vol', null, 'off'); o.arrow('vol'); o.add('v', 'vol new', T('vol', 'pgdata'), 'vol'); }] },
+      { label: '데이터 저장', act: '컨테이너 안 DB에 users 테이블 만들기', say: '컨테이너가 데이터 폴더에 쓰는 내용은 실제로는 볼륨에 저장됩니다.',
+        phases: [function (o) { o.add('t2', 'tbl new', T('tbl', 'users 테이블'), 'ct'); }, function (o) { o.arrow('vol'); o.move('t2', 'vol'); }] },
+      { label: 'rm', cmd: 'docker rm -f db', say: '컨테이너만 지워집니다. 볼륨 pgdata와 그 안의 테이블은 남아 있습니다.', out: ['docker volume ls', 'local     pgdata'],
+        phases: [function (o) { o.remove('c2'); o.cls('vol', 'off'); }, function (o) { o.flash('v'); o.flash('t2'); }] },
+      { label: 'run -v 다시', cmd: RUN_DB, say: '같은 볼륨을 연결해 새 컨테이너를 띄우면 테이블이 그대로 있습니다.', out: ['psql', 'SELECT count(*) FROM users;  →  2'],
+        phases: [function (o) { o.add('c3', 'ctr new', T('ctr', 'db · postgres'), 'ct'); }, function (o) { o.cls('vol', null, 'off'); o.arrow('vol'); o.flash('t2'); }] }
+    ]
+  });
+
+  /* ④ compose: 파일 한 장 → 컨테이너 여럿 */
+  function composeUp(o) { o.arrow('cmp'); o.copy('y', 'w', 'ctr', 'ctr new', T('ctr', 'web · nginx')); o.copy('y', 'd', 'ctr', 'ctr new', T('ctr', 'db · postgres')); }
+  mount('sc-compose', tokenOps, {
+    start: { act: '처음 상태', say: '프로젝트 폴더 myproject에 compose.yaml 한 장만 있습니다. 그 안에 web과 db 두 컨테이너가 적혀 있습니다.' },
+    init: function (o) { o.add('y', 'file', F('compose.yaml'), 'src'); },
+    steps: [
+      { label: 'up', cmd: 'docker compose up -d', say: 'compose.yaml에 적힌 컨테이너를 모두 만들어 실행하고, 볼륨도 함께 만듭니다.', out: ['출력', 'Container myproject-web-1  Started'],
+        phases: [composeUp, function (o) { o.cls('vol', null, 'off'); o.arrow('vol'); o.add('v', 'vol new', T('vol', 'pgdata'), 'vol'); o.badge('w', '실행 중', 'u'); o.badge('d', '실행 중', 'u'); }] },
+      { label: 'ps', cmd: 'docker compose ps', say: '이 compose.yaml로 띄운 컨테이너만 모아 봅니다.', out: ['docker compose ps', 'myproject-web-1   web   Up 4 seconds   0.0.0.0:8080->80/tcp'],
+        phases: [function (o) { o.flash('w'); o.flash('d'); }] },
+      { label: 'down', cmd: 'docker compose down', say: '컨테이너를 모두 멈추고 지웁니다. 볼륨은 지우지 않아서 DB 데이터가 남습니다.', out: ['출력', 'Container myproject-web-1  Removed'],
+        phases: [function (o) { o.arrow('cmp'); o.remove('w'); o.remove('d'); o.cls('vol', 'off'); }, function (o) { o.flash('v'); }] },
+      { label: 'up 다시', cmd: 'docker compose up -d', say: '명령 하나로 같은 구성이 다시 뜹니다. db는 남아 있던 볼륨 pgdata에 다시 연결됩니다.',
+        phases: [composeUp, function (o) { o.cls('vol', null, 'off'); o.arrow('vol'); o.flash('v'); o.badge('w', '실행 중', 'u'); o.badge('d', '실행 중', 'u'); }] }
+    ]
+  });
+})();
+</script>
+</body>
+</html>
