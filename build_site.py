@@ -280,7 +280,7 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = [DOWNLOAD_MARK]
     if view:
-        right.append(f'<a class="cn-ico" href="{html.escape(view)}" data-tip="강의 자료 보기" aria-label="강의 자료 보기">{ICON_DOC}</a>')
+        right.append(f'<a class="cn-ico" href="{html.escape(view)}" data-tip="강의 자료 보기" aria-label="강의 자료 보기">{ICON_VIEW}</a>')
     if lecture:   # 사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack이 곧 강의 자료
         tip = "Slack 강의 자료 게시물 (새 탭)" if view or on_lecture else "강의 자료 · Slack 게시물 (새 탭)"
         right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" data-tip="{tip}" aria-label="{tip}">'
