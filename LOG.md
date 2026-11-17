@@ -161,3 +161,4 @@
 | 2026-11-17 | setup/git | 한 페이지 나열 → 탭 5쪽(기본 · 원본 따라가기 · 브랜치 · 머지 · 되돌리기 · .gitignore · 실전 세팅)으로 나눔. ④에 되돌리기 그림 추가(stash 선반, .env 튕김, revert 커밋) | main만 (미공개) |
 | 2026-11-17 | python/20261020~20261022 · 홈 | Python Day 2~4 Colab 실습 폴더(Drive, 노트북 10개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main → 배포 |
 | 2026-11-17 | setup/git | ① 기본 탭의 '처음 한 번만 하는 설정'을 접힌 토글로(이미 설정을 마친 수강생 기준). 1280·390 열고 닫기 · 가로 넘침 0 | main만 (미공개) |
+| 2026-11-17 | setup/git | Git · GitHub 가이드 배포: 탭 5쪽(기본 · upstream · branch · merge · undo · .gitignore · 실전 세팅), 움직이는 그림 5개. 홈 개발 환경 칸에 Git 칩. main 35eecff에서 --release 빌드 | 배포 |
