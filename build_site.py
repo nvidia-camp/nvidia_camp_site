@@ -209,6 +209,7 @@ THEME_MARK = "<!--theme-->"        # 다크 모드가 있는 페이지면 테마
 # 페이지마다 다크 CSS는 @media (prefers-color-scheme:dark) 안에 있다. 버튼을 누르면 그 media 조건을
 # 항상 참/항상 거짓으로 바꿔 끼워 OS 설정과 관계없이 고른 쪽을 보여 준다. 고른 값은 localStorage에 둔다.
 # OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+# 본문 속 <style>(강의 목차 블록 등)도 첫 화면 전에 바꾸도록 파싱 중 추가되는 style을 지켜본다.
 THEME_HEAD = """<script>(function(){
 var K='site-theme',d=document,root=d.documentElement,mq=matchMedia('(prefers-color-scheme: dark)'),
 RX=/\\(\\s*prefers-color-scheme\\s*:\\s*dark\\s*\\)/i,seen=[],rules=[],mem='';
@@ -227,7 +228,11 @@ function apply(){
 d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.theme-toggle');if(!b)return;
   var m=root.getAttribute('data-theme')==='dark'?'light':'dark';put(m===(mq.matches?'dark':'light')?'':m);apply()});
 mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
-apply();d.addEventListener('DOMContentLoaded',apply);
+apply();
+var mo=window.MutationObserver&&new MutationObserver(function(l){for(var i=0;i<l.length;i++)for(var j=0;j<l[i].addedNodes.length;j++){
+  var n=l[i].addedNodes[j].nodeName;if(n==='STYLE'||n==='LINK'){apply();return}}});
+if(mo)mo.observe(root,{childList:true,subtree:true});
+d.addEventListener('DOMContentLoaded',function(){if(mo)mo.disconnect();apply()});
 })();</script>
 <style>
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
@@ -236,6 +241,8 @@ apply();d.addEventListener('DOMContentLoaded',apply);
 :root[data-theme=dark] .theme-toggle .i-sun{display:block}
 .cn-nav .theme-toggle{margin:0;padding:.2rem .375rem;border:0;border-radius:.375rem;background:none;color:#fff}
 .cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media (max-width:600px){.cn-nav .theme-toggle{position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
 @media print{.theme-toggle{display:none!important}}
 </style>"""
 THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기">'
@@ -272,8 +279,7 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:
         right.append(f'<a href="{up}{next_[1]}">{html.escape(next_[0])} ›</a>')
-    right.append(THEME_MARK)
-    side = f'<span class="cn-right">{"".join(right)}</span>'
+    side = f'<span class="cn-right">{"".join(right)}</span>{THEME_MARK}'   # 테마 버튼은 맨 끝 (좁은 화면에서 오른쪽에 고정)
     return f'{NAV_CSS}<nav class="cn-nav" aria-label="사이트 메뉴">{"".join(left)}{side}</nav>'
 
 
