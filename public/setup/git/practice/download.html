@@ -373,6 +373,7 @@ git push</pre>
         <tr><td>오후에 같은 날짜에 새 폴더가 생김</td><td><code>git fetch upstream</code> → 새 하위 폴더만 <code>git restore -s upstream/main -- 20261112/Day19_02</code></td></tr>
         <tr><td>강사님이 이미 가져온 파일을 고침</td><td><code>git diff HEAD upstream/main -- 파일</code>로 차이를 보고 필요한 부분만 직접 반영</td></tr>
         <tr><td>다른 PC에서 이어 하기</td><td><code>git clone https://github.com/내아이디/practice.git</code> → B의 upstream 두 줄 다시 → 이후 <code>git pull</code></td></tr>
+        <tr><td><code>fatal: 'upstream' does not appear to be a git repository</code></td><td>upstream을 아직 등록하지 않은 것. <code>git remote -v</code>로 확인하고, 없으면 <code>git remote add upstream https://github.com/kangminjun2024/practice_assignment.git</code></td></tr>
         <tr><td><code>fatal: 'no-push' does not appear to be a git repository</code></td><td>정상입니다. 강사님 저장소로 push하려 해서 막힌 것. <code>git push</code>만 씁니다</td></tr>
       </tbody>
     </table>

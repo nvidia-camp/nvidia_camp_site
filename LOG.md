@@ -165,3 +165,4 @@
 | 2026-11-17 | setup/git | ③ 탭 이름 '브랜치 · 머지' → 'branch · merge'(용어 그대로). 제목·탭·상단 경로 함께 | main만 (미공개) |
 | 2026-11-17 | setup/git | ④ 탭 이름 → 'undo · .gitignore'. SETUP 공개=True로 전환(배포 준비) | main |
 | 2026-11-17 | setup/git/practice | 머리말의 예시 저장소(nvidia-camp/practice · GIT_ROUTINE.md) 안내 문구 삭제 | 배포 |
+| 2026-11-17 | setup/git | ② 용어 표 아래 'origin · upstream은 주소에 붙인 이름(별칭)' 한 줄, ⑤ 상황별에 fatal: 'upstream' does not appear… 대처 한 줄(직접 clone한 폴더에서 재현 확인) | 배포 |
