@@ -166,3 +166,4 @@
 | 2026-11-17 | setup/git | ④ 탭 이름 → 'undo · .gitignore'. SETUP 공개=True로 전환(배포 준비) | main |
 | 2026-11-17 | setup/git/practice | 머리말의 예시 저장소(nvidia-camp/practice · GIT_ROUTINE.md) 안내 문구 삭제 | 배포 |
 | 2026-11-17 | setup/docker | Git 가이드처럼 탭 4쪽(기본 · Dockerfile · build · port · volume · compose)으로 다시 씀. 쪽마다 움직이는 그림, 설치는 접힌 토글, 막히면 표 삭제. 명령·출력은 Docker 29에서 실행 확인 | main만 (미공개) |
+| 2026-11-17 | ml/20261023~28 | Colab 실습 폴더 링크 등록 | main |
