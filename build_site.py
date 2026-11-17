@@ -101,6 +101,7 @@ DAY_SUBPAGES = {
 COLAB = {
     "llm/20261113": "https://drive.google.com/drive/folders/14TnoVzqT0i4RWOdbONdwqW5a4Ce_vhEn",
     "llm/20261116": "https://drive.google.com/drive/folders/19rB2g83VexXoU47XW-Br_QkKtCgBKo0f",
+    "llm/20261117": "https://drive.google.com/drive/folders/1jS8l2wm3YetcbodRCHgFhREVKyqgcvbN",
 }
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 
