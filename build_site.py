@@ -192,6 +192,8 @@ NAV_CSS = f"""<style>
 .cn-nav a:hover,.cn-nav a:focus-visible{{background:rgba(255,255,255,.16);outline:none}}
 .cn-nav .cn-here{{opacity:.7}}
 .cn-nav .cn-right{{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}}
+.cn-nav .cn-slack{{display:inline-flex;align-items:center;gap:.4rem}}
+.cn-nav .cn-slack img{{display:block;width:1rem;height:1rem;background:#fff;border-radius:.25rem;padding:.1rem;box-sizing:content-box}}
 .cn-nav .cn-dl{{background:rgba(255,255,255,.14);padding:.125rem .6rem}}
 html{{scroll-padding-top:3rem}}
 @media (max-width:600px){{.cn-nav{{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}}.cn-nav .cn-right{{flex-wrap:nowrap}}html{{scroll-padding-top:2.5rem}}}}
@@ -200,6 +202,57 @@ html{{scroll-padding-top:3rem}}
 
 
 DOWNLOAD_MARK = "<!--download-->"  # copy_page가 'HTML 받기' 링크로 바꾼다
+THEME_MARK = "<!--theme-->"        # 다크 모드가 있는 페이지면 테마 버튼으로, 없으면 빈 글자로 바꾼다
+
+
+# ── 라이트/다크 전환 ─────────────────────────────────────────────────────
+# 페이지마다 다크 CSS는 @media (prefers-color-scheme:dark) 안에 있다. 버튼을 누르면 그 media 조건을
+# 항상 참/항상 거짓으로 바꿔 끼워 OS 설정과 관계없이 고른 쪽을 보여 준다. 고른 값은 localStorage에 둔다.
+# OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+THEME_HEAD = """<script>(function(){
+var K='site-theme',d=document,root=d.documentElement,mq=matchMedia('(prefers-color-scheme: dark)'),
+RX=/\\(\\s*prefers-color-scheme\\s*:\\s*dark\\s*\\)/i,seen=[],rules=[],mem='';
+function get(){try{var v=localStorage.getItem(K);return v==='dark'||v==='light'?v:''}catch(e){return mem}}
+function put(v){mem=v;try{v?localStorage.setItem(K,v):localStorage.removeItem(K)}catch(e){}}
+function scan(list){for(var i=0;i<list.length;i++){var r=list[i];
+  if(r.media&&RX.test(r.media.mediaText))rules.push([r,r.media.mediaText]);if(r.cssRules)scan(r.cssRules)}}
+function apply(){
+  var ss=d.styleSheets;for(var i=0;i<ss.length;i++){var s=ss[i];if(seen.indexOf(s)<0){seen.push(s);try{scan(s.cssRules)}catch(e){}}}
+  var f=get(),m=f||(mq.matches?'dark':'light');
+  for(var j=0;j<rules.length;j++){var p=rules[j];
+    p[0].media.mediaText=f?p[1].replace(RX,f==='dark'?'(min-width:0px)':'(max-width:0px) and (min-width:1px)'):p[1]}
+  root.setAttribute('data-theme',m);root.style.colorScheme=f;
+  var b=d.querySelectorAll('.theme-toggle'),t=m==='dark'?'밝은 화면으로 보기':'어두운 화면으로 보기';
+  for(var k=0;k<b.length;k++){b[k].setAttribute('aria-label',t);b[k].title=t}}
+d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.theme-toggle');if(!b)return;
+  var m=root.getAttribute('data-theme')==='dark'?'light':'dark';put(m===(mq.matches?'dark':'light')?'':m);apply()});
+mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
+apply();d.addEventListener('DOMContentLoaded',apply);
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;padding:.2rem .375rem;border:0;border-radius:.375rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media print{.theme-toggle{display:none!important}}
+</style>"""
+THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기">'
+             '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+             'stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>'
+             '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+             'stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4'
+             'M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>')
+
+
+def add_theme(text, nav, dark):
+    """다크 모드가 있는 페이지에만 테마 스크립트(</head> 앞)와 버튼(메뉴 오른쪽 끝)을 넣는다."""
+    if not dark:
+        return text, nav.replace(THEME_MARK, "")
+    nav = nav.replace(THEME_MARK, THEME_BTN)
+    text, n = re.subn(r"</head>", lambda m: THEME_HEAD + "\n</head>", text, count=1, flags=re.I)
+    return text, (nav if n else THEME_HEAD + nav)
 
 
 def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view=None):
@@ -213,11 +266,13 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
     if view:
         right.append(f'<a href="{html.escape(view)}">바로 보기</a>')
     if lecture:
-        right.append(f'<a href="{html.escape(lecture)}" target="_blank" rel="noopener">강의 자료 ↗</a>')
+        right.append(f'<a class="cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="강의 자료 (Slack)" aria-label="강의 자료 (Slack, 새 탭)">'
+                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">강의 자료</a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:
         right.append(f'<a href="{up}{next_[1]}">{html.escape(next_[0])} ›</a>')
+    right.append(THEME_MARK)
     side = f'<span class="cn-right">{"".join(right)}</span>'
     return f'{NAV_CSS}<nav class="cn-nav" aria-label="사이트 메뉴">{"".join(left)}{side}</nav>'
 
@@ -295,7 +350,7 @@ def copy_lecture(src, dest, nav):
 .lecture-frame{{flex:1;width:100%;border:0;display:block}}</style>
 {ANALYTICS}
 </head>
-<body>{nav.replace(DOWNLOAD_MARK, link)}<iframe class="lecture-frame" src="download.html" title="{title}"></iframe></body>
+<body>{nav.replace(DOWNLOAD_MARK, link).replace(THEME_MARK, "")}<iframe class="lecture-frame" src="download.html" title="{title}"></iframe></body>
 </html>
 """
     out = PUBLIC / dest
@@ -317,6 +372,7 @@ def copy_page(src, dest, nav, top=""):
     nav = nav.replace(DOWNLOAD_MARK, link)
     if not dest.endswith("/lecture"):    # 강사님 원본 강의 페이지는 글꼴도 그대로 둔다
         text = unify_fonts(text, dest)
+    text, nav = add_theme(text, nav, "prefers-color-scheme" in original)   # 끼운 목차 블록의 CSS가 아니라 원본 기준
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest
@@ -383,6 +439,10 @@ svg{display:block}
 .links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
   background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
 .links a:hover{border-color:var(--accent)}
+.top-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.top .theme-toggle{width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--heading)}
+.top .theme-toggle:hover{border-color:var(--accent)}
+.top .theme-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .links img{display:block;width:20px;height:20px;border-radius:5px}
 @media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
 
@@ -479,6 +539,7 @@ a.cell:hover{transform:scale(1.3)}
 .mini.view:hover{border-color:var(--accent)}
 .rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
 .rows li.all .no{color:var(--accent)}
+.mini.slack{padding:0 8px}.mini.slack img{display:block;width:16px;height:16px}
 .mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
 @media (prefers-color-scheme:dark){.mini.colab{background:#FFFFFF;border-color:#FFFFFF}.mini.colab:hover{border-color:var(--accent)}}
 
@@ -534,9 +595,10 @@ def list_page(title, body, nav="", up=""):
 <title>{html.escape(title)}</title>
 <link rel="stylesheet" href="{up}fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>{PAGE_CSS}</style>
+{THEME_HEAD}
 {ANALYTICS}
 </head>
-<body>{nav}
+<body>{nav.replace(THEME_MARK, THEME_BTN)}
 <main>
 {body}
 </main>
@@ -552,12 +614,20 @@ def day_links(d, up):
     if d["lecture"]:
         out.append(f'<a class="mini view" href="{href}lecture/">{ICON_VIEW}바로 보기</a>')
     if d["link"]:
-        out.append(f'<a class="mini" href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료</a>')
+        out.append(slack_link(d["link"], "mini slack"))
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
         out.append(f'<a class="mini" href="{href}{sub}/">{ICON_ARROW}{html.escape(label)}</a>')
     if d["colab"]:
         out.append(colab_link(d["colab"], "mini colab"))
     return "".join(out)
+
+
+def slack_link(url, cls, text=""):
+    """강의 자료(Slack 원본) 링크: Slack 로고 (+ 글자). 화살표 대신 로고로 도착지를 보인다."""
+    img = f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">'
+    label = f'<span>{html.escape(text)}</span>' if text else ""
+    return (f'<a class="{cls}" href="{html.escape(url)}" target="_blank" rel="noopener" '
+            f'title="강의 자료 (Slack)" aria-label="강의 자료 (Slack, 새 탭)">{img}{label}</a>')
 
 
 def colab_link(url, cls, text=""):
@@ -745,6 +815,7 @@ TREE_CSS = """<style>
 .lt-res a:hover{border-color:var(--lt-acc);background:var(--lt-soft)}
 .lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
 .lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
+.lt-res a.slack img{width:16px;height:16px}
 .lt-res a.colab img{background:#FFFFFF;border-radius:4px;padding:2px 3px;box-sizing:content-box;margin-left:-3px}
 .lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
 .lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
@@ -793,7 +864,7 @@ def day_resources(d):
     if d["lecture"]:
         res.append(f'<a class="view" href="lecture/">{ICON_VIEW}바로 보기</a>')
     if d["link"]:
-        res.append(f'<a href="{html.escape(d["link"])}" target="_blank" rel="noopener">{ICON_EXT}강의 자료 ↗</a>')
+        res.append(slack_link(d["link"], "slack", "강의 자료"))
     if d["colab"]:
         res.append(colab_link(d["colab"], "colab", "Colab 실습 ↗"))
     return f'<div class="lt-res" aria-label="보조 자료">{"".join(res)}</div>' if res else ""
@@ -915,7 +986,7 @@ def home_page(days, subjects, today):
     body = f"""<header class="top">
 <div class="brand"><span class="brand-logos"><img src="{sesac}" alt="새싹(SeSAC)" height="32"><span class="brand-sep" aria-hidden="true"></span><img src="{nvidia}" alt="NVIDIA" height="32"></span>
 <p>청년취업사관학교 · AI 코어 엔지니어 2기</p></div>
-<nav class="links" aria-label="문제 풀이">{practice}</nav>
+<div class="top-r"><nav class="links" aria-label="문제 풀이">{practice}</nav>{THEME_BTN}</div>
 </header>
 <section class="hero"><div class="hero-l"><h1 class="title">{SITE_NAME}</h1>
 <p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{len(made)}</b>일</p>
