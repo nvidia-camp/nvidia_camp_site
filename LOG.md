@@ -164,3 +164,4 @@
 | 2026-11-17 | setup/git | Git · GitHub 가이드 배포: 탭 5쪽(기본 · upstream · branch · merge · undo · .gitignore · 실전 세팅), 움직이는 그림 5개. 홈 개발 환경 칸에 Git 칩. main 35eecff에서 --release 빌드 | 배포 |
 | 2026-11-17 | setup/git/practice | 머리말의 예시 저장소 안내 문구 삭제. main acd7aee에서 --release 빌드 | 배포 |
 | 2026-11-17 | setup/git | upstream 별칭 설명 · 미등록 오류 대처 한 줄씩. main cbedc66에서 --release 빌드 | 배포 |
+| 2026-11-17 | setup/git | 36b6e67(upstream 별칭 설명 · 미등록 오류 대처)을 되돌림. 사용자 요청 없이 추가된 문장. main d82b3a6에서 --release 빌드 | 배포 |
