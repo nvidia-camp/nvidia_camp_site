@@ -17,6 +17,7 @@
 - Colab 실습 폴더(Google Drive)는 COLAB에 주소를 등록하면 홈 Day 줄·그날 페이지에 Colab 로고로 나온다.
 - 홈: 맨 위 제목·최근 수업·지금 과목 표지 → 100일 일정 → 참고 문서 모음 → 과목별 챕터(Day 목록).
   참고 문서 모음은 공통 묶음(COMMON_GROUPS)별 설치 가이드 칸 + '과목 참고 문서' 칸(치트시트·과목 설치 가이드).
+- 본문 글꼴은 Pretendard만: copy_page가 unify_fonts()로 모든 페이지의 비-코드 글꼴 선언 앞에 붙이고, 못 고치면 빌드 끝에 ⚠ 경고만 한다(코드 monospace·강의 원본 lecture는 예외).
 - 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 요약 페이지도 같은 Pretendard를 쓴다(--font-body 앞에 두고 /fonts 링크, 2026-11-17).
 - 각 폴더의 index.html을 public/에 복사하고, 사이트 메뉴·통계를 뺀 원본을 download.html로 함께 둔다(메뉴의 "HTML 받기"). PDF는 만들지 않는다(2026-11-14 폐지).
 - 강사님 강의 HTML(sync_lecture_html.py가 pages/<과목>/<날짜>/lecture/에 옮김)은 원본 그대로 /<과목>/<날짜>/lecture/에
@@ -155,6 +156,34 @@ def md(date):
     return f"{int(date[5:7])}/{int(date[8:10])}"
 
 
+# ── 글꼴 통일: 본문은 Pretendard만, 코드(monospace)는 예외 ─────────────────
+PRETENDARD_LINK = '<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">'
+PRETENDARD_STACK = '"Pretendard Variable", Pretendard, '
+FONT_DECL = re.compile(r"(font-family|--font[\w-]*|--sans)(\s*:\s*)((?:\"[^\"\n]*\"|'[^'\n]*'|[^;}\"'<\n])+)")
+MONO_HINT = re.compile(r"monospace|consolas|menlo|sf mono|sfmono|courier|var\(", re.I)
+FONT_WARNINGS = []
+
+
+def unify_fonts(text, label):
+    """페이지 안의 글꼴 선언 중 코드용이 아닌 것은 Pretendard를 맨 앞에 붙이고, 링크가 없으면 넣는다.
+    덮어쓸 수 없는 경우(font: 줄임 표기 등)는 경고만 남긴다(빌드는 계속)."""
+    def fix(m):
+        value = m.group(3)
+        if "pretendard" in value.lower() or MONO_HINT.search(value):
+            return m.group(0)
+        return m.group(1) + m.group(2) + PRETENDARD_STACK + value.lstrip()
+    text = FONT_DECL.sub(fix, text)
+    if "pretendardvariable" not in text:
+        text, n = re.subn(r"</head>", lambda m: PRETENDARD_LINK + "\n</head>", text, count=1)
+        if not n:
+            FONT_WARNINGS.append(f"{label}: <head>가 없어 Pretendard 링크를 못 넣음")
+    for m in re.finditer(r"(?<![\w-])font\s*:\s*[^;}\"<]*?(?:\d)(?:px|rem|em|pt)?[^;}\"<]*\s+([^;}\"<]+)", text):
+        fam = m.group(1)
+        if "pretendard" not in fam.lower() and not MONO_HINT.search(fam) and re.search(r"[A-Za-z\"']", fam):
+            FONT_WARNINGS.append(f"{label}: font 줄임 표기에 Pretendard 아닌 글꼴 → {fam.strip()[:60]}")
+    return text
+
+
 # ── 내용 페이지 위쪽 메뉴 ────────────────────────────────────────────────
 NAV_CSS = f"""<style>
 .cn-nav{{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
@@ -286,6 +315,8 @@ def copy_page(src, dest, nav, top=""):
     link = (f'<a class="cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
             f'title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a>')
     nav = nav.replace(DOWNLOAD_MARK, link)
+    if not dest.endswith("/lecture"):    # 강사님 원본 강의 페이지는 글꼴도 그대로 둔다
+        text = unify_fonts(text, dest)
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest
@@ -985,6 +1016,12 @@ def main():
 
     (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
     print(f"홈 · 기준일 {today}")
+    if FONT_WARNINGS:
+        print(f"\n⚠ 글꼴 경고 {len(FONT_WARNINGS)}건 (빌드는 계속됨): 본문은 Pretendard만 씁니다")
+        for w in FONT_WARNINGS:
+            print("  -", w)
+    else:
+        print("글꼴 검사: 전 페이지 Pretendard 통과")
 
 
 if __name__ == "__main__":
