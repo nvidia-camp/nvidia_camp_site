@@ -157,3 +157,4 @@
 | 2026-11-17 | 전체 | 상단 메뉴에 Colab 흰색 단색 아이콘(colab-white.png) 추가(Slack 오른쪽, 말풍선 포함, Colab 폴더가 있는 날만). 요약·Day 페이지 제목 아래 자료 줄(강의 자료·Slack·Colab) 제거 — 강의 목차 블록만 남김. 홈 화면 표기는 논의 중이라 그대로. 1000·375 가로 넘침 0 | main만 |
 | 2026-11-17 | 홈 | Day 줄 자료 버튼: 테두리 제거, 옅은 면만(강의 자료=파란 옅은 면, Slack·Colab=회색 옅은 면), 호버 시 얇은 윤곽선. Slack·Colab은 로고만 두고 마우스 올리면 말풍선. 1100·375 × 라이트·다크 가로 넘침 0 | main만 |
 | 2026-11-17 | 강의 화면 | 강사님 강의 HTML의 사이트 화면(view.html)만 본문 글꼴을 Pretendard 96%(PretendardLecture)로 변경. 받기(download.html)는 원본 그대로. 강의 CSP에 self 허용, font: 줄임 표기·inherit 처리 보정. 11/16·17·18 244장 비교: 줄바꿈 변화 1장, 도식 넘침 0 | main만 |
+| 2026-11-17 | setup/git | Git · GitHub 가이드 초안: Part 1 기본(0 큰 그림 ~ 7 치트시트) + Part 2 실전 세팅(강사님 저장소에서 폴더 골라 받기, nvidia-camp/practice 기준). 움직이는 그림 4개(작업 폴더→Staging→로컬 저장소→GitHub, fork·upstream, 브랜치·머지, 폴더 골라 받기). 명령은 임시 저장소에서 실행 확인. 1280·390 × 라이트·다크 가로 넘침 0. SETUP 공개=False | main만 (미공개) |

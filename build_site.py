@@ -77,6 +77,7 @@ SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", True),
     "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
+    "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · 브랜치와 머지 · .gitignore", "개발 환경", False),
     "vscode-extensions": ("VS Code Extension", "vscode.png", "수업 안내 3개 · Python 기본 3개 · 추천 2개", "개발 환경", True),
     "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", True),
