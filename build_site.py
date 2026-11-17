@@ -194,15 +194,20 @@ NAV_CSS = f"""<style>
 .cn-nav a:hover,.cn-nav a:focus-visible{{background:rgba(255,255,255,.16);outline:none}}
 .cn-nav .cn-here{{opacity:.7}}
 .cn-nav .cn-right{{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}}
-.cn-nav .cn-slack{{display:inline-flex;align-items:center;gap:.4rem}}
-.cn-nav .cn-slack img{{display:block;width:1rem;height:1rem}}
-.cn-nav .cn-dl{{background:rgba(255,255,255,.14);padding:.125rem .6rem}}
+.cn-nav .cn-ico{{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}}
+.cn-nav .cn-ico svg{{display:block;width:1.15rem;height:1.15rem}}
+.cn-nav .cn-slack{{background:#fff}}
+.cn-nav .cn-slack img{{display:block;width:1.15rem;height:1.15rem}}
+.cn-nav .cn-slack:hover,.cn-nav .cn-slack:focus-visible{{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.45)}}
+.cn-nav .cn-right{{align-items:center}}
 html{{scroll-padding-top:3rem}}
 @media (max-width:600px){{.cn-nav{{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}}.cn-nav .cn-right{{flex-wrap:nowrap}}html{{scroll-padding-top:2.5rem}}}}
 @media print{{.cn-nav{{display:none}}}}
 </style>"""
 
 
+ICON_DL = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+           '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>')
 DOWNLOAD_MARK = "<!--download-->"  # copy_page가 'HTML 받기' 링크로 바꾼다
 THEME_MARK = "<!--theme-->"        # 다크 모드가 있는 페이지면 테마 버튼으로, 없으면 빈 글자로 바꾼다
 
@@ -241,9 +246,9 @@ d.addEventListener('DOMContentLoaded',function(){if(mo)mo.disconnect();apply()})
 .theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
 .theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
 :root[data-theme=dark] .theme-toggle .i-sun{display:block}
-.cn-nav .theme-toggle{margin:0;padding:.2rem .375rem;border:0;border-radius:.375rem;background:none;color:#fff}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
 .cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
-@media (max-width:600px){.cn-nav .theme-toggle{position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
   background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
 @media print{.theme-toggle{display:none!important}}
 </style>"""
@@ -274,11 +279,11 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
         left.append(f'<span class="cn-here">{html.escape(here)}</span>')
     right = [DOWNLOAD_MARK]
     if view:
-        right.append(f'<a href="{html.escape(view)}">강의 자료</a>')
+        right.append(f'<a class="cn-ico" href="{html.escape(view)}" title="강의 자료 보기" aria-label="강의 자료 보기">{ICON_DOC}</a>')
     if lecture:   # 사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack이 곧 강의 자료
-        text = "" if view or on_lecture else "강의 자료"
-        right.append(f'<a class="cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="Slack" aria-label="Slack (새 탭)">'
-                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16">{text}</a>')
+        tip = "Slack 강의 자료 게시물 (새 탭)" if view or on_lecture else "강의 자료 · Slack 게시물 (새 탭)"
+        right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="{tip}" aria-label="{tip}">'
+                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16"></a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:
@@ -348,8 +353,8 @@ def copy_lecture(src, dest, nav):
     original = (src / "index.html").read_text(encoding="utf-8")
     m = re.search(r"<title>(.*?)</title>", original, re.S)
     title = m.group(1).strip() if m else "강의 자료"
-    link = (f'<a class="cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
-            f'title="강의 자료를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a>')
+    link = (f'<a class="cn-ico cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
+            f'title="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
     page = f"""<!doctype html>
 <html lang="ko">
 <head>
@@ -377,8 +382,8 @@ def copy_page(src, dest, nav, top=""):
     text, n_links = strip_local_links(original)
     if top:
         text = insert_after_title(text, top)
-    link = (f'<a class="cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
-            f'title="이 페이지를 HTML 파일 하나로 받기 (인터넷 없이 열림)">HTML 받기 ↓</a>')
+    link = (f'<a class="cn-ico cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
+            f'title="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
     nav = nav.replace(DOWNLOAD_MARK, link)
     if not dest.endswith("/lecture"):    # 강사님 원본 강의 페이지는 글꼴도 그대로 둔다
         text = unify_fonts(text, dest)
