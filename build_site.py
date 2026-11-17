@@ -196,9 +196,7 @@ NAV_CSS = f"""<style>
 .cn-nav .cn-right{{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}}
 .cn-nav .cn-ico{{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}}
 .cn-nav .cn-ico svg{{display:block;width:1.15rem;height:1.15rem}}
-.cn-nav .cn-slack{{background:#fff}}
 .cn-nav .cn-slack img{{display:block;width:1.15rem;height:1.15rem}}
-.cn-nav .cn-slack:hover,.cn-nav .cn-slack:focus-visible{{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.45)}}
 .cn-nav .cn-right{{align-items:center}}
 html{{scroll-padding-top:3rem}}
 @media (max-width:600px){{.cn-nav{{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}}.cn-nav .cn-right{{flex-wrap:nowrap}}html{{scroll-padding-top:2.5rem}}}}
@@ -283,7 +281,7 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
     if lecture:   # 사이트에 강의 HTML이 있으면 Slack은 로고만, 없으면 Slack이 곧 강의 자료
         tip = "Slack 강의 자료 게시물 (새 탭)" if view or on_lecture else "강의 자료 · Slack 게시물 (새 탭)"
         right.append(f'<a class="cn-ico cn-slack" href="{html.escape(lecture)}" target="_blank" rel="noopener" title="{tip}" aria-label="{tip}">'
-                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack.svg")}" alt="" width="16" height="16"></a>')
+                     f'<img src="{image_data(HERE / "assets" / "logos" / "slack-white.svg")}" alt="" width="16" height="16"></a>')
     if prev:
         right.append(f'<a href="{up}{prev[1]}">‹ {html.escape(prev[0])}</a>')
     if next_:

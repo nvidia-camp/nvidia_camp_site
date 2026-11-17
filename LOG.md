@@ -150,3 +150,4 @@
 | 2026-11-17 | llm/20261118 · 홈 | Day23 Colab 폴더(Drive, 링크 공유·뷰어 확인, 노트북 3개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main만 |
 | 2026-11-17 | 전체 | 다크 모드 로고 받침 통일: 참고 칩·Colab·Slack의 흰 받침/흰 바탕 제거(투명). SeSAC·NVIDIA 브랜드 묶음만 흰 판 유지(공식 다크 버전 없음, NVIDIA 가이드상 로고 변형 불가). Ollama는 다크 모드에서 공식 다크 로고(ollama/ollama docs/images/logo-dark.png) | main → 배포 |
 | 2026-11-17 | 전체 | 상단 메뉴를 아이콘으로 통일: HTML 받기→다운로드, 강의 자료→문서, Slack은 흰 사각 배경 로고, 달과 같은 2rem 크기. 설명은 마우스를 올리면(title)·aria-label로. ‹ Day · Day › 글자는 그대로. 1000·375 가로 넘침 0 | main만 |
+| 2026-11-17 | 전체 | 상단 메뉴 Slack 로고를 흰색 단색(slack-white.svg)으로: 흰 배경 상자 제거, 다른 아이콘과 같은 톤. 홈·자료 줄의 컬러 로고는 그대로 | main만 |
