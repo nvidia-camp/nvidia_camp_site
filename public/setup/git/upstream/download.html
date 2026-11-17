@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>원본 따라가기 · Git · GitHub</title>
+<title>upstream · Git · GitHub</title>
 <meta name="description" content="작업 폴더 → Staging → 로컬 저장소 → GitHub 흐름을 움직이는 그림으로 보고, commit · push · pull, upstream, 브랜치와 머지, 되돌리기, .gitignore를 짧은 명령으로 따라 치는 가이드">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>
@@ -283,14 +283,14 @@ body:not([data-shell="bash"]) .only-bash { display: none; }
 <main>
 <header class="head">
   <p class="eyebrow">Git · GitHub 가이드 · Windows 11 · PowerShell · Git Bash</p>
-  <h1>원본 따라가기 · upstream</h1>
+  <h1>upstream</h1>
   <p class="lead">강사님 저장소나 오픈소스처럼 남의 저장소(원본)에 올라온 새 내용을 내 저장소로 받아 오는 방법입니다.</p>
 </header>
 
-<nav class="tabs" aria-label="Git · GitHub 가이드 페이지"><a data-site href="../"><span class="n">1</span>기본</a><a data-site href="../upstream/" aria-current="page"><span class="n">2</span>원본 따라가기</a><a data-site href="../branch/"><span class="n">3</span>브랜치 · 머지</a><a data-site href="../undo/"><span class="n">4</span>되돌리기 · .gitignore</a><a data-site href="../practice/"><span class="n">5</span>실전 세팅</a></nav>
+<nav class="tabs" aria-label="Git · GitHub 가이드 페이지"><a data-site href="../"><span class="n">1</span>기본</a><a data-site href="../upstream/" aria-current="page"><span class="n">2</span>upstream</a><a data-site href="../branch/"><span class="n">3</span>브랜치 · 머지</a><a data-site href="../undo/"><span class="n">4</span>되돌리기 · .gitignore</a><a data-site href="../practice/"><span class="n">5</span>실전 세팅</a></nav>
 
 <section class="card method" aria-labelledby="u1">
-  <div class="step-head"><span class="num">0</span><h2 id="u1">원본 저장소를 따라가는 구조</h2></div>
+  <div class="step-head"><span class="num">0</span><h2 id="u1">origin · upstream · fork</h2></div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>이름</th><th>뜻</th></tr></thead>
