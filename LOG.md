@@ -120,19 +120,44 @@
 | 2026-11-16 | setup/python-venv | 초보자용으로 `pip install -r 설치목록.txt` 짧은 명령을 4단계(환경 켠 뒤 gpuenv · backendenv)·6단계·7단계에 추가하고 3단계에 핵심 한 줄 설명 추가. 긴 경로 형태만 있어 안 보이던 문제 | main만 (공개 전) |
 | 2026-11-16 | setup/ai-coding/agy · opencode | 자동 승인 명령을 작은 보조 문구에서 기존 모드·승인 표의 정규 행으로 이동. 명령어를 표 본문 크기로 표시하고 기능을 함께 설명. 모바일 가로 넘침 없음·main/deploy 반영·공개 2쪽 배포본 일치 확인 | main · 배포 |
 | 2026-11-16 | setup/python-venv | 초보자용으로 구성 재편: 환경 폴더를 practice_assignment\envs 아래(.venv 포함)로 통일하고 명령을 상대경로로. 0 pip로 설치되지 않는 프로그램 · 1 설치 목록(버튼만) · 2 가상환경 만들고 설치(명령 두 줄 강조) · 3 터미널·VS Code 연결(도식 한 장, 캡처 2장에 빨간 네모) · 참고 확인. 통합 환경 6단계·환경 추가 7단계·막히면·명령으로 받기 삭제. vscode-extensions 링크를 #s3로 | main만 (공개 전) |
-| 2026-11-16 | setup/python-venv | 가상환경 가이드 공개 (--release 빌드 반영) | 배포 |
-| 2026-11-16 | setup/path · setup/python-venv | PowerShell · Git Bash 명령 선택 반영 (--release 빌드, Docker · 11/17 이후 자료 제외) | 배포 |
-| 2026-11-16 | setup/vscode-extensions | 캡처 정리(Go Live를 Live Server 항목 안으로, 같은 배율, 가상환경 실행 주의를 Code Runner 설명에) 반영 (--release 빌드) | 배포 |
-| 2026-11-16 | llm/20261116 | release: Day21 요약 공개 (--release 빌드, 11/17 이후 자료·공개 전 가이드는 계속 제외) | deploy |
-| 2026-11-17 | llm/20261117 | release: Day22 강의 공개 (--release 빌드, 오늘 기준 · Docker 가이드는 계속 제외) | deploy |
-| 2026-11-17 | llm/20261117 | Day22 Colab 실습 폴더 링크 추가 (--release 빌드) | 배포 |
-| 2026-11-17 | llm/20261117 | release: Day22 요약 공개 (--release 빌드, 공개 전 가이드는 계속 제외) | deploy |
-| 2026-11-17 | 전체 | release: 요약 Pretendard 적용 · Day22 하단 출처 한 줄 (Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | 전체 | release: 상단 메뉴줄 스티키 고정 (Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | 전체 | release: 글꼴 Pretendard 통일 장치 · 강의 자료 Slack 로고 (Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | llm/20261117 | release: Day22 강의 자료(Slack) 링크 반영 (Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | 전체 | release: '바로 보기' → '강의 자료', Slack은 로고만 (Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | 홈 | release: SWEA·Programmers 링크 화살표 제거 (main 9b568e9, Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | 전체 | release: 다크 모드 로고 받침 투명 통일 · Ollama 공식 다크 로고 (main bdb8552, Day23·Docker 제외, --release 빌드) | 배포 |
-| 2026-11-17 | 전체 | release: 요약 페이지 Pretendard 적용, 상단 메뉴 아이콘(다운로드·눈·Slack·Colab)·말풍선, 요약 안 자료 줄 제거, 홈 Day 줄 자료 버튼 옅은 면·말풍선 (Day23·Docker 제외) | deploy |
-| 2026-11-17 | 강의 화면 | 강사님 강의 화면(view.html)만 본문 글꼴을 Pretendard 96%로 변경, 받기(download.html)는 원본 유지 (11/16·11/17, Day23 제외) | deploy |
+| 2026-11-16 | site 배포 | site 저장소의 수정만 main·deploy에 push. VS Code Extension 안내 변경을 공개 배포, Python 가상환경·Docker·Day22는 기존 공개 전 설정 유지. 공개 페이지 배포본 일치 및 미공개 경로 404 확인 | main · 배포 |
+| 2026-11-16 | setup/python-venv | 사용자 요청으로 가상환경 가이드를 공개로 바꾸고 --release 빌드를 deploy에 반영. Docker · 로컬 AI 외 공개 전 가이드와 11/17 자료는 계속 공개 전 | 배포 |
+| 2026-11-16 | setup/python-venv | 명령 입력창 선택(PowerShell · Git Bash) 추가: 맨 위 고정 선택 막대, 고르면 폴더 만들기 · 환경 만들기 · 설치 · 켜기 명령이 그 창에 맞게 바뀜(Git Bash는 / 경로, source …/Scripts/activate). 선택은 브라우저에 기억. Git Bash 명령은 Windows에서 실행 확인 전 | main만 |
+| 2026-11-16 | setup/python-venv | PowerShell · Git Bash 선택을 맨 위 막대에서 각 명령 블록(2단계 환경 3개 · 3단계 켜기)의 머리글 탭으로 이동. 한 곳에서 바꾸면 모든 블록이 같이 바뀜. 명령이 같은 블록은 "터미널" 라벨 | main만 |
+| 2026-11-16 | setup/path | PowerShell · Git Bash 선택을 명령 블록 머리글 탭으로 추가(지금 상태 확인 · B-1 폴더 찾기 · B-2 PATH 저장 · 임시 시험 · 폴더 이동). Git Bash는 find · ~/.bashrc에 export 한 줄(Git Bash에만 적용, 나머지는 방법 A) · /c/ 경로. 본문의 PowerShell 표현을 터미널로. 선택은 가상환경 가이드와 같은 키로 공유. Git Bash 명령은 Windows 실행 확인 전 | main만 |
+| 2026-11-16 | setup/vscode-extensions | 캡처 정리: Go Live 캡처에서 관계없는 채팅 화면을 빼고 상태 표시줄만 남겨 Go Live에 빨간 네모, Code Runner 캡처의 잘린 긴 설명 목록 제거, 확장 카드 캡처 11장을 같은 배율로 표시(캡처마다 폭이 달라 글자 크기가 들쭉날쭉하던 문제) | main만 |
+| 2026-11-16 | setup/vscode-extensions | Go Live 캡처의 빨간 네모 위치 수정(Go Live 항목 둘레로), 캡처 아래에 따로 있던 설명을 다른 항목처럼 오른쪽 설명 칸으로 이동하고 구분선 맞춤 | main만 |
+| 2026-11-16 | setup/vscode-extensions | 가상환경 실행 주의(Run Code vs Python 실행 버튼)를 아래 별도 박스에서 Code Runner 항목의 오른쪽 설명으로 이동. 항목 사진은 위쪽 정렬 | main만 |
+| 2026-11-16 | setup/vscode-extensions | Go Live는 별도 Extension이 아니라 Live Server의 버튼이므로 별도 항목을 없애고 Live Server 항목 안(카드 캡처 아래)으로 이동, 설명도 Live Server 설명에 합침 | main만 |
+| 2026-11-16 | llm/20261116 | Day21 요약 초안: 강사 핵심요약 6구역 그림을 흐름 그림 위에 얹고, 개념 사이 구분(≠)을 이음새로 배치. 끝에 증상→의심할 곳→수단 표. 구성안 포함. 코드·실측 없음 | main만 |
+| 2026-11-16 | llm/20261116 | Day21 초안 수정: 구역을 번호 박스로 나누고 머리에 흐름상 위치 표시, 설명을 합니다체로 풀고 전문 용어에 원어 병기, 마지막 증상 표 삭제 | main만 |
+| 2026-11-16 | llm/20261116 | Day21 초안: 각 구역의 "구분할 것" 블록 삭제 | main만 |
+| 2026-11-16 | llm/20261116 | Day21 초안: A/B 평가 구역을 실험 도식으로 재구성(고정 → 한 가지 변경 → 실행 → 첫 응답 원문 보존 → 검사·평가 → 기록, 고정/변경 패널, 질문×A/B 기록 슬롯, D → 고정 → H 순서) | main만 |
+| 2026-11-16 | llm/20261116 | Day21 초안: A/B 평가 구역 단순화(고정 + 바꾸는 것 1개 → 기록 표 3칸 그림 하나, 기록 → 입력 개선, D → 고정 → H 한 줄). 6단계 줄·저장 항목·구분 줄 삭제 | main만 |
+| 2026-11-16 | llm/20261116 | Day21 초안: 기록 표 칸 글자를 "미실행"에서 "첫 응답"으로(미실행·미평가 설명은 캡션에만) | main만 |
+| 2026-11-17 | llm/20261117 | Day22 Colab 실습 폴더 링크 추가 | main |
+| 2026-11-17 | llm/20261117 | Day22 요약 초안: 강사님 핵심요약 6구역(모델 호출·입력/출력 검사·Streaming·오류/재시도·비용/시간·캐시/모델 선택)을 내용 그대로 두고 Day21 디자인으로 배치 | main만 |
+| 2026-11-17 | llm/20261118 | Day23 준비: 강의 HTML·강의 목차 추가, 강사님 핵심요약 6구역을 Day22 디자인으로 배치한 요약 초안 | main만 |
+| 2026-11-17 | 요약 페이지 전체 | 요약·가이드 페이지 글꼴을 Pretendard로 통일(홈·목록과 동일 /fonts, --font-body 앞에 지정, 템플릿 포함) | main만 |
+| 2026-11-17 | llm/20261117·20261118 | Day22·Day23 요약 하단 문구를 출처 한 줄로 단순화 | main만 |
+| 2026-11-17 | 전체 | 상단 메뉴줄(cn-nav) 스티키 고정: 스크롤해도 ← 학습 아카이브·LLM·RAG 항상 표시, 앵커 이동 여백, 모바일은 한 줄 가로 스크롤 | main만 |
+| 2026-11-17 | 전체 | 글꼴 통일 장치: 빌드가 요약·가이드 페이지의 본문 글꼴 선언 앞에 Pretendard를 붙이고 링크를 보장(코드 글꼴·강의 원본 lecture 제외), 못 고치는 경우는 빌드 끝에 ⚠ 경고(빌드는 계속). cheatsheet opencv·sklearn, 12일 실습 도식 반영 | main만 |
+| 2026-11-17 | 전체 | 강의 자료(Slack) 링크의 화살표를 Slack 로고로 교체: 홈 Day 줄은 로고만, Day 페이지 자료 줄·상단 메뉴는 로고+강의 자료 | main만 |
+| 2026-11-17 | 전체 | 라이트/다크 전환 버튼: 다크 모드가 있는 페이지(홈·과목·Day·LLM 요약·설치 가이드 34개)에만 해·달 아이콘 버튼. 홈은 SWEA·Programmers 옆, 그 밖은 상단 메뉴 오른쪽 끝(모바일은 오른쪽 고정). 고른 값은 localStorage, OS 설정과 같은 쪽을 고르면 다시 OS를 따름. 다크 모드 없는 페이지(vision·치트시트·강의 원본)는 버튼 없음 | main만 |
+| 2026-11-17 | llm/20261117 | Day22 강의 자료(Slack) 링크 반영: lectures.json 동기화(시트 PDF 링크 1건 추가) | main |
+| 2026-11-17 | 전체 | '바로 보기' → '강의 자료'(사이트 안 강의 HTML). 강의 HTML이 있는 날·강의 자료 화면에서는 Slack 링크를 로고만, 없는 날은 Slack 링크가 '강의 자료' | main만 |
+| 2026-11-17 | 홈 | SWEA·Programmers 링크의 ↗ 화살표 제거 | main → 배포 |
+| 2026-11-17 | llm/20261118 · 홈 | Day23 Colab 폴더(Drive, 링크 공유·뷰어 확인, 노트북 3개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main만 |
+| 2026-11-17 | 전체 | 다크 모드 로고 받침 통일: 참고 칩·Colab·Slack의 흰 받침/흰 바탕 제거(투명). SeSAC·NVIDIA 브랜드 묶음만 흰 판 유지(공식 다크 버전 없음, NVIDIA 가이드상 로고 변형 불가). Ollama는 다크 모드에서 공식 다크 로고(ollama/ollama docs/images/logo-dark.png) | main → 배포 |
+| 2026-11-17 | 전체 | 상단 메뉴를 아이콘으로 통일: HTML 받기→다운로드, 강의 자료→문서, Slack은 흰 사각 배경 로고, 달과 같은 2rem 크기. 설명은 마우스를 올리면(title)·aria-label로. ‹ Day · Day › 글자는 그대로. 1000·375 가로 넘침 0 | main만 |
+| 2026-11-17 | 전체 | 상단 메뉴 Slack 로고를 흰색 단색(slack-white.svg)으로: 흰 배경 상자 제거, 다른 아이콘과 같은 톤. 홈·자료 줄의 컬러 로고는 그대로 | main만 |
+| 2026-11-17 | 전체 | 상단 메뉴 아이콘 설명을 기본 title 대신 CSS 툴팁(data-tip)으로: 마우스를 올리면 바로 아래에 어두운 말풍선, 키보드 포커스에서도 표시, aria-label은 유지 | main만 |
+| 2026-11-17 | 전체 | 상단 메뉴의 강의 자료 아이콘을 문서 → 눈(홈 Day 줄·자료 줄의 강의 자료와 같은 아이콘)으로 | main만 |
+| 2026-11-17 | 전체 | 자료 링크 표기 정리(f6ef81f)를 되돌림: 상단 메뉴는 5446f06 상태(다운로드·눈·흰색 Slack 아이콘 + 말풍선). 홈 화면 표기는 논의 후 결정 | main만 |
+| 2026-11-17 | 전체 | 상단 메뉴에 Colab 흰색 단색 아이콘(colab-white.png) 추가(Slack 오른쪽, 말풍선 포함, Colab 폴더가 있는 날만). 요약·Day 페이지 제목 아래 자료 줄(강의 자료·Slack·Colab) 제거 — 강의 목차 블록만 남김. 홈 화면 표기는 논의 중이라 그대로. 1000·375 가로 넘침 0 | main만 |
+| 2026-11-17 | 홈 | Day 줄 자료 버튼: 테두리 제거, 옅은 면만(강의 자료=파란 옅은 면, Slack·Colab=회색 옅은 면), 호버 시 얇은 윤곽선. Slack·Colab은 로고만 두고 마우스 올리면 말풍선. 1100·375 × 라이트·다크 가로 넘침 0 | main만 |
+| 2026-11-17 | 강의 화면 | 강사님 강의 HTML의 사이트 화면(view.html)만 본문 글꼴을 Pretendard 96%(PretendardLecture)로 변경. 받기(download.html)는 원본 그대로. 강의 CSP에 self 허용, font: 줄임 표기·inherit 처리 보정. 11/16·17·18 244장 비교: 줄바꿈 변화 1장, 도식 넘침 0 | main만 |
+| 2026-11-17 | setup/git | Git · GitHub 가이드 초안: Part 1 기본(0 큰 그림 ~ 7 치트시트) + Part 2 실전 세팅(강사님 저장소에서 폴더 골라 받기, nvidia-camp/practice 기준). 움직이는 그림 4개(작업 폴더→Staging→로컬 저장소→GitHub, fork·upstream, 브랜치·머지, 폴더 골라 받기). 명령은 임시 저장소에서 실행 확인. 1280·390 × 라이트·다크 가로 넘침 0. SETUP 공개=False | main만 (미공개) |
+| 2026-11-17 | setup/git | 한 페이지 나열 → 탭 5쪽(기본 · 원본 따라가기 · 브랜치 · 머지 · 되돌리기 · .gitignore · 실전 세팅)으로 나눔. ④에 되돌리기 그림 추가(stash 선반, .env 튕김, revert 커밋) | main만 (미공개) |
+| 2026-11-17 | python/20261020~20261022 · 홈 | Python Day 2~4 Colab 실습 폴더(Drive, 노트북 10개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main → 배포 |
+| 2026-11-17 | setup/git | ① 기본 탭의 '처음 한 번만 하는 설정'을 접힌 토글로(이미 설정을 마친 수강생 기준). 1280·390 열고 닫기 · 가로 넘침 0 | main만 (미공개) |
