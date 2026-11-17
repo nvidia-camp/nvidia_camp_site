@@ -94,7 +94,7 @@ FILES = {
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
-    "git": [("", "기본"), ("upstream", "upstream"), ("branch", "브랜치 · 머지"), ("undo", "되돌리기 · .gitignore"), ("practice", "실전 세팅")],
+    "git": [("", "기본"), ("upstream", "upstream"), ("branch", "branch · merge"), ("undo", "되돌리기 · .gitignore"), ("practice", "실전 세팅")],
     "ai-coding": [("", "공통"), ("opencode", "OpenCode"), ("claude-code", "Claude Code"), ("codex", "Codex"), ("agy", "agy")],
 }
 # Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.
