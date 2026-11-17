@@ -77,7 +77,7 @@ SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", True),
     "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
-    "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · 브랜치와 머지 · .gitignore", "개발 환경", False),
+    "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · branch · merge · .gitignore", "개발 환경", True),
     "vscode-extensions": ("VS Code Extension", "vscode.png", "수업 안내 3개 · Python 기본 3개 · 추천 2개", "개발 환경", True),
     "docker": ("Docker", "docker.png", "WSL 2 · Docker Desktop 설치와 기본 명령", "개발 환경", False),
     "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", True),
@@ -94,7 +94,7 @@ FILES = {
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
-    "git": [("", "기본"), ("upstream", "upstream"), ("branch", "branch · merge"), ("undo", "되돌리기 · .gitignore"), ("practice", "실전 세팅")],
+    "git": [("", "기본"), ("upstream", "upstream"), ("branch", "branch · merge"), ("undo", "undo · .gitignore"), ("practice", "실전 세팅")],
     "ai-coding": [("", "공통"), ("opencode", "OpenCode"), ("claude-code", "Claude Code"), ("codex", "Codex"), ("agy", "agy")],
 }
 # Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.

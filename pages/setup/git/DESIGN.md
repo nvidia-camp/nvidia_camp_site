@@ -10,7 +10,7 @@
 ## 탭 5쪽으로 나눔 (2026-11-17)
 
 - 사용자: 한 페이지에 아래로 쭉 나열하면 보기 어렵다 → 페이지 안의 페이지(탭). PostgreSQL·AI 코딩 가이드와 같은 `SETUP_PAGES` 탭.
-- ① 기본(`/setup/git/`) · ② upstream(`upstream/`, 처음 이름 '원본 따라가기'는 어색하다는 사용자 의견으로 용어 그대로) · ③ branch · merge(`branch/`) · ④ 되돌리기 · .gitignore(`undo/`) · ⑤ 실전 세팅(`practice/`).
+- ① 기본(`/setup/git/`) · ② upstream(`upstream/`, 처음 이름 '원본 따라가기'는 어색하다는 사용자 의견으로 용어 그대로) · ③ branch · merge(`branch/`) · ④ undo · .gitignore(`undo/`) · ⑤ 실전 세팅(`practice/`).
 - 탭 하나에 그림 하나 · 주제 하나. 그림 카드가 맨 위(0번), 명령 카드가 아래. 치트시트는 ① 맨 아래.
 - ④에도 그림을 넣음(사용자 질문 "그림이 없어도 될까?"): ①의 네 칸 + stash 선반. add .에서 .env가 튕겨 나오고, restore --staged·stash·pop·restore·revert·push 순서.
 - 스크립트는 다섯 쪽이 같다. `mount(id)`가 그 쪽에 있는 그림만 켠다.
