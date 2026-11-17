@@ -148,3 +148,4 @@
 | 2026-11-17 | 전체 | '바로 보기' → '강의 자료'(사이트 안 강의 HTML). 강의 HTML이 있는 날·강의 자료 화면에서는 Slack 링크를 로고만, 없는 날은 Slack 링크가 '강의 자료' | main만 |
 | 2026-11-17 | 홈 | SWEA·Programmers 링크의 ↗ 화살표 제거 | main → 배포 |
 | 2026-11-17 | llm/20261118 · 홈 | Day23 Colab 폴더(Drive, 링크 공유·뷰어 확인, 노트북 3개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main만 |
+| 2026-11-17 | 전체 | 다크 모드 로고 받침 통일: 참고 칩·Colab·Slack의 흰 받침/흰 바탕 제거(투명). SeSAC·NVIDIA 브랜드 묶음만 흰 판 유지(공식 다크 버전 없음, NVIDIA 가이드상 로고 변형 불가). Ollama는 다크 모드에서 공식 다크 로고(ollama/ollama docs/images/logo-dark.png) | main → 배포 |

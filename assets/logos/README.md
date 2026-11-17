@@ -11,6 +11,7 @@
 | `pytorch.svg` | [PyTorch 공식 웹사이트 저장소](https://github.com/pytorch/pytorch.github.io/blob/site/assets/images/logo-icon.svg) | [Brand guidelines](https://pytorch.org/brand-guidelines/) |
 | `opencv.png` | [OpenCV 공식 저장소](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.png) | [로고 안내](https://github.com/opencv/opencv/blob/5.x/doc/opencv-logo.md) |
 | `ollama.png` | [Ollama 공식 사이트](https://ollama.com/public/ollama.png) (2026-11-14 확인) | [ollama.com](https://ollama.com) |
+| `ollama-dark.png` | [Ollama 공식 저장소](https://github.com/ollama/ollama/blob/main/docs/images/logo-dark.png) `docs/images/logo-dark.png` 128px, Ollama 문서 사이트의 다크 모드 로고 (2026-11-17 확인). 다크 모드에서 `ollama.png` 대신 보인다 | [ollama.com](https://ollama.com) |
 | `opencode.svg` | [OpenCode 공식 브랜드 페이지](https://opencode.ai/brand) `opencode-logo-transparent-light.svg` (2026-11-14 확인) | [Brand](https://opencode.ai/brand) |
 | `claude-code.png` | [Claude Code 공식 문서 사이트](https://code.claude.com) 파비콘 192px → 64px (2026-11-14 확인) | Anthropic |
 | `codex.png` | [OpenAI 개발자 문서 Codex](https://developers.openai.com/codex) 파비콘 (2026-11-14 확인) | OpenAI |
