@@ -17,10 +17,10 @@
 - Colab 실습 폴더(Google Drive)는 COLAB에 주소를 등록하면 홈 Day 줄·그날 페이지에 Colab 로고로 나온다.
 - 홈: 맨 위 제목·최근 수업·지금 과목 표지 → 100일 일정 → 참고 문서 모음 → 과목별 챕터(Day 목록).
   참고 문서 모음은 공통 묶음(COMMON_GROUPS)별 설치 가이드 칸 + '과목 참고 문서' 칸(치트시트·과목 설치 가이드).
-- 본문 글꼴은 Pretendard만: copy_page가 unify_fonts()로 모든 페이지의 비-코드 글꼴 선언 앞에 붙이고, 못 고치면 빌드 끝에 ⚠ 경고만 한다(코드 monospace·강의 원본 lecture는 예외).
+- 본문 글꼴은 Pretendard만: copy_page가 unify_fonts()로 모든 페이지의 비-코드 글꼴 선언 앞에 붙이고, 못 고치면 빌드 끝에 ⚠ 경고만 한다(코드 monospace는 예외, inherit는 그대로). 강의 원본 lecture는 Pretendard를 96%로 줄인 PretendardLecture를 쓴다.
 - 홈·과목 목록은 Pretendard(OFL, assets/fonts → public/fonts)를 쓴다. 요약 페이지도 같은 Pretendard를 쓴다(--font-body 앞에 두고 /fonts 링크, 2026-11-17).
 - 각 폴더의 index.html을 public/에 복사하고, 사이트 메뉴·통계를 뺀 원본을 download.html로 함께 둔다(메뉴의 "HTML 받기"). PDF는 만들지 않는다(2026-11-14 폐지).
-- 강사님 강의 HTML(sync_lecture_html.py가 pages/<과목>/<날짜>/lecture/에 옮김)은 원본 그대로 /<과목>/<날짜>/lecture/에
+- 강사님 강의 HTML(sync_lecture_html.py가 pages/<과목>/<날짜>/lecture/에 옮김)은 원본 그대로 /<과목>/<날짜>/lecture/download.html에 두고, 화면(view.html)은 글꼴만 바꾼다. view.html을
   메뉴 아래 전체 화면으로 띄운다. 홈 Day 줄·Day 페이지 메뉴의 '강의 자료'로 열고, Slack 게시물은 로고만 둔다
   (사이트에 강의 HTML이 없는 날은 Slack 링크가 '강의 자료').
 - 복사본에만 위쪽 메뉴를 넣고, 사이트에 없는 파일을 가리키는 상대 링크는 글자만 남긴다.
@@ -161,29 +161,63 @@ def md(date):
 # ── 글꼴 통일: 본문은 Pretendard만, 코드(monospace)는 예외 ─────────────────
 PRETENDARD_LINK = '<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">'
 PRETENDARD_STACK = '"Pretendard Variable", Pretendard, '
+# 강사님 강의 페이지용: 원래 글꼴(맑은 고딕·Apple SD)과 줄바꿈이 비슷하도록 Pretendard를 96%로 줄인 글꼴 (2026-11-17 비교 확인)
+LECTURE_FAMILY = "PretendardLecture"      # 공백·따옴표가 없어야 강의 스크립트 안의 글꼴 문자열에 들어가도 문법이 안 깨진다
+LECTURE_SIZE_ADJUST = 96
+LECTURE_CSS = "/fonts/pretendard/pretendard-lecture.css"
+LECTURE_LINK = f'<link rel="stylesheet" href="{LECTURE_CSS}">'
 FONT_DECL = re.compile(r"(font-family|--font[\w-]*|--sans)(\s*:\s*)((?:\"[^\"\n]*\"|'[^'\n]*'|[^;}\"'<\n])+)")
 MONO_HINT = re.compile(r"monospace|consolas|menlo|sf mono|sfmono|courier|var\(", re.I)
 FONT_WARNINGS = []
+FONT_FIXED = []
+FONT_SHORT = re.compile(r"((?<![\w-])font\s*:\s*)([^;}\"<]+)")
+FONT_FAMILY_TAIL = re.compile(r"\s((?:'[^']*'|\"[^\"]*\"|[A-Za-z][\w-]*)(?:\s*,\s*(?:'[^']*'|\"[^\"]*\"|[A-Za-z][\w-]*))*)\s*$")
 
 
-def unify_fonts(text, label):
+def unify_fonts(text, label, lecture=False):
     """페이지 안의 글꼴 선언 중 코드용이 아닌 것은 Pretendard를 맨 앞에 붙이고, 링크가 없으면 넣는다.
     덮어쓸 수 없는 경우(font: 줄임 표기 등)는 경고만 남긴다(빌드는 계속)."""
+    stack = f"{LECTURE_FAMILY}, " if lecture else PRETENDARD_STACK
+    links = (LECTURE_LINK + "\n" if lecture else "") + PRETENDARD_LINK     # 강의 페이지의 위쪽 메뉴는 원래 Pretendard를 쓴다
+
     def fix(m):
         value = m.group(3)
-        if "pretendard" in value.lower() or MONO_HINT.search(value):
-            return m.group(0)
-        return m.group(1) + m.group(2) + PRETENDARD_STACK + value.lstrip()
+        if "pretendard" in value.lower() or MONO_HINT.search(value) or value.strip().lower().startswith("inherit"):
+            return m.group(0)     # inherit 앞에 글꼴을 붙이면 선언이 무효가 돼 코드 조각이 기본 monospace로 바뀐다
+        return m.group(1) + m.group(2) + stack + value.lstrip()
     text = FONT_DECL.sub(fix, text)
+    if lecture:   # 강의 원본의 보안 정책(CSP)은 글꼴·외부 CSS를 막는다: 우리 사이트 것(self)만 허용
+        text = text.replace("style-src 'unsafe-inline';", "style-src 'unsafe-inline' 'self';").replace("font-src 'none';", "font-src 'self';")
     if "pretendardvariable" not in text:
-        text, n = re.subn(r"</head>", lambda m: PRETENDARD_LINK + "\n</head>", text, count=1)
+        text, n = re.subn(r"</head>", lambda m: links + "\n</head>", text, count=1)
         if not n:
             FONT_WARNINGS.append(f"{label}: <head>가 없어 Pretendard 링크를 못 넣음")
-    for m in re.finditer(r"(?<![\w-])font\s*:\s*[^;}\"<]*?(?:\d)(?:px|rem|em|pt)?[^;}\"<]*\s+([^;}\"<]+)", text):
-        fam = m.group(1)
-        if "pretendard" not in fam.lower() and not MONO_HINT.search(fam) and re.search(r"[A-Za-z\"']", fam):
-            FONT_WARNINGS.append(f"{label}: font 줄임 표기에 Pretendard 아닌 글꼴 → {fam.strip()[:60]}")
+    # font 줄임 표기(font:500 15px/1.6 'Segoe UI',sans-serif): 맨 끝 글꼴 목록 앞에 Pretendard를 붙인다
+    def fix_short(m):
+        value = m.group(2)
+        if "pretendard" in value.lower() or MONO_HINT.search(value) or value.strip().lower().startswith("inherit"):
+            return m.group(0)
+        fam = FONT_FAMILY_TAIL.search(value)
+        if not fam or not re.search(r"\d", value[:fam.start()]):
+            return m.group(0)
+        FONT_FIXED.append(label)
+        return m.group(1) + value[:fam.start(1)] + stack + value[fam.start(1):]
+    text = FONT_SHORT.sub(fix_short, text)
+    for m in FONT_SHORT.finditer(text):
+        value = m.group(2)
+        fam = FONT_FAMILY_TAIL.search(value)
+        if fam and "pretendard" not in value.lower() and not MONO_HINT.search(value) and not value.strip().lower().startswith("inherit"):
+            FONT_WARNINGS.append(f"{label}: font 줄임 표기에 Pretendard 아닌 글꼴 → {fam.group(1).strip()[:60]}")
     return text
+
+
+def write_lecture_font_css():
+    """강의 페이지용 글꼴 CSS: 같은 Pretendard 파일을 다른 이름으로 선언하고 size-adjust로 줄인다."""
+    base = (PUBLIC / "fonts/pretendard/pretendardvariable-dynamic-subset.css").read_text(encoding="utf-8")
+    css = base.replace("'Pretendard Variable'", f"'{LECTURE_FAMILY}'")
+    css = css.replace("font-display: swap;", f"font-display: swap;\n\tsize-adjust: {LECTURE_SIZE_ADJUST}%;")
+    assert css.count("size-adjust") == css.count("@font-face") > 0
+    (PUBLIC / LECTURE_CSS.lstrip("/")).write_text(css, encoding="utf-8")
 
 
 # ── 내용 페이지 위쪽 메뉴 ────────────────────────────────────────────────
@@ -353,7 +387,7 @@ def download_name(text):
 
 
 def copy_lecture(src, dest, nav):
-    """강사님 강의 HTML: 원본은 손대지 않고 download.html로 두고, 사이트 메뉴 아래 화면 전체에 띄운다.
+    """강사님 강의 HTML: 원본은 손대지 않고 download.html로 두고(받기용), 글꼴만 Pretendard로 바꾼 view.html을 사이트 메뉴 아래 화면 전체에 띄운다.
     (강의 HTML은 자체 고정 머리·아래 막대가 있어 메뉴를 끼워 넣으면 겹친다)"""
     original = (src / "index.html").read_text(encoding="utf-8")
     m = re.search(r"<title>(.*?)</title>", original, re.S)
@@ -370,14 +404,15 @@ def copy_lecture(src, dest, nav):
 .lecture-frame{{flex:1;width:100%;border:0;display:block}}</style>
 {ANALYTICS}
 </head>
-<body>{nav.replace(DOWNLOAD_MARK, link).replace(THEME_MARK, "")}<iframe class="lecture-frame" src="download.html" title="{title}"></iframe></body>
+<body>{nav.replace(DOWNLOAD_MARK, link).replace(THEME_MARK, "")}<iframe class="lecture-frame" src="view.html" title="{title}"></iframe></body>
 </html>
 """
     out = PUBLIC / dest
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(page, encoding="utf-8")
-    (out / "download.html").write_text(original, encoding="utf-8")   # 강의 원본 그대로 (화면 · 받기 공용)
-    print(f"  /{dest}/ ← {src.relative_to(HERE)} (원본 그대로, 메뉴 아래 전체 화면)")
+    (out / "download.html").write_text(original, encoding="utf-8")   # 받기용: 강의 원본 그대로
+    (out / "view.html").write_text(unify_fonts(original, dest, lecture=True), encoding="utf-8")   # 사이트 화면용: 본문만 Pretendard(96%)
+    print(f"  /{dest}/ ← {src.relative_to(HERE)} (download.html 원본 + view.html 글꼴만 Pretendard)")
 
 
 def copy_page(src, dest, nav, top=""):
@@ -390,8 +425,7 @@ def copy_page(src, dest, nav, top=""):
     link = (f'<a class="cn-ico cn-dl" href="download.html" download="{html.escape(download_name(original))}" '
             f'data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기">{ICON_DL}</a>')
     nav = nav.replace(DOWNLOAD_MARK, link)
-    if not dest.endswith("/lecture"):    # 강사님 원본 강의 페이지는 글꼴도 그대로 둔다
-        text = unify_fonts(text, dest)
+    text = unify_fonts(text, dest)
     text, nav = add_theme(text, nav, "prefers-color-scheme" in original)   # 끼운 목차 블록의 CSS가 아니라 원본 기준
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
@@ -1025,6 +1059,7 @@ def main():
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir()
     shutil.copytree(HERE / "assets" / "fonts", PUBLIC / "fonts")   # 홈·과목 목록의 Pretendard(OFL)
+    write_lecture_font_css()
 
     # 과목별로 묶기: 수업이 시작된 과목은 홈에 모두 보이고, 과목 페이지는 요약이 있는 과목만 만든다
     started, subjects = [], []
