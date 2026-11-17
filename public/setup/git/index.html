@@ -254,6 +254,20 @@ td code { white-space: nowrap; overflow-wrap: normal; }
 body[data-shell="bash"] .only-ps { display: none; }
 body:not([data-shell="bash"]) .only-bash { display: none; }
 
+details.fold { display: block; }
+details.fold > * + * { margin-top: 1rem; }
+details.fold::details-content { min-width: 0; }
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold .sum-t { display: grid; gap: 0.1rem; min-width: 0; }
+details.fold .more { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 0.3rem; min-height: 2.25rem; padding: 0 0.8rem; border: 1px solid var(--color-border); border-radius: 999px; font-size: 0.85rem; font-weight: 700; color: var(--color-primary); background: var(--color-surface); }
+details.fold .more::after { content: "▾"; transition: transform 0.2s; }
+details.fold[open] .more::after { transform: rotate(180deg); }
+details.fold .more .c, details.fold[open] .more .o { display: none; }
+details.fold[open] .more .c { display: inline; }
+details.fold:not([open]) { background: var(--color-soft); }
+details.fold > summary:hover .more { border-color: var(--color-primary); }
+@media print { details.fold > *:not(summary) { display: block !important; } }
 /* 가이드 안 페이지 탭 */
 .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .tabs a { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.5rem; padding: 0.35rem 0.95rem 0.35rem 0.45rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text); text-decoration: none; font-weight: 600; }
@@ -364,8 +378,8 @@ html{scroll-padding-top:3rem}
   </div>
 </section>
 
-<section class="card" aria-labelledby="s1">
-  <div class="step-head"><span class="num">1</span><h2 id="s1">처음 한 번만 하는 설정</h2></div>
+<details class="card fold" aria-labelledby="s1">
+  <summary><span class="num">1</span><span class="sum-t"><h2 id="s1">처음 한 번만 하는 설정</h2><span class="hint">Git 설치 · 이름 · 이메일 · 저장소 시작 · 두 터미널의 차이</span></span><span class="more"><span class="o">펼치기</span><span class="c">접기</span></span></summary>
   <p>Git이 없다면 <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">git-scm.com</a>에서 설치합니다. 설치하면 Git Bash도 함께 생깁니다.</p>
   <h3>내 이름 · 이메일 등록</h3>
   <div class="code">
@@ -410,7 +424,7 @@ git remote add origin https://github.com/아이디/저장소.git</pre>
       </tbody>
     </table>
   </div>
-</section>
+</details>
 
 <section class="card" aria-labelledby="s2">
   <div class="step-head"><span class="num">2</span><h2 id="s2">매일 루프 · commit · push · pull</h2></div>
