@@ -1,0 +1,360 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Day23 pgvector 실행 · 9–12단계 | Windows 11 · PostgreSQL 18.6</title><style>
+:root{--ink:#1f3045;--navy:#1c2b40;--blue:#426fa3;--bg:#f4f6fa;--line:#d7e0eb;--white:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}header{background:var(--navy);color:white;padding:22px max(calc((100vw - 1100px)/2),24px);font-weight:700;letter-spacing:.02em}main{max-width:1100px;background:white;margin:24px auto 48px;padding:48px 64px 62px;border-radius:16px;box-shadow:0 12px 32px #17233711}h1{font-size:33px;line-height:1.45;margin:0 0 26px}h2{font-size:24px;border-bottom:2px solid #d4dfeb;padding:24px 0 10px;margin-top:42px}h3{font-size:19px;color:var(--blue);margin-top:30px}p,li{word-break:keep-all;overflow-wrap:anywhere}a{color:var(--blue)}a:hover{text-decoration:none}code,pre{font-family:Consolas,"D2Coding",monospace}p code,li code,td code{background:#edf3f9;padding:2px 5px;border-radius:4px;font-size:.89em}pre{background:#172337;color:#e8f1fc;border-radius:10px;padding:19px 22px;overflow:auto;font-size:13.5px;line-height:1.72;white-space:pre}pre code{font:inherit}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th{background:#eaf0f8;color:#1c2b40;text-align:left}th,td{border:1px solid #d7e0eb;padding:10px 12px;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}blockquote{margin:20px 0;padding:13px 19px;border-left:4px solid #426fa3;background:#edf3f9;border-radius:0 8px 8px 0}blockquote p{margin:5px 0}li{margin-bottom:4px}input[type=checkbox]{accent-color:#426fa3;margin-right:7px}hr{border:0;border-top:1px solid #d7e0eb;margin:32px 0}footer{color:#63748a;font-size:13px;margin-top:22px;text-align:right}.print-button{position:absolute;right:23px;top:62px;z-index:5;padding:10px 15px;border:1px solid #fff5;background:#fff;color:#172337;border-radius:7px;font-weight:700;cursor:pointer}
+@media(max-width:760px){main{margin:0;padding:28px 16px;border-radius:0}header{padding:18px}.print-button{position:static;margin-left:15px;padding:5px}h1{font-size:26px}h2{font-size:21px}pre{font-size:12px}table{display:block;overflow:auto;white-space:normal}}
+@media print{html,body{background:#fff}header,.print-button{display:none}main{max-width:100%;margin:0;padding:0;box-shadow:none}h2{break-after:avoid}pre,table{break-inside:avoid}blockquote{break-inside:avoid}a{color:#1c2b40;text-decoration:none}table{font-size:11px}pre{white-space:pre-wrap;font-size:10.5px;background:#172337!important;color:#fff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}body{font-size:12px}}
+figure.shot{margin:14px 0 8px;display:grid;gap:6px;justify-items:start}figure.shot img{display:block;width:auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:zoom-in}figure.shot figcaption{font-size:14px;line-height:1.6;color:#52667e}dialog.zoom{padding:0;border:0;background:transparent;max-width:96vw;max-height:94vh}dialog.zoom::backdrop{background:#0e1626cc}dialog.zoom img{display:block;max-width:96vw;max-height:94vh;border-radius:8px;cursor:zoom-out}@media print{figure.shot{break-inside:avoid}}
+
+/* 단계 카드 */
+main{background:transparent;box-shadow:none;padding:0 24px;margin:24px auto 56px}
+.intro,.step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 36px 32px;margin:0 0 18px;box-shadow:0 6px 18px #1723370a}
+.intro h1{margin-bottom:18px}
+.step>h2:first-child{margin-top:0}
+.step-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-bottom:14px;margin-bottom:18px;border-bottom:2px solid #d4dfeb}
+.step-head h2{margin:0;padding:0;border:0;font-size:22px;line-height:1.45;flex:1 1 20rem}
+.step-head .badge{flex:none;display:inline-grid;place-items:center;min-width:40px;height:40px;padding:0 8px;border-radius:999px;background:var(--navy);color:#fff;font-weight:800;font-size:18px}
+.step-head .tool{flex:none;font-size:13px;font-weight:700;color:var(--blue);background:#edf3f9;border:1px solid #cddbeb;border-radius:999px;padding:3px 12px}
+.step h3{margin:28px 0 10px;padding:4px 0 4px 12px;border-left:4px solid var(--blue);font-size:18px}
+.step-head+h3{margin-top:4px}
+p.where{background:#172337;color:#e8f1fc;border-radius:8px;padding:8px 14px;font-size:14.5px}
+p.where strong{color:#fff}
+p.where code{background:#ffffff1f;color:#fff}
+.phase{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:34px 4px 12px;padding-top:14px;border-top:2px solid var(--navy)}
+.phase b{font-size:15px;color:var(--navy);letter-spacing:.02em}
+.phase span{font-size:14px;color:#52667e}
+.steps-nav{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin:0 0 6px;display:grid;gap:10px}
+.steps-nav .grp{display:grid;grid-template-columns:8.5rem 1fr;gap:8px;align-items:start}
+.steps-nav .grp>b{font-size:13px;color:#52667e;padding-top:5px}
+.steps-nav .grp>div{display:flex;flex-wrap:wrap;gap:6px}
+.steps-nav a{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--navy);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px 3px 4px;background:#fff}
+.steps-nav a:hover{border-color:var(--navy)}
+.steps-nav .n{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:999px;background:#edf3f9;color:var(--navy);font-size:12px}
+.step,.intro{scroll-margin-top:60px}
+.step.refs{background:#f9fbfe}
+@media(max-width:760px){main{padding:0 12px;margin:12px auto 32px}.intro,.step{padding:20px 16px 22px;border-radius:12px}.step-head h2{font-size:19px;flex-basis:100%}.step-head .badge{min-width:34px;height:34px;font-size:16px}.steps-nav{padding:14px}.steps-nav .grp{grid-template-columns:1fr;gap:4px}.phase{margin-top:26px}}
+@media print{.steps-nav{display:none}.intro,.step{border:0;box-shadow:none;padding:0;margin:0 0 18px}.phase{break-after:avoid}.step-head{break-after:avoid}}
+.out{margin:14px 0;border:1px solid #cddbeb;border-radius:10px;overflow:hidden;background:#f7fafd}
+.out-h{font-size:13px;font-weight:700;color:var(--blue);padding:6px 14px;background:#edf3f9;border-bottom:1px solid #cddbeb}
+.out pre{margin:0;background:transparent;color:#1f3045;border-radius:0;padding:12px 14px;font-size:13.5px;line-height:1.7}
+.out pre .p{color:#7a8aa0}
+.out pre b{color:#17643a;background:#e2f3e8;border-radius:3px;padding:0 3px;font-weight:700}
+.out-note{margin:0;padding:0 14px 12px;font-size:14px;color:#52667e}
+@media print{.out{break-inside:avoid}.out pre{background:transparent!important;color:#1f3045!important;white-space:pre-wrap}}
+.codebox{position:relative;margin:14px 0}
+.codebox pre{margin:0;padding-top:42px}
+.copy-btn{position:absolute;top:9px;right:10px;font:600 12.5px/1 inherit;font-family:inherit;color:#cfe0f5;background:transparent;border:1px solid #cfe0f566;border-radius:999px;padding:6px 12px;cursor:pointer}
+.copy-btn:hover{background:#ffffff14}
+.copy-btn.done{color:#9fe0b4;border-color:#9fe0b4}
+@media print{.copy-btn{display:none}.codebox pre{padding-top:12px}}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:6px 16px 6px 7px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700}
+.tabs a:hover{border-color:var(--navy)}
+.tabs .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:#edf3f9;color:var(--navy);font-size:14px}
+.tabs a[aria-current="page"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.tabs a[aria-current="page"] .n{background:#fff;color:var(--navy)}
+.next-page{display:grid;gap:2px;justify-items:end;text-align:right;margin:8px 0 18px;padding:18px 24px;background:#fff;border:1px solid var(--line);border-radius:16px;text-decoration:none;color:var(--ink)}
+.next-page.prev{justify-items:start;text-align:left}
+.next-page:hover{border-color:var(--navy)}
+.next-page span{font-size:13px;color:#52667e;font-weight:700}
+.next-page b{font-size:19px;color:var(--navy)}
+.next-page small{font-size:14px;color:#52667e}
+@media print{.tabs,.next-page{display:none}}
+</style></head><body><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
+<p>1–8단계에서 설치한 pgvector를 pgAdmin SQL과 Python에서 확인합니다. 설치를 아직 마치지 않았다면 <a data-site href="../">설치 · 1–8단계</a>부터 진행합니다.</p></section>
+<nav class="tabs" aria-label="pgvector 안내 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="./" aria-current="page"><span class="n">2</span>실행 · 9–12단계</a></nav>
+<nav class="steps-nav" aria-label="단계 바로 가기"><div class="grp"><b>검증</b><div><a href="#s9"><span class="n">9</span>거리·검색 검증</a></div></div><div class="grp"><b>Python 연결</b><div><a href="#s10"><span class="n">10</span>Python 연결</a></div></div><div class="grp"><b>문제 해결</b><div><a href="#s11"><span class="n">11</span>오류 해결</a><a href="#s12"><span class="n">12</span>체크리스트</a></div></div></nav>
+<div class="phase"><b>검증 · 9단계</b><span>pgAdmin Query Tool</span></div>
+<section class="step" id="s9"><div class="step-head"><span class="badge">9</span><h2>pgvector 거리 계산과 검색 기능 검증</h2><span class="tool">pgAdmin Query Tool</span></div>
+<h3>9-1. 벡터 거리 계산(데이터베이스 변경 없음)</h3>
+<p class="where"><strong>실행 위치: pgAdmin Query Tool</strong></p>
+<pre><code class="language-sql">-- 코사인 거리(&lt;=&gt;)는 작을수록 가깝습니다.
+SELECT
+  '[1,0,0]'::vector &lt;=&gt; '[1,0,0]'::vector AS same_direction,
+  '[1,0,0]'::vector &lt;=&gt; '[0,1,0]'::vector AS perpendicular,
+  '[1,0,0]'::vector &lt;=&gt; '[-1,0,0]'::vector AS opposite_direction;
+</code></pre>
+<p><strong>정상 기대값:</strong> <code>same_direction = 0</code>, <code>perpendicular = 1</code>, <code>opposite_direction = 2</code> (실수 표현에 따른 아주 작은 오차는 가능).</p>
+<h3>9-2. 임시 테이블에 저장하고 Top-k 조회</h3>
+<p>아래 SQL은 <strong>해당 Query Tool 세션의 임시 테이블만</strong> 사용하므로 기존 <code>knowledge</code> 테이블을 변경하지 않습니다.</p>
+<pre><code class="language-sql">-- 실습을 다시 실행할 때 현재 세션의 동명 임시 테이블만 제거
+DROP TABLE IF EXISTS pg_temp.day23_vector_check;
+
+CREATE TEMP TABLE day23_vector_check (
+  id integer PRIMARY KEY,
+  label text NOT NULL,
+  embedding vector(3) NOT NULL
+);
+
+INSERT INTO day23_vector_check (id, label, embedding) VALUES
+  (1, '같은 방향', '[1,0,0]'),
+  (2, '가까운 방향', '[0.8,0.6,0]'),
+  (3, '직각 방향', '[0,1,0]');
+
+SELECT id, label,
+       ROUND((embedding &lt;=&gt; '[1,0,0]'::vector)::numeric, 4) AS cosine_distance
+FROM day23_vector_check
+ORDER BY embedding &lt;=&gt; '[1,0,0]'::vector ASC
+LIMIT 3;
+</code></pre>
+<p><strong>정상 기대 결과:</strong></p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:right">id</th>
+  <th>label</th>
+  <th style="text-align:right">cosine_distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:right">1</td>
+  <td>같은 방향</td>
+  <td style="text-align:right">0.0000</td>
+</tr>
+<tr>
+  <td style="text-align:right">2</td>
+  <td>가까운 방향</td>
+  <td style="text-align:right">0.2000</td>
+</tr>
+<tr>
+  <td style="text-align:right">3</td>
+  <td>직각 방향</td>
+  <td style="text-align:right">1.0000</td>
+</tr>
+</tbody>
+</table>
+<p><strong>설치 확인 통과 조건:</strong> 확장 버전이 <code>0.8.7</code>이고, 벡터 자료형 생성·INSERT·<code>&lt;=&gt;</code> 검색이 모두 동작해야 합니다. 여기까지는 <strong>실제 Embedding 모델이 없어도</strong> 점검 가능합니다. 강의에서 사용하는 E5-small의 출력은 384차원이므로 본 실습 테이블에서는 <code>vector(384)</code>를 사용합니다. 이 검증용 3차원 벡터와 혼동하지 마세요.</p>
+</section>
+<div class="phase"><b>Python 연결 · 10단계</b><span>VS Code Git Bash · 기존 가상환경</span></div>
+<section class="step" id="s10"><div class="step-head"><span class="badge">10</span><h2>Python의 pgvector 어댑터 설치 및 DB 접속</h2><span class="tool">VS Code · Git Bash</span></div>
+<blockquote>
+<p><strong>이 단계부터 다시 VS Code → Git Bash</strong>를 사용합니다. <code>nmake</code>가 아니라 기존 Python 가상환경에서 실행합니다.</p>
+</blockquote>
+<h3>10-1. 기존 가상환경 확인</h3>
+<p>수강생은 이전 수업에서 사용하던 VS Code 프로젝트를 열고, 해당 가상환경을 활성화합니다. <code>.venv</code>라는 이름을 사용하는 경우 Git Bash에서는 다음과 같습니다.</p>
+<pre><code class="language-bash"># 프로젝트 폴더에서 실행. 기존 환경 이름이 다르면 실제 이름을 사용하세요.
+source .venv/Scripts/activate
+python -c &quot;import sys; print(sys.executable)&quot;
+python -m pip show pgvector psycopg python-dotenv
+</code></pre>
+<ul>
+<li><code>sys.executable</code>이 기존 강의 가상환경의 Python을 가리키는지 확인합니다.</li>
+<li>이미 있는 패키지는 그대로 사용합니다. 아래 설치 명령은 없는 패키지에 한해 실행해도 됩니다.</li>
+</ul>
+<pre><code class="language-bash">python -m pip install pgvector 'psycopg[binary]' python-dotenv
+python -m pip check
+</code></pre>
+<p><code>Successfully installed ...</code> 또는 <code>Requirement already satisfied ...</code>와 의존성 확인 성공을 확인합니다. <strong>Python 패키지 설치는 앞선 Windows 서버 확장 설치를 대신하지 않습니다.</strong></p>
+<h3>10-2. <code>.env</code> 파일 작성</h3>
+<p>프로젝트의 Python 확인 파일과 <strong>같은 폴더</strong>에 <code>.env</code> 파일을 만듭니다.</p>
+<pre><code class="language-dotenv">PGHOST=127.0.0.1
+PGPORT=5432
+PGDATABASE=knowledge_lab
+PGUSER=postgres
+PGPASSWORD=본인의_DB_비밀번호
+</code></pre>
+<p><strong>반드시 확인:</strong> <code>PGDATABASE</code>, <code>PGPORT</code>, <code>PGUSER</code>, <code>PGPASSWORD</code>는 본인의 PostgreSQL 설정으로 교체합니다. <code>knowledge_lab</code>, <code>postgres</code>, <code>5432</code>는 예시이므로 실제 환경과 다를 수 있습니다. <code>.env</code>는 Git에 올리지 않습니다. 프로젝트의 <code>.gitignore</code>에 아래 한 줄을 추가합니다.</p>
+<pre><code class="language-gitignore">.env
+</code></pre>
+<h3>10-3. <code>verify_pgvector.py</code> 파일 작성</h3>
+<p><code>.env</code>와 같은 폴더에 <code>verify_pgvector.py</code>를 만들고 그대로 붙여넣습니다.</p>
+<pre><code class="language-python">&quot;&quot;&quot;Windows 11 · PostgreSQL 18 · pgvector 설치 확인용, 데이터 수정 없음.&quot;&quot;&quot;
+from pathlib import Path
+import psycopg
+from dotenv import dotenv_values
+from pgvector import Vector
+from pgvector.psycopg import register_vector
+
+# .env는 현재 파이썬 파일과 같은 폴더에서만 읽습니다.
+cfg = dotenv_values(Path(__file__).with_name(&quot;.env&quot;), interpolate=False)
+required = (&quot;PGHOST&quot;, &quot;PGPORT&quot;, &quot;PGDATABASE&quot;, &quot;PGUSER&quot;, &quot;PGPASSWORD&quot;)
+missing = [key for key in required if not cfg.get(key)]
+if missing:
+    raise RuntimeError(&quot;.env 설정 누락: &quot; + &quot;, &quot;.join(missing))
+
+with psycopg.connect(
+    host=cfg[&quot;PGHOST&quot;],
+    port=int(cfg[&quot;PGPORT&quot;]),
+    dbname=cfg[&quot;PGDATABASE&quot;],
+    user=cfg[&quot;PGUSER&quot;],
+    password=cfg[&quot;PGPASSWORD&quot;],
+) as conn:
+    # 중요: PostgreSQL 연결마다 vector 타입을 등록합니다.
+    register_vector(conn)
+
+    q = Vector([1.0, 0.0, 0.0])
+    database, dimensions, distance = conn.execute(
+        &quot;SELECT current_database(), vector_dims(%s::vector), &quot;
+        &quot;%s::vector &lt;=&gt; %s::vector&quot;,
+        (q, q, q),
+    ).fetchone()
+
+    assert dimensions == 3, f&quot;잘못된 차원: {dimensions}&quot;
+    assert abs(float(distance)) &lt; 1e-6, f&quot;잘못된 거리: {distance}&quot;
+    print(&quot;연결 DB:&quot;, database)
+    print(&quot;벡터 차원:&quot;, dimensions)
+    print(&quot;자기 자신과의 코사인 거리:&quot;, distance)
+    print(&quot;DB 연결 및 pgvector 확인 완료&quot;)
+</code></pre>
+<p class="where"><strong>실행 위치: VS Code의 Git Bash, 기존 가상환경 활성화 상태</strong></p>
+<pre><code class="language-bash">python verify_pgvector.py
+</code></pre>
+<p><strong>정상 예상 출력 예시:</strong></p>
+<pre><code class="language-text">연결 DB: knowledge_lab
+벡터 차원: 3
+자기 자신과의 코사인 거리: 0.0
+DB 연결 및 pgvector 확인 완료
+</code></pre>
+<p>실제 DB 이름과 소수점 표시는 다를 수 있습니다. 이 코드는 데이터를 INSERT하거나 삭제하지 않습니다.</p>
+</section>
+<div class="phase"><b>문제 해결 · 마무리 · 11–12단계</b></div>
+<section class="step" id="s11"><div class="step-head"><span class="badge">11</span><h2>오류별 해결 방법</h2></div>
+<table>
+<thead>
+<tr>
+  <th>증상·오류 메시지</th>
+  <th>원인 후보</th>
+  <th>해결할 위치·방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>git</code> 또는 <code>nmake</code>를 찾지 못함</td>
+  <td>Git 설치·PATH 문제 또는 일반 CMD 사용</td>
+  <td>Git 설치 여부를 확인하고 <strong>x64 Native Tools Command Prompt</strong>를 다시 열어 <code>where</code> 확인</td>
+</tr>
+<tr>
+  <td><code>echo %VSCMD_ARG_TGT_ARCH%</code>가 <code>x64</code>가 아님</td>
+  <td>x86용 개발자 프롬프트를 열었음</td>
+  <td><strong>x64 Native Tools</strong> 프롬프트로 변경</td>
+</tr>
+<tr>
+  <td><code>Cannot open include file: 'postgres.h'</code> / <code>fatal error C1083</code></td>
+  <td><code>PGROOT</code> 오류 또는 PostgreSQL 개발 헤더 누락</td>
+  <td><code>echo %PGROOT%</code>, <code>dir &quot;%PGROOT%\include\server\postgres.h&quot;</code> 검사</td>
+</tr>
+<tr>
+  <td><code>postgres.lib</code> 파일을 찾지 못함 / 링크 오류</td>
+  <td>다른 PostgreSQL 설치 경로 또는 개발 라이브러리 누락</td>
+  <td><code>%PGROOT%\lib\postgres.lib</code>와 <code>pg_config</code>가 같은 설치본인지 확인</td>
+</tr>
+<tr>
+  <td><code>error C2196: case value '4' already used</code></td>
+  <td>x86/x64 아키텍처 불일치 가능</td>
+  <td>x64 도구에서 <code>nmake /F Makefile.win clean</code> 후 다시 빌드</td>
+</tr>
+<tr>
+  <td><code>NMAKE : fatal error U1077</code></td>
+  <td>앞쪽 컴파일·링크 실패의 후속 메시지</td>
+  <td>로그에서 <strong>맨 처음 나온 실제 오류</strong>부터 수정</td>
+</tr>
+<tr>
+  <td><code>Access is denied</code> / <code>Permission denied</code> during install</td>
+  <td>PostgreSQL <code>Program Files</code> 폴더 쓰기 권한 부족</td>
+  <td><strong>관리자 권한</strong>으로 x64 개발자 프롬프트 재실행</td>
+</tr>
+<tr>
+  <td><code>extension &quot;vector&quot; is not available</code></td>
+  <td>서버 파일이 올바른 PostgreSQL 설치 폴더에 없음</td>
+  <td><code>%PGROOT%\lib</code>, <code>%PGROOT%\share\extension</code> 파일 위치와 접속 서버 버전 확인</td>
+</tr>
+<tr>
+  <td><code>permission denied to create extension &quot;vector&quot;</code></td>
+  <td>현재 DB 계정 권한 부족</td>
+  <td>적절한 권한의 DB 관리자 계정으로 해당 DB에서 실행</td>
+</tr>
+<tr>
+  <td><code>type &quot;vector&quot; does not exist</code></td>
+  <td>현재 연결한 DB에 확장이 없음</td>
+  <td><strong>해당 DB</strong>에서 <code>CREATE EXTENSION IF NOT EXISTS vector;</code> 실행</td>
+</tr>
+<tr>
+  <td><code>current transaction is aborted</code></td>
+  <td>이전 SQL 실패로 트랜잭션이 중단됨</td>
+  <td>오류가 난 세션에서 <code>ROLLBACK;</code> 실행 후 근본 원인 수정</td>
+</tr>
+<tr>
+  <td><code>ModuleNotFoundError: No module named 'pgvector'</code></td>
+  <td>다른 Python 인터프리터에 설치</td>
+  <td><code>python -c &quot;import sys; print(sys.executable)&quot;</code>와 <code>python -m pip show pgvector</code> 대조</td>
+</tr>
+<tr>
+  <td><code>connection refused</code></td>
+  <td>PostgreSQL 서버 중지 또는 호스트·포트 불일치</td>
+  <td>pgAdmin의 실제 서버 호스트·포트 및 서비스 상태 확인</td>
+</tr>
+<tr>
+  <td><code>password authentication failed</code></td>
+  <td>DB 계정/비밀번호 불일치</td>
+  <td><code>.env</code>의 <code>PGUSER</code>, <code>PGPASSWORD</code> 점검 (공개 공유 금지)</td>
+</tr>
+<tr>
+  <td>Python <code>register_vector</code> 실패</td>
+  <td>해당 DB에서 확장 미활성화 또는 잘못된 DB 접속</td>
+  <td>pgAdmin에서 <code>current_database()</code> 및 <code>pg_extension</code> 재확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>운영 원칙:</strong> 오류가 나면 무조건 PostgreSQL을 재설치하지 마세요. 마지막 한 줄만 캡처하는 대신, <strong>실행한 창 종류·실행 명령·첫 번째 오류·확인한 DB 이름</strong>을 강사에게 전달하세요. 비밀번호·API 키는 가리고 공유합니다.</p>
+</section>
+<section class="step" id="s12"><div class="step-head"><span class="badge">12</span><h2>최종 설치 완료 체크리스트</h2></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>PostgreSQL 18.6 설치본과 현재 접속 DB를 확인했다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>빌드 전용 CMD에서 <code>where cl</code>, <code>where nmake</code>가 성공했다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>PGROOT</code>가 PostgreSQL <strong>18 최상위 폴더</strong>를 가리킨다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>pgvector 공식 소스 태그가 <strong>v0.8.7</strong>이다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>nmake /F Makefile.win</code> 성공 및 <code>vector.dll</code> 생성 확인.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>PostgreSQL <code>lib</code>와 <code>share\extension</code> 아래 확장 파일이 존재한다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>강의용 DB의 <code>pg_extension</code> 조회에서 <strong>vector 0.8.7</strong>이 보인다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>SQL에서 코사인 거리 <strong>0 · 1 · 2</strong>가 조회된다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>임시 테이블 Top-k가 <strong>ID 1 → 2 → 3</strong>으로 조회된다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>기존 Python 가상환경에서 <code>import pgvector</code>, <code>import psycopg</code>가 된다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>python verify_pgvector.py</code>가 <strong><code>DB 연결 및 pgvector 확인 완료</code></strong>를 출력한다.</li>
+</ul>
+<p><strong>여기까지 완료하면 내일의 Embedding → PostgreSQL <code>vector(384)</code> 저장 → Cosine Top-k Search 실습을 시작할 수 있습니다.</strong></p>
+</section>
+<section class="step refs" id="refs"><div class="step-head"><h2>공식 참고 자료</h2></div>
+<ol>
+<li>pgvector 공식 GitHub(Windows·<code>nmake</code>): <a href="https://github.com/pgvector/pgvector">https://github.com/pgvector/pgvector</a></li>
+<li>pgvector 0.8.7 릴리스 안내: <a href="https://www.postgresql.org/about/news/pgvector-087-released-3392/">https://www.postgresql.org/about/news/pgvector-087-released-3392/</a></li>
+<li>Microsoft Visual Studio Build Tools 다운로드: <a href="https://visualstudio.microsoft.com/downloads/">https://visualstudio.microsoft.com/downloads/</a></li>
+<li>Microsoft x64 Developer Command Prompt 안내: <a href="https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line">https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line</a></li>
+<li>Git for Windows 공식 설치: <a href="https://git-scm.com/install/win">https://git-scm.com/install/win</a></li>
+<li>PostgreSQL <code>pg_config</code> 문서: <a href="https://www.postgresql.org/docs/18/app-pgconfig.html">https://www.postgresql.org/docs/18/app-pgconfig.html</a></li>
+<li>pgvector-python / psycopg 3 타입 등록: <a href="https://github.com/pgvector/pgvector-python">https://github.com/pgvector/pgvector-python</a></li>
+<li>PostgreSQL 18.7 릴리스 정보: <a href="https://www.postgresql.org/docs/release/18.7/">https://www.postgresql.org/docs/release/18.7/</a></li>
+</ol>
+<hr />
+<p><em>Day 23 · Embedding · pgvector · Windows 11 · PostgreSQL 18.6 / 수강생 설치 안내</em></p>
+</section>
+</main><dialog class="zoom" id="zoom"><img alt=""></dialog>
+<script>
+(function () {
+  var dlg = document.getElementById('zoom'), big = dlg.querySelector('img');
+  document.querySelectorAll('figure.shot img').forEach(function (img) {
+    img.addEventListener('click', function () { big.src = img.src; big.alt = img.alt; dlg.showModal(); });
+  });
+  dlg.addEventListener('click', function () { dlg.close(); });
+})();
+(function () {
+  function copyText(text, done) {
+    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
+    else fallback(text, done);
+  }
+  function fallback(text, done) {
+    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
+  }
+  document.querySelectorAll('main pre').forEach(function (pre) {
+    if (pre.closest('.out')) return;
+    var box = document.createElement('div'); box.className = 'codebox';
+    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
+    b.addEventListener('click', function () {
+      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
+    });
+    box.appendChild(b);
+  });
+})();
+</script>
+</body></html>
