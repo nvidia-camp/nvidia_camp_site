@@ -168,3 +168,4 @@
 | 2026-11-17 | setup/docker | Git 가이드처럼 탭 4쪽(기본 · Dockerfile · build · port · volume · compose)으로 다시 씀. 쪽마다 움직이는 그림, 설치는 접힌 토글, 막히면 표 삭제. 명령·출력은 Docker 29에서 실행 확인 | main만 (미공개) |
 | 2026-11-17 | ml/20261023~28 | Colab 실습 폴더 링크 등록 | main |
 | 2026-11-18 | llm/20261118 · 홈 | Day23(2026-11-18) 요약 · 강의 자료 · Colab 폴더 공개 배포 (Docker 제외) | main → 배포 |
+| 2026-11-18 | setup/pgvector | pgvector 설치 안내를 LLM·RAG 과목 참고 문서로 공개 (main 8411906) | 배포 |
