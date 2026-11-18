@@ -177,3 +177,4 @@
 | 2026-11-18 | setup/pgvector | 두 쪽으로 나눔: 설치(A·1–8단계) /setup/pgvector/ · 실행(9–12단계) /setup/pgvector/run/. 탭·쪽마다 단계 목차, 1단계 결과표의 단계 안내를 링크로, 설치 쪽 끝에 다음 쪽 안내. 홈 이름 pgvector 설치 안내 → pgvector 가이드. 본문 글자 그대로 | main만 |
 | 2026-11-18 | setup/pgvector | 11단계부터 셋째 쪽으로: 문제 해결 · 체크리스트(/setup/pgvector/check/, 11 오류별 해결 · 12 체크리스트 · 공식 참고 자료). 실행 쪽은 9–10단계, 끝에 다음 쪽 안내. 본문 글자 그대로 | main만 |
 | 2026-11-18 | setup/python-venv | 가상환경 이름을 점으로 시작하게 통일: gpuenv → `.gpuenv`, backendenv → `.backendenv` (`.venv`와 같은 규칙). 명령·폴더 구조·설치 목록 파일 머리말·홈 설명까지 바꿈 | main만 |
+| 2026-11-18 | llm/20261119 | Day24 Colab 실습 폴더 등록(Drive `03. 실습/20261119`, 노트북 01–07 basic). 홈 Day 줄·그날 페이지·강의 보기에 Colab 로고 | main만 |
