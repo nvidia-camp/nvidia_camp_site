@@ -77,7 +77,7 @@ SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
     "pgvector": ("pgvector 가이드", "postgresql.svg", "Windows 11 · PostgreSQL 18 · pgvector 0.8.7 설치 · 실행 확인", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", True),
-    "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
+    "python-venv": ("Python 가상환경", "python.png", ".gpuenv · .backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
     "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · branch · merge · .gitignore", "개발 환경", True),
     "vscode-extensions": ("VS Code Extension", "vscode.png", "수업 안내 3개 · Python 기본 3개 · 추천 2개", "개발 환경", True),
     "docker": ("Docker", "docker.png", "이미지 · 컨테이너 · Dockerfile · port · volume · compose", "개발 환경", False),
