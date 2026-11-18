@@ -85,7 +85,7 @@ git add -A public vercel.json
 if git diff --cached --quiet; then
   log "건너뜀: deploy가 이미 최신 (${READY[*]})"; exit 0
 fi
-CHANGED=$(git diff --cached --name-only | sed -E 's#^public/##; s#/[^/]*$##' | awk -F/ '{print ($1=="llm"||$1=="ml"||$1=="python"||$1=="vision"||$1=="setup")&&NF>=2 ? $1"/"$2 : $1}' | sort -u | tr '\n' ' ')
+CHANGED=$(git diff --cached --name-only | sed -E 's#^public/##; s#/[^/]*$##' | awk -F/ '{ if (NF == 1 && $1 ~ /\.html$/) print "홈"; else if (NF >= 2) print $1 "/" $2; else print $1 }' | sort -u | tr '\n' ' ')
 NAMES=${(j:·:)${READY%% *}}
 MSG="release: 자동 · $NEXT ${NAMES} 전날 공개 (공개 전 ${(j:·:)HIDDEN} 제외)"
 git -c user.name="$(git -C "$SITE" config user.name)" -c user.email="$(git -C "$SITE" config user.email)" \
