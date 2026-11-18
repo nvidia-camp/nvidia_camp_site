@@ -95,7 +95,7 @@ FILES = {
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
 SETUP_PAGES = {
     "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
-    "pgvector": [("", "설치 · 1–8단계"), ("run", "실행 · 9–12단계")],
+    "pgvector": [("", "설치 · 1–8단계"), ("run", "실행 · 9–10단계"), ("check", "문제 해결 · 체크리스트")],
     "docker": [("", "기본"), ("build", "Dockerfile · build"), ("port-volume", "port · volume"), ("compose", "compose")],
     "git": [("", "기본"), ("upstream", "upstream"), ("branch", "branch · merge"), ("undo", "undo · .gitignore"), ("practice", "실전 세팅")],
     "ai-coding": [("", "공통"), ("opencode", "OpenCode"), ("claude-code", "Claude Code"), ("codex", "Codex"), ("agy", "agy")],

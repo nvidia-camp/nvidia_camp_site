@@ -67,7 +67,7 @@ p.where code{background:#ffffff1f;color:#fff}
 <p><strong>버전 안내:</strong> 2026-11-12 PostgreSQL 18.7이 출시되었지만, 이 문서는 수강생의 기존 <strong>18.6</strong>을 전제로 작성했습니다. 강의 직전 임의 업그레이드는 하지 않습니다. pgvector 서버 확장 버전은 <strong>0.8.7</strong>을 사용합니다.</p>
 </blockquote>
 </section>
-<nav class="tabs" aria-label="pgvector 안내 페이지"><a data-site href="./" aria-current="page"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="./run/"><span class="n">2</span>실행 · 9–12단계</a></nav>
+<nav class="tabs" aria-label="pgvector 가이드 페이지"><a data-site href="./" aria-current="page"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="./run/"><span class="n">2</span>실행 · 9–10단계</a><a data-site href="./check/"><span class="n">3</span>문제 해결 · 체크리스트</a></nav>
 <nav class="steps-nav" aria-label="단계 바로 가기"><div class="grp"><b>개요</b><div><a href="#sa"><span class="n">A</span>설치 대상</a></div></div><div class="grp"><b>준비</b><div><a href="#s1"><span class="n">1</span>기존 상태 확인</a><a href="#s2"><span class="n">2</span>경로 확인</a><a href="#s3"><span class="n">3</span>Build Tools · Git</a></div></div><div class="grp"><b>빌드</b><div><a href="#s4"><span class="n">4</span>빌드 프롬프트</a><a href="#s5"><span class="n">5</span>PGROOT</a><a href="#s6"><span class="n">6</span>소스 받기</a><a href="#s7"><span class="n">7</span>nmake 빌드</a></div></div><div class="grp"><b>DB 활성화</b><div><a href="#s8"><span class="n">8</span>CREATE EXTENSION</a></div></div></nav>
 <div class="phase"><b>개요</b><span>무엇을 어디에 설치하는지</span></div>
 <section class="step" id="sa"><div class="step-head"><span class="badge">A</span><h2>이 강의에서 설치하는 것은 무엇인가?</h2></div>
@@ -349,7 +349,7 @@ WHERE extname = 'vector';
 </code></pre>
 <p>정상 실행 중인 트랜잭션에 무작정 <code>ROLLBACK</code>을 하지 말고, <strong>오류로 중단된 트랜잭션일 때만</strong> 실행합니다.</p>
 </section>
-<a class="next-page" data-site href="run/#s9"><span>다음 쪽</span><b>실행 · 9–12단계 →</b><small>거리·검색 검증 · Python 연결 · 오류 해결 · 체크리스트</small></a>
+<a class="next-page" data-site href="run/#s9"><span>다음 쪽</span><b>실행 · 9–10단계 →</b><small>거리·검색 검증 · Python 연결</small></a>
 </main><dialog class="zoom" id="zoom"><img alt=""></dialog>
 <script>
 (function () {

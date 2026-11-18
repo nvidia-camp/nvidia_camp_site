@@ -1,0 +1,237 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Day23 pgvector 문제 해결 · 체크리스트 | Windows 11 · PostgreSQL 18.6</title><style>
+:root{--ink:#1f3045;--navy:#1c2b40;--blue:#426fa3;--bg:#f4f6fa;--line:#d7e0eb;--white:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}header{background:var(--navy);color:white;padding:22px max(calc((100vw - 1100px)/2),24px);font-weight:700;letter-spacing:.02em}main{max-width:1100px;background:white;margin:24px auto 48px;padding:48px 64px 62px;border-radius:16px;box-shadow:0 12px 32px #17233711}h1{font-size:33px;line-height:1.45;margin:0 0 26px}h2{font-size:24px;border-bottom:2px solid #d4dfeb;padding:24px 0 10px;margin-top:42px}h3{font-size:19px;color:var(--blue);margin-top:30px}p,li{word-break:keep-all;overflow-wrap:anywhere}a{color:var(--blue)}a:hover{text-decoration:none}code,pre{font-family:Consolas,"D2Coding",monospace}p code,li code,td code{background:#edf3f9;padding:2px 5px;border-radius:4px;font-size:.89em}pre{background:#172337;color:#e8f1fc;border-radius:10px;padding:19px 22px;overflow:auto;font-size:13.5px;line-height:1.72;white-space:pre}pre code{font:inherit}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th{background:#eaf0f8;color:#1c2b40;text-align:left}th,td{border:1px solid #d7e0eb;padding:10px 12px;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}blockquote{margin:20px 0;padding:13px 19px;border-left:4px solid #426fa3;background:#edf3f9;border-radius:0 8px 8px 0}blockquote p{margin:5px 0}li{margin-bottom:4px}input[type=checkbox]{accent-color:#426fa3;margin-right:7px}hr{border:0;border-top:1px solid #d7e0eb;margin:32px 0}footer{color:#63748a;font-size:13px;margin-top:22px;text-align:right}.print-button{position:absolute;right:23px;top:62px;z-index:5;padding:10px 15px;border:1px solid #fff5;background:#fff;color:#172337;border-radius:7px;font-weight:700;cursor:pointer}
+@media(max-width:760px){main{margin:0;padding:28px 16px;border-radius:0}header{padding:18px}.print-button{position:static;margin-left:15px;padding:5px}h1{font-size:26px}h2{font-size:21px}pre{font-size:12px}table{display:block;overflow:auto;white-space:normal}}
+@media print{html,body{background:#fff}header,.print-button{display:none}main{max-width:100%;margin:0;padding:0;box-shadow:none}h2{break-after:avoid}pre,table{break-inside:avoid}blockquote{break-inside:avoid}a{color:#1c2b40;text-decoration:none}table{font-size:11px}pre{white-space:pre-wrap;font-size:10.5px;background:#172337!important;color:#fff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}body{font-size:12px}}
+figure.shot{margin:14px 0 8px;display:grid;gap:6px;justify-items:start}figure.shot img{display:block;width:auto;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:zoom-in}figure.shot figcaption{font-size:14px;line-height:1.6;color:#52667e}dialog.zoom{padding:0;border:0;background:transparent;max-width:96vw;max-height:94vh}dialog.zoom::backdrop{background:#0e1626cc}dialog.zoom img{display:block;max-width:96vw;max-height:94vh;border-radius:8px;cursor:zoom-out}@media print{figure.shot{break-inside:avoid}}
+
+/* 단계 카드 */
+main{background:transparent;box-shadow:none;padding:0 24px;margin:24px auto 56px}
+.intro,.step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 36px 32px;margin:0 0 18px;box-shadow:0 6px 18px #1723370a}
+.intro h1{margin-bottom:18px}
+.step>h2:first-child{margin-top:0}
+.step-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-bottom:14px;margin-bottom:18px;border-bottom:2px solid #d4dfeb}
+.step-head h2{margin:0;padding:0;border:0;font-size:22px;line-height:1.45;flex:1 1 20rem}
+.step-head .badge{flex:none;display:inline-grid;place-items:center;min-width:40px;height:40px;padding:0 8px;border-radius:999px;background:var(--navy);color:#fff;font-weight:800;font-size:18px}
+.step-head .tool{flex:none;font-size:13px;font-weight:700;color:var(--blue);background:#edf3f9;border:1px solid #cddbeb;border-radius:999px;padding:3px 12px}
+.step h3{margin:28px 0 10px;padding:4px 0 4px 12px;border-left:4px solid var(--blue);font-size:18px}
+.step-head+h3{margin-top:4px}
+p.where{background:#172337;color:#e8f1fc;border-radius:8px;padding:8px 14px;font-size:14.5px}
+p.where strong{color:#fff}
+p.where code{background:#ffffff1f;color:#fff}
+.phase{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:34px 4px 12px;padding-top:14px;border-top:2px solid var(--navy)}
+.phase b{font-size:15px;color:var(--navy);letter-spacing:.02em}
+.phase span{font-size:14px;color:#52667e}
+.steps-nav{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin:0 0 6px;display:grid;gap:10px}
+.steps-nav .grp{display:grid;grid-template-columns:8.5rem 1fr;gap:8px;align-items:start}
+.steps-nav .grp>b{font-size:13px;color:#52667e;padding-top:5px}
+.steps-nav .grp>div{display:flex;flex-wrap:wrap;gap:6px}
+.steps-nav a{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--navy);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px 3px 4px;background:#fff}
+.steps-nav a:hover{border-color:var(--navy)}
+.steps-nav .n{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:999px;background:#edf3f9;color:var(--navy);font-size:12px}
+.step,.intro{scroll-margin-top:60px}
+.step.refs{background:#f9fbfe}
+@media(max-width:760px){main{padding:0 12px;margin:12px auto 32px}.intro,.step{padding:20px 16px 22px;border-radius:12px}.step-head h2{font-size:19px;flex-basis:100%}.step-head .badge{min-width:34px;height:34px;font-size:16px}.steps-nav{padding:14px}.steps-nav .grp{grid-template-columns:1fr;gap:4px}.phase{margin-top:26px}}
+@media print{.steps-nav{display:none}.intro,.step{border:0;box-shadow:none;padding:0;margin:0 0 18px}.phase{break-after:avoid}.step-head{break-after:avoid}}
+.out{margin:14px 0;border:1px solid #cddbeb;border-radius:10px;overflow:hidden;background:#f7fafd}
+.out-h{font-size:13px;font-weight:700;color:var(--blue);padding:6px 14px;background:#edf3f9;border-bottom:1px solid #cddbeb}
+.out pre{margin:0;background:transparent;color:#1f3045;border-radius:0;padding:12px 14px;font-size:13.5px;line-height:1.7}
+.out pre .p{color:#7a8aa0}
+.out pre b{color:#17643a;background:#e2f3e8;border-radius:3px;padding:0 3px;font-weight:700}
+.out-note{margin:0;padding:0 14px 12px;font-size:14px;color:#52667e}
+@media print{.out{break-inside:avoid}.out pre{background:transparent!important;color:#1f3045!important;white-space:pre-wrap}}
+.codebox{position:relative;margin:14px 0}
+.codebox pre{margin:0;padding-top:42px}
+.copy-btn{position:absolute;top:9px;right:10px;font:600 12.5px/1 "Pretendard Variable", Pretendard, inherit;font-family:inherit;color:#cfe0f5;background:transparent;border:1px solid #cfe0f566;border-radius:999px;padding:6px 12px;cursor:pointer}
+.copy-btn:hover{background:#ffffff14}
+.copy-btn.done{color:#9fe0b4;border-color:#9fe0b4}
+@media print{.copy-btn{display:none}.codebox pre{padding-top:12px}}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:6px 16px 6px 7px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);text-decoration:none;font-weight:700}
+.tabs a:hover{border-color:var(--navy)}
+.tabs .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:#edf3f9;color:var(--navy);font-size:14px}
+.tabs a[aria-current="page"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.tabs a[aria-current="page"] .n{background:#fff;color:var(--navy)}
+.next-page{display:grid;gap:2px;justify-items:end;text-align:right;margin:8px 0 18px;padding:18px 24px;background:#fff;border:1px solid var(--line);border-radius:16px;text-decoration:none;color:var(--ink)}
+.next-page.prev{justify-items:start;text-align:left}
+.next-page:hover{border-color:var(--navy)}
+.next-page span{font-size:13px;color:#52667e;font-weight:700}
+.next-page b{font-size:19px;color:var(--navy)}
+.next-page small{font-size:14px;color:#52667e}
+@media print{.tabs,.next-page{display:none}}
+</style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+</head><body><style>
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-ico{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}
+.cn-nav .cn-ico svg{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-slack img{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-colab{width:auto;padding:0 .3rem}.cn-nav .cn-colab img{display:block;width:1.7rem;height:1rem}
+.cn-nav .cn-right{align-items:center}
+.cn-nav [data-tip]{position:relative}
+.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
+  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}
+html{scroll-padding-top:3rem}
+@media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../../">← 학습 아카이브</a><a href="../../../setup/pgvector/">pgvector 가이드</a><span class="cn-here">문제 해결 · 체크리스트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="Day23_pgvector_문제_해결_체크리스트_Windows_11_PostgreSQL_18.6.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a href="../../../setup/pgvector/run/">‹ 실행 · 9–10단계</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main>
+<section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
+<p>설치·실행 중 막혔을 때 보는 <b>오류별 해결 방법</b>과, 마지막에 확인하는 <b>설치 완료 체크리스트</b>입니다.</p></section>
+<nav class="tabs" aria-label="pgvector 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="../run/"><span class="n">2</span>실행 · 9–10단계</a><a data-site href="../check/" aria-current="page"><span class="n">3</span>문제 해결 · 체크리스트</a></nav>
+<nav class="steps-nav" aria-label="단계 바로 가기"><div class="grp"><b>문제 해결</b><div><a href="#s11"><span class="n">11</span>오류 해결</a><a href="#s12"><span class="n">12</span>체크리스트</a><a href="#refs"><span class="n">↗</span>공식 참고 자료</a></div></div></nav>
+<div class="phase"><b>문제 해결 · 마무리 · 11–12단계</b></div>
+<section class="step" id="s11"><div class="step-head"><span class="badge">11</span><h2>오류별 해결 방법</h2></div>
+<table>
+<thead>
+<tr>
+  <th>증상·오류 메시지</th>
+  <th>원인 후보</th>
+  <th>해결할 위치·방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>git</code> 또는 <code>nmake</code>를 찾지 못함</td>
+  <td>Git 설치·PATH 문제 또는 일반 CMD 사용</td>
+  <td>Git 설치 여부를 확인하고 <strong>x64 Native Tools Command Prompt</strong>를 다시 열어 <code>where</code> 확인</td>
+</tr>
+<tr>
+  <td><code>echo %VSCMD_ARG_TGT_ARCH%</code>가 <code>x64</code>가 아님</td>
+  <td>x86용 개발자 프롬프트를 열었음</td>
+  <td><strong>x64 Native Tools</strong> 프롬프트로 변경</td>
+</tr>
+<tr>
+  <td><code>Cannot open include file: 'postgres.h'</code> / <code>fatal error C1083</code></td>
+  <td><code>PGROOT</code> 오류 또는 PostgreSQL 개발 헤더 누락</td>
+  <td><code>echo %PGROOT%</code>, <code>dir &quot;%PGROOT%\include\server\postgres.h&quot;</code> 검사</td>
+</tr>
+<tr>
+  <td><code>postgres.lib</code> 파일을 찾지 못함 / 링크 오류</td>
+  <td>다른 PostgreSQL 설치 경로 또는 개발 라이브러리 누락</td>
+  <td><code>%PGROOT%\lib\postgres.lib</code>와 <code>pg_config</code>가 같은 설치본인지 확인</td>
+</tr>
+<tr>
+  <td><code>error C2196: case value '4' already used</code></td>
+  <td>x86/x64 아키텍처 불일치 가능</td>
+  <td>x64 도구에서 <code>nmake /F Makefile.win clean</code> 후 다시 빌드</td>
+</tr>
+<tr>
+  <td><code>NMAKE : fatal error U1077</code></td>
+  <td>앞쪽 컴파일·링크 실패의 후속 메시지</td>
+  <td>로그에서 <strong>맨 처음 나온 실제 오류</strong>부터 수정</td>
+</tr>
+<tr>
+  <td><code>Access is denied</code> / <code>Permission denied</code> during install</td>
+  <td>PostgreSQL <code>Program Files</code> 폴더 쓰기 권한 부족</td>
+  <td><strong>관리자 권한</strong>으로 x64 개발자 프롬프트 재실행</td>
+</tr>
+<tr>
+  <td><code>extension &quot;vector&quot; is not available</code></td>
+  <td>서버 파일이 올바른 PostgreSQL 설치 폴더에 없음</td>
+  <td><code>%PGROOT%\lib</code>, <code>%PGROOT%\share\extension</code> 파일 위치와 접속 서버 버전 확인</td>
+</tr>
+<tr>
+  <td><code>permission denied to create extension &quot;vector&quot;</code></td>
+  <td>현재 DB 계정 권한 부족</td>
+  <td>적절한 권한의 DB 관리자 계정으로 해당 DB에서 실행</td>
+</tr>
+<tr>
+  <td><code>type &quot;vector&quot; does not exist</code></td>
+  <td>현재 연결한 DB에 확장이 없음</td>
+  <td><strong>해당 DB</strong>에서 <code>CREATE EXTENSION IF NOT EXISTS vector;</code> 실행</td>
+</tr>
+<tr>
+  <td><code>current transaction is aborted</code></td>
+  <td>이전 SQL 실패로 트랜잭션이 중단됨</td>
+  <td>오류가 난 세션에서 <code>ROLLBACK;</code> 실행 후 근본 원인 수정</td>
+</tr>
+<tr>
+  <td><code>ModuleNotFoundError: No module named 'pgvector'</code></td>
+  <td>다른 Python 인터프리터에 설치</td>
+  <td><code>python -c &quot;import sys; print(sys.executable)&quot;</code>와 <code>python -m pip show pgvector</code> 대조</td>
+</tr>
+<tr>
+  <td><code>connection refused</code></td>
+  <td>PostgreSQL 서버 중지 또는 호스트·포트 불일치</td>
+  <td>pgAdmin의 실제 서버 호스트·포트 및 서비스 상태 확인</td>
+</tr>
+<tr>
+  <td><code>password authentication failed</code></td>
+  <td>DB 계정/비밀번호 불일치</td>
+  <td><code>.env</code>의 <code>PGUSER</code>, <code>PGPASSWORD</code> 점검 (공개 공유 금지)</td>
+</tr>
+<tr>
+  <td>Python <code>register_vector</code> 실패</td>
+  <td>해당 DB에서 확장 미활성화 또는 잘못된 DB 접속</td>
+  <td>pgAdmin에서 <code>current_database()</code> 및 <code>pg_extension</code> 재확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>운영 원칙:</strong> 오류가 나면 무조건 PostgreSQL을 재설치하지 마세요. 마지막 한 줄만 캡처하는 대신, <strong>실행한 창 종류·실행 명령·첫 번째 오류·확인한 DB 이름</strong>을 강사에게 전달하세요. 비밀번호·API 키는 가리고 공유합니다.</p>
+</section>
+<section class="step" id="s12"><div class="step-head"><span class="badge">12</span><h2>최종 설치 완료 체크리스트</h2></div>
+<ul>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>PostgreSQL 18.6 설치본과 현재 접속 DB를 확인했다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>빌드 전용 CMD에서 <code>where cl</code>, <code>where nmake</code>가 성공했다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>PGROOT</code>가 PostgreSQL <strong>18 최상위 폴더</strong>를 가리킨다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>pgvector 공식 소스 태그가 <strong>v0.8.7</strong>이다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>nmake /F Makefile.win</code> 성공 및 <code>vector.dll</code> 생성 확인.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>PostgreSQL <code>lib</code>와 <code>share\extension</code> 아래 확장 파일이 존재한다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>강의용 DB의 <code>pg_extension</code> 조회에서 <strong>vector 0.8.7</strong>이 보인다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>SQL에서 코사인 거리 <strong>0 · 1 · 2</strong>가 조회된다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>임시 테이블 Top-k가 <strong>ID 1 → 2 → 3</strong>으로 조회된다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>기존 Python 가상환경에서 <code>import pgvector</code>, <code>import psycopg</code>가 된다.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>python verify_pgvector.py</code>가 <strong><code>DB 연결 및 pgvector 확인 완료</code></strong>를 출력한다.</li>
+</ul>
+<p><strong>여기까지 완료하면 내일의 Embedding → PostgreSQL <code>vector(384)</code> 저장 → Cosine Top-k Search 실습을 시작할 수 있습니다.</strong></p>
+</section>
+<section class="step refs" id="refs"><div class="step-head"><h2>공식 참고 자료</h2></div>
+<ol>
+<li>pgvector 공식 GitHub(Windows·<code>nmake</code>): <a href="https://github.com/pgvector/pgvector">https://github.com/pgvector/pgvector</a></li>
+<li>pgvector 0.8.7 릴리스 안내: <a href="https://www.postgresql.org/about/news/pgvector-087-released-3392/">https://www.postgresql.org/about/news/pgvector-087-released-3392/</a></li>
+<li>Microsoft Visual Studio Build Tools 다운로드: <a href="https://visualstudio.microsoft.com/downloads/">https://visualstudio.microsoft.com/downloads/</a></li>
+<li>Microsoft x64 Developer Command Prompt 안내: <a href="https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line">https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line</a></li>
+<li>Git for Windows 공식 설치: <a href="https://git-scm.com/install/win">https://git-scm.com/install/win</a></li>
+<li>PostgreSQL <code>pg_config</code> 문서: <a href="https://www.postgresql.org/docs/18/app-pgconfig.html">https://www.postgresql.org/docs/18/app-pgconfig.html</a></li>
+<li>pgvector-python / psycopg 3 타입 등록: <a href="https://github.com/pgvector/pgvector-python">https://github.com/pgvector/pgvector-python</a></li>
+<li>PostgreSQL 18.7 릴리스 정보: <a href="https://www.postgresql.org/docs/release/18.7/">https://www.postgresql.org/docs/release/18.7/</a></li>
+</ol>
+<hr />
+<p><em>Day 23 · Embedding · pgvector · Windows 11 · PostgreSQL 18.6 / 수강생 설치 안내</em></p>
+</section>
+</main><dialog class="zoom" id="zoom"><img alt=""></dialog>
+<script>
+(function () {
+  var dlg = document.getElementById('zoom'), big = dlg.querySelector('img');
+  document.querySelectorAll('figure.shot img').forEach(function (img) {
+    img.addEventListener('click', function () { big.src = img.src; big.alt = img.alt; dlg.showModal(); });
+  });
+  dlg.addEventListener('click', function () { dlg.close(); });
+})();
+(function () {
+  function copyText(text, done) {
+    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
+    else fallback(text, done);
+  }
+  function fallback(text, done) {
+    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
+  }
+  document.querySelectorAll('main pre').forEach(function (pre) {
+    if (pre.closest('.out')) return;
+    var box = document.createElement('div'); box.className = 'codebox';
+    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
+    b.addEventListener('click', function () {
+      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
+    });
+    box.appendChild(b);
+  });
+})();
+</script>
+</body></html>

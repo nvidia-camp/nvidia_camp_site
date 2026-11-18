@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Day23 pgvector 실행 · 9–12단계 | Windows 11 · PostgreSQL 18.6</title><style>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Day23 pgvector 실행 · 9–10단계 | Windows 11 · PostgreSQL 18.6</title><style>
 :root{--ink:#1f3045;--navy:#1c2b40;--blue:#426fa3;--bg:#f4f6fa;--line:#d7e0eb;--white:#fff}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif}header{background:var(--navy);color:white;padding:22px max(calc((100vw - 1100px)/2),24px);font-weight:700;letter-spacing:.02em}main{max-width:1100px;background:white;margin:24px auto 48px;padding:48px 64px 62px;border-radius:16px;box-shadow:0 12px 32px #17233711}h1{font-size:33px;line-height:1.45;margin:0 0 26px}h2{font-size:24px;border-bottom:2px solid #d4dfeb;padding:24px 0 10px;margin-top:42px}h3{font-size:19px;color:var(--blue);margin-top:30px}p,li{word-break:keep-all;overflow-wrap:anywhere}a{color:var(--blue)}a:hover{text-decoration:none}code,pre{font-family:Consolas,"D2Coding",monospace}p code,li code,td code{background:#edf3f9;padding:2px 5px;border-radius:4px;font-size:.89em}pre{background:#172337;color:#e8f1fc;border-radius:10px;padding:19px 22px;overflow:auto;font-size:13.5px;line-height:1.72;white-space:pre}pre code{font:inherit}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th{background:#eaf0f8;color:#1c2b40;text-align:left}th,td{border:1px solid #d7e0eb;padding:10px 12px;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}blockquote{margin:20px 0;padding:13px 19px;border-left:4px solid #426fa3;background:#edf3f9;border-radius:0 8px 8px 0}blockquote p{margin:5px 0}li{margin-bottom:4px}input[type=checkbox]{accent-color:#426fa3;margin-right:7px}hr{border:0;border-top:1px solid #d7e0eb;margin:32px 0}footer{color:#63748a;font-size:13px;margin-top:22px;text-align:right}.print-button{position:absolute;right:23px;top:62px;z-index:5;padding:10px 15px;border:1px solid #fff5;background:#fff;color:#172337;border-radius:7px;font-weight:700;cursor:pointer}
 @media(max-width:760px){main{margin:0;padding:28px 16px;border-radius:0}header{padding:18px}.print-button{position:static;margin-left:15px;padding:5px}h1{font-size:26px}h2{font-size:21px}pre{font-size:12px}table{display:block;overflow:auto;white-space:normal}}
@@ -61,8 +61,8 @@ p.where code{background:#ffffff1f;color:#fff}
 @media print{.tabs,.next-page{display:none}}
 </style></head><body><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
 <p>1–8단계에서 설치한 pgvector를 pgAdmin SQL과 Python에서 확인합니다. 설치를 아직 마치지 않았다면 <a data-site href="../">설치 · 1–8단계</a>부터 진행합니다.</p></section>
-<nav class="tabs" aria-label="pgvector 안내 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="./" aria-current="page"><span class="n">2</span>실행 · 9–12단계</a></nav>
-<nav class="steps-nav" aria-label="단계 바로 가기"><div class="grp"><b>검증</b><div><a href="#s9"><span class="n">9</span>거리·검색 검증</a></div></div><div class="grp"><b>Python 연결</b><div><a href="#s10"><span class="n">10</span>Python 연결</a></div></div><div class="grp"><b>문제 해결</b><div><a href="#s11"><span class="n">11</span>오류 해결</a><a href="#s12"><span class="n">12</span>체크리스트</a></div></div></nav>
+<nav class="tabs" aria-label="pgvector 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="../run/" aria-current="page"><span class="n">2</span>실행 · 9–10단계</a><a data-site href="../check/"><span class="n">3</span>문제 해결 · 체크리스트</a></nav>
+<nav class="steps-nav" aria-label="단계 바로 가기"><div class="grp"><b>검증</b><div><a href="#s9"><span class="n">9</span>거리·검색 검증</a></div></div><div class="grp"><b>Python 연결</b><div><a href="#s10"><span class="n">10</span>Python 연결</a></div></div></nav>
 <div class="phase"><b>검증 · 9단계</b><span>pgAdmin Query Tool</span></div>
 <section class="step" id="s9"><div class="step-head"><span class="badge">9</span><h2>pgvector 거리 계산과 검색 기능 검증</h2><span class="tool">pgAdmin Query Tool</span></div>
 <h3>9-1. 벡터 거리 계산(데이터베이스 변경 없음)</h3>
@@ -207,126 +207,7 @@ DB 연결 및 pgvector 확인 완료
 </code></pre>
 <p>실제 DB 이름과 소수점 표시는 다를 수 있습니다. 이 코드는 데이터를 INSERT하거나 삭제하지 않습니다.</p>
 </section>
-<div class="phase"><b>문제 해결 · 마무리 · 11–12단계</b></div>
-<section class="step" id="s11"><div class="step-head"><span class="badge">11</span><h2>오류별 해결 방법</h2></div>
-<table>
-<thead>
-<tr>
-  <th>증상·오류 메시지</th>
-  <th>원인 후보</th>
-  <th>해결할 위치·방법</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>git</code> 또는 <code>nmake</code>를 찾지 못함</td>
-  <td>Git 설치·PATH 문제 또는 일반 CMD 사용</td>
-  <td>Git 설치 여부를 확인하고 <strong>x64 Native Tools Command Prompt</strong>를 다시 열어 <code>where</code> 확인</td>
-</tr>
-<tr>
-  <td><code>echo %VSCMD_ARG_TGT_ARCH%</code>가 <code>x64</code>가 아님</td>
-  <td>x86용 개발자 프롬프트를 열었음</td>
-  <td><strong>x64 Native Tools</strong> 프롬프트로 변경</td>
-</tr>
-<tr>
-  <td><code>Cannot open include file: 'postgres.h'</code> / <code>fatal error C1083</code></td>
-  <td><code>PGROOT</code> 오류 또는 PostgreSQL 개발 헤더 누락</td>
-  <td><code>echo %PGROOT%</code>, <code>dir &quot;%PGROOT%\include\server\postgres.h&quot;</code> 검사</td>
-</tr>
-<tr>
-  <td><code>postgres.lib</code> 파일을 찾지 못함 / 링크 오류</td>
-  <td>다른 PostgreSQL 설치 경로 또는 개발 라이브러리 누락</td>
-  <td><code>%PGROOT%\lib\postgres.lib</code>와 <code>pg_config</code>가 같은 설치본인지 확인</td>
-</tr>
-<tr>
-  <td><code>error C2196: case value '4' already used</code></td>
-  <td>x86/x64 아키텍처 불일치 가능</td>
-  <td>x64 도구에서 <code>nmake /F Makefile.win clean</code> 후 다시 빌드</td>
-</tr>
-<tr>
-  <td><code>NMAKE : fatal error U1077</code></td>
-  <td>앞쪽 컴파일·링크 실패의 후속 메시지</td>
-  <td>로그에서 <strong>맨 처음 나온 실제 오류</strong>부터 수정</td>
-</tr>
-<tr>
-  <td><code>Access is denied</code> / <code>Permission denied</code> during install</td>
-  <td>PostgreSQL <code>Program Files</code> 폴더 쓰기 권한 부족</td>
-  <td><strong>관리자 권한</strong>으로 x64 개발자 프롬프트 재실행</td>
-</tr>
-<tr>
-  <td><code>extension &quot;vector&quot; is not available</code></td>
-  <td>서버 파일이 올바른 PostgreSQL 설치 폴더에 없음</td>
-  <td><code>%PGROOT%\lib</code>, <code>%PGROOT%\share\extension</code> 파일 위치와 접속 서버 버전 확인</td>
-</tr>
-<tr>
-  <td><code>permission denied to create extension &quot;vector&quot;</code></td>
-  <td>현재 DB 계정 권한 부족</td>
-  <td>적절한 권한의 DB 관리자 계정으로 해당 DB에서 실행</td>
-</tr>
-<tr>
-  <td><code>type &quot;vector&quot; does not exist</code></td>
-  <td>현재 연결한 DB에 확장이 없음</td>
-  <td><strong>해당 DB</strong>에서 <code>CREATE EXTENSION IF NOT EXISTS vector;</code> 실행</td>
-</tr>
-<tr>
-  <td><code>current transaction is aborted</code></td>
-  <td>이전 SQL 실패로 트랜잭션이 중단됨</td>
-  <td>오류가 난 세션에서 <code>ROLLBACK;</code> 실행 후 근본 원인 수정</td>
-</tr>
-<tr>
-  <td><code>ModuleNotFoundError: No module named 'pgvector'</code></td>
-  <td>다른 Python 인터프리터에 설치</td>
-  <td><code>python -c &quot;import sys; print(sys.executable)&quot;</code>와 <code>python -m pip show pgvector</code> 대조</td>
-</tr>
-<tr>
-  <td><code>connection refused</code></td>
-  <td>PostgreSQL 서버 중지 또는 호스트·포트 불일치</td>
-  <td>pgAdmin의 실제 서버 호스트·포트 및 서비스 상태 확인</td>
-</tr>
-<tr>
-  <td><code>password authentication failed</code></td>
-  <td>DB 계정/비밀번호 불일치</td>
-  <td><code>.env</code>의 <code>PGUSER</code>, <code>PGPASSWORD</code> 점검 (공개 공유 금지)</td>
-</tr>
-<tr>
-  <td>Python <code>register_vector</code> 실패</td>
-  <td>해당 DB에서 확장 미활성화 또는 잘못된 DB 접속</td>
-  <td>pgAdmin에서 <code>current_database()</code> 및 <code>pg_extension</code> 재확인</td>
-</tr>
-</tbody>
-</table>
-<p><strong>운영 원칙:</strong> 오류가 나면 무조건 PostgreSQL을 재설치하지 마세요. 마지막 한 줄만 캡처하는 대신, <strong>실행한 창 종류·실행 명령·첫 번째 오류·확인한 DB 이름</strong>을 강사에게 전달하세요. 비밀번호·API 키는 가리고 공유합니다.</p>
-</section>
-<section class="step" id="s12"><div class="step-head"><span class="badge">12</span><h2>최종 설치 완료 체크리스트</h2></div>
-<ul>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>PostgreSQL 18.6 설치본과 현재 접속 DB를 확인했다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>빌드 전용 CMD에서 <code>where cl</code>, <code>where nmake</code>가 성공했다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>PGROOT</code>가 PostgreSQL <strong>18 최상위 폴더</strong>를 가리킨다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>pgvector 공식 소스 태그가 <strong>v0.8.7</strong>이다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>nmake /F Makefile.win</code> 성공 및 <code>vector.dll</code> 생성 확인.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>PostgreSQL <code>lib</code>와 <code>share\extension</code> 아래 확장 파일이 존재한다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>강의용 DB의 <code>pg_extension</code> 조회에서 <strong>vector 0.8.7</strong>이 보인다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>SQL에서 코사인 거리 <strong>0 · 1 · 2</strong>가 조회된다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>임시 테이블 Top-k가 <strong>ID 1 → 2 → 3</strong>으로 조회된다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>기존 Python 가상환경에서 <code>import pgvector</code>, <code>import psycopg</code>가 된다.</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>python verify_pgvector.py</code>가 <strong><code>DB 연결 및 pgvector 확인 완료</code></strong>를 출력한다.</li>
-</ul>
-<p><strong>여기까지 완료하면 내일의 Embedding → PostgreSQL <code>vector(384)</code> 저장 → Cosine Top-k Search 실습을 시작할 수 있습니다.</strong></p>
-</section>
-<section class="step refs" id="refs"><div class="step-head"><h2>공식 참고 자료</h2></div>
-<ol>
-<li>pgvector 공식 GitHub(Windows·<code>nmake</code>): <a href="https://github.com/pgvector/pgvector">https://github.com/pgvector/pgvector</a></li>
-<li>pgvector 0.8.7 릴리스 안내: <a href="https://www.postgresql.org/about/news/pgvector-087-released-3392/">https://www.postgresql.org/about/news/pgvector-087-released-3392/</a></li>
-<li>Microsoft Visual Studio Build Tools 다운로드: <a href="https://visualstudio.microsoft.com/downloads/">https://visualstudio.microsoft.com/downloads/</a></li>
-<li>Microsoft x64 Developer Command Prompt 안내: <a href="https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line">https://learn.microsoft.com/en-us/cpp/build/building-on-the-command-line</a></li>
-<li>Git for Windows 공식 설치: <a href="https://git-scm.com/install/win">https://git-scm.com/install/win</a></li>
-<li>PostgreSQL <code>pg_config</code> 문서: <a href="https://www.postgresql.org/docs/18/app-pgconfig.html">https://www.postgresql.org/docs/18/app-pgconfig.html</a></li>
-<li>pgvector-python / psycopg 3 타입 등록: <a href="https://github.com/pgvector/pgvector-python">https://github.com/pgvector/pgvector-python</a></li>
-<li>PostgreSQL 18.7 릴리스 정보: <a href="https://www.postgresql.org/docs/release/18.7/">https://www.postgresql.org/docs/release/18.7/</a></li>
-</ol>
-<hr />
-<p><em>Day 23 · Embedding · pgvector · Windows 11 · PostgreSQL 18.6 / 수강생 설치 안내</em></p>
-</section>
+<a class="next-page" data-site href="../check/"><span>다음 쪽</span><b>문제 해결 · 체크리스트 →</b><small>오류별 해결 방법 · 최종 설치 완료 체크리스트 · 공식 참고 자료</small></a>
 </main><dialog class="zoom" id="zoom"><img alt=""></dialog>
 <script>
 (function () {
