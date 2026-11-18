@@ -44,6 +44,8 @@ git add -A && git commit -m "..." && git push        # main → 미리보기
 - 사이트는 2026-11-10에 출시됐습니다. 2026-11-10 저녁부터는 수정할 때마다 main에 올린 뒤 바로 `git push origin main:deploy`로 배포합니다(deploy는 항상 main을 그대로 따라가는 fast-forward).
 - 공개 전 페이지: `SETUP`의 공개 여부가 False인 페이지는 main 빌드에는 그대로 들어가(따로 표시 없음) 미리보기에서 볼 수 있습니다. `uv run build_site.py --release`로 만들면 빠집니다.
 - 실제 배포: 공개 전 페이지가 없으면 `git push origin main:deploy`. 있으면 main을 그대로 올리지 않고, `--release`로 다시 만든 public/을 deploy에 올립니다.
+- 다음 수업일 자료는 **전날 18:20**에 공개합니다. 사이트의 '오늘'은 18:20부터 다음 수업일이라, 그 뒤에 `--release`로 만들면 다음 수업일 자료까지 들어갑니다(금요일 18:20 → 월요일 자료).
+- 자동 배포: `auto_release.sh`를 launchd(`~/Library/LaunchAgents/app.nvidiasesac.auto-release.plist`)가 매일 18:20에 실행합니다. origin/main에 다음 수업일 페이지가 있으면 `--release`로 빌드해 deploy에 fast-forward push하고 실제 사이트를 확인한 뒤 맥 알림을 띄웁니다. main의 다른 변경도 함께 나가며, 공개 전 페이지(Docker 등)가 빌드에 남아 있으면 중단합니다. Mac이 잠자기 중이면 돌지 않습니다(그날 23:59 전에 깨어나면 그때 실행). 로그: `~/Library/Logs/nvidiasesac_auto_release.log`. 미리 보기: `FORCE_TIME=1 DRY_RUN=1 ./auto_release.sh`.
 
 ## 강의 자료 바로 보기 (강사님 강의 HTML)
 

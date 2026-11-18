@@ -28,6 +28,8 @@
 - public/은 매번 지우고 새로 만든다. 직접 고치지 않는다. 강의 교재 PDF는 넣지 않는다.
 - 공개 전(SETUP의 공개=False) 페이지는 main 빌드에는 들어가고 `--release`로 만들면 빠진다.
   화면에 따로 표시하지 않는다(공개 구분은 main/deploy 브랜치로 한다).
+- 사이트의 '오늘'은 18:20부터 다음 수업일이다. `--release`는 그날까지의 수업 자료만 넣는다
+  (전날 18:20 공개, auto_release.sh). 특정 날짜 기준으로 만들려면 `--as-of YYYY-MM-DD`.
 """
 import base64
 import datetime
@@ -120,6 +122,22 @@ COLAB = {
     "llm/20261119": "https://drive.google.com/drive/folders/1CGcHCMimaZ6Dv5OfC4SlBJ06BaPuSNwQ",
 }
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
+OPEN_AHEAD = datetime.time(18, 20)   # 이 시각부터 다음 수업일 자료를 공개한다 (auto_release.sh가 이 시각에 배포)
+
+
+def site_today():
+    """사이트의 '오늘': 18:20 전은 오늘, 18:20부터는 다음 수업일 (--as-of YYYY-MM-DD로 지정 가능)"""
+    if "--as-of" in sys.argv:
+        return datetime.date.fromisoformat(sys.argv[sys.argv.index("--as-of") + 1]).isoformat()
+    now = datetime.datetime.now()
+    today = now.date().isoformat()
+    if now.time() < OPEN_AHEAD:
+        return today
+    later = sorted(r["date"] for r in json.loads(LECTURES.read_text(encoding="utf-8")) if r["date"] > today)
+    return later[0] if later else today
+
+
+TODAY = site_today()
 
 
 def setup_items():
@@ -146,7 +164,7 @@ def read_days():
         part = row["day"].split("-")[1] if "-" in row["day"] else "1"
         folder = ymd if part == "1" else f"{ymd}-{part}"      # 같은 날 두 번째 회차: 20261102-2
         src = PAGES / key / folder if key else None
-        if RELEASE and row["date"] > datetime.date.today().isoformat():
+        if RELEASE and row["date"] > TODAY:
             src = None   # deploy용: 내일 이후 수업 자료(강의 HTML·목차)는 그날 배포할 때까지 뺀다 (main에는 미리 둘 수 있다)
         days.append({
             "n": row["day"], "date": row["date"], "ymd": folder, "key": key, "short": short,
@@ -737,7 +755,7 @@ def chapter_block(key, ds, up, link_head=True):
     made = [d for d in ds if d["src"]]
     has_all = (PAGES / key / "all" / "index.html").exists()
     has_page = made or has_all or any(d["tree"] for d in ds)   # 과목 페이지가 만들어지는 조건 (main과 같게)
-    today = datetime.date.today().isoformat()
+    today = TODAY
     name = html.escape(ds[0]["short"])
     if link_head and has_page:
         name = f'<a href="{up}{key}/">{name}</a>'
@@ -1067,7 +1085,7 @@ def subject_page(key, ds):
 # ── 만들기 ──────────────────────────────────────────────────────────────
 def main():
     days = read_days()
-    today = datetime.date.today().isoformat()
+    today = TODAY
     if PUBLIC.exists():
         shutil.rmtree(PUBLIC)
     PUBLIC.mkdir()
