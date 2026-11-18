@@ -161,8 +161,10 @@
 | 2026-11-17 | setup/git | 한 페이지 나열 → 탭 5쪽(기본 · 원본 따라가기 · 브랜치 · 머지 · 되돌리기 · .gitignore · 실전 세팅)으로 나눔. ④에 되돌리기 그림 추가(stash 선반, .env 튕김, revert 커밋) | main만 (미공개) |
 | 2026-11-17 | python/20261020~20261022 · 홈 | Python Day 2~4 Colab 실습 폴더(Drive, 노트북 10개) 등록: 홈 Day 줄·그날 페이지에 Colab 로고 | main → 배포 |
 | 2026-11-17 | setup/git | ① 기본 탭의 '처음 한 번만 하는 설정'을 접힌 토글로(이미 설정을 마친 수강생 기준). 1280·390 열고 닫기 · 가로 넘침 0 | main만 (미공개) |
-| 2026-11-17 | setup/git | Git · GitHub 가이드 배포: 탭 5쪽(기본 · upstream · branch · merge · undo · .gitignore · 실전 세팅), 움직이는 그림 5개. 홈 개발 환경 칸에 Git 칩. main 35eecff에서 --release 빌드 | 배포 |
-| 2026-11-17 | setup/git/practice | 머리말의 예시 저장소 안내 문구 삭제. main acd7aee에서 --release 빌드 | 배포 |
-| 2026-11-17 | setup/git | upstream 별칭 설명 · 미등록 오류 대처 한 줄씩. main cbedc66에서 --release 빌드 | 배포 |
-| 2026-11-17 | setup/git | 36b6e67(upstream 별칭 설명 · 미등록 오류 대처)을 되돌림. 사용자 요청 없이 추가된 문장. main d82b3a6에서 --release 빌드 | 배포 |
-| 2026-11-17 | ml/20261023~28 | Colab 실습 폴더 링크 라이브 반영 | 배포 |
+| 2026-11-17 | setup/git | ② 탭 이름 '원본 따라가기' → 'upstream'(용어 그대로). 제목·탭·상단 경로·⑤ 탭의 참조 문구 함께 수정 | main만 (미공개) |
+| 2026-11-17 | setup/git | ③ 탭 이름 '브랜치 · 머지' → 'branch · merge'(용어 그대로). 제목·탭·상단 경로 함께 | main만 (미공개) |
+| 2026-11-17 | setup/git | ④ 탭 이름 → 'undo · .gitignore'. SETUP 공개=True로 전환(배포 준비) | main |
+| 2026-11-17 | setup/git/practice | 머리말의 예시 저장소(nvidia-camp/practice · GIT_ROUTINE.md) 안내 문구 삭제 | 배포 |
+| 2026-11-17 | setup/docker | Git 가이드처럼 탭 4쪽(기본 · Dockerfile · build · port · volume · compose)으로 다시 씀. 쪽마다 움직이는 그림, 설치는 접힌 토글, 막히면 표 삭제. 명령·출력은 Docker 29에서 실행 확인 | main만 (미공개) |
+| 2026-11-17 | ml/20261023~28 | Colab 실습 폴더 링크 등록 | main |
+| 2026-11-18 | llm/20261118 · 홈 | Day23(2026-11-18) 요약 · 강의 자료 · Colab 폴더 공개 배포 (Docker 제외) | main → 배포 |
