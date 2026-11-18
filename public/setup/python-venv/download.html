@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Python 가상환경</title>
-<meta name="description" content="가상환경 gpuenv · backendenv를 practice_assignment\envs에 만들고 설치 목록(requirements)으로 패키지를 설치한 뒤 터미널과 VS Code에서 같은 환경을 쓰는 순서">
+<meta name="description" content="가상환경 .gpuenv · .backendenv를 practice_assignment\envs에 만들고 설치 목록(requirements)으로 패키지를 설치한 뒤 터미널과 VS Code에서 같은 환경을 쓰는 순서">
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <style>
 :root {
@@ -274,15 +274,15 @@ body:not([data-shell="bash"]) .only-bash { display: none; }
    ├─ requirements-gpu.txt        ← 설치 목록
    ├─ requirements-backend.txt
    ├─ requirements-all.txt
-   ├─ gpuenv\                     ← GPU 실습용 환경
-   ├─ backendenv\                 ← 서버 · DB 실습용 환경
+   ├─ .gpuenv\                    ← GPU 실습용 환경
+   ├─ .backendenv\                ← 서버 · DB 실습용 환경
    └─ .venv\                      ← (선택) 위 둘을 합친 하나의 환경</pre>
   <div class="table-wrap">
     <table class="stack">
       <thead><tr><th>환경</th><th>설치 목록</th><th>쓰는 실습</th></tr></thead>
       <tbody>
-        <tr><td><code>gpuenv</code></td><td data-label="설치 목록"><code>requirements-gpu.txt</code></td><td data-label="쓰는 실습">Python 기초 · ML · DL · Vision · Transformer</td></tr>
-        <tr><td><code>backendenv</code></td><td data-label="설치 목록"><code>requirements-backend.txt</code></td><td data-label="쓰는 실습">FastAPI · DB 연동 · Prompt · Context</td></tr>
+        <tr><td><code>.gpuenv</code></td><td data-label="설치 목록"><code>requirements-gpu.txt</code></td><td data-label="쓰는 실습">Python 기초 · ML · DL · Vision · Transformer</td></tr>
+        <tr><td><code>.backendenv</code></td><td data-label="설치 목록"><code>requirements-backend.txt</code></td><td data-label="쓰는 실습">FastAPI · DB 연동 · Prompt · Context</td></tr>
         <tr><td><code>.venv</code> (선택)</td><td data-label="설치 목록"><code>requirements-all.txt</code></td><td data-label="쓰는 실습">위 실습 전부. 위 둘 대신 이것 하나만 만들어 씁니다</td></tr>
       </tbody>
     </table>
@@ -301,7 +301,7 @@ body:not([data-shell="bash"]) .only-bash { display: none; }
         <tr><td><b>Python</b></td><td data-label="버전">3.13 (3.13.x 중 최신)</td><td data-label="필요한 실습">전체</td><td data-label="받는 곳"><a href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener">python.org</a></td></tr>
         <tr><td><b>Git</b></td><td data-label="버전">최신</td><td data-label="필요한 실습">전체</td><td data-label="받는 곳"><a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener">git-scm.com</a></td></tr>
         <tr><td><b>VS Code</b> + Python Extension</td><td data-label="버전">최신</td><td data-label="필요한 실습">전체</td><td data-label="받는 곳"><a href="https://code.visualstudio.com/" target="_blank" rel="noopener">code.visualstudio.com</a></td></tr>
-        <tr><td><b>NVIDIA 그래픽 드라이버</b></td><td data-label="버전">최신</td><td data-label="필요한 실습">DL부터 (gpuenv)</td><td data-label="받는 곳"><a href="https://www.nvidia.com/ko-kr/drivers/" target="_blank" rel="noopener">nvidia.com 드라이버</a></td></tr>
+        <tr><td><b>NVIDIA 그래픽 드라이버</b></td><td data-label="버전">최신</td><td data-label="필요한 실습">DL부터 (.gpuenv)</td><td data-label="받는 곳"><a href="https://www.nvidia.com/ko-kr/drivers/" target="_blank" rel="noopener">nvidia.com 드라이버</a></td></tr>
         <tr><td><b>Tesseract</b> + 한국어 언어 데이터</td><td data-label="버전">5.5.0</td><td data-label="필요한 실습">문서 AI (11/09)</td><td data-label="받는 곳"><a href="https://tesseract-ocr.github.io/tessdoc/Installation.html" target="_blank" rel="noopener">Tesseract 설치 안내</a> · 설치 후 <a data-site href="../path/">경로 설정 (PATH)</a></td></tr>
         <tr><td><b>PostgreSQL</b> + pgAdmin 4</td><td data-label="버전">18</td><td data-label="필요한 실습">SQL (11/11) · API와 DB 연동 (11/12)</td><td data-label="받는 곳"><a data-site href="../postgresql/">PostgreSQL 가이드</a></td></tr>
       </tbody>
@@ -326,7 +326,7 @@ body:not([data-shell="bash"]) .only-bash { display: none; }
     <a class="btn" data-site href="requirements-backend.txt" download>requirements-backend.txt</a>
     <a class="btn" data-site href="requirements-all.txt" download>requirements-all.txt (.venv용)</a>
   </p>
-  <p class="hint">받은 파일을 <code>practice_assignment\envs</code> 안으로 옮깁니다. <code>gpuenv</code>와 <code>backendenv</code>를 쓰면 앞의 두 파일, <code>.venv</code> 하나만 쓰면 <code>requirements-all.txt</code>만 받습니다.</p>
+  <p class="hint">받은 파일을 <code>practice_assignment\envs</code> 안으로 옮깁니다. <code>.gpuenv</code>와 <code>.backendenv</code>를 쓰면 앞의 두 파일, <code>.venv</code> 하나만 쓰면 <code>requirements-all.txt</code>만 받습니다.</p>
 </section>
 
 <section class="card method" aria-labelledby="s2">
@@ -336,16 +336,16 @@ body:not([data-shell="bash"]) .only-bash { display: none; }
     <li><span class="n">2</span><span><b>설치 목록대로 설치합니다.</b> <code>pip install -r</code> 뒤에 설치 목록 파일을 씁니다.</span></li>
   </ul>
   <div class="code">
-    <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> gpuenv</span><button type="button" data-copy="c3">코드 복사</button></div>
-    <pre id="c3" data-bash="py -3.13 -m venv envs/gpuenv
-envs/gpuenv/Scripts/python.exe -m pip install -r envs/requirements-gpu.txt">py -3.13 -m venv envs\gpuenv
-envs\gpuenv\Scripts\python.exe -m pip install -r envs\requirements-gpu.txt</pre>
+    <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> .gpuenv</span><button type="button" data-copy="c3">코드 복사</button></div>
+    <pre id="c3" data-bash="py -3.13 -m venv envs/.gpuenv
+envs/.gpuenv/Scripts/python.exe -m pip install -r envs/requirements-gpu.txt">py -3.13 -m venv envs\.gpuenv
+envs\.gpuenv\Scripts\python.exe -m pip install -r envs\requirements-gpu.txt</pre>
   </div>
   <div class="code">
-    <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> backendenv</span><button type="button" data-copy="c3b">코드 복사</button></div>
-    <pre id="c3b" data-bash="py -3.13 -m venv envs/backendenv
-envs/backendenv/Scripts/python.exe -m pip install -r envs/requirements-backend.txt">py -3.13 -m venv envs\backendenv
-envs\backendenv\Scripts\python.exe -m pip install -r envs\requirements-backend.txt</pre>
+    <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> .backendenv</span><button type="button" data-copy="c3b">코드 복사</button></div>
+    <pre id="c3b" data-bash="py -3.13 -m venv envs/.backendenv
+envs/.backendenv/Scripts/python.exe -m pip install -r envs/requirements-backend.txt">py -3.13 -m venv envs\.backendenv
+envs\.backendenv\Scripts\python.exe -m pip install -r envs\requirements-backend.txt</pre>
   </div>
   <div class="code">
     <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> .venv (선택) · 위 둘 대신 이것 하나만</span><button type="button" data-copy="c3c">코드 복사</button></div>
@@ -354,7 +354,7 @@ envs/.venv/Scripts/python.exe -m pip install -r envs/requirements-all.txt">py -3
 envs\.venv\Scripts\python.exe -m pip install -r envs\requirements-all.txt</pre>
   </div>
   <p class="hint only-bash">Git Bash에서는 경로를 <code>\</code>가 아니라 <code>/</code>로 씁니다.</p>
-  <p class="hint">gpuenv는 PyTorch(CUDA)를 받느라 10분 넘게 걸립니다. 마지막 줄에 <code>Successfully installed …</code>가 나올 때까지 기다립니다.</p>
+  <p class="hint">.gpuenv는 PyTorch(CUDA)를 받느라 10분 넘게 걸립니다. 마지막 줄에 <code>Successfully installed …</code>가 나올 때까지 기다립니다.</p>
 </section>
 
 <section class="card" aria-labelledby="s3">
@@ -367,15 +367,15 @@ envs\.venv\Scripts\python.exe -m pip install -r envs\requirements-all.txt</pre>
   <div class="merge" aria-hidden="true">↓ &nbsp; ↓</div>
   <div class="env-target">
     <b>같은 환경의 python.exe</b>
-    <code>envs\gpuenv\Scripts\python.exe</code>
+    <code>envs\.gpuenv\Scripts\python.exe</code>
   </div>
 
   <h3>터미널 · 켜기</h3>
   <div class="code">
     <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> practice_assignment 폴더에서</span><button type="button" data-copy="c4">코드 복사</button></div>
-    <pre id="c4" data-bash="source envs/gpuenv/Scripts/activate">envs\gpuenv\Scripts\Activate.ps1</pre>
+    <pre id="c4" data-bash="source envs/.gpuenv/Scripts/activate">envs\.gpuenv\Scripts\Activate.ps1</pre>
   </div>
-  <p class="hint">줄 맨 앞에 <b>(gpuenv)</b>가 보이면 켜진 것입니다. 다른 환경은 이름만 바꿉니다(<code>backendenv</code>, <code>.venv</code>). 끌 때는 <code>deactivate</code>를 입력합니다.</p>
+  <p class="hint">줄 맨 앞에 <b>(.gpuenv)</b>가 보이면 켜진 것입니다. 다른 환경은 이름만 바꿉니다(<code>.backendenv</code>, <code>.venv</code>). 끌 때는 <code>deactivate</code>를 입력합니다.</p>
 
   <h3>VS Code · 고르기</h3>
   <ol class="plain">
@@ -387,10 +387,10 @@ envs\.venv\Scripts\python.exe -m pip install -r envs\requirements-all.txt</pre>
   </ol>
   <div class="code">
     <div class="code-head"><span>인터프리터 경로 · 쓸 환경 한 줄</span><button type="button" data-copy="c5">코드 복사</button></div>
-    <pre id="c5">.\envs\gpuenv\Scripts\python.exe
-.\envs\backendenv\Scripts\python.exe</pre>
+    <pre id="c5">.\envs\.gpuenv\Scripts\python.exe
+.\envs\.backendenv\Scripts\python.exe</pre>
   </div>
-  <p class="hint">오른쪽 아래 상태 표시줄에 <code>('gpuenv')</code>처럼 환경 이름이 보이면 연결된 것입니다. 한 번 넣은 경로는 목록에 남습니다.</p>
+  <p class="hint">오른쪽 아래 상태 표시줄에 <code>('.gpuenv')</code>처럼 환경 이름이 보이면 연결된 것입니다. 한 번 넣은 경로는 목록에 남습니다.</p>
 </section>
 
 <section class="card soft" aria-labelledby="env-check">

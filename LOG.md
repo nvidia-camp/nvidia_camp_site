@@ -170,3 +170,4 @@
 | 2026-11-18 | llm/20261118 · 홈 | Day23(2026-11-18) 요약 · 강의 자료 · Colab 폴더 공개 배포 (Docker 제외) | main → 배포 |
 | 2026-11-18 | setup/pgvector | pgvector 설치 안내를 LLM·RAG 과목 참고 문서로 공개 (main 8411906) | 배포 |
 | 2026-11-18 | setup/pgvector | pgvector 가이드 세 쪽(설치 · 실행 · 문제 해결 · 체크리스트)·단계 카드·사진 3장·정상 출력·복사 버튼 공개 (main 88d9198) | 배포 |
+| 2026-11-18 | setup/python-venv | 가상환경 이름을 .gpuenv · .backendenv로 통일해 공개 (main 7131ee6, Day24·Docker 제외) | 배포 |
