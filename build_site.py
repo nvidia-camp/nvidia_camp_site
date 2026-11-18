@@ -75,6 +75,7 @@ CHEATSHEETS = {
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목 또는 공통 묶음, 공개 여부). 공개 전에는 False로 둔다.
 SETUP = {
     "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
+    "pgvector": ("pgvector 설치 안내", "postgresql.svg", "Windows 11 · PostgreSQL 18 · pgvector 0.8.7 빌드와 확인", "llm", True),
     "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", True),
     "python-venv": ("Python 가상환경", "python.png", "gpuenv · backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
     "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · branch · merge · .gitignore", "개발 환경", True),
