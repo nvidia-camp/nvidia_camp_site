@@ -169,3 +169,4 @@
 | 2026-11-17 | ml/20261023~28 | Colab 실습 폴더 링크 등록 | main |
 | 2026-11-18 | llm/20261118 · 홈 | Day23(2026-11-18) 요약 · 강의 자료 · Colab 폴더 공개 배포 (Docker 제외) | main → 배포 |
 | 2026-11-18 | setup/pgvector | Day23 pgvector 설치 안내(Windows 11 · PostgreSQL 18.6 · pgvector 0.8.7)를 LLM·RAG 과목 참고 문서로 등록. PostgreSQL 가이드 옆. 인쇄 버튼을 사이트 메뉴 아래로(top 62px) | 배포 |
+| 2026-11-18 | llm/20261119 | Day24 준비: 강의 HTML·강의 목차(8교시 78화면 원문 제목) 추가, 강사님 핵심요약 6구역을 Day23 디자인으로 배치한 요약 초안 | main만 |
