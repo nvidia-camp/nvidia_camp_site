@@ -179,3 +179,4 @@
 | 2026-11-18 | setup/python-venv | 가상환경 이름을 점으로 시작하게 통일: gpuenv → `.gpuenv`, backendenv → `.backendenv` (`.venv`와 같은 규칙). 명령·폴더 구조·설치 목록 파일 머리말·홈 설명까지 바꿈 | main만 |
 | 2026-11-18 | llm/20261119 | Day24 Colab 실습 폴더 등록(Drive `03. 실습/20261119`, 노트북 01–07 basic). 홈 Day 줄·그날 페이지·강의 보기에 Colab 로고 | main만 |
 | 2026-11-18 | 배포 | 다음 수업일 자료를 전날 18:20에 공개: 사이트 기준일이 18:20부터 다음 수업일(`--as-of`로 지정 가능), 자동 배포 `auto_release.sh` + launchd 매일 18:20 (공개 전 페이지 있으면 중단) | main만 |
+| 2026-11-19 | 전체 | Google Analytics 4(G-9743VJ73E0) 추가: 실제 주소에서만 전송, 공통 값 content_group·page_type·day_label, 이벤트 section_view·toc_open·details_open·site_click(link_type)·theme_toggle·slide_view·lecture_progress. Vercel Analytics 유지, download.html·view.html 제외 | 배포 |
