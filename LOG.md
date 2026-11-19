@@ -181,3 +181,4 @@
 | 2026-11-18 | 배포 | 다음 수업일 자료를 전날 18:20에 공개: 사이트 기준일이 18:20부터 다음 수업일(`--as-of`로 지정 가능), 자동 배포 `auto_release.sh` + launchd 매일 18:20 (공개 전 페이지 있으면 중단) | main만 |
 | 2026-11-19 | 전체 | Google Analytics 4(G-9743VJ73E0) 추가: 실제 주소에서만 전송, 공통 값 content_group·page_type·day_label, 이벤트 section_view·toc_open·details_open·site_click(link_type)·theme_toggle·slide_view·lecture_progress. Vercel Analytics 유지, download.html·view.html 제외 | 배포 |
 | 2026-11-19 | 전체 | 구조 개편(refactor/structure → main): 설정 site.toml, CSS·JS·아이콘 web/, 빌드 코드 sitebuild/ 7개 모듈, AGENTS.md·README·Makefile·빌드 검사(sitebuild/check.py). 사이트 결과는 GA 코드 모양 외 동일(바이트 비교). 안 쓰는 파일 7개 삭제 | main (deploy는 18:20 자동 배포에 함께) |
+| 2026-11-19 | 배포 | release 7bfaa5f: 구조 개편 후 첫 배포(내용 같음, GA 코드 모양만). 실제 사이트 확인: Colab 링크 12/12 · GA 전송 204 · /setup/docker/ 404 | 배포 |
