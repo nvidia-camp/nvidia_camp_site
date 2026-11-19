@@ -270,6 +270,182 @@ footer p + p { margin-top: var(--space-2); }
 @media print {
   .skip, dialog { display: none !important; }
 }
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --color-primary:#93C5FD; --color-heading:#E7F0FA; --color-text:#D8E3F0; --color-muted:#98AEC5; --color-canvas:#0B1220; --color-surface:#132033; --color-soft:#1C3554; --color-border:#293C57; --color-accent:#7FAEE0; --zone-input:#142234; --zone-rnn:#16311D; --zone-tr:#142234; --zone-ae:#342914; --problem:#F0A37A; --problem-line:#C98A5E; --problem-bg:#342414; }
+  .divider { border-left: 2px dashed #30435A; }
+  .cell { background: #142234; }
+  .calc { background: #16311D; }
+  .meter { background: #152232; }
+  .ng i { background: #152232; }
+  .analogy .lbl { background: #132033; }
+  .lane-title.ae { border-top: 2px dashed #30435A; }
+  .skip, .cell.hi, .qn, .pop .close { color: #0B1220; }
+  svg [fill="#1C2B40"] { fill: #CFD9E8; }
+  svg [fill="#52667E"] { fill: #98AEC5; }
+  svg [fill="#E9F0F9"] { fill: #142234; }
+  svg [fill="#FBF2DF"] { fill: #342914; }
+  svg [fill="#fff"] { fill: #132033; }
+  svg [stroke="#1C2B40"] { stroke: #CFD9E8; }
+  svg [stroke="#C9D6E6"] { stroke: #30435A; }
+}
+</style>
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
 </style>
 </head>
 <body><style>
@@ -290,7 +466,7 @@ footer p + p { margin-top: var(--space-2); }
 html{scroll-padding-top:3rem}
 @media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../dl/">DL</a><span class="cn-here">Day11-2</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="Day11_2_Sequence_모델.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a class="cn-ico cn-slack" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener" data-tip="강의 자료 · Slack 게시물 (새 탭)" aria-label="강의 자료 · Slack 게시물 (새 탭)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGcgaWQ9InUiPjxyZWN0IHg9IjEyLjYiIHk9IjcuNyIgd2lkdGg9IjkuNiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSIxMi42IiB5PSIyLjIiIHdpZHRoPSI0LjIiIGhlaWdodD0iNC4yIiByeD0iMi4xIiBmaWxsPSIjRkZGRkZGIi8+PC9nPjxnIHRyYW5zZm9ybT0icm90YXRlKDkwIDEyIDEyKSI+PHJlY3QgeD0iMTIuNiIgeT0iNy43IiB3aWR0aD0iOS42IiBoZWlnaHQ9IjQuMiIgcng9IjIuMSIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjEyLjYiIHk9IjIuMiIgd2lkdGg9IjQuMiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48L2c+PGcgdHJhbnNmb3JtPSJyb3RhdGUoMTgwIDEyIDEyKSI+PHJlY3QgeD0iMTIuNiIgeT0iNy43IiB3aWR0aD0iOS42IiBoZWlnaHQ9IjQuMiIgcng9IjIuMSIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjEyLjYiIHk9IjIuMiIgd2lkdGg9IjQuMiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48L2c+PGcgdHJhbnNmb3JtPSJyb3RhdGUoMjcwIDEyIDEyKSI+PHJlY3QgeD0iMTIuNiIgeT0iNy43IiB3aWR0aD0iOS42IiBoZWlnaHQ9IjQuMiIgcng9IjIuMSIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjEyLjYiIHk9IjIuMiIgd2lkdGg9IjQuMiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48L2c+PC9zdmc+Cg==" alt="" width="16" height="16"></a><a class="cn-ico cn-colab" href="https://drive.google.com/drive/folders/1-IRiIjP_8q72qJpzuDQcAf8pZdJv2Oft" target="_blank" rel="noopener" data-tip="Colab 실습 폴더 · Google Drive (새 탭)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)"><img src="data:image/png;base64,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" alt="" width="27" height="16"></a><a href="../../dl/20261102/">‹ Day11-1</a><a href="../../vision/20261104/">Day13 ›</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../dl/">DL</a><span class="cn-here">Day11-2</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="Day11_2_Sequence_모델.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a class="cn-ico cn-slack" href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1793601896473339" target="_blank" rel="noopener" data-tip="강의 자료 · Slack 게시물 (새 탭)" aria-label="강의 자료 · Slack 게시물 (새 탭)"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGcgaWQ9InUiPjxyZWN0IHg9IjEyLjYiIHk9IjcuNyIgd2lkdGg9IjkuNiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48cmVjdCB4PSIxMi42IiB5PSIyLjIiIHdpZHRoPSI0LjIiIGhlaWdodD0iNC4yIiByeD0iMi4xIiBmaWxsPSIjRkZGRkZGIi8+PC9nPjxnIHRyYW5zZm9ybT0icm90YXRlKDkwIDEyIDEyKSI+PHJlY3QgeD0iMTIuNiIgeT0iNy43IiB3aWR0aD0iOS42IiBoZWlnaHQ9IjQuMiIgcng9IjIuMSIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjEyLjYiIHk9IjIuMiIgd2lkdGg9IjQuMiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48L2c+PGcgdHJhbnNmb3JtPSJyb3RhdGUoMTgwIDEyIDEyKSI+PHJlY3QgeD0iMTIuNiIgeT0iNy43IiB3aWR0aD0iOS42IiBoZWlnaHQ9IjQuMiIgcng9IjIuMSIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjEyLjYiIHk9IjIuMiIgd2lkdGg9IjQuMiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48L2c+PGcgdHJhbnNmb3JtPSJyb3RhdGUoMjcwIDEyIDEyKSI+PHJlY3QgeD0iMTIuNiIgeT0iNy43IiB3aWR0aD0iOS42IiBoZWlnaHQ9IjQuMiIgcng9IjIuMSIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjEyLjYiIHk9IjIuMiIgd2lkdGg9IjQuMiIgaGVpZ2h0PSI0LjIiIHJ4PSIyLjEiIGZpbGw9IiNGRkZGRkYiLz48L2c+PC9zdmc+Cg==" alt="" width="16" height="16"></a><a class="cn-ico cn-colab" href="https://drive.google.com/drive/folders/1-IRiIjP_8q72qJpzuDQcAf8pZdJv2Oft" target="_blank" rel="noopener" data-tip="Colab 실습 폴더 · Google Drive (새 탭)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)"><img src="data:image/png;base64,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" alt="" width="27" height="16"></a><a href="../../dl/20261102/">‹ Day11-1</a><a href="../../vision/20261104/">Day13 ›</a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>/* =====================================================================
  * Google Analytics 4 — 사이트 방문·행동 기록
@@ -534,7 +710,7 @@ html{scroll-padding-top:3rem}
     <span><b>Q번호</b> 아래 질문 목록의 질문·그림·코드<span class="screen-only"> (누르면 바로 보기)</span></span>
   </div>
 
-<div class="lt-top lt-light"><style>
+<div class="lt-top"><style>
 .lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
   margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
 @media (prefers-color-scheme:dark){.lt-top:not(.lt-light) .lt,.lt-top:not(.lt-light) .lt-res,body>main>.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
@@ -1014,6 +1190,12 @@ html{scroll-padding-top:3rem}
 @media (max-width:720px){.to-top{right:16px;bottom:16px}}
 @media (prefers-reduced-motion:reduce){.to-top{transition:none}}
 @media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
 </style>
 <button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
 <script>/* =====================================================================

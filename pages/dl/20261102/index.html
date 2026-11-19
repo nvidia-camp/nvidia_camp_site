@@ -366,6 +366,15 @@ footer { padding-block: var(--space-8) var(--space-12); color: var(--color-muted
   pre .c, pre .h { color: var(--color-text); }
   .mapA .chip { opacity: 1 !important; outline: none !important; }
 }
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --color-primary:#93C5FD; --color-heading:#E7F0FA; --color-text:#D8E3F0; --color-muted:#98AEC5; --color-canvas:#0B1220; --color-surface:#132033; --color-soft:#1C3554; --color-border:#293C57; --color-code-bg:#0D1828; --color-accent:#7FAEE0; --layer-1:#142234; --layer-2:#16311D; --layer-3:#342914; --layer-4:#1E1434; --layer-5:#B1C3DD; }
+  .rel { background: rgba(11, 18, 32, 0.85); }
+  .p3 .rel { background: rgba(11, 18, 32, 0.23); }
+  [style*="border:1px solid #D8E4F2"] { border-color: #30435A !important; }
+  [style*="background:#fff"] { background: #132033 !important; }
+  [style*="border:2px solid #142849"] { border-color: #CFD8E8 !important; }
+}
 </style>
 </head>
 <body>
