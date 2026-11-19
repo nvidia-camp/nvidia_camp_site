@@ -334,57 +334,230 @@ html{scroll-padding-top:3rem}
 @media print{.cn-nav{display:none}}
 </style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../../">← 학습 아카이브</a><a href="../../../setup/git/">Git · GitHub</a><span class="cn-here">undo · .gitignore</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="undo_.gitignore_Git_GitHub.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a href="../../../setup/git/branch/">‹ branch · merge</a><a href="../../../setup/git/practice/">실전 세팅 ›</a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
-<script>(function(){
-var ID='G-9743VJ73E0';if(location.hostname!=='nvidiasesac.vercel.app')return;
-var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;document.head.appendChild(s);
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());
-var d=document,dbg=/[?&]ga_debug=1/.test(location.search),PK='ga-pending-click';
-function cut(t){return (t||'').replace(/\s+/g,' ').trim().slice(0,100)}
-function ev(n,p){p=p||{};if(dbg)p.debug_mode=true;gtag('event',n,p)}
-function init(){
-  var seg=location.pathname.split('/').filter(Boolean),top=seg[0]||'home',type;
-  if(!seg.length)type='home';else if(top==='setup')type='guide';else if(top==='cheatsheet')type='cheatsheet';
-  else if(seg.length===1)type='subject';else if(/^\d{8}/.test(seg[1]))type=seg[2]==='lecture'?'lecture':seg[2]?'day_sub':'day';else type='other';
-  var nav=d.querySelector('.cn-nav'),m=nav&&nav.textContent.match(/Day\d+(?:-\d+)?/);
-  gtag('set',{content_group:top,page_type:type,day_label:m?m[0]:'(none)'});
-  gtag('config',ID,dbg?{debug_mode:true}:{});
-  try{var pend=sessionStorage.getItem(PK);if(pend){sessionStorage.removeItem(PK);ev('site_click',JSON.parse(pend))}}catch(x){}
-  // 단락: h2가 화면 위쪽 60%까지 올라오면 한 번 (빠르게 스크롤해 지나친 단락도 세도록 위쪽 경계는 열어 둔다)
-  if('IntersectionObserver' in window){
-    var hs=[].slice.call(d.querySelectorAll('h2')).filter(function(h){return !h.closest('.cn-nav')});
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;io.unobserve(e.target);
-      ev('section_view',{section_id:e.target.id||'(none)',section_title:cut(e.target.textContent),section_index:hs.indexOf(e.target)+1})})},{rootMargin:'100000px 0px -40% 0px'});
-    hs.forEach(function(h){io.observe(h)});
+<script>/* =====================================================================
+ * Google Analytics 4 — 사이트 방문·행동 기록
+ *
+ * build_site.py가 이 파일을 모든 사이트 화면에 <script>로 끼워 넣는다.
+ * (내려받기용 download.html 원본과 강의 view.html에는 넣지 않는다)
+ *
+ * 확인 방법: 주소 끝에 ?ga_debug=1 → GA 관리 > DebugView 에서 바로 보인다.
+ *
+ * 보내는 이벤트
+ *   page_view         페이지 열림 (GA 기본)
+ *   section_view      요약의 단락 제목(h2)까지 내려옴 — 단락마다 1번
+ *   toc_open          강의 목차 상자를 펼침 (details_open: 그 밖의 접힌 상자)
+ *   site_click        링크 클릭 — link_type으로 종류 구분 (colab, html_download, …)
+ *   theme_toggle      다크/라이트 전환
+ *   slide_view        강의 자료에서 슬라이드를 넘김
+ *   lecture_progress  강의 자료를 떠날 때 본 슬라이드 수
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var GA_ID = 'G-9743VJ73E0';                 // GA 측정 ID
+  var LIVE_HOST = 'nvidiasesac.vercel.app';   // 이 주소에서만 기록을 보낸다
+  var PENDING_KEY = 'ga-pending-click';       // 페이지 이동 클릭을 잠시 맡겨 두는 이름
+
+  // 미리보기·내 컴퓨터에서 열면 아무것도 하지 않는다 (통계에 섞이지 않게)
+  if (location.hostname !== LIVE_HOST) return;
+
+  var doc = document;
+  var debug = /[?&]ga_debug=1/.test(location.search);
+
+
+  /* ── 2. GA 기본 설치 (GA 공식 코드와 같다) ─────────────────────────── */
+  var tag = doc.createElement('script');
+  tag.async = true;
+  tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  doc.head.appendChild(tag);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+
+
+  /* ── 3. 공통 도구 ─────────────────────────────────────────────────── */
+
+  // 이벤트 보내기: 모든 이벤트는 여기를 지난다
+  function send(name, params) {
+    params = params || {};
+    if (debug) params.debug_mode = true;
+    gtag('event', name, params);
   }
-  // 접힌 상자: 강의 목차(lt-box)와 그 밖의 details
-  d.addEventListener('toggle',function(e){var t=e.target;if(t.tagName!=='DETAILS'||!t.open)return;
-    var sm=t.querySelector('summary');ev(t.classList.contains('lt-box')?'toc_open':'details_open',{details_label:cut(sm&&sm.textContent)})},true);
-  // 링크
-  d.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('.theme-toggle');
-    if(b){setTimeout(function(){ev('theme_toggle',{theme:d.documentElement.getAttribute('data-theme')||''})},0);return}
-    var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
-    var u=a.href,h=a.getAttribute('href'),ext=a.host&&a.host!==location.host,k;
-    if(a.classList.contains('cn-colab')||/colab\.research|drive\.google/.test(u))k='colab';
-    else if(a.classList.contains('cn-dl')||a.hasAttribute('download'))k='html_download';
-    else if(a.classList.contains('cn-slack')||/slack\.com/.test(u))k='slack';
-    else if(/swexpertacademy/.test(u))k='swea';else if(/programmers\.co\.kr/.test(u))k='programmers';
-    else if(/\.pdf(\?|#|$)/i.test(u))k='pdf';else if(/(^|\/)lecture\/?$/.test(h))k='lecture_view';
-    else if(h.charAt(0)==='#')k='anchor';else k=ext?'outbound':'internal';
-    var p={link_type:k,link_text:cut(a.getAttribute('aria-label')||a.textContent),link_url:u,link_area:a.closest('.cn-nav')?'nav':'body',link_from:location.pathname};
-    // 같은 탭에서 사이트 안 다른 페이지로 가면 떠나는 순간 이벤트가 사라질 수 있어 다음 페이지에서 보낸다
-    if(!ext&&k!=='anchor'&&k!=='html_download'&&a.target!=='_blank'&&!e.defaultPrevented&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){
-      try{sessionStorage.setItem(PK,JSON.stringify(p));return}catch(x){}}
-    ev('site_click',p)},true);
-  // 강의 화면: 슬라이드는 iframe 주소의 #id로 바뀐다(replaceState라 이벤트가 없어 1초마다 읽는다)
-  var f=d.querySelector('iframe.lecture-frame');
-  if(f){var last='',seen={},n=0,sent=false;
-    setInterval(function(){var id='';try{id=f.contentWindow.location.hash.slice(1)}catch(x){return}
-      if(!id||id===last)return;last=id;if(!seen[id]){seen[id]=1;n++}ev('slide_view',{slide_id:id,slides_seen:n})},1000);
-    d.addEventListener('visibilitychange',function(){if(d.visibilityState==='hidden'&&n&&!sent){sent=true;ev('lecture_progress',{slides_seen:n,last_slide:last})}});
+
+  // 글자 정리: 공백을 하나로 줄이고 100자까지만 (GA 값 길이 제한)
+  function shorten(text) {
+    return (text || '').replace(/\s+/g, ' ').trim().slice(0, 100);
   }
-}
-d.readyState==='loading'?d.addEventListener('DOMContentLoaded',init):init();
+
+
+  /* ── 4. 페이지 정보: 과목·페이지 종류·Day ───────────────────────────
+   *   주소 예: /llm/20261118/lecture/  →  과목 llm · 종류 lecture
+   *   Day는 위쪽 메뉴 글자(Day24)에서 읽는다.                            */
+  function pageType(parts) {
+    var top = parts[0];
+    if (!parts.length) return 'home';
+    if (top === 'setup') return 'guide';
+    if (top === 'cheatsheet') return 'cheatsheet';
+    if (parts.length === 1) return 'subject';                // /llm/
+    if (/^\d{8}/.test(parts[1])) {                           // /llm/20261118/…
+      if (parts[2] === 'lecture') return 'lecture';
+      return parts[2] ? 'day_sub' : 'day';
+    }
+    return 'other';
+  }
+
+  function startPage() {
+    var parts = location.pathname.split('/').filter(Boolean);
+    var nav = doc.querySelector('.cn-nav');
+    var day = nav && nav.textContent.match(/Day\d+(?:-\d+)?/);
+
+    // 이 페이지에서 보내는 모든 이벤트에 붙는 값
+    gtag('set', {
+      content_group: parts[0] || 'home',
+      page_type: pageType(parts),
+      day_label: day ? day[0] : '(none)'
+    });
+    gtag('config', GA_ID, debug ? { debug_mode: true } : {});   // ← 여기서 page_view가 나간다
+
+    // 앞 페이지에서 맡겨 둔 클릭이 있으면 지금 보낸다 (8번 참고)
+    try {
+      var pending = sessionStorage.getItem(PENDING_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_KEY);
+        send('site_click', JSON.parse(pending));
+      }
+    } catch (e) {}
+  }
+
+
+  /* ── 5. 단락 도달: section_view ────────────────────────────────────
+   *   h2 제목이 화면 위쪽 60%까지 올라오면 한 번 보낸다.
+   *   위쪽 경계를 크게 열어 두어, 빠르게 스크롤해 지나친 단락도 센다.     */
+  function watchSections() {
+    if (!('IntersectionObserver' in window)) return;
+    var headings = [].slice.call(doc.querySelectorAll('h2')).filter(function (h) {
+      return !h.closest('.cn-nav');
+    });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);                     // 단락마다 한 번만
+        send('section_view', {
+          section_id: entry.target.id || '(none)',
+          section_title: shorten(entry.target.textContent),
+          section_index: headings.indexOf(entry.target) + 1
+        });
+      });
+    }, { rootMargin: '100000px 0px -40% 0px' });
+    headings.forEach(function (h) { observer.observe(h); });
+  }
+
+
+  /* ── 6. 접힌 상자 펼침: toc_open / details_open ────────────────── */
+  function watchDetails() {
+    doc.addEventListener('toggle', function (e) {
+      var box = e.target;
+      if (box.tagName !== 'DETAILS' || !box.open) return;
+      var summary = box.querySelector('summary');
+      send(box.classList.contains('lt-box') ? 'toc_open' : 'details_open', {
+        details_label: shorten(summary && (summary.innerText || summary.textContent))
+      });
+    }, true);
+  }
+
+
+  /* ── 7. 링크 종류 나누기 (site_click의 link_type) ──────────────── */
+  function linkType(a) {
+    var url = a.href, href = a.getAttribute('href');
+    var external = a.host && a.host !== location.host;
+    if (a.classList.contains('cn-colab') || /colab\.research|drive\.google/.test(url)) return 'colab';
+    if (a.classList.contains('cn-dl') || a.hasAttribute('download')) return 'html_download';
+    if (a.classList.contains('cn-slack') || /slack\.com/.test(url)) return 'slack';
+    if (/swexpertacademy/.test(url)) return 'swea';
+    if (/programmers\.co\.kr/.test(url)) return 'programmers';
+    if (/\.pdf(\?|#|$)/i.test(url)) return 'pdf';
+    if (/(^|\/)lecture\/?$/.test(href)) return 'lecture_view';
+    if (href.charAt(0) === '#') return 'anchor';
+    return external ? 'outbound' : 'internal';
+  }
+
+
+  /* ── 8. 클릭: site_click · theme_toggle ────────────────────────────
+   *   같은 탭에서 사이트 안 다른 페이지로 가면, 떠나는 순간 기록이 사라질
+   *   수 있다. 그런 클릭은 sessionStorage에 맡겨 두고 다음 페이지가 보낸다. */
+  function watchClicks() {
+    doc.addEventListener('click', function (e) {
+      // 다크 모드 버튼: 테마가 바뀐 뒤의 값을 보낸다
+      var themeBtn = e.target.closest && e.target.closest('.theme-toggle');
+      if (themeBtn) {
+        setTimeout(function () {
+          send('theme_toggle', { theme: doc.documentElement.getAttribute('data-theme') || '' });
+        }, 0);
+        return;
+      }
+
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var type = linkType(a);
+      var external = a.host && a.host !== location.host;
+      var params = {
+        link_type: type,
+        link_text: shorten(a.getAttribute('aria-label') || a.textContent),
+        link_url: a.href,
+        link_area: a.closest('.cn-nav') ? 'nav' : 'body',
+        link_from: location.pathname
+      };
+
+      var leavesThisTab = !external && type !== 'anchor' && type !== 'html_download' &&
+        a.target !== '_blank' && !e.defaultPrevented && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+      if (leavesThisTab) {
+        try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(params)); return; } catch (x) {}
+      }
+      send('site_click', params);
+    }, true);
+  }
+
+
+  /* ── 9. 강의 자료: slide_view · lecture_progress ───────────────────
+   *   강의는 iframe 안에서 열리고, 슬라이드를 넘기면 주소의 #id만 바뀐다.
+   *   (replaceState라 알림 이벤트가 없어서 1초마다 주소를 읽는다)          */
+  function watchLecture() {
+    var frame = doc.querySelector('iframe.lecture-frame');
+    if (!frame) return;
+    var last = '', seen = {}, count = 0, reported = false;
+
+    setInterval(function () {
+      var id = '';
+      try { id = frame.contentWindow.location.hash.slice(1); } catch (x) { return; }
+      if (!id || id === last) return;
+      last = id;
+      if (!seen[id]) { seen[id] = 1; count++; }
+      send('slide_view', { slide_id: id, slides_seen: count });
+    }, 1000);
+
+    // 탭을 닫거나 다른 곳으로 갈 때 한 번: 몇 장까지 봤나
+    doc.addEventListener('visibilitychange', function () {
+      if (doc.visibilityState === 'hidden' && count && !reported) {
+        reported = true;
+        send('lecture_progress', { slides_seen: count, last_slide: last });
+      }
+    });
+  }
+
+
+  /* ── 10. 시작 ──────────────────────────────────────────────────── */
+  function init() {
+    startPage();
+    watchSections();
+    watchDetails();
+    watchClicks();
+    watchLecture();
+  }
+
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
+  else init();
 })();</script>
 <main>
 <header class="head">

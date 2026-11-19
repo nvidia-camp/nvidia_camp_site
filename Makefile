@@ -19,11 +19,12 @@ lint:             ## 코드 검사: 파이썬(ruff) + 자바스크립트 문법
 	uvx ruff check build_site.py sitebuild
 	@for f in web/*.js; do node --check $$f || exit 1; done; echo "✓ web/*.js 문법 통과"
 
-check: lint       ## 커밋 전 검사: lint → main 빌드 검사 → release 빌드 검사
-	uv run --quiet build_site.py $(DATE_ARG) > /dev/null
-	uv run --quiet --no-project python -m sitebuild.check
+check: lint       ## 커밋 전 검사: lint → release 빌드 검사 → main 빌드 검사 (끝나면 public/은 main 빌드)
 	uv run --quiet build_site.py --release $(DATE_ARG) > /dev/null
 	uv run --quiet --no-project python -m sitebuild.check --release
+	uv run --quiet build_site.py $(DATE_ARG) > /dev/null
+	uv run --quiet --no-project python -m sitebuild.check
+	@git diff --quiet -- public || echo "※ public/이 다시 만들어졌습니다. 원본과 함께 커밋하세요 (git add public)"
 
 snapshot:         ## 고치기 전 빌드 저장 (결과가 안 바뀌어야 하는 정리 작업용): make snapshot AS_OF=…
 	uv run --quiet build_site.py $(DATE_ARG) > /dev/null
