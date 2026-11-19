@@ -22,7 +22,7 @@ site.toml              ← 설정: 과목, 치트시트·가이드 등록, 공�
 web/                   ← 모든 페이지에 끼우는 CSS·JS·아이콘
 │   nav.css list.css tree.css theme.css   위쪽 메뉴 · 홈 목록 · 강의 목차 · 다크 모드
 │   theme.js analytics.js                 다크 모드 전환 · Google Analytics
-│   totop.css totop-dark.css totop.js     강의 요약 맨 위로 버튼 (읽은 만큼 차는 원)
+│   totop.css totop-dark.css totop.js     맨 위로 버튼 (요약·치트시트·가이드, 읽은 만큼 차는 원)
 │   copy.css copy.js                      모든 페이지 코드 칸 오른쪽 위 복사 아이콘 (원래 '코드 복사' 버튼은 숨기고 대신 누름)
 │   icons/*.svg
 sitebuild/             ← 빌드 코드 (역할별, 아래 표)

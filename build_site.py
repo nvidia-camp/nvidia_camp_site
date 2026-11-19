@@ -133,13 +133,13 @@ def main():
     print("치트시트")
     for k, (name, *_) in CHEATSHEETS.items():
         src = PAGES / "cheatsheet" / k
-        copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name))
+        copy_page(src, f"cheatsheet/{k}", nav_html(2, [], here=name), totop=True)
 
     print("설치 가이드" + (" (--release: 공개 전 페이지 제외)" if RELEASE else ""))
     for k, name, *_ in setup_items():
         subs = SETUP_PAGES.get(k)
         if not subs:
-            copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=name))
+            copy_page(PAGES / "setup" / k, f"setup/{k}", nav_html(2, [], here=name), totop=True)
             continue
         paths = [f"setup/{k}/" + (f"{sub}/" if sub else "") for sub, _ in subs]
         for i, (sub, label) in enumerate(subs):
@@ -150,7 +150,7 @@ def main():
             else:
                 nav = nav_html(2, [], here=f"{name} · {label}", next_=next_)
             copy_page(PAGES / "setup" / k / sub if sub else PAGES / "setup" / k,
-                      paths[i].rstrip("/"), nav)
+                      paths[i].rstrip("/"), nav, totop=True)
 
     (PUBLIC / "index.html").write_text(home_page(days, started, today), encoding="utf-8")
     print(f"홈 · 기준일 {today}")

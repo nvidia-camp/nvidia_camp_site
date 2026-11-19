@@ -91,7 +91,7 @@ def copy_lecture(src, dest, nav):
 
 def copy_page(src, dest, nav, top="", totop=False):
     """top: 요약 제목 아래에 끼울 블록(자료 줄 + 강의 목차). 사이트 화면에만 넣고 download.html 원본에는 넣지 않는다.
-    totop: 강의 요약이면 오른쪽 아래 맨 위로 버튼을 넣는다(사이트 화면에만)."""
+    totop: 오른쪽 아래 맨 위로 버튼을 넣는다(사이트 화면에만). 강의 요약·치트시트·설치 가이드 모두."""
     original = (src / "index.html").read_text(encoding="utf-8")
     original, n_hidden = strip_hidden_links(original, dest)
     text, n_links = strip_local_links(original)

@@ -26,7 +26,7 @@ THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝�
              'M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>')
 
 
-# ── 맨 위로 버튼 (강의 요약 페이지) ──────────────────────────────────────
+# ── 맨 위로 버튼 (요약·치트시트·가이드) ──────────────────────────────────────
 # 꺾쇠 아이콘 + 읽은 만큼 차는 원. 모양 web/totop.css, 동작 web/totop.js.
 # 어두운 색(web/totop-dark.css)은 다크 모드가 있는 페이지에만 붙인다.
 TOTOP_BTN = ('<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로">'
