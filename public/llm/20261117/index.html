@@ -790,5 +790,78 @@ html{scroll-padding-top:3rem}
 </footer>
 
 </main>
+<style>
+/* 맨 위로 버튼 — 강의 요약 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
+</style>
+<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+<script>/* =====================================================================
+ * 맨 위로 버튼(.to-top) — 강의 요약 페이지
+ *
+ * - 한 화면의 60%쯤 내려가면 나타나고, 위로 돌아오면 사라진다.
+ * - 테두리 원(.tt-bar)이 페이지를 읽은 만큼 찬다.
+ * - 누르면 맨 위로 부드럽게 올라간다 (동작 줄이기 설정이면 바로 이동).
+ * ===================================================================== */
+(function () {
+  var btn = document.querySelector('.to-top');
+  if (!btn) return;
+  var bar = btn.querySelector('.tt-bar');
+  var LENGTH = 2 * Math.PI * 21;          // 원 둘레 (반지름 21)
+  bar.style.strokeDasharray = LENGTH;
+  var waiting = false;
+
+  function update() {
+    waiting = false;
+    var root = document.documentElement;
+    var y = window.scrollY || root.scrollTop;
+    var max = root.scrollHeight - window.innerHeight;
+    var read = max > 0 ? Math.min(1, y / max) : 0;
+    bar.style.strokeDashoffset = LENGTH * (1 - read);
+    btn.classList.toggle('show', y > window.innerHeight * 0.6);
+  }
+
+  function schedule() {
+    if (!waiting) { waiting = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('load', update);
+  update();
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+})();</script>
 </body>
 </html>

@@ -26,6 +26,24 @@ THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝�
              'M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>')
 
 
+# ── 맨 위로 버튼 (강의 요약 페이지) ──────────────────────────────────────
+# 꺾쇠 아이콘 + 읽은 만큼 차는 원. 모양 web/totop.css, 동작 web/totop.js.
+# 어두운 색(web/totop-dark.css)은 다크 모드가 있는 페이지에만 붙인다.
+TOTOP_BTN = ('<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로">'
+             '<svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/>'
+             '<circle class="tt-bar" cx="22" cy="22" r="21"/></svg>'
+             '<svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+             'stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>')
+
+
+def add_totop(text, dark):
+    """</body> 바로 앞에 맨 위로 버튼·CSS·JS를 넣는다."""
+    css = web("totop.css") + (web("totop-dark.css") if dark else "")
+    block = f"<style>\n{css}</style>\n{TOTOP_BTN}\n{web_script('totop.js')}\n"
+    text, n = re.subn(r"</body>", lambda m: block + "</body>", text, count=1, flags=re.I)
+    return text if n else text + block
+
+
 def add_theme(text, nav, dark):
     """다크 모드가 있는 페이지에만 테마 스크립트(</head> 앞)와 버튼(메뉴 오른쪽 끝)을 넣는다."""
     if not dark:

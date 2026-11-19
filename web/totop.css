@@ -1,0 +1,25 @@
+/* 맨 위로 버튼 — 강의 요약 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}

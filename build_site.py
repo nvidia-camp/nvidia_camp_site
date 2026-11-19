@@ -48,7 +48,7 @@ from sitebuild.config import CHEATSHEETS, DAY_PAGES, DAY_SUBPAGES, HERE, LECTURE
 from sitebuild.tree import day_top
 from sitebuild.data import read_days
 from sitebuild.fonts import FONT_WARNINGS, write_lecture_font_css
-from sitebuild.nav import nav_html
+from sitebuild.nav import add_totop, nav_html
 from sitebuild.content import copy_lecture, copy_page
 from sitebuild.listing import home_page, subject_page, tree_day_page
 
@@ -85,7 +85,7 @@ def main():
         if not tabs:
             nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
                            prev=prev, next_=nxt, lecture=d["link"], colab=d["colab"], view="lecture/" if d["lecture"] else None)
-            copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav, top=day_top(d) if d["tree"] else "")
+            copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav, top=day_top(d) if d["tree"] else "", totop=True)
         else:
             paths = [f'{d["key"]}/{d["ymd"]}/' + (f"{sub}/" if sub else "") for sub, _ in tabs]
             for j, (sub, label) in enumerate(tabs):
@@ -96,17 +96,18 @@ def main():
                 nav = nav_html(3 if sub else 2, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', paths[0])],
                                here=label, prev=t_prev, next_=t_next, lecture=d["link"], colab=d["colab"], view=view)
                 copy_page(d["src"] / sub if sub else d["src"], paths[j].rstrip("/"), nav,
-                          top=day_top(d) if not sub and d["tree"] else "")
+                          top=day_top(d) if not sub and d["tree"] else "", totop=True)
         for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
             copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
-                      nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label))
+                      nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label), totop=True)
 
     print("강의 목차 (요약 전)")
     for d in days:
         if d["tree"] and not d["src"]:
             out = PUBLIC / d["key"] / d["ymd"]
             out.mkdir(parents=True, exist_ok=True)
-            (out / "index.html").write_text(tree_day_page(d), encoding="utf-8")
+            page = tree_day_page(d)
+            (out / "index.html").write_text(add_totop(page, "prefers-color-scheme" in page), encoding="utf-8")
             print(f'  /{d["key"]}/{d["ymd"]}/ ← {d["tree"].relative_to(HERE)} (강의 목차 한눈에 보기)')
 
     print("강의 자료 (사이트 안 강의 HTML)")
@@ -123,7 +124,7 @@ def main():
     for key, ds in subjects:
         src = PAGES / key / "all"
         if (src / "index.html").exists():
-            copy_page(src, key, nav_html(1, [], here=f'{ds[0]["short"]} 4일 종합'))
+            copy_page(src, key, nav_html(1, [], here=f'{ds[0]["short"]} 4일 종합'), totop=True)
         else:
             (PUBLIC / key).mkdir(parents=True, exist_ok=True)
             (PUBLIC / key / "index.html").write_text(subject_page(key, ds), encoding="utf-8")

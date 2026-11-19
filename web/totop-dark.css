@@ -1,0 +1,6 @@
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}

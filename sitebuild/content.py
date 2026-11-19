@@ -6,7 +6,7 @@ import shutil
 
 from .config import FILES, HERE, ICON_DL, PUBLIC, RELEASE, SETUP
 from .fonts import unify_fonts
-from .nav import ANALYTICS, DOWNLOAD_MARK, THEME_MARK, add_theme
+from .nav import ANALYTICS, DOWNLOAD_MARK, THEME_MARK, add_theme, add_totop
 
 
 # 사이트 안 다른 페이지로 가는 링크는 data-site를 붙여 두면 살린다
@@ -89,8 +89,9 @@ def copy_lecture(src, dest, nav):
     print(f"  /{dest}/ ← {src.relative_to(HERE)} (download.html 원본 + view.html 글꼴만 Pretendard)")
 
 
-def copy_page(src, dest, nav, top=""):
-    """top: 요약 제목 아래에 끼울 블록(자료 줄 + 강의 목차). 사이트 화면에만 넣고 download.html 원본에는 넣지 않는다."""
+def copy_page(src, dest, nav, top="", totop=False):
+    """top: 요약 제목 아래에 끼울 블록(자료 줄 + 강의 목차). 사이트 화면에만 넣고 download.html 원본에는 넣지 않는다.
+    totop: 강의 요약이면 오른쪽 아래 맨 위로 버튼을 넣는다(사이트 화면에만)."""
     original = (src / "index.html").read_text(encoding="utf-8")
     original, n_hidden = strip_hidden_links(original, dest)
     text, n_links = strip_local_links(original)
@@ -101,6 +102,8 @@ def copy_page(src, dest, nav, top=""):
     nav = nav.replace(DOWNLOAD_MARK, link)
     text = unify_fonts(text, dest)
     text, nav = add_theme(text, nav, "prefers-color-scheme" in original)   # 끼운 목차 블록의 CSS가 아니라 원본 기준
+    if totop:
+        text = add_totop(text, "prefers-color-scheme" in original)
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest
