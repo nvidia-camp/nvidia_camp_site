@@ -267,6 +267,21 @@ footer h2 { font-size: 0.875rem; color: var(--color-heading); }
   .qa.units .r > :nth-child(3) { display: block; }
 }
 @media print { body { background: #fff; } }
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --color-primary:#93C5FD; --color-heading:#E7F0FA; --color-text:#D8E3F0; --color-muted:#98AEC5; --color-canvas:#0B1220; --color-surface:#132033; --color-soft:#1C3554; --color-border:#293C57; --color-accent:#7FAEE0; --color-code-bg:#0D1828; --zone-frame:#101B2C; --zone-ocr:#142534; --zone-vlm:#342A14; --zone-check:#163121; --zone-deploy:#19212F; --ink-ocr:#A5C5E9; --ink-vlm:#E9CEA5; --ink-check:#B1DDC1; --ink-deploy:#BBC4D2; --problem:#F0A37A; --problem-line:#C98A5E; }
+  .krow mark { background: #F2D27A; color: #1C2B40; }
+  .krow.key { border-color: #30425A; background: #142434; }
+  .trio img { background: #132033; }
+  .period, .lede .ask, .sec-head .num, .idea .n, .promise .n, .keytag { color: #0B1220; }
+  [style*="background:#fff"] { background: #132033 !important; }
+  [style*="background:#FBE6A0"] { background: #F2D27A !important; color: #0B1220 !important; }
+  [style*="background:#142849"] { background: #CFD8E8 !important; color: #0B1220 !important; }
+  svg [fill="#142849"] { fill: #CFD8E8; }
+  svg [fill="#52667E"] { fill: #98AEC5; }
+  svg [stroke="#142849"] { stroke: #CFD8E8; }
+  svg [stroke="#E6EEF8"] { stroke: #30435A; }
+}
 </style>
 </head>
 <body>

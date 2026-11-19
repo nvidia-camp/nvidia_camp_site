@@ -176,6 +176,15 @@ footer h2 { font-size: 0.875rem; color: var(--color-heading); }
   .libname { display: none; }
 }
 @media print { body { background: #fff; } }
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --color-primary:#93C5FD; --color-heading:#E7F0FA; --color-text:#D8E3F0; --color-muted:#98AEC5; --color-canvas:#0B1220; --color-surface:#132033; --color-soft:#1C3554; --color-border:#293C57; --color-accent:#7FAEE0; --color-code-bg:#0D1828; --zone-frame:#101B2C; --d13:#16311D; --d14:#342914; --d15:#1E1434; --d16:#142534; --ink13:#B1DDC1; --ink14:#E9CEA5; --ink15:#BEB5D9; --ink16:#A5C5E9; --problem:#F0A37A; --good:#8FD1A6; }
+  .shot .pic { background: #132033; }
+  .lede .ask, .sec-head .num, .day, .dtag { color: #0B1220; }
+  svg [fill="#fff"] { fill: #132033; }
+  svg [stroke="#D8E4F2"] { stroke: #30435A; }
+  svg [stroke="#fff"] { stroke: #293C57; }
+}
 </style>
 </head>
 <body>
