@@ -1,0 +1,1614 @@
+{
+  "info": {
+    "name": "Report Agent | 2026-11-20 | Postman API-00~14",
+    "_postman_id": "59c9665b-c08d-4bb2-b609-26a44d03c9ed",
+    "description": "SRS v1.4 계약 검증. Basic은 01·04·07 폴더, Intermediate는 02, Advanced는 03을 추가합니다. 05·08은 선택 카테고리 등록·정리입니다. 06의 유료 5개 요청은 allow_paid_llm=false일 때 건너뜁니다. 자동 테스트 외에 verify.sql과 검색 평가셋으로 실제 저장·검색 의미를 확인하세요.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Basic · 무료 경로 (Create/Read/Update/검색)",
+      "item": [
+        {
+          "name": "API-00 · Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health",
+            "description": "DB/pgvector 미설치 시 503이 정상적인 실패 결과입니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"DB와 pgvector 준비\",()=>{ const j=pm.response.json();pm.expect(j.db).to.eql(\"ready\");pm.expect(j.vector).to.eql(\"ready\");});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-01 · 카테고리 6건",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/categories",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"카테고리 6개\",()=>pm.expect(pm.response.json().items).to.have.length(6));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-03 · 시드 보고서 ID 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{seed_report_id}}",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"보고서에 title/author/content\",()=>{let j=pm.response.json();pm.expect(j).to.have.all.keys(\"report_id\",\"category_code\",\"title\",\"content\",\"author\",\"overview\",\"details\",\"revision\",\"index_status\",\"created_at\",\"updated_at\");});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-04 · 제목 검색",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports?title=%EA%B0%80%EC%A4%91%EC%B9%98&limit=20&offset=0",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"items 배열/total\",()=>{let j=pm.response.json();pm.expect(j.items).to.be.an(\"array\");pm.expect(j.total).to.be.a(\"number\");});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-02 · 새 실험 보고서 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/reports",
+            "description": "이 요청을 먼저 실행해야 이후 {{created_report_id}} 변수가 생깁니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"EXPERIMENT\",\n  \"title\": \"가중치 적용 모델 실험 Postman 신규 보고서\",\n  \"author\": \"실습생\",\n  \"content\": \"모델에 클래스 가중치를 적용한 전후의 성능을 비교하였다. 동일한 데이터 분할을 사용하여 조건을 통일하고 Macro-F1과 소수 클래스 재현율의 차이를 관찰했다. 결과는 검증표로 기록하였다.\",\n  \"overview\": \"가중치 적용에 따른 분류 성능 변화 및 소수 클래스 재현율을 비교하는 Postman 검증 보고서\",\n  \"details\": {\n    \"experiment_date\": \"2026-11-20\",\n    \"hypothesis\": \"가중치를 부여하면 소수 클래스 Recall이 향상될 수 있다.\",\n    \"result_summary\": \"동일 분할과 Seed에서 가중치 적용 전후를 비교하였다.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"created_report_id\");",
+                  "pm.environment.unset(\"created_contract\");",
+                  "pm.environment.unset(\"updated_contract\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"새 보고서 ID와 ready\", () => {",
+                  "  pm.expect(Number.isSafeInteger(j.report_id)).to.eql(true);",
+                  "  pm.expect(j.report_id).to.be.above(180);",
+                  "  pm.expect(j.index_status).to.eql(\"ready\");",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isSafeInteger(j.report_id) && j.report_id > 180) {",
+                  "  pm.environment.set(\"created_report_id\", j.report_id);",
+                  "  pm.environment.set(\"created_contract\", pm.variables.replaceIn(pm.request.body.raw));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-03 · 방금 생성한 보고서 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{created_report_id}}",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"created_report_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const expected = JSON.parse(pm.environment.get(\"created_contract\") || \"null\");",
+                  "pm.test(\"생성 입력값과 재조회 일치\", () => {",
+                  "  pm.expect(expected, \"먼저 앞의 생성/수정 요청을 성공시키세요\").to.be.an(\"object\");",
+                  "  pm.expect(j.report_id).to.eql(Number(pm.environment.get(\"created_report_id\")));",
+                  "  [\"category_code\", \"title\", \"author\", \"content\", \"overview\"].forEach(key => {",
+                  "    pm.expect(j[key], key).to.eql(expected[key]);",
+                  "  });",
+                  "  pm.expect(j.details, \"details\").to.deep.eql(expected.details);",
+                  "});",
+                  "pm.test(\"UTC 시각과 ready 상태\", () => {",
+                  "  [\"created_at\", \"updated_at\"].forEach(key => {",
+                  "    pm.expect(typeof j[key], key).to.eql(\"string\");",
+                  "    pm.expect(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|\\+00:00)$/.test(j[key]), key + \" UTC ISO 8601\").to.eql(true);",
+                  "    pm.expect(Number.isNaN(Date.parse(j[key])), key + \" ISO 시각\").to.eql(false);",
+                  "  });",
+                  "  pm.expect(Date.parse(j.updated_at)).to.be.at.least(Date.parse(j.created_at));",
+                  "  pm.expect(j.index_status).to.eql(\"ready\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-05 · 보고서 전체 수정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/reports/{{created_report_id}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"가중치 실험 Postman 수정 완료\",\n  \"author\": \"실습생\",\n  \"content\": \"새로운 검증 결과를 반영하였다. 학습 데이터의 클래스 수 분포를 점검한 후 Macro-F1을 다시 계산하였다. 이전 실험과 조건을 맞추어 재현성을 확인했다.\",\n  \"overview\": \"수정된 실험: 클래스 불균형 가중치 변경 후 Macro-F1을 다시 비교하고 검증한 보고서\",\n  \"details\": {\n    \"experiment_date\": \"2026-11-20\",\n    \"hypothesis\": \"재현율 개선 여부 재검증\",\n    \"result_summary\": \"조건 일치 후 Macro-F1 비교 완료\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"created_report_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}",
+                  "pm.environment.unset(\"updated_contract\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"동일 ID의 revision 증가와 ready\", () => {",
+                  "  pm.expect(j.report_id).to.eql(Number(pm.environment.get(\"created_report_id\")));",
+                  "  pm.expect(j.revision).to.be.above(1);",
+                  "  pm.expect(j.index_status).to.eql(\"ready\");",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const before = JSON.parse(pm.environment.get(\"created_contract\") || \"{}\");",
+                  "  const sent = JSON.parse(pm.variables.replaceIn(pm.request.body.raw));",
+                  "  pm.environment.set(\"updated_contract\", JSON.stringify({...sent, category_code: before.category_code}));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-03 · 수정 후 저장값 재조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{created_report_id}}",
+            "description": "PUT 응답뿐 아니라 DB에서 다시 읽은 제목·본문·작성자·개요·상세를 수정 입력과 비교합니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"created_report_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const expected = JSON.parse(pm.environment.get(\"updated_contract\") || \"null\");",
+                  "pm.test(\"수정 입력값과 재조회 일치\", () => {",
+                  "  pm.expect(expected, \"먼저 앞의 생성/수정 요청을 성공시키세요\").to.be.an(\"object\");",
+                  "  pm.expect(j.report_id).to.eql(Number(pm.environment.get(\"created_report_id\")));",
+                  "  [\"category_code\", \"title\", \"author\", \"content\", \"overview\"].forEach(key => {",
+                  "    pm.expect(j[key], key).to.eql(expected[key]);",
+                  "  });",
+                  "  pm.expect(j.details, \"details\").to.deep.eql(expected.details);",
+                  "});",
+                  "pm.test(\"UTC 시각과 ready 상태\", () => {",
+                  "  [\"created_at\", \"updated_at\"].forEach(key => {",
+                  "    pm.expect(typeof j[key], key).to.eql(\"string\");",
+                  "    pm.expect(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|\\+00:00)$/.test(j[key]), key + \" UTC ISO 8601\").to.eql(true);",
+                  "    pm.expect(Number.isNaN(Date.parse(j[key])), key + \" ISO 시각\").to.eql(false);",
+                  "  });",
+                  "  pm.expect(Date.parse(j.updated_at)).to.be.at.least(Date.parse(j.created_at));",
+                  "  pm.expect(j.index_status).to.eql(\"ready\");",
+                  "});",
+                  "pm.test(\"수정 revision 유지\", () => pm.expect(j.revision).to.be.above(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-07 · Hybrid 검색",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/search/similar",
+            "description": "기본 seed_catalog와 search_cases의 가중치 기대 범주에 해당하는 ID 집합, 또는 이번 실행에서 생성·수정한 관련 보고서를 허용합니다. ID 1 한 건이나 정확한 cosine 수치로 채점하지 않습니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"가중치\",\n  \"category_code\": null,\n  \"keyword_limit\": 20,\n  \"semantic_limit\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "// common/data/seed_catalog.json과 search_cases.json의 가중치 기준에서 추출한 집합입니다.",
+                  "const acceptedIds = [1, 7, 14, 137, 152];",
+                  "const expectedCategories = [\"EXPERIMENT\", \"PROMPT\", \"MEETING\"];",
+                  "const current = JSON.parse(pm.environment.get(\"updated_contract\") || pm.environment.get(\"created_contract\") || \"null\");",
+                  "if (current && expectedCategories.includes(current.category_code) &&",
+                  "    [\"title\", \"overview\", \"content\"].some(key => String(current[key] || \"\").includes(\"가중치\"))) {",
+                  "  const currentId = Number(pm.environment.get(\"created_report_id\"));",
+                  "  if (Number.isSafeInteger(currentId) && currentId > 180) acceptedIds.push(currentId);",
+                  "}",
+                  "pm.test(\"가중치 관련 보고서 1건\", () => {",
+                  "  pm.expect(j.status).to.eql(\"found\");",
+                  "  pm.expect(j.best_match).to.be.an(\"object\");",
+                  "  pm.expect(acceptedIds).to.include(j.best_match.report_id);",
+                  "  pm.expect(expectedCategories).to.include(j.best_match.category_code);",
+                  "  pm.expect(j.best_match.keyword_match).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-07 · 관련성이 낮은 질의",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/search/similar",
+            "description": "자동 검사는 응답 형식만 확인합니다. 실제 의미 판정은 common/data/search_cases.json과 POSTMAN_GUIDE.md의 T-05/T-06 절차에 따라 결과·임계값을 기록합니다. found라고 무조건 합격하거나, 특정 cosine 값을 정답으로 고정하지 않습니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"화성의 낙타 전용 미용실\",\n  \"category_code\": null,\n  \"keyword_limit\": 20,\n  \"semantic_limit\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"무관 질의의 응답 형식 (의미 판정은 별도)\", () => {",
+                  "  pm.expect([\"found\", \"not_found\"]).to.include(j.status);",
+                  "  if (j.status === \"not_found\") pm.expect(j.best_match).to.eql(null);",
+                  "  else {",
+                  "    pm.expect(j.best_match).to.be.an(\"object\");",
+                  "    pm.expect(j.best_match.report_id).to.be.above(0);",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-09 · Agent 보고서 조회",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/agent/run",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"get_report\",\n  \"report_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"Action Router 동작\",()=>pm.expect(pm.response.json().action).to.eql(\"get_report\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-09 · Agent 의미 검색",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/agent/run",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"find_report\",\n  \"query\": \"가중치\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"Tool Call 존재\",()=>pm.expect(pm.response.json().tool_calls).to.include(\"find_similar_report\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Intermediate · 무료 필터·Prompt 버전",
+      "item": [
+        {
+          "name": "API-04 · Category + Updated After",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports?category_code=EXPERIMENT&updated_after=2026-11-01T00%3A00%3A00Z&limit=20&offset=0",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-10 · Prompt 새 버전 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/prompts/{{seed_prompt_report_id}}/versions",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt_text\": \"가중치 실험 보고서에서 목적, 실험 조건, 주요 결과, 한계를 근거 중심으로 추출하세요.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=201;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "const j=pm.response.json();pm.environment.set(\"latest_prompt_version\",j.version_no);pm.test(\"활성 버전 아님\",()=>pm.expect(j.active).to.eql(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-11 · Prompt 버전 이력",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/prompts/{{seed_prompt_report_id}}/versions",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"version 목록\",()=>{let j=pm.response.json();pm.expect(j.items).to.be.an(\"array\");pm.expect(j.active_version_no).to.be.a(\"number\");});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Advanced · 무료 활성 버전·재색인·이력",
+      "item": [
+        {
+          "name": "API-12 · Prompt 활성 버전 전환",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/prompts/{{seed_prompt_report_id}}/active-version",
+            "description": "Postman raw JSON은 숫자형이 필요합니다. 환경변수 치환 후 JSON 숫자여야 합니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version_no\": {{latest_prompt_version}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"활성 버전 반영\",()=>pm.expect(pm.response.json().active_version_no).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-13 · 보고서 강제 재색인",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/reports/{{seed_report_id}}/reindex",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"force\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-14 · Agent 실행 이력 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/agent/runs?limit=20&offset=0&status=completed",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 오류 사례 · 404/422",
+      "item": [
+        {
+          "name": "입력 오류: 공백 제목 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/reports",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"EXPERIMENT\",\n  \"title\": \"   \",\n  \"author\": \"실습생\",\n  \"content\": \"모델에 클래스 가중치를 적용한 전후의 성능을 비교하였다. 동일한 데이터 분할을 사용하여 조건을 통일하고 Macro-F1과 소수 클래스 재현율의 차이를 관찰했다. 결과는 검증표로 기록하였다.\",\n  \"overview\": \"가중치 적용에 따른 분류 성능 변화 및 소수 클래스 재현율을 비교하는 Postman 검증 보고서\",\n  \"details\": {\n    \"experiment_date\": \"2026-11-20\",\n    \"hypothesis\": \"가중치를 부여하면 소수 클래스 Recall이 향상될 수 있다.\",\n    \"result_summary\": \"동일 분할과 Seed에서 가중치 적용 전후를 비교하였다.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=422;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "입력 오류: 존재하지 않는 ID 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/999999999999",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=404;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "입력 오류: 범위 벗어난 limit 422",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports?limit=101",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=422;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "입력 오류: 필수 검색어 누락 422",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/search/similar",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"   \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=422;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 선택 실습 · 5개 추가 카테고리 JSON 예제",
+      "item": [
+        {
+          "name": "API-02 · DAILY_WORK 등록 샘플",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/reports",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"DAILY_WORK\",\n  \"title\": \"주간 업무 Postman 입력\",\n  \"author\": \"실습생\",\n  \"content\": \"금일에는 FastAPI 서비스 환경을 점검하고 PostgreSQL 쿼리를 작성했다. API 검증에서 발견한 오류를 기록하고 내일 해결할 항목을 정리했다.\",\n  \"overview\": \"FastAPI 및 PostgreSQL 데이터 연결과 Postman 검증 결과를 정리한 일일 업무 보고서\",\n  \"details\": {\n    \"work_date\": \"2026-11-20\",\n    \"progress\": \"DB 연결 및 CRUD 목록 확인 완료\",\n    \"blockers\": \"\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "DAILY_WORK 카테고리의 필수 Detail 값을 확인하는 독립 샘플 요청. 실제 DB에 한 행 생성합니다."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"optional_DAILY_WORK_id\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"새 보고서 ID\", () => {",
+                  "  pm.expect(Number.isSafeInteger(j.report_id)).to.eql(true);",
+                  "  pm.expect(j.report_id).to.be.above(180);",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isSafeInteger(j.report_id) && j.report_id > 180) {",
+                  "  pm.environment.set(\"optional_DAILY_WORK_id\", j.report_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "API-02 · RESEARCH_PLAN 등록 샘플",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/reports",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"RESEARCH_PLAN\",\n  \"title\": \"Agent 검색 품질 개선 연구 계획\",\n  \"author\": \"실습생\",\n  \"content\": \"의미 기반 검색 결과의 적중률을 개선하기 위한 연구 계획이다. 질문·정답 집합을 수집하고 기존 기준선과 비교한다. 오류 사례를 분류하여 후속 실험의 우선순위를 정한다.\",\n  \"overview\": \"Agent 보고서 검색에서 관련성 임계값과 Top-k 성능을 연구하는 계획서\",\n  \"details\": {\n    \"research_goal\": \"검색 품질 개선\",\n    \"methodology\": \"관련·무관 질의 비교\",\n    \"target_date\": \"2026-12-18\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "RESEARCH_PLAN 카테고리의 필수 Detail 값을 확인하는 독립 샘플 요청. 실제 DB에 한 행 생성합니다."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"optional_RESEARCH_PLAN_id\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"새 보고서 ID\", () => {",
+                  "  pm.expect(Number.isSafeInteger(j.report_id)).to.eql(true);",
+                  "  pm.expect(j.report_id).to.be.above(180);",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isSafeInteger(j.report_id) && j.report_id > 180) {",
+                  "  pm.environment.set(\"optional_RESEARCH_PLAN_id\", j.report_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "API-02 · DATA_PROCESSING 등록 샘플",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/reports",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"DATA_PROCESSING\",\n  \"title\": \"결측치 처리 과정 기록\",\n  \"author\": \"실습생\",\n  \"content\": \"입력 테이블의 누락된 수치값을 확인한 뒤 중앙값 대체를 실행하였다. 작업 전후 결측 건수와 평균값을 비교하여 처리 오류가 없는지 검증하였다.\",\n  \"overview\": \"결측치 대체와 데이터 정제 전후 품질 변화를 비교한 데이터 처리 보고서\",\n  \"details\": {\n    \"dataset_name\": \"request_metrics.csv\",\n    \"processing_steps\": \"결측 검사→중앙값 대체→범위 검증\",\n    \"quality_notes\": \"\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "DATA_PROCESSING 카테고리의 필수 Detail 값을 확인하는 독립 샘플 요청. 실제 DB에 한 행 생성합니다."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"optional_DATA_PROCESSING_id\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"새 보고서 ID\", () => {",
+                  "  pm.expect(Number.isSafeInteger(j.report_id)).to.eql(true);",
+                  "  pm.expect(j.report_id).to.be.above(180);",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isSafeInteger(j.report_id) && j.report_id > 180) {",
+                  "  pm.environment.set(\"optional_DATA_PROCESSING_id\", j.report_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "API-02 · PROMPT 등록 샘플",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/reports",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"PROMPT\",\n  \"title\": \"요약 작업을 위한 Prompt\",\n  \"author\": \"실습생\",\n  \"content\": \"보고서 원문에서 목적과 결과만 근거 기반으로 요약하세요.\",\n  \"overview\": \"보고서 전체 본문을 안전하게 요약하는 프롬프트 정의와 버전 관리 예제\",\n  \"details\": {\n    \"purpose\": \"보고서 요약\",\n    \"prompt_text\": \"보고서 원문에서 목적과 결과만 근거 기반으로 요약하세요.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PROMPT 카테고리의 필수 Detail 값을 확인하는 독립 샘플 요청. 실제 DB에 한 행 생성합니다."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"optional_PROMPT_id\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"새 보고서 ID\", () => {",
+                  "  pm.expect(Number.isSafeInteger(j.report_id)).to.eql(true);",
+                  "  pm.expect(j.report_id).to.be.above(180);",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isSafeInteger(j.report_id) && j.report_id > 180) {",
+                  "  pm.environment.set(\"optional_PROMPT_id\", j.report_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "API-02 · MEETING 등록 샘플",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/reports",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_code\": \"MEETING\",\n  \"title\": \"검색 API 설계 회의록\",\n  \"author\": \"실습생\",\n  \"content\": \"오늘 회의에서는 검색 API의 반환값과 예외 처리 방식을 논의하였다. 가장 관련성이 높은 보고서 한 건 또는 미검색 결과를 반환하기로 결정하였다.\",\n  \"overview\": \"Keyword+Semantic Hybrid Search API의 요청과 반환 방식을 논의한 회의록\",\n  \"details\": {\n    \"meeting_at\": \"2026-11-20T10:30:00+09:00\",\n    \"attendees\": \"실습생, 강사\",\n    \"decisions\": \"유사한 보고서 1건 또는 not_found 반환\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "MEETING 카테고리의 필수 Detail 값을 확인하는 독립 샘플 요청. 실제 DB에 한 행 생성합니다."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.unset(\"optional_MEETING_id\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"새 보고서 ID\", () => {",
+                  "  pm.expect(Number.isSafeInteger(j.report_id)).to.eql(true);",
+                  "  pm.expect(j.report_id).to.be.above(180);",
+                  "});",
+                  "if (pm.response.code === 201 && Number.isSafeInteger(j.report_id) && j.report_id > 180) {",
+                  "  pm.environment.set(\"optional_MEETING_id\", j.report_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 실제 LLM 유료 요청 · 명시적 선택 실행",
+      "description": "기본 allow_paid_llm=false이므로 Runner에서 건너뜁니다. 본인 레벨에 맞는 요청만 고르고 true로 설정한 뒤 수동 실행하세요. Basic 생성 데이터 정리 전에 실행합니다.",
+      "item": [
+        {
+          "name": "API-08 · 실제 LLM 요약 (유료 API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/reports/{{created_report_id}}/summarize",
+            "description": "실제 LLM 유료 호출입니다. 비용·API 키·모델을 확인한 뒤 수동으로 실행하세요.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"style\": \"brief\",\n  \"max_sentences\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"실제 LLM 요약\",()=>{let j=pm.response.json();pm.expect(j.status).to.eql(\"completed\");pm.expect(j.summary).to.be.a(\"string\");});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Environment에서 명시적으로 true를 설정한 경우에만 유료 요청을 보냅니다.",
+                  "if (pm.environment.get(\"allow_paid_llm\") !== \"true\") {",
+                  "  pm.execution.skipRequest();",
+                  "}",
+                  "const generatedId = Number(pm.environment.get(\"created_report_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-09 · Agent 요약 (유료 API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/agent/run",
+            "description": "실제 LLM 유료 호출입니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"summarize_report\",\n  \"report_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"Agent LLM 요약\",()=>pm.expect(pm.response.json().tool_calls).to.include(\"summarize_report\"));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Environment에서 명시적으로 true를 설정한 경우에만 유료 요청을 보냅니다.",
+                  "if (pm.environment.get(\"allow_paid_llm\") !== \"true\") {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-09 · 검색 후 요약 (유료 API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/agent/run",
+            "description": "실제 LLM 유료 호출입니다. 검색 실패 시 LLM 호출이 없어야 합니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"search_and_summarize\",\n  \"query\": \"가중치\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Environment에서 명시적으로 true를 설정한 경우에만 유료 요청을 보냅니다.",
+                  "if (pm.environment.get(\"allow_paid_llm\") !== \"true\") {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-08 · Structured 요약 (유료 API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/reports/1/summarize",
+            "description": "실제 LLM API로 JSON 구조화 요약을 수행합니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"style\": \"structured\",\n  \"max_sentences\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Environment에서 명시적으로 true를 설정한 경우에만 유료 요청을 보냅니다.",
+                  "if (pm.environment.get(\"allow_paid_llm\") !== \"true\") {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-09 · LLM Tool Calling (유료 API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/agent/run",
+            "description": "실제 LLM 호출이므로 비용이 발생하며, 읽기·검색·요약 Tool만 허용합니다.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agent_mode\": \"tool_calling\",\n  \"message\": \"가중치에 관련된 보고서를 찾아 간단하게 설명해줘\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=200;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Environment에서 명시적으로 true를 설정한 경우에만 유료 요청을 보냅니다.",
+                  "if (pm.environment.get(\"allow_paid_llm\") !== \"true\") {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 Basic · 테스트 생성 데이터 정리",
+      "item": [
+        {
+          "name": "API-06 · 생성 보고서 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{created_report_id}}",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const EXPECTED=204;",
+                  "pm.test(\"HTTP 상태 확인\", function(){pm.response.to.have.status(EXPECTED);});",
+                  "pm.test(\"204 No Content\",()=>pm.expect(pm.response.text()).to.eql(\"\"));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"created_report_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-03 · 삭제 후 조회 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{created_report_id}}",
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"created_report_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"삭제 후 404\", () => pm.expect(pm.response.json().error.code).to.eql(\"REPORT_NOT_FOUND\"));",
+                  "if (pm.response.code === 404) {",
+                  "  pm.environment.unset(\"created_report_id\");",
+                  "  pm.environment.unset(\"created_contract\");",
+                  "  pm.environment.unset(\"updated_contract\");",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 선택 실습 · 추가 생성 데이터 정리",
+      "item": [
+        {
+          "name": "API-06 · 선택 DAILY_WORK 생성 데이터 정리",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{optional_DAILY_WORK_id}}",
+            "description": "이번 선택 등록에서 저장한 ID만 사용합니다. ID가 없거나 초기 시드 ID이면 요청을 건너뜁니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"optional_DAILY_WORK_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"204 No Content\", () => pm.expect(pm.response.text()).to.eql(\"\"));",
+                  "if (pm.response.code === 204) pm.environment.unset(\"optional_DAILY_WORK_id\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-06 · 선택 RESEARCH_PLAN 생성 데이터 정리",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{optional_RESEARCH_PLAN_id}}",
+            "description": "이번 선택 등록에서 저장한 ID만 사용합니다. ID가 없거나 초기 시드 ID이면 요청을 건너뜁니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"optional_RESEARCH_PLAN_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"204 No Content\", () => pm.expect(pm.response.text()).to.eql(\"\"));",
+                  "if (pm.response.code === 204) pm.environment.unset(\"optional_RESEARCH_PLAN_id\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-06 · 선택 DATA_PROCESSING 생성 데이터 정리",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{optional_DATA_PROCESSING_id}}",
+            "description": "이번 선택 등록에서 저장한 ID만 사용합니다. ID가 없거나 초기 시드 ID이면 요청을 건너뜁니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"optional_DATA_PROCESSING_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"204 No Content\", () => pm.expect(pm.response.text()).to.eql(\"\"));",
+                  "if (pm.response.code === 204) pm.environment.unset(\"optional_DATA_PROCESSING_id\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-06 · 선택 PROMPT 생성 데이터 정리",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{optional_PROMPT_id}}",
+            "description": "이번 선택 등록에서 저장한 ID만 사용합니다. ID가 없거나 초기 시드 ID이면 요청을 건너뜁니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"optional_PROMPT_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"204 No Content\", () => pm.expect(pm.response.text()).to.eql(\"\"));",
+                  "if (pm.response.code === 204) pm.environment.unset(\"optional_PROMPT_id\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API-06 · 선택 MEETING 생성 데이터 정리",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/reports/{{optional_MEETING_id}}",
+            "description": "이번 선택 등록에서 저장한 ID만 사용합니다. ID가 없거나 초기 시드 ID이면 요청을 건너뜁니다."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const generatedId = Number(pm.environment.get(\"optional_MEETING_id\"));",
+                  "// 초기 시드 ID 1~180은 이 정리/생성 결과 흐름에서 사용하지 않습니다.",
+                  "if (!Number.isSafeInteger(generatedId) || generatedId <= 180) {",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"204 No Content\", () => pm.expect(pm.response.text()).to.eql(\"\"));",
+                  "if (pm.response.code === 204) pm.environment.unset(\"optional_MEETING_id\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "seed_report_id",
+      "value": "1"
+    },
+    {
+      "key": "seed_prompt_report_id",
+      "value": "121"
+    },
+    {
+      "key": "created_report_id",
+      "value": ""
+    },
+    {
+      "key": "latest_prompt_version",
+      "value": ""
+    }
+  ]
+}

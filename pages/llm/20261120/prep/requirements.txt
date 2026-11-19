@@ -1,0 +1,12 @@
+# 기존 .venv 사용. 모델 다운로드는 수업 전에 준비합니다.
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+sqlalchemy>=2.0,<3
+psycopg[binary]>=3.2,<4
+pgvector>=0.4,<1
+pydantic>=2.9,<3
+python-dotenv>=1.0,<2
+sentence-transformers>=3.0,<7
+openai>=2.0,<3
+pytest>=8,<10
+httpx>=0.27,<1

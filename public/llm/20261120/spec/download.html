@@ -1,0 +1,1997 @@
+<!doctype html>
+<!DOCTYPE html>
+
+<html id="top" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>11월 20일 보고서 처리 Agent · 상세 요구사항 v1.4 · 단일 ERD·통합 API 명세</title><style>
+:root{color-scheme:dark}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0b1220;color:#e5eaf2;font-family: "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.75}a{color:#93c5fd}header{background:linear-gradient(110deg,#0f2139,#132c45);padding:44px max(24px,calc((100vw - 1180px)/2));border-bottom:1px solid #2d4863}header .k{color:#95b9d5;font-size:13px;letter-spacing:.12em}header h1{margin:.4rem 0;font-size:33px}header p{max-width:1000px;color:#bcd1e0}main{max-width:1180px;margin:0 auto;padding:38px 30px 140px}h1{font-size:29px}h2{font-size:25px;margin-top:52px;padding-bottom:12px;border-bottom:1px solid #29384e}h3{font-size:19px;color:#d2e9ff;margin-top:30px}p,li{font-size:15px}strong{color:#f3f7fc}blockquote{border-left:4px solid #5e9ac2;background:#112438;margin:22px 0;padding:12px 20px}pre{background:#091321;padding:18px;overflow:auto;border:1px solid #2c4560;border-radius:10px;font-size:13px;line-height:1.6;color:#ccdfef}code{color:#9fe4d1}pre code{color:inherit}table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow-x:auto;margin:14px 0 24px}th,td{border:1px solid #324258;padding:9px 11px;vertical-align:top;text-align:left;min-width:85px}th{background:#17304a;color:#e3f4ff}tr:nth-child(even){background:#0f1e31}hr{border:0;border-top:1px solid #304358}aside{position:fixed;right:20px;bottom:20px;background:#1c4262;border:1px solid #397399;border-radius:12px;padding:8px 15px;font-size:13px} @media print{:root{color-scheme:light}body{background:white;color:#111}header{color:white}main{max-width:none}table{display:table}td,th{border:1px solid #999}h2{page-break-after:avoid}pre,table{page-break-inside:avoid}aside{display:none}}
+.erd-board{background:#0d2031;border:1px solid #344f6a;border-radius:12px;padding:12px;margin:12px 0 22px;max-width:100%;overflow:auto;} .erd-board svg{height:auto;display:block;min-width:900px;max-width:none;margin:auto;} .erd-board.overview svg{min-width:1200px;} .erd-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#e3f2ff;margin-top:16px;} .erd-heading span{font-size:12px;color:#9ab6d4;} .diagram-panel{border:1px solid #36506d;border-radius:12px;margin:16px 0;padding:8px 14px;background:#0d1d2c;} .diagram-panel summary{cursor:pointer;color:#d4eaff;font-weight:700;padding:6px 0;} .diagram-panel summary:hover{color:#fff;} .jump-links{position:sticky;top:0;background:#13253acc;padding:8px 12px;border-radius:8px;backdrop-filter:blur(8px);} @media print {.erd-board{overflow:visible}.erd-board svg{width:100%;min-width:0}.diagram-panel{break-inside:avoid}}
+.erd-board svg{width:auto} .erd-board{scrollbar-color:#527ca0 #142940} @media(max-width:720px){main{padding:18px 14px 100px} header{padding:30px 18px}h1{font-size:25px} .erd-board{padding:8px}}
+
+/* v1.4: one self-contained ERD. Other diagram panels removed. */
+.erd-tools{position:relative;z-index:3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#162b42ee;border:1px solid #355776;border-radius:12px;padding:12px;margin:16px 0 10px;backdrop-filter:blur(6px)}
+.erd-tools span{margin-right:auto;color:#c5ddec;font-size:13px}
+.erd-tools button{border:1px solid #5d84a2;background:#203c57;color:#e5f3ff;border-radius:7px;padding:8px 12px;cursor:pointer;font-size:13px}
+.erd-tools button:hover,.erd-tools button[aria-pressed="true"]{background:#2f6588;color:#fff;border-color:#8ec7ed}
+.erd-board-single{background:#071523;border:1px solid #33546e;border-radius:12px;padding:10px;max-width:100%;overflow:auto;max-height:82vh;scrollbar-width:thin}
+.erd-board-single svg{display:block;width:100%;height:auto;max-width:none;min-width:0;margin:0 auto}
+.erd-board-single svg text{user-select:text}
+@media print{.erd-tools{display:none}.erd-board-single{max-height:none;overflow:visible}.erd-board-single svg{width:100%;height:auto;page-break-inside:avoid}}
+
+/* v1.4: each API is a self-contained, always-expanded contract card. */
+.api-card{background:#102137;border:1px solid #35536d;border-left:4px solid #477ea5;border-radius:14px;padding:0;margin:20px 0 24px;overflow:hidden;break-inside:avoid;box-shadow:0 5px 15px #030b1830;scroll-margin-top:26px}
+.api-card.api-level-intermediate{border-left-color:#7ab3b4}
+.api-card.api-level-advanced{border-left-color:#c4a269}
+.api-card-header{background:linear-gradient(110deg,#183651,#152b40);padding:16px 20px 13px;border-bottom:1px solid #35516c}
+.api-card-header h4{color:#f2f7fd;font-size:18px;font-weight:750;line-height:1.5;margin:0 0 10px}
+.api-card-tags{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.api-card-tags code{font-size:12px;color:#d8edf8;overflow-wrap:anywhere}
+.api-card .api-method{padding:3px 9px;border-radius:6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.035em;background:#22455c;color:#bee9ff;white-space:nowrap}
+.api-card .api-method-post{background:#164936;color:#b8edce}
+.api-card .api-method-put{background:#604a22;color:#ffe6ae}
+.api-card .api-method-delete{background:#582d35;color:#ffd0d4}
+.api-card .api-level{font-size:11px;color:#c4d8e7;border:1px solid #536c81;border-radius:999px;padding:2px 10px;white-space:nowrap;margin-left:auto}
+.api-card-body{padding:16px 20px 18px}
+.api-card-body>ul:first-child,.api-card-body>p:first-child{margin-top:0}
+.api-card-body>ul:last-child,.api-card-body>p:last-child{margin-bottom:0}
+.api-card-body ul{padding-left:23px}
+.api-card-body pre{margin:12px 0 16px;background:#091521}
+.api-card-body table{max-width:100%}
+.api-toc-link{color:#b4d9f5;text-decoration:underline;text-decoration-color:#456784;text-underline-offset:3px}
+.api-card:target{outline:2px solid #7db5d5;outline-offset:2px}
+@media(max-width:720px){.api-card-header,.api-card-body{padding:13px 12px}.api-card-header h4{font-size:16px}.api-card-tags{gap:6px}.api-card .api-level{margin-left:0}}
+@media print{.api-card{background:#fff;border:1px solid #aaa;border-left:3px solid #666;box-shadow:none;page-break-inside:avoid}.api-card-header{background:#ecf1f6;border-bottom:1px solid #ccc}.api-card-header h4,.api-card-tags code{color:#111}.api-card .api-level{color:#222}.api-card-body{color:#111}}
+
+.cn-nav ~ main .jump-links{top:3.1rem;z-index:20}
+.cn-nav ~ main .api-card{scroll-margin-top:4rem}
+</style></head><body><header><div class="k">NOV 20, 2026 · REQUIREMENTS V1.4</div><h1>보고서 처리 Agent</h1><p>읽을 것은 줄이고, 구현 기준은 한곳에 · 전체 ERD 한 장 · 15개 API 입력 JSON · Postman 검증 계약</p></header><main><h1 id="top">2026-11-20 개인 일일 프로젝트 · 보고서 처리 Agent</h1>
+<p><strong>상세 요구사항 명세서 v1.4 — 전체 ERD 한 장·API 입력 통합본</strong><br/>
+대상: Windows 11 / VS Code / Git Bash / PostgreSQL 18.6 + pgvector / FastAPI / Python / <code>intfloat/multilingual-e5-small</code> / LLM API<br/>
+<strong>문서 상태:</strong> <strong>요구사항 계약 기준본 v1.4</strong>. 이 HTML 자체에는 소스코드나 실행 가능한 SQL이 들어 있지 않으며, 별도 실습 패키지의 <code>common/sql/</code>·<code>common/postman/</code>·<code>mentor/</code>·<code>mentee/</code> 자료와 함께 제공한다. 실제 DB/E5/LLM 실행 결과는 강사 환경에서 최종 확인한다.</p>
+<blockquote>
+<p><strong>프로젝트 목표</strong>: 여섯 종류의 보고서를 생성·조회·수정·삭제하고, 원문과 종류별 속성은 PostgreSQL에, 보고서 <strong>Overview</strong>의 384차원 Embedding은 같은 PostgreSQL의 pgvector 컬럼에 저장한다. ID·제목·Keyword+Semantic 검색으로 보고서를 찾고, LLM API로 보고서 원문을 요약하며, 기본 Agent는 명시적인 동작 유형에 따라 안전한 도구를 호출한다.</p>
+</blockquote>
+<h2>1. 학습 목표와 완료 조건</h2>
+<table>
+<thead>
+<tr>
+<th>학습 목표</th>
+<th>실제 확인할 증거</th>
+<th>관련 선행 학습</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① API 계약을 읽고 백엔드 구현</td>
+<td>Postman에서 요청·응답·상태 코드 확인</td>
+<td>11/10 FastAPI, REST</td>
+</tr>
+<tr>
+<td>② ERD에 맞게 CRUD 구현</td>
+<td>삽입·수정·삭제 후 SQL 조회</td>
+<td>11/11 SQL, 11/12 ORM·Transaction</td>
+</tr>
+<tr>
+<td>③ RDB와 Embedding 관리</td>
+<td>180개 개요 Embedding 저장·개수 검사</td>
+<td>11/18 E5, pgvector</td>
+</tr>
+<tr>
+<td>④ 문서의 식별자·Metadata 이해</td>
+<td>카테고리·출처·보고서 ID 추적</td>
+<td>11/19 Document Indexing</td>
+</tr>
+<tr>
+<td>⑤ Keyword·Semantic 검색 결합</td>
+<td>관련 1건 또는 not_found 테스트</td>
+<td>11/18~19 검색·검증</td>
+</tr>
+<tr>
+<td>⑥ LLM 요약과 Agent 실행</td>
+<td>실제 API 요약·도구 선택 기록</td>
+<td>11/13, 11/16~17 LLM API</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Basic 최소 완료:</strong> 여섯 카테고리와 초기 데이터가 적재되고 공통 CRUD·ID/제목 조회·개요 벡터 저장 및 검색·Hybrid 1건/미검색·LLM 요약·명시적 Agent action이 작동한다. 외부 서비스 미연결이면 '미완료'로 표기한다.</p>
+<p><strong>선택 확장:</strong> Intermediate는 다중 조건 필터·입력 검증·버전 관리·검색 판정 강화, Advanced는 도구 호출, 재색인 상태 및 실패 복구, 동시 수정 충돌·로그·검색 평가를 추가한다. 모든 상위 단계는 하위 요구사항의 정상 동작을 전제로 한다.</p>
+<h2>2. 실행환경 및 초기 제공물</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>계약</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>운영체제·도구</td>
+<td>Windows 11, VS Code, Git Bash (기존 <code>.venv</code> 재사용)</td>
+</tr>
+<tr>
+<td>RDB</td>
+<td>Windows 직접 설치 PostgreSQL 18.6, 실습 전용 DB 또는 Schema. 기존 Day24 데이터 삭제 금지</td>
+</tr>
+<tr>
+<td>Vector</td>
+<td><code>CREATE EXTENSION IF NOT EXISTS vector</code> (pgvector 준비 상태 점검)</td>
+</tr>
+<tr>
+<td>Embedding</td>
+<td><code>intfloat/multilingual-e5-small</code>, <strong>384차원</strong>, CPU 실행 가능, <code>query: </code> / <code>passage: </code>, normalize_embeddings=True</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td>기존 수업에서 설정한 API Client 및 환경변수. 실키·토큰 로그/소스 저장 금지. 모델 명칭은 <code>.env</code>에서 설정</td>
+</tr>
+<tr>
+<td>제공 공통 자료</td>
+<td>본 요구사항 명세서, API 명세, ERD, <code>schema.sql</code>, <code>seed.sql</code>, <code>.env.example</code>, <code>requirements.txt</code>, 테스트 시나리오·검증 SQL</td>
+</tr>
+<tr>
+<td>제외</td>
+<td>Docker, WSL, LangGraph, 유료 자동 결제·외부 데이터 수집, 파일 업로드/OCR, Multi-Agent 프레임워크</td>
+</tr>
+</tbody>
+</table>
+<p><strong>API 검증:</strong> Postman Collection(<code>Report_Agent.postman_collection.json</code>)과 Environment(<code>Report_Agent.postman_environment.json</code>)를 실습 ZIP의 <code>common/postman/</code>에 제공한다. 본 v1.4 문서는 계약 기준이며, Postman JSON의 실제 실행 증거는 강사 환경에서 최종 확인한다.</p>
+<p><strong>초기 시연</strong>은 빈 <code>report-agent/</code> 폴더를 만들고 프로젝트 구조·파일을 직접 생성하며, <strong>제공된 <code>schema.sql</code> 및 <code>seed.sql</code>을 실행</strong>하고 실제 E5 벡터를 생성한다. 반복 데이터 180개를 직접 타이핑하지 않는다. 수업 전 모델 다운로드·API 키·pgvector 설치는 점검한다.</p>
+<h2>3. 공통 폴더 구조와 난이도별 시작 조건</h2>
+<pre><code class="language-text">report-agent/
+├─ app/
+│  ├─ main.py
+│  ├─ api/
+│  │  ├─ reports.py
+│  │  ├─ search.py
+│  │  └─ agent.py
+│  ├─ core/
+│  │  └─ config.py
+│  ├─ db/
+│  │  └─ session.py
+│  ├─ models/
+│  │  └─ report.py
+│  ├─ schemas/
+│  │  └─ report.py
+│  ├─ repositories/
+│  │  └─ report_repository.py
+│  ├─ services/
+│  │  ├─ report_service.py
+│  │  ├─ search_service.py
+│  │  └─ agent_service.py
+│  └─ integrations/
+│     ├─ embedding_client.py
+│     └─ llm_client.py
+├─ sql/
+│  ├─ schema.sql
+│  └─ seed.sql
+├─ scripts/
+│  └─ index_overviews.py
+├─ tests/
+├─ .env.example
+├─ requirements.txt
+└─ README.md
+</code></pre>
+<p><strong>파일·폴더는 목적별로 구분하며 무의미한 하위 계층을 추가하지 않는다.</strong> 예를 들어 API는 HTTP 책임, Service는 업무 규칙, Repository는 영속 저장, Integration은 외부 모델과의 통신을 책임진다. 6개 보고서 종류는 공통 CRUD 로직을 재사용한다.</p>
+<table>
+<thead>
+<tr>
+<th>배포</th>
+<th>시작 상태</th>
+<th>중요 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mentee/01_basic</code></td>
+<td>위와 같은 폴더 및 Python 파일, 함수 시그니처·구체적 TODO, <strong>실행 진입점 <code>main()</code> 완성</strong>, CRUD·검색·요약 핵심 구현은 비워 둠</td>
+<td>최소 Skeleton만 제공; 정답 코드 없음</td>
+</tr>
+<tr>
+<td><code>mentee/02_intermediate</code></td>
+<td>위와 같은 폴더 <strong>구조만</strong> 제공. Python 파일 없음</td>
+<td>빈 폴더 유지를 위해 ZIP에는 디렉터리 엔트리 포함 가능. 필요 파일은 학생이 작성</td>
+</tr>
+<tr>
+<td><code>mentee/03_advanced</code></td>
+<td><strong>빈 프로젝트 폴더</strong>에서 시작</td>
+<td>아래 공통 배포 묶음에서 SQL·환경 파일을 가져와 사용. 소스 파일·구조 직접 작성</td>
+</tr>
+<tr>
+<td><code>mentor/01_basic~03_advanced</code></td>
+<td>각 난이도 기준의 <strong>완성 정답</strong>과 주석 해설</td>
+<td>공통 계약을 지키되 상위 단계는 하위 단계를 포함</td>
+</tr>
+</tbody>
+</table>
+<p>수강생에게는 난이도별 시작 프로젝트와 별개로 <strong>공통 명세·SQL·환경자료</strong>를 배포한다. Advanced가 빈 폴더라는 뜻은 명세나 초기 데이터를 받지 못한다는 뜻이 아니다.</p>
+<h2>4. 데이터 모델 · 전체 ERD 한 장으로 확인</h2>
+<h3>4.1 전체 ERD (10개 테이블 · 73개 컬럼)</h3>
+<p><strong>아래 ERD 하나에 실제 테이블명, 모든 컬럼, 자료형, PK/FK, UNIQUE, NOT NULL, DEFAULT, CHECK와 참조 관계를 표시했습니다.</strong> 필요한 정보를 다른 그림이나 컬럼 사전에서 찾을 필요가 없습니다. HTML에서는 <strong>전체 보기 / 원본 크기 / 확대</strong> 버튼으로 확인합니다.</p>
+<div aria-label="ERD 확대 조절" class="erd-tools" role="toolbar">
+<span>ERD를 확대해 모든 컬럼과 제약조건을 읽으세요.</span>
+<button data-zoom="fit" type="button">화면에 맞춤</button>
+<button data-zoom="1" type="button">원본 100%</button>
+<button data-zoom="1.25" type="button">125%</button>
+<button data-zoom="1.5" type="button">150%</button>
+</div>
+<div class="erd-board-single" id="full-erd"><svg aria-label="Report Agent 10개 테이블 전체 컬럼 및 제약조건 ERD" height="2130" role="img" viewbox="0 0 1940 2130" width="1940" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="arrow" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="9.5" refy="5" viewbox="0 0 10 10">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#6795ba"></path>
+</marker>
+</defs>
+<rect fill="#0b1627" height="2130" rx="0" stroke="none" stroke-width="1" width="1940" x="0" y="0"></rect>
+<rect fill="#13273d" height="92" rx="17" stroke="none" stroke-width="1" width="1904" x="18" y="17"></rect>
+<text fill="#eef8ff" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="30" font-weight="bold" x="45" y="58">REPORT AGENT  |  전체 ERD</text>
+<text fill="#adc8df" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="45" y="86">물리 테이블 10개 · 전체 컬럼 73개 · 자료형 및 제약조건 · FK 삭제 규칙</text>
+<rect fill="#0f2236" height="1810" rx="13" stroke="none" stroke-width="1" width="610" x="18" y="125"></rect>
+<rect fill="#0d2433" height="1810" rx="13" stroke="none" stroke-width="1" width="625" x="671" y="125"></rect>
+<rect fill="#0d2433" height="1810" rx="13" stroke="none" stroke-width="1" width="625" x="1298" y="125"></rect>
+<path d="M 317 357 L 317 443" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="332" y="411">1 : N</text>
+<path d="M 317 688 L 317 818" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="334" y="789">1 : 0..1</text>
+<path d="M 596 550 L 651 550 L 651 169" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<path d="M 651 169 L 651 175 L 690 175" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="620" y="163">1 : 0..1</text>
+<path d="M 651 169 L 651 665 L 690 665" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="620" y="653">1 : 0..1</text>
+<path d="M 651 169 L 651 1155 L 690 1155" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="620" y="1143">1 : 0..1</text>
+<path d="M 596 574 L 618 574 L 618 126 L 1285 126 L 1285 162" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<path d="M 1285 162 L 1285 174 L 1318 174" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="1255" y="161">1 : 0..1</text>
+<path d="M 1285 162 L 1285 664 L 1318 664" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="1255" y="651">1 : 0..1</text>
+<path d="M 1285 162 L 1285 1534 L 1318 1534" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="1255" y="1521">1 : 0..1</text>
+<path d="M 1790 971 L 1790 1093" fill="none" marker-end="url(#arrow)" stroke="#6795ba" stroke-width="2.5"></path>
+<text fill="#a7c7e5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="15" font-weight="normal" x="1803" y="1020">1 : N</text>
+<rect fill="#102f43" height="574" rx="12" stroke="#3d6f86" stroke-width="1.5" width="558" x="38" y="1237"></rect>
+<text fill="#c7f4ff" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="21" font-weight="bold" x="56" y="1277">도식 읽기</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1320">PK  Primary Key (기본키)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1357">FK  Foreign Key (외래키)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1394">UQ  UNIQUE (중복 불가)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1431">NN  NOT NULL (값 필수)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1468">ID  IDENTITY (자동 증가)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1505">DF  DEFAULT (기본값)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1542">CK  CHECK (값 조건)</text>
+<text fill="#e3eef7" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="normal" x="56" y="1579">↳   FK 참조 대상은 각 컬럼 옆에 표시</text>
+<text fill="#b8f0ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="17" font-weight="bold" x="56" y="1640">교차 테이블 규칙 (Service + Transaction)</text>
+<text fill="#d2e7ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="16" font-weight="normal" x="58" y="1675">• 분류에 맞는 상세 행만 1개 생성</text>
+<text fill="#d2e7ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="16" font-weight="normal" x="58" y="1708">• 활성 Prompt 버전의 존재·본문 일치</text>
+<text fill="#d2e7ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="16" font-weight="normal" x="58" y="1741">• ready 상태의 개요·해시·벡터 일치</text>
+<rect fill="#06101b" height="212" rx="10" stroke="none" stroke-width="1" width="560" x="40" y="150"></rect>
+<rect fill="#152c3e" height="212" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="36" y="145"></rect>
+<rect fill="#24486a" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="37" y="146"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="52" y="174">report_categories</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="584" y="174">4 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="37" y="191"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="51" y="209">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="250" y="209">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="375" y="209">제약조건</text>
+<g>
+<title>report_categories.category_id: INTEGER; NULL NO; PK; DEFAULT 없음; category_id &gt;= 1; 6개 분류 고정 ID</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="51" y="238">category_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="238">INTEGER</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="238">PK · NN · CK ≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="248" y2="248"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="248"></rect>
+<g>
+<title>report_categories.code: TEXT; NULL NO; UQ; DEFAULT 없음; code IN ('EXPERIMENT','DAILY_WORK','RESEARCH_PLAN','DATA_PROCESSING','PROMPT','MEETING'); 분류 코드</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="269">code</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="269">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="269">UQ · NN · CK 6 codes</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="279" y2="279"></line>
+</g>
+<g>
+<title>report_categories.name: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(name)) &gt;= 1; 분류명</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="300">name</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="300">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="300">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="310" y2="310"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="310"></rect>
+<g>
+<title>report_categories.description: TEXT; NULL YES; -; DEFAULT NULL; 없음; 분류 설명</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="331">description</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="331">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="331"></text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="341" y2="341"></line>
+</g>
+<rect fill="#06101b" height="243" rx="10" stroke="none" stroke-width="1" width="560" x="40" y="450"></rect>
+<rect fill="#152c3e" height="243" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="36" y="445"></rect>
+<rect fill="#24486a" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="37" y="446"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="52" y="474">reports</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="584" y="474">5 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="37" y="491"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="51" y="509">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="250" y="509">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="375" y="509">제약조건</text>
+<g>
+<title>reports.report_id: BIGINT; NULL NO; PK; DEFAULT GENERATED BY DEFAULT AS IDENTITY; 없음; 전 종류 공통 식별자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="51" y="538">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="538">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="538">PK · NN · ID</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="548" y2="548"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="548"></rect>
+<g>
+<title>reports.category_id: INTEGER; NULL NO; FK → report_categories(category_id); DEFAULT 없음; ON DELETE RESTRICT; 보고서 종류</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="569">category_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="569">INTEGER</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="569">FK · NN · RESTRICT</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="579" y2="579"></line>
+</g>
+<g>
+<title>reports.overview: VARCHAR(1000); NULL NO; -; DEFAULT 없음; char_length(btrim(overview)) BETWEEN 10 AND 1000; 검색용 개요 원문; 벡터 1개</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="600">overview</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="600">VARCHAR(1000)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="600">NN · CK 10..1000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="610" y2="610"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="610"></rect>
+<g>
+<title>reports.index_status: VARCHAR(20); NULL NO; -; DEFAULT 'pending'; index_status IN ('pending','ready','failed'); 검색 인덱싱 상태</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="631">index_status</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="631">VARCHAR(20)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="375" y="631">NN · DF pending · CK status 3</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="641" y2="641"></line>
+</g>
+<g>
+<title>reports.revision: INTEGER; NULL NO; -; DEFAULT 1; revision &gt;= 1; 보고서 현재 수정 버전</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="662">revision</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="662">INTEGER</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="662">NN · DF 1 · CK ≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="672" y2="672"></line>
+</g>
+<rect fill="#06101b" height="274" rx="10" stroke="none" stroke-width="1" width="560" x="40" y="825"></rect>
+<rect fill="#152c3e" height="274" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="36" y="820"></rect>
+<rect fill="#24486a" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="37" y="821"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="52" y="849">report_embeddings</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="584" y="849">6 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="37" y="866"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="51" y="884">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="250" y="884">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="375" y="884">제약조건</text>
+<g>
+<title>report_embeddings.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 보고서 한 건당 현재 Embedding 최대 한 행</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="51" y="913">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="913">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="913">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="923" y2="923"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="923"></rect>
+<g>
+<title>report_embeddings.embedding: VECTOR(384); NULL NO; -; DEFAULT 없음; 384차원 강제; E5 실제 Overview Embedding</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="944">embedding</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="944">VECTOR(384)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="944">NN</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="954" y2="954"></line>
+</g>
+<g>
+<title>report_embeddings.model_name: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(model_name)) &gt;= 1; 사용 모델</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="975">model_name</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="975">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="975">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="985" y2="985"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="985"></rect>
+<g>
+<title>report_embeddings.overview_hash: CHAR(64); NULL NO; -; DEFAULT 없음; overview_hash ~ '^[0-9a-f]{64}$'; 개요 SHA-256</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="1006">overview_hash</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="1006">CHAR(64)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="1006">NN · CK sha256 hex</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="1016" y2="1016"></line>
+</g>
+<g>
+<title>report_embeddings.indexed_revision: INTEGER; NULL NO; -; DEFAULT 없음; indexed_revision &gt;= 1; 이 벡터의 보고서 revision</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="1037">indexed_revision</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="1037">INTEGER</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="1037">NN · CK ≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="1047" y2="1047"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="38" y="1047"></rect>
+<g>
+<title>report_embeddings.indexed_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 벡터 생성·갱신 시각</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="51" y="1068">indexed_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="250" y="1068">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="375" y="1068">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="50" x2="584" y1="1078" y2="1078"></line>
+</g>
+<rect fill="#06101b" height="367" rx="10" stroke="none" stroke-width="1" width="560" x="696" y="150"></rect>
+<rect fill="#152c3e" height="367" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="692" y="145"></rect>
+<rect fill="#20534e" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="693" y="146"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="708" y="174">experiment_reports</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1240" y="174">9 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="693" y="191"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="707" y="209">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="906" y="209">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1031" y="209">제약조건</text>
+<g>
+<title>experiment_reports.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 전역 보고서 ID를 PK/FK로 공유</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="707" y="238">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="238">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="238">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="248" y2="248"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="248"></rect>
+<g>
+<title>experiment_reports.title: VARCHAR(200); NULL NO; -; DEFAULT 없음; char_length(btrim(title)) BETWEEN 1 AND 200; 해당 종류 보고서의 제목 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="269">title</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="269">VARCHAR(200)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="269">NN · CK 1..200</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="279" y2="279"></line>
+</g>
+<g>
+<title>experiment_reports.content: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(content)) BETWEEN 1 AND 20000; 해당 종류 보고서의 본문 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="300">content</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="300">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="300">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="310" y2="310"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="310"></rect>
+<g>
+<title>experiment_reports.author: VARCHAR(100); NULL NO; -; DEFAULT 없음; char_length(btrim(author)) BETWEEN 1 AND 100; 보고서 작성자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="331">author</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="331">VARCHAR(100)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="331">NN · CK 1..100</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="341" y2="341"></line>
+</g>
+<g>
+<title>experiment_reports.create_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 보고서 생성 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="362">create_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="362">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="362">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="372" y2="372"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="372"></rect>
+<g>
+<title>experiment_reports.update_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); update_at &gt;= create_at; 최종 수정 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="393">update_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="393">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1031" y="393">NN · DF now() · CK ≥ create_at</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="403" y2="403"></line>
+</g>
+<g>
+<title>experiment_reports.experiment_date: DATE; NULL NO; -; DEFAULT 없음; 유효한 날짜; 실험 수행일</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="424">experiment_date</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="424">DATE</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="424">NN</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="434" y2="434"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="434"></rect>
+<g>
+<title>experiment_reports.hypothesis: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(hypothesis)) &gt;= 1; 검증 가설</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="455">hypothesis</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="455">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="455">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="465" y2="465"></line>
+</g>
+<g>
+<title>experiment_reports.result_summary: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(result_summary)) &gt;= 1; 실험 결과</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="486">result_summary</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="486">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="486">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="496" y2="496"></line>
+</g>
+<rect fill="#06101b" height="367" rx="10" stroke="none" stroke-width="1" width="560" x="696" y="640"></rect>
+<rect fill="#152c3e" height="367" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="692" y="635"></rect>
+<rect fill="#20534e" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="693" y="636"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="708" y="664">daily_work_reports</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1240" y="664">9 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="693" y="681"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="707" y="699">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="906" y="699">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1031" y="699">제약조건</text>
+<g>
+<title>daily_work_reports.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 전역 보고서 ID를 PK/FK로 공유</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="707" y="728">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="728">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="728">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="738" y2="738"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="738"></rect>
+<g>
+<title>daily_work_reports.title: VARCHAR(200); NULL NO; -; DEFAULT 없음; char_length(btrim(title)) BETWEEN 1 AND 200; 해당 종류 보고서의 제목 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="759">title</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="759">VARCHAR(200)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="759">NN · CK 1..200</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="769" y2="769"></line>
+</g>
+<g>
+<title>daily_work_reports.content: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(content)) BETWEEN 1 AND 20000; 해당 종류 보고서의 본문 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="790">content</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="790">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="790">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="800" y2="800"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="800"></rect>
+<g>
+<title>daily_work_reports.author: VARCHAR(100); NULL NO; -; DEFAULT 없음; char_length(btrim(author)) BETWEEN 1 AND 100; 보고서 작성자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="821">author</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="821">VARCHAR(100)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="821">NN · CK 1..100</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="831" y2="831"></line>
+</g>
+<g>
+<title>daily_work_reports.create_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 보고서 생성 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="852">create_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="852">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="852">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="862" y2="862"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="862"></rect>
+<g>
+<title>daily_work_reports.update_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); update_at &gt;= create_at; 최종 수정 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="883">update_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="883">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1031" y="883">NN · DF now() · CK ≥ create_at</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="893" y2="893"></line>
+</g>
+<g>
+<title>daily_work_reports.work_date: DATE; NULL NO; -; DEFAULT 없음; 유효한 날짜; 업무일</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="914">work_date</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="914">DATE</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="914">NN</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="924" y2="924"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="924"></rect>
+<g>
+<title>daily_work_reports.progress: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(progress)) &gt;= 1; 진행 내용</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="945">progress</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="945">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="945">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="955" y2="955"></line>
+</g>
+<g>
+<title>daily_work_reports.blockers: TEXT; NULL NO; -; DEFAULT ''; 빈 문자열 허용; 장애·이슈</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="976">blockers</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="976">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="976">NN · DF ''</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="986" y2="986"></line>
+</g>
+<rect fill="#06101b" height="367" rx="10" stroke="none" stroke-width="1" width="560" x="696" y="1130"></rect>
+<rect fill="#152c3e" height="367" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="692" y="1125"></rect>
+<rect fill="#20534e" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="693" y="1126"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="708" y="1154">research_plans</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1240" y="1154">9 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="693" y="1171"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="707" y="1189">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="906" y="1189">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1031" y="1189">제약조건</text>
+<g>
+<title>research_plans.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 전역 보고서 ID를 PK/FK로 공유</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="707" y="1218">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1218">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1218">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1228" y2="1228"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="1228"></rect>
+<g>
+<title>research_plans.title: VARCHAR(200); NULL NO; -; DEFAULT 없음; char_length(btrim(title)) BETWEEN 1 AND 200; 해당 종류 보고서의 제목 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1249">title</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1249">VARCHAR(200)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1249">NN · CK 1..200</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1259" y2="1259"></line>
+</g>
+<g>
+<title>research_plans.content: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(content)) BETWEEN 1 AND 20000; 해당 종류 보고서의 본문 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1280">content</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1280">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1280">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1290" y2="1290"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="1290"></rect>
+<g>
+<title>research_plans.author: VARCHAR(100); NULL NO; -; DEFAULT 없음; char_length(btrim(author)) BETWEEN 1 AND 100; 보고서 작성자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1311">author</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1311">VARCHAR(100)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1311">NN · CK 1..100</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1321" y2="1321"></line>
+</g>
+<g>
+<title>research_plans.create_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 보고서 생성 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1342">create_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1342">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1342">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1352" y2="1352"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="1352"></rect>
+<g>
+<title>research_plans.update_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); update_at &gt;= create_at; 최종 수정 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1373">update_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1373">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1031" y="1373">NN · DF now() · CK ≥ create_at</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1383" y2="1383"></line>
+</g>
+<g>
+<title>research_plans.research_goal: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(research_goal)) &gt;= 1; 연구 목표</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1404">research_goal</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1404">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1404">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1414" y2="1414"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="694" y="1414"></rect>
+<g>
+<title>research_plans.methodology: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(methodology)) &gt;= 1; 연구 방법</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1435">methodology</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1435">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1435">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1445" y2="1445"></line>
+</g>
+<g>
+<title>research_plans.target_date: DATE; NULL NO; -; DEFAULT 없음; 유효한 날짜; 목표 완료일</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="707" y="1466">target_date</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="906" y="1466">DATE</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1031" y="1466">NN</text>
+<line stroke="#29445b" stroke-width="0.75" x1="706" x2="1240" y1="1476" y2="1476"></line>
+</g>
+<rect fill="#06101b" height="367" rx="10" stroke="none" stroke-width="1" width="560" x="1324" y="150"></rect>
+<rect fill="#152c3e" height="367" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="1320" y="145"></rect>
+<rect fill="#20534e" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="1321" y="146"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="1336" y="174">data_processing_reports</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1868" y="174">9 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="1321" y="191"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1335" y="209">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1534" y="209">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1659" y="209">제약조건</text>
+<g>
+<title>data_processing_reports.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 전역 보고서 ID를 PK/FK로 공유</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="1335" y="238">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="238">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="238">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="248" y2="248"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="248"></rect>
+<g>
+<title>data_processing_reports.title: VARCHAR(200); NULL NO; -; DEFAULT 없음; char_length(btrim(title)) BETWEEN 1 AND 200; 해당 종류 보고서의 제목 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="269">title</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="269">VARCHAR(200)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="269">NN · CK 1..200</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="279" y2="279"></line>
+</g>
+<g>
+<title>data_processing_reports.content: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(content)) BETWEEN 1 AND 20000; 해당 종류 보고서의 본문 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="300">content</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="300">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="300">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="310" y2="310"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="310"></rect>
+<g>
+<title>data_processing_reports.author: VARCHAR(100); NULL NO; -; DEFAULT 없음; char_length(btrim(author)) BETWEEN 1 AND 100; 보고서 작성자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="331">author</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="331">VARCHAR(100)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="331">NN · CK 1..100</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="341" y2="341"></line>
+</g>
+<g>
+<title>data_processing_reports.create_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 보고서 생성 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="362">create_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="362">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="362">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="372" y2="372"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="372"></rect>
+<g>
+<title>data_processing_reports.update_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); update_at &gt;= create_at; 최종 수정 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="393">update_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="393">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1659" y="393">NN · DF now() · CK ≥ create_at</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="403" y2="403"></line>
+</g>
+<g>
+<title>data_processing_reports.dataset_name: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(dataset_name)) &gt;= 1; 데이터셋명</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="424">dataset_name</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="424">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="424">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="434" y2="434"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="434"></rect>
+<g>
+<title>data_processing_reports.processing_steps: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(processing_steps)) &gt;= 1; 처리 절차</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="455">processing_steps</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="455">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="455">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="465" y2="465"></line>
+</g>
+<g>
+<title>data_processing_reports.quality_notes: TEXT; NULL NO; -; DEFAULT ''; 빈 문자열 허용; 품질 비고</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="486">quality_notes</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="486">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="486">NN · DF ''</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="496" y2="496"></line>
+</g>
+<rect fill="#06101b" height="336" rx="10" stroke="none" stroke-width="1" width="560" x="1324" y="640"></rect>
+<rect fill="#152c3e" height="336" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="1320" y="635"></rect>
+<rect fill="#20534e" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="1321" y="636"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="1336" y="664">prompt_reports</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1868" y="664">8 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="1321" y="681"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1335" y="699">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1534" y="699">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1659" y="699">제약조건</text>
+<g>
+<title>prompt_reports.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 전역 보고서 ID를 PK/FK로 공유</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="1335" y="728">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="728">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="728">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="738" y2="738"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="738"></rect>
+<g>
+<title>prompt_reports.title: VARCHAR(200); NULL NO; -; DEFAULT 없음; char_length(btrim(title)) BETWEEN 1 AND 200; 해당 종류 보고서의 제목 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="759">title</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="759">VARCHAR(200)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="759">NN · CK 1..200</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="769" y2="769"></line>
+</g>
+<g>
+<title>prompt_reports.content: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(content)) BETWEEN 1 AND 20000; 해당 종류 보고서의 본문 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="790">content</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="790">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="790">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="800" y2="800"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="800"></rect>
+<g>
+<title>prompt_reports.author: VARCHAR(100); NULL NO; -; DEFAULT 없음; char_length(btrim(author)) BETWEEN 1 AND 100; 보고서 작성자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="821">author</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="821">VARCHAR(100)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="821">NN · CK 1..100</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="831" y2="831"></line>
+</g>
+<g>
+<title>prompt_reports.create_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 보고서 생성 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="852">create_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="852">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="852">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="862" y2="862"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="862"></rect>
+<g>
+<title>prompt_reports.update_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); update_at &gt;= create_at; 최종 수정 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="883">update_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="883">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1659" y="883">NN · DF now() · CK ≥ create_at</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="893" y2="893"></line>
+</g>
+<g>
+<title>prompt_reports.purpose: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(purpose)) &gt;= 1; Prompt 목적</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="914">purpose</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="914">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="914">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="924" y2="924"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="924"></rect>
+<g>
+<title>prompt_reports.active_version_no: INTEGER; NULL NO; -; DEFAULT 1; active_version_no &gt;= 1; 활성 버전 번호</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="945">active_version_no</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="945">INTEGER</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="945">NN · DF 1 · CK ≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="955" y2="955"></line>
+</g>
+<rect fill="#06101b" height="243" rx="10" stroke="none" stroke-width="1" width="560" x="1324" y="1100"></rect>
+<rect fill="#152c3e" height="243" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="1320" y="1095"></rect>
+<rect fill="#584579" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="1321" y="1096"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="1336" y="1124">prompt_versions</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1868" y="1124">5 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="1321" y="1141"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1335" y="1159">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1534" y="1159">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1659" y="1159">제약조건</text>
+<g>
+<title>prompt_versions.prompt_version_id: BIGINT; NULL NO; PK; DEFAULT GENERATED BY DEFAULT AS IDENTITY; 없음; 버전 고유 ID</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="1335" y="1188">prompt_version_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1188">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1188">PK · NN · ID</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1198" y2="1198"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="1198"></rect>
+<g>
+<title>prompt_versions.report_id: BIGINT; NULL NO; FK → prompt_reports(report_id); DEFAULT 없음; ON DELETE CASCADE; Prompt 보고서 ID</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1219">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1219">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1219">FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1229" y2="1229"></line>
+</g>
+<g>
+<title>prompt_versions.version_no: INTEGER; NULL NO; UQ(report_id,version_no); DEFAULT 없음; version_no &gt;= 1; 보고서 내 버전 번호</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1250">version_no</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1250">INTEGER</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1659" y="1250">NN · CK ≥1 · UQ with report_id</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1260" y2="1260"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="1260"></rect>
+<g>
+<title>prompt_versions.prompt_text: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(prompt_text)) BETWEEN 1 AND 20000; 버전별 불변 Prompt 원문</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1281">prompt_text</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1281">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1281">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1291" y2="1291"></line>
+</g>
+<g>
+<title>prompt_versions.created_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 버전 등록 시각</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1312">created_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1312">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1312">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1322" y2="1322"></line>
+</g>
+<rect fill="#06101b" height="367" rx="10" stroke="none" stroke-width="1" width="560" x="1324" y="1510"></rect>
+<rect fill="#152c3e" height="367" rx="9" stroke="#66899c" stroke-width="1.2" width="560" x="1320" y="1505"></rect>
+<rect fill="#20534e" height="46" rx="8" stroke="none" stroke-width="1" width="558" x="1321" y="1506"></rect>
+<text fill="#fcffff" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="20" font-weight="bold" x="1336" y="1534">meeting_minutes</text>
+<text fill="#bdd5e2" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" text-anchor="end" x="1868" y="1534">9 columns</text>
+<rect fill="#203b4e" height="26" rx="0" stroke="none" stroke-width="1" width="558" x="1321" y="1551"></rect>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1335" y="1569">컬럼</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1534" y="1569">자료형</text>
+<text fill="#bfd9ed" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="14" font-weight="bold" x="1659" y="1569">제약조건</text>
+<g>
+<title>meeting_minutes.report_id: BIGINT; NULL NO; PK·FK → reports(report_id); DEFAULT 없음; ON DELETE CASCADE; 전역 보고서 ID를 PK/FK로 공유</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="bold" x="1335" y="1598">report_id</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1598">BIGINT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1598">PK · FK · NN · CASCADE</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1608" y2="1608"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="1608"></rect>
+<g>
+<title>meeting_minutes.title: VARCHAR(200); NULL NO; -; DEFAULT 없음; char_length(btrim(title)) BETWEEN 1 AND 200; 해당 종류 보고서의 제목 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1629">title</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1629">VARCHAR(200)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1629">NN · CK 1..200</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1639" y2="1639"></line>
+</g>
+<g>
+<title>meeting_minutes.content: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(content)) BETWEEN 1 AND 20000; 해당 종류 보고서의 본문 원본</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1660">content</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1660">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1660">NN · CK 1..20000</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1670" y2="1670"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="1670"></rect>
+<g>
+<title>meeting_minutes.author: VARCHAR(100); NULL NO; -; DEFAULT 없음; char_length(btrim(author)) BETWEEN 1 AND 100; 보고서 작성자</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1691">author</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1691">VARCHAR(100)</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1691">NN · CK 1..100</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1701" y2="1701"></line>
+</g>
+<g>
+<title>meeting_minutes.create_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); 없음; 보고서 생성 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1722">create_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1722">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1722">NN · DF now()</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1732" y2="1732"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="1732"></rect>
+<g>
+<title>meeting_minutes.update_at: TIMESTAMPTZ; NULL NO; -; DEFAULT NOW(); update_at &gt;= create_at; 최종 수정 시각 (DB 실제 컬럼명)</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1753">update_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1753">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="12" font-weight="normal" x="1659" y="1753">NN · DF now() · CK ≥ create_at</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1763" y2="1763"></line>
+</g>
+<g>
+<title>meeting_minutes.meeting_at: TIMESTAMPTZ; NULL NO; -; DEFAULT 없음; 유효한 시각; 회의 시각</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1784">meeting_at</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1784">TIMESTAMPTZ</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1784">NN</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1794" y2="1794"></line>
+</g>
+<rect fill="#193445" height="31" rx="0" stroke="none" stroke-width="1" width="556" x="1322" y="1794"></rect>
+<g>
+<title>meeting_minutes.attendees: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(attendees)) &gt;= 1; 참석자 목록</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1815">attendees</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1815">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1815">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1825" y2="1825"></line>
+</g>
+<g>
+<title>meeting_minutes.decisions: TEXT; NULL NO; -; DEFAULT 없음; char_length(btrim(decisions)) &gt;= 1; 결정 사항</title>
+<text fill="#ecf4fd" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="15" font-weight="normal" x="1335" y="1846">decisions</text>
+<text fill="#bde7e0" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="14" font-weight="normal" x="1534" y="1846">TEXT</text>
+<text fill="#d6e7f5" font-family="Consolas,DejaVu Sans Mono,monospace" font-size="13" font-weight="normal" x="1659" y="1846">NN · CK trim≥1</text>
+<line stroke="#29445b" stroke-width="0.75" x1="1334" x2="1868" y1="1856" y2="1856"></line>
+</g>
+<rect fill="#162d40" height="156" rx="12" stroke="none" stroke-width="1" width="1904" x="18" y="1950"></rect>
+<text fill="#e2f7ff" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="20" font-weight="bold" x="38" y="1986">ERD 단독 해석 기준</text>
+<text fill="#cee7f5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="16" font-weight="normal" x="38" y="2019">category.code 허용값: EXPERIMENT, DAILY_WORK, RESEARCH_PLAN, DATA_PROCESSING, PROMPT, MEETING</text>
+<text fill="#cee7f5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="16" font-weight="normal" x="38" y="2050">index_status 허용값: pending / ready / failed     ·     prompt_versions: UNIQUE(report_id, version_no)</text>
+<text fill="#cee7f5" font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif" font-size="16" font-weight="normal" x="38" y="2081">상세 테이블 공통: title 1..200 · content 1..20000 · author 1..100 · update_at ≥ create_at · 삭제 CASCADE</text>
+</svg></div>
+<p><strong>읽기 순서:</strong> <code>report_categories</code> → <code>reports</code> → 해당 종류의 상세 테이블 1개와 <code>report_embeddings</code> → Prompt인 경우만 <code>prompt_versions</code>. <strong>PK/FK/NN/DF/CK 등의 약어, 허용 코드, 교차 테이블 검증 규칙은 ERD 하단에 함께 명시했습니다.</strong> 저장되는 물리 테이블은 10개이며 추가하지 않았습니다.</p>
+<h2>5. 초기 데이터 및 제공 SQL 규격</h2>
+<p><strong>실습 ZIP 별도 제공 파일</strong>: <code>sql/schema.sql</code>(DDL, <code>vector(384)</code>, FK, 인덱스), <code>sql/seed.sql</code>(반복 가능한 초기 데이터 INSERT), <code>scripts/index_overviews.py</code>(수강생이 구현 또는 강사 시연 후 실행). <code>seed.sql</code>은 벡터를 가짜 상수로 채우지 않는다.</p>
+<table>
+<thead>
+<tr>
+<th>테이블</th>
+<th style="text-align:right">제공 데이터</th>
+<th>적재 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>report_categories</code></td>
+<td style="text-align:right"><strong>6행</strong></td>
+<td><code>seed.sql</code>: 정의된 카테고리가 6개라 30개를 만들지 않음</td>
+</tr>
+<tr>
+<td><code>reports</code></td>
+<td style="text-align:right"><strong>180행</strong></td>
+<td>카테고리당 30개, <strong>각 개요와 전역 식별자</strong></td>
+</tr>
+<tr>
+<td>상세 테이블 6종</td>
+<td style="text-align:right"><strong>각 30행 = 180행</strong></td>
+<td>종류에 맞는 <code>report_id</code> 1:1; <strong>제목·본문·작성자·시각 포함</strong></td>
+</tr>
+<tr>
+<td><code>prompt_versions</code></td>
+<td style="text-align:right"><strong>60행</strong></td>
+<td>Prompt 30개 × v1/v2. 활성 버전은 v2; 이력은 유지</td>
+</tr>
+<tr>
+<td><code>report_embeddings</code></td>
+<td style="text-align:right"><strong>180행</strong></td>
+<td>시드 SQL 이후 E5 실제 Embedding 일괄 생성</td>
+</tr>
+<tr>
+<td>합계</td>
+<td style="text-align:right"><strong>606행</strong></td>
+<td>시드 SQL 완료 426행 + 인덱싱 완료 180행</td>
+</tr>
+</tbody>
+</table>
+<p><strong>예외:</strong> <code>report_categories</code>는 정의된 6종만 두며, 향후 운영 로그·검수결과 테이블은 인위적으로 30행을 만들지 않는다. 180개 보고서의 벡터도 실제 E5를 실행해야만 180행이 된다.</p>
+<p><strong>샘플 데이터 품질</strong>: <code>가중치</code>, <code>결측치</code>, <code>전처리</code>, <code>모델 성능</code>, <code>프롬프트 버전</code>, <code>회의 결정</code> 등 서로 다른 검색 주제; 관련어·유사어·무관어 테스트 세트; 본문은 100~1000자 수준의 구체적이고 서로 다른 한국어 내용. 개요는 본문을 대표해야 하며 단순 ID만 바꾼 반복 문장은 금지.</p>
+<p><strong>적재 순서</strong>: <code>CREATE EXTENSION vector</code> 점검 → DDL → <code>seed.sql</code>(카테고리·reports·상세·prompt_versions) → E5 실제 개요 임베딩 180개 → 384차원·정상 상태 검증. 시드는 <code>ON CONFLICT</code> 등으로 <strong>중복 실행 시 행 수 증가 없이 재현</strong>되도록 작성; 기존 Day24 테이블을 DROP하지 않음.</p>
+<p><strong>검증 SQL에 포함할 항목</strong>: 총 보고서 180, 상세 title/content/author 유효성, create_at/update_at 시간 순서, 카테고리별 30, 상세 6종 각각 30, Prompt 버전 60, 벡터 180, <code>vector_dims(embedding)=384</code>, 누락 FK 0, 최신 <code>revision</code>/인덱스 불일치 0.</p>
+<h2>6. HTTP API 계약 — 이 절만 보면 구현·테스트 가능</h2>
+<p><strong>공통 계약:</strong> Prefix <code>/api/v1</code>(Health는 <code>/health</code>), 요청/응답은 JSON, 모든 시각은 UTC ISO 8601, 식별자는 양의 정수. <strong>Postman</strong>으로 검증한다. <code>GET</code>·<code>DELETE</code>에는 JSON Body가 없고, 아래에 Path 및 Query Parameter를 별도로 명시했다. DB의 <code>create_at</code>·<code>update_at</code>는 API에서는 <code>created_at</code>·<code>updated_at</code>으로 반환한다. 예시 ID·유사도·LLM 문장은 <strong>형식을 설명하기 위한 값</strong>이다.</p>
+<h3>6.1 Endpoint 목록과 입·출력 JSON</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Method · Endpoint</th>
+<th>요청 입력(Body 또는 Path/Query)</th>
+<th>주요 성공 결과</th>
+<th>난이도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="api-toc-link" href="#api-00">API-00</a></td>
+<td><code>GET /health</code></td>
+<td>없음</td>
+<td><code>200</code> 준비 상태</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-01">API-01</a></td>
+<td><code>GET /api/v1/categories</code></td>
+<td>없음</td>
+<td><code>200</code> 분류 목록</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-02">API-02</a></td>
+<td><code>POST /api/v1/reports</code></td>
+<td>JSON: <code>category_code,title,author,content,overview,details</code></td>
+<td><code>201</code> 등록 ID</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-03">API-03</a></td>
+<td><code>GET /api/v1/reports/{report_id}</code></td>
+<td>Path: <code>report_id</code></td>
+<td><code>200</code> 보고서 전체</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-04">API-04</a></td>
+<td><code>GET /api/v1/reports</code></td>
+<td>Query: <code>title,limit,offset</code></td>
+<td><code>200</code> 검색 목록</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-05">API-05</a></td>
+<td><code>PUT /api/v1/reports/{report_id}</code></td>
+<td>Path ID + 전체 교체 JSON</td>
+<td><code>200</code> 수정 결과</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-06">API-06</a></td>
+<td><code>DELETE /api/v1/reports/{report_id}</code></td>
+<td>Path: <code>report_id</code></td>
+<td><code>204</code> 본문 없음</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-07">API-07</a></td>
+<td><code>POST /api/v1/search/similar</code></td>
+<td>JSON: <code>query,category_code,keyword_limit,semantic_limit</code></td>
+<td><code>200</code> 1건 또는 <code>not_found</code></td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-08">API-08</a></td>
+<td><code>POST /api/v1/reports/{report_id}/summarize</code></td>
+<td>Path ID + JSON: <code>style,max_sentences</code></td>
+<td><code>200</code> LLM 요약</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-09">API-09</a></td>
+<td><code>POST /api/v1/agent/run</code></td>
+<td>JSON: <code>action</code> + <code>report_id</code> 또는 <code>query</code></td>
+<td><code>200</code> Tool 결과</td>
+<td>Basic</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-10">API-10</a></td>
+<td><code>POST /api/v1/prompts/{report_id}/versions</code></td>
+<td>Path ID + JSON: <code>prompt_text</code></td>
+<td><code>201</code> 버전 번호</td>
+<td>Intermediate</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-11">API-11</a></td>
+<td><code>GET /api/v1/prompts/{report_id}/versions</code></td>
+<td>Path: <code>report_id</code></td>
+<td><code>200</code> 버전 목록</td>
+<td>Intermediate</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-12">API-12</a></td>
+<td><code>PUT /api/v1/prompts/{report_id}/active-version</code></td>
+<td>Path ID + JSON: <code>version_no</code></td>
+<td><code>200</code> 활성 버전</td>
+<td>Advanced</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-13">API-13</a></td>
+<td><code>POST /api/v1/reports/{report_id}/reindex</code></td>
+<td>Path ID + JSON: <code>force</code></td>
+<td><code>200</code> 인덱싱 상태</td>
+<td>Advanced</td>
+</tr>
+<tr>
+<td><a class="api-toc-link" href="#api-14">API-14</a></td>
+<td><code>GET /api/v1/agent/runs</code></td>
+<td>Query: <code>limit,offset,status</code></td>
+<td><code>200</code> 실행 이력</td>
+<td>Advanced</td>
+</tr>
+</tbody>
+</table>
+<section class="api-card api-level-basic" id="api-00">
+<div class="api-card-header"><h4>API-00 · Health 확인</h4>
+<div class="api-card-tags"><span class="api-method api-method-get">GET</span><code>/health</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>GET /health</code> / <strong>Path·Query·JSON Body 없음</strong>.</li>
+<li>응답 <code>200</code>: <code>{"status":"ok","db":"ready","vector":"ready"}</code>. DB 접속 실패 시 503으로 정상 상태와 구분한다.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-01">
+<div class="api-card-header"><h4>API-01 · 카테고리 조회</h4>
+<div class="api-card-tags"><span class="api-method api-method-get">GET</span><code>/api/v1/categories</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>GET /api/v1/categories</code> / <strong>JSON Body 없음</strong>.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{"items":[{"category_id":1,"code":"EXPERIMENT","name":"실험 결과 보고서","description":"실험 조건과 결과"}]}
+</code></pre>
+<p>실제 응답에는 사전에 제공된 6개 카테고리가 들어간다.</p>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-02">
+<div class="api-card-header"><h4>API-02 · 보고서 등록</h4>
+<div class="api-card-tags"><span class="api-method api-method-post">POST</span><code>/api/v1/reports</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>POST /api/v1/reports</code> / <code>Content-Type: application/json</code>.</li>
+<li>Body (<strong>6종 공통 필수 필드</strong>):</li>
+</ul>
+<pre><code class="language-json">{
+  "category_code": "EXPERIMENT",
+  "title": "가중치 적용에 따른 분류 모델 실험",
+  "author": "김연구",
+  "content": "실험 조건을 통일하고 클래스 가중치에 따른 성능 변화를 비교했다.",
+  "overview": "클래스 불균형 데이터에서 가중치 적용이 분류 성능에 미치는 영향을 분석한 보고서",
+  "details": {
+    "experiment_date": "2026-11-19",
+    "hypothesis": "가중치 적용 시 소수 클래스 재현율이 개선된다",
+    "result_summary": "Macro-F1 및 클래스별 재현율의 변화를 비교했다"
+  }
+}
+</code></pre>
+<ul>
+<li><code>category_code</code>는 아래 6종 중 하나. <strong><code>title</code> 1~200자, <code>author</code> 1~100자, <code>content</code> 1~20,000자, <code>overview</code> 10~1,000자</strong>이며 공백만 입력할 수 없다. <code>create_at</code>·<code>update_at</code>는 서버가 생성한다.</li>
+<li><code>details</code>는 카테고리별 다음 <strong>JSON 속성</strong>을 사용한다. <code>blockers</code>·<code>quality_notes</code>만 빈 문자열을 허용한다. 나머지 표시된 필드는 필수이다.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><code>category_code</code></th>
+<th><code>details</code> JSON 예시 (필수 속성)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EXPERIMENT</code></td>
+<td><code>{"experiment_date":"2026-11-19","hypothesis":"가중치의 영향","result_summary":"실험 결과 기록"}</code></td>
+</tr>
+<tr>
+<td><code>DAILY_WORK</code></td>
+<td><code>{"work_date":"2026-11-19","progress":"모델 학습 완료","blockers":""}</code></td>
+</tr>
+<tr>
+<td><code>RESEARCH_PLAN</code></td>
+<td><code>{"research_goal":"문서 검색 품질 개선","methodology":"실험군 비교","target_date":"2026-12-20"}</code></td>
+</tr>
+<tr>
+<td><code>DATA_PROCESSING</code></td>
+<td><code>{"dataset_name":"실험 데이터 A","processing_steps":"결측치 처리·중복 제거","quality_notes":""}</code></td>
+</tr>
+<tr>
+<td><code>PROMPT</code></td>
+<td><code>{"purpose":"요약 프롬프트 관리","prompt_text":"주어진 보고서만 근거로 요약하라."}</code></td>
+</tr>
+<tr>
+<td><code>MEETING</code></td>
+<td><code>{"meeting_at":"2026-11-19T10:00:00+09:00","attendees":"김연구, 이개발","decisions":"다음 주까지 지표 재검토"}</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Prompt 생성 예외:</strong> <code>content</code>는 <code>details.prompt_text</code>와 같아야 하며, 처음 등록할 때 <code>prompt_versions</code>에 v1을 동시에 생성한다. 다른 카테고리는 해당 상세 테이블에 한 행을 생성한다.</p>
+<ul>
+<li>응답 <code>201</code>:</li>
+</ul>
+<pre><code class="language-json">{"report_id":181,"category_code":"EXPERIMENT","title":"가중치 적용에 따른 분류 모델 실험","author":"김연구","revision":1,"index_status":"ready","embedding_model":"intfloat/multilingual-e5-small"}
+</code></pre>
+<ul>
+<li>오류: <code>422</code> 범위·형식·카테고리·필수 필드 위반, <code>503</code> 실제 Embedding 실패, <code>500</code> DB 실패. <strong>보고서+상세 행+Vector를 같은 성공/실패 단위</strong>로 처리한다. <code>181</code>은 예시값이며 실제 ID는 DB가 부여한다.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-03">
+<div class="api-card-header"><h4>API-03 · ID로 보고서 조회</h4>
+<div class="api-card-tags"><span class="api-method api-method-get">GET</span><code>/api/v1/reports/{report_id}</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>GET /api/v1/reports/12</code>. <strong>Path:</strong> <code>report_id=12</code>(양의 정수); <strong>JSON Body 없음</strong>.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{
+  "report_id":12,"category_code":"EXPERIMENT",
+  "title":"가중치 실험","content":"실험 조건과 결과를 기록한 본문",
+  "author":"김연구","overview":"가중치를 적용한 분류 성능 비교 보고서",
+  "details":{"experiment_date":"2026-11-19","hypothesis":"재현율 개선","result_summary":"Macro-F1 비교"},
+  "revision":1,"index_status":"ready",
+  "created_at":"2026-11-19T09:00:00Z","updated_at":"2026-11-19T09:00:00Z"
+}
+</code></pre>
+<ul>
+<li>해당 상세 테이블의 <code>title/content/author/create_at/update_at</code>를 조회한다. 미존재 ID는 <code>404 REPORT_NOT_FOUND</code>.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-04">
+<div class="api-card-header"><h4>API-04 · Title 부분 검색·목록 조회</h4>
+<div class="api-card-tags"><span class="api-method api-method-get">GET</span><code>/api/v1/reports</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청 예: <code>GET /api/v1/reports?title=가중치&amp;limit=20&amp;offset=0</code>.</li>
+<li><strong>Query:</strong> <code>title</code>(선택 문자열; 없으면 전체), <code>limit</code>(선택 정수, 기본 20, 1~100), <code>offset</code>(선택 정수, 기본 0, 0 이상). <strong>JSON Body 없음</strong>.</li>
+<li>Intermediate 선택: <code>category_code=EXPERIMENT</code>, <code>updated_after=2026-11-01T00:00:00Z</code> 필터. 기본 정렬: 상세 테이블의 <code>update_at DESC, report_id DESC</code>.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{"items":[{"report_id":12,"category_code":"EXPERIMENT","title":"가중치 실험","revision":1}],"total":1,"limit":20,"offset":0}
+</code></pre>
+<ul>
+<li><code>title</code>은 대소문자 비구분 포함 검색. 0건이면 <code>items:[]</code>, <code>total:0</code>, HTTP 200. 검색 파라미터는 바인딩·LIKE 특수문자 처리를 한다.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-05">
+<div class="api-card-header"><h4>API-05 · 보고서 전체 수정</h4>
+<div class="api-card-tags"><span class="api-method api-method-put">PUT</span><code>/api/v1/reports/{report_id}</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>PUT /api/v1/reports/12</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
+<li>Body (<strong>기존 종류의 필드 전체 교체; <code>category_code</code>는 변경 불가</strong>):</li>
+</ul>
+<pre><code class="language-json">{
+  "title":"가중치 실험 — 재분석","author":"김연구",
+  "content":"변경된 조건을 반영해 성능을 재분석했다.",
+  "overview":"가중치 적용 여부에 따른 재분석 결과와 모델 성능 차이를 검토한 보고서",
+  "details":{"experiment_date":"2026-11-19","hypothesis":"재현율 개선","result_summary":"추가 검증 필요"}
+}
+</code></pre>
+<ul>
+<li><strong>Advanced 선택:</strong> <code>"expected_revision":1</code>도 추가한다. 값이 현재 <code>revision</code>과 다르면 <code>409 REVISION_CONFLICT</code>.</li>
+<li>응답 <code>200</code>: <code>{"report_id":12,"revision":2,"index_status":"ready","embedding_updated":true}</code>.</li>
+<li>개요가 바뀌면 Embedding을 재생성하고, 개요가 같으면 벡터를 재사용하되 <code>indexed_revision</code>은 갱신한다. Prompt의 활성 본문은 일반 PUT으로 수정하지 않으며, Prompt에서 <code>content</code>는 기존 값과 같아야 한다(<code>active-version</code> API 사용). 오류: <code>404</code>, <code>422</code>, <code>503</code>.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-06">
+<div class="api-card-header"><h4>API-06 · 보고서 삭제</h4>
+<div class="api-card-tags"><span class="api-method api-method-delete">DELETE</span><code>/api/v1/reports/{report_id}</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>DELETE /api/v1/reports/12</code>; <strong>Path:</strong> <code>report_id=12</code>; <strong>JSON Body 없음</strong>.</li>
+<li>응답: <strong><code>204 No Content</code>(Body 없음)</strong>. FK <code>CASCADE</code>와 Transaction으로 상세 행·Vector·Prompt 버전을 함께 제거한다. 재조회 시 <code>404</code>, 미존재 보고서 삭제도 <code>404</code>.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-07">
+<div class="api-card-header"><h4>API-07 · Keyword + Semantic 유사도 검색</h4>
+<div class="api-card-tags"><span class="api-method api-method-post">POST</span><code>/api/v1/search/similar</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>POST /api/v1/search/similar</code>.</li>
+<li>Body:</li>
+</ul>
+<pre><code class="language-json">{"query":"가중치","category_code":null,"keyword_limit":20,"semantic_limit":20}
+</code></pre>
+<ul>
+<li><code>query</code>: 공백 제거 후 1~200자 필수; <code>category_code</code>: 선택(문자열 또는 <code>null</code>); <code>keyword_limit</code>·<code>semantic_limit</code>: 선택 정수, 기본 20, 범위 1~100. Category 필터는 양쪽 후보군에 동일하게 적용.</li>
+<li>Keyword: 제목·Overview·본문 포함 검색, Semantic: E5 <code>query: </code> 임베딩과 개요 벡터 간 거리(<code>&lt;=&gt;</code>). 준비되지 않은 인덱스 또는 오래된 Revision은 제외한다. <code>report_id</code>로 중복 제거하고, Keyword가 있으면 먼저 고려, 없으면 설정된 유사도 임계값을 통과한 후보를 고려한다. 동점은 낮은 <code>report_id</code> 우선. <strong>반드시 1건 또는 없음</strong>.</li>
+<li>응답 <code>200</code> (발견):</li>
+</ul>
+<pre><code class="language-json">{"status":"found","query":"가중치","best_match":{"report_id":12,"title":"클래스 가중치 실험","category_code":"EXPERIMENT","overview":"클래스별 성능 비교","keyword_match":true,"cosine_similarity":0.82}}
+</code></pre>
+<ul>
+<li>응답 <code>200</code> (미발견): <code>{"status":"not_found","query":"존재하지 않는 개념","best_match":null}</code>.</li>
+<li><strong>0.82는 가상 수치.</strong> 검색 임계값은 <code>.env</code>의 <code>SEARCH_MIN_SIMILARITY</code>(초기 후보 0.75)로 설정하고 관련·무관 평가 데이터로 검증한다. Intermediate에서 점수·후보선택 근거·필터 강화. <code>not_found</code>는 HTTP 오류가 아니다.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-08">
+<div class="api-card-header"><h4>API-08 · LLM 보고서 요약</h4>
+<div class="api-card-tags"><span class="api-method api-method-post">POST</span><code>/api/v1/reports/{report_id}/summarize</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>POST /api/v1/reports/12/summarize</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
+<li>Body:</li>
+</ul>
+<pre><code class="language-json">{"style":"brief","max_sentences":3}
+</code></pre>
+<ul>
+<li><code>style</code>: Basic은 <code>brief</code>, Intermediate는 <code>brief|structured</code>; <code>max_sentences</code>: 선택, 기본 3, 1~10. RDB 상세 <code>content</code> 전체에서 근거만 추출해 요약하고, 원문을 새로운 시스템 지시로 실행하지 않는다.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{"report_id":12,"source_revision":1,"summary":"실험은 클래스 가중치 적용 전후를 같은 데이터 분할로 비교했습니다. Macro-F1과 소수 클래스 재현율의 변화를 기록했습니다.","model":"configured-llm-model","status":"completed"}
+</code></pre>
+<ul>
+<li>Structured 모드는 <code>purpose,key_points,conclusion,limitations</code>를 검증한다. 미존재 <code>404</code>, API 연결 실패 <code>503</code>, Timeout <code>504</code>. <strong>Mock 요약을 실제 LLM 성공으로 표시하지 않는다.</strong></li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-basic" id="api-09">
+<div class="api-card-header"><h4>API-09 · Agent 동작 실행</h4>
+<div class="api-card-tags"><span class="api-method api-method-post">POST</span><code>/api/v1/agent/run</code><span class="api-level">Basic</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>POST /api/v1/agent/run</code>; Body는 수행할 작업에 따라 아래 <strong>서로 다른 JSON</strong> 중 하나를 사용한다.</li>
+</ul>
+<pre><code class="language-json">{"action":"get_report","report_id":12}
+</code></pre>
+<pre><code class="language-json">{"action":"find_report","query":"가중치"}
+</code></pre>
+<pre><code class="language-json">{"action":"summarize_report","report_id":12}
+</code></pre>
+<ul>
+<li><strong>Intermediate:</strong> <code>{"action":"search_and_summarize","query":"가중치"}</code>. 검색 성공 시 원문 요약, 미발견이면 LLM 호출하지 않음.</li>
+<li><strong>Advanced:</strong> <code>{"agent_mode":"tool_calling","message":"가중치 관련 보고서를 찾아 요약해줘"}</code>. 허용 Tool은 조회·검색·요약 세 가지이며 최대 3회, 변경·삭제 Tool은 없음.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{"action":"find_report","status":"completed","tool_calls":["find_similar_report"],"data":{"status":"found","best_match":{"report_id":12,"title":"가중치 실험"}}}
+</code></pre>
+<ul>
+<li>필수 <code>report_id</code>·<code>query</code> 누락 또는 미지원 Action은 <code>422</code>. Basic은 <code>search_and_summarize</code>와 LLM Tool Calling을 구현하지 않아도 합격이다. <strong>Basic의 명시적 action 분기는 자율 Agent가 아닌 결정적 도구 라우팅</strong>이다.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-intermediate" id="api-10">
+<div class="api-card-header"><h4>API-10 · Prompt 버전 추가</h4>
+<div class="api-card-tags"><span class="api-method api-method-post">POST</span><code>/api/v1/prompts/{report_id}/versions</code><span class="api-level">Intermediate</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>POST /api/v1/prompts/150/versions</code>; <strong>Path:</strong> <code>report_id=150</code>(PROMPT 종류).</li>
+<li>Body:</li>
+</ul>
+<pre><code class="language-json">{"prompt_text":"보고서를 목적, 핵심 결과, 한계 순서로 요약하라."}
+</code></pre>
+<ul>
+<li>필수 <code>prompt_text</code>: 공백 제외 1~20,000자. 응답 <code>201</code>: <code>{"version_no":3,"active":false}</code>. 현재 활성 버전은 그대로 유지. 종류 불일치 <code>422 NOT_PROMPT_REPORT</code>, 미존재 404.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-intermediate" id="api-11">
+<div class="api-card-header"><h4>API-11 · Prompt 버전 조회</h4>
+<div class="api-card-tags"><span class="api-method api-method-get">GET</span><code>/api/v1/prompts/{report_id}/versions</code><span class="api-level">Intermediate</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>GET /api/v1/prompts/150/versions</code>; <strong>Path:</strong> <code>report_id=150</code>; <strong>JSON Body 없음</strong>.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{"items":[{"version_no":1,"created_at":"2026-11-18T09:00:00Z"},{"version_no":2,"created_at":"2026-11-19T09:00:00Z"}],"active_version_no":2}
+</code></pre>
+<ul>
+<li>종류 불일치 <code>422 NOT_PROMPT_REPORT</code>, 미존재 404.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-advanced" id="api-12">
+<div class="api-card-header"><h4>API-12 · Prompt 활성 버전 변경</h4>
+<div class="api-card-tags"><span class="api-method api-method-put">PUT</span><code>/api/v1/prompts/{report_id}/active-version</code><span class="api-level">Advanced</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>PUT /api/v1/prompts/150/active-version</code>; <strong>Path:</strong> <code>report_id=150</code>.</li>
+<li>Body:</li>
+</ul>
+<pre><code class="language-json">{"version_no":3}
+</code></pre>
+<ul>
+<li>응답 <code>200</code>: <code>{"active_version_no":3,"revision":2,"index_status":"ready"}</code>. 해당 버전이 존재해야 하며, Prompt <code>content</code>와 활성 버전 포인터를 같은 Transaction에서 변경. <code>overview</code>가 변하지 않으면 기존 벡터를 재사용하되 <code>indexed_revision</code>은 최신화. 미존재 버전은 404, 종류 불일치 422.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-advanced" id="api-13">
+<div class="api-card-header"><h4>API-13 · 보고서 재색인</h4>
+<div class="api-card-tags"><span class="api-method api-method-post">POST</span><code>/api/v1/reports/{report_id}/reindex</code><span class="api-level">Advanced</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청: <code>POST /api/v1/reports/12/reindex</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
+<li>Body:</li>
+</ul>
+<pre><code class="language-json">{"force":false}
+</code></pre>
+<ul>
+<li><code>force</code>: 선택 Boolean, 기본 <code>false</code>(pending/failed/stale만 재처리), <code>true</code>면 ready도 재임베딩. 응답 <code>200</code>: <code>{"report_id":12,"index_status":"ready","indexed_revision":2,"embedding_updated":true}</code>. 무중단·중복 실행을 목표로 상태를 추적한다. 실제 E5 실패는 503이며 성공으로 위장하지 않는다. 미존재 404.</li>
+</ul>
+</div>
+</section>
+<section class="api-card api-level-advanced" id="api-14">
+<div class="api-card-header"><h4>API-14 · Agent 실행 이력 조회</h4>
+<div class="api-card-tags"><span class="api-method api-method-get">GET</span><code>/api/v1/agent/runs</code><span class="api-level">Advanced</span></div></div>
+<div class="api-card-body">
+<ul>
+<li>요청 예: <code>GET /api/v1/agent/runs?limit=20&amp;offset=0&amp;status=completed</code>.</li>
+<li><strong>Query:</strong> <code>limit</code>(기본 20, 1~100), <code>offset</code>(기본 0, 0 이상), <code>status</code>(선택 <code>completed|failed</code>); <strong>JSON Body 없음</strong>.</li>
+<li>응답 <code>200</code>:</li>
+</ul>
+<pre><code class="language-json">{"items":[{"run_id":"run-001","action":"find_report","status":"completed","tool_calls":1,"created_at":"2026-11-20T09:30:00Z"}],"total":1,"limit":20,"offset":0}
+</code></pre>
+<ul>
+<li>이번 ERD에 Agent Run 테이블은 <strong>추가하지 않는다</strong>. Advanced는 민감정보를 제외한 <strong>프로세스 내 제한된 실행 이력 또는 구조화 로그</strong>를 조회하도록 구현하며, 서버 재시작 후 영구 보존은 보장하지 않는다.</li>
+</ul>
+</div>
+</section>
+<h3>6.2 공통 오류 응답 형식</h3>
+<pre><code class="language-json">{"error":{"code":"REPORT_NOT_FOUND","message":"요청한 보고서를 찾을 수 없습니다.","details":{}}}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>HTTP 상태</th>
+<th>적용 예시</th>
+<th>오류 코드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>400</td>
+<td>잘못된 작업 의미 등 별도 검사에서 거절</td>
+<td><code>INVALID_ACTION</code></td>
+</tr>
+<tr>
+<td>404</td>
+<td>ID·Prompt 버전 등 리소스 없음</td>
+<td><code>REPORT_NOT_FOUND</code> 등</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Advanced의 낙관적 잠금 충돌</td>
+<td><code>REVISION_CONFLICT</code></td>
+</tr>
+<tr>
+<td>422</td>
+<td>필수값·카테고리·<code>details</code>·Action 검증 실패</td>
+<td><code>VALIDATION_ERROR</code>, <code>NOT_PROMPT_REPORT</code></td>
+</tr>
+<tr>
+<td>500</td>
+<td>DB 내부 오류(비밀·SQL 미노출)</td>
+<td><code>INTERNAL_ERROR</code></td>
+</tr>
+<tr>
+<td>503</td>
+<td>Embedding·LLM·DB 연결 실패</td>
+<td><code>EMBEDDING_UNAVAILABLE</code>, <code>LLM_UNAVAILABLE</code></td>
+</tr>
+<tr>
+<td>504</td>
+<td>LLM/API Timeout</td>
+<td><code>LLM_TIMEOUT</code></td>
+</tr>
+</tbody>
+</table>
+<p>FastAPI 기본 422 응답 형식은 위 사용자 정의 오류 형식과 다르다. Basic에서는 기본 Pydantic 422를 허용하고 Intermediate 이상에서 공통 Error Handler를 구현한다. <strong>유사도 <code>not_found</code>는 HTTP 200</strong>이다.</p>
+<h2>7. 기능 요구사항 및 난이도별 체크리스트</h2>
+<p><strong>모든 ID는 테스트·추적에 활용할 고유 요구사항 ID다.</strong> Basic 수강생은 <code>B-*</code>, Intermediate 수강생은 <code>B-* + I-*</code>, Advanced 수강생은 <code>B-* + I-* + A-*</code>를 목표로 한다. 전체 체크리스트를 모두 수행해야 한다는 의미는 아니다.</p>
+<h3>7.1 Basic — 최소 완성 흐름</h3>
+<table>
+<thead>
+<tr>
+<th>요구사항 ID</th>
+<th style="text-align:center">체크</th>
+<th>구현 내용 및 완료 기준</th>
+<th>관련 API/테이블</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B-01</td>
+<td style="text-align:center">☐</td>
+<td>명세와 공통 구조에 따라 FastAPI 실행. <code>/docs</code>, <code>/health</code> 정상</td>
+<td>API-00</td>
+</tr>
+<tr>
+<td>B-02</td>
+<td style="text-align:center">☐</td>
+<td>DB 세션·ORM 연결, 제공된 DDL 실행, 6개 분류 확인</td>
+<td>categories, reports</td>
+</tr>
+<tr>
+<td>B-03</td>
+<td style="text-align:center">☐</td>
+<td>180개 보고서·6종 상세 30개씩·Prompt 버전 60개 시드 데이터 확인</td>
+<td>seed.sql</td>
+</tr>
+<tr>
+<td>B-04</td>
+<td style="text-align:center">☐</td>
+<td>카테고리 6건 조회, 미등록 코드 거부</td>
+<td>API-01</td>
+</tr>
+<tr>
+<td>B-05</td>
+<td style="text-align:center">☐</td>
+<td>공통 보고서 Create + 해당 종류의 상세 1행, Transaction Commit/Rollback</td>
+<td>API-02</td>
+</tr>
+<tr>
+<td>B-06</td>
+<td style="text-align:center">☐</td>
+<td>ID 단일 조회, 존재/미존재 200/404</td>
+<td>API-03</td>
+</tr>
+<tr>
+<td>B-07</td>
+<td style="text-align:center">☐</td>
+<td>제목 부분 일치 목록, 페이징·빈 결과(200 빈 배열)</td>
+<td>API-04</td>
+</tr>
+<tr>
+<td>B-08</td>
+<td style="text-align:center">☐</td>
+<td>보고서 전체 수정·Revision 증가·상세행 갱신</td>
+<td>API-05</td>
+</tr>
+<tr>
+<td>B-09</td>
+<td style="text-align:center">☐</td>
+<td>보고서 삭제 후 원문·상세·벡터 참조 제거</td>
+<td>API-06</td>
+</tr>
+<tr>
+<td>B-10</td>
+<td style="text-align:center">☐</td>
+<td>E5 <code>passage:</code>/<code>query:</code> 및 384차원 개요 인덱싱 180개</td>
+<td>report_embeddings</td>
+</tr>
+<tr>
+<td>B-11</td>
+<td style="text-align:center">☐</td>
+<td>생성·Overview 수정·삭제 시 Vector 반영, 실패 시 이전 상태 유지</td>
+<td>API-02/05/06</td>
+</tr>
+<tr>
+<td>B-12</td>
+<td style="text-align:center">☐</td>
+<td>Keyword+Semantic 후보 결합, 최고 1건 또는 <code>not_found</code></td>
+<td>API-07</td>
+</tr>
+<tr>
+<td>B-13</td>
+<td style="text-align:center">☐</td>
+<td>원문 DB 조회 후 <strong>실제 LLM API</strong>로 요약; ID/호출 실패 구분</td>
+<td>API-08</td>
+</tr>
+<tr>
+<td>B-14</td>
+<td style="text-align:center">☐</td>
+<td>명시적 <code>get_report/find_report/summarize_report</code> action 라우팅</td>
+<td>API-09</td>
+</tr>
+<tr>
+<td>B-15</td>
+<td style="text-align:center">☐</td>
+<td>Postman에서 CRUD→검색→요약→Agent 통합 시연 및 검증 SQL 제출</td>
+<td>테스트 증거</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Basic 우선 개발 순서:</strong> B-01~04·B-06/07(환경·시드 조회) → B-10의 E5 어댑터 → B-05/08/09(CRUD) → B-10 일괄 색인·B-11/12 → B-13~15. 등록 전에 <code>encode</code>·<code>encode_overview</code>를 준비하고, 초기 개요 180건의 일괄 색인은 검색 전에 실행한다. <strong>최종 목표는 B-15까지</strong>이며, 진도에 따라 완료 범위와 미완료 내용을 기록한다.</p>
+<h3>7.2 Intermediate — 응용 및 데이터 계약 검증</h3>
+<table>
+<thead>
+<tr>
+<th>요구사항 ID</th>
+<th style="text-align:center">체크</th>
+<th>구현 내용 및 완료 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I-01</td>
+<td style="text-align:center">☐</td>
+<td>Category별 Detail Pydantic 모델 검증, 유효성·404·409/422 구분</td>
+</tr>
+<tr>
+<td>I-02</td>
+<td style="text-align:center">☐</td>
+<td>Title·Category·수정일 필터, 정렬·페이징, SQL 파라미터 안전성</td>
+</tr>
+<tr>
+<td>I-03</td>
+<td style="text-align:center">☐</td>
+<td>Keyword 점수와 Semantic 점수 분리 및 선정 근거 제공</td>
+</tr>
+<tr>
+<td>I-04</td>
+<td style="text-align:center">☐</td>
+<td><code>not_found</code> 평가 세트로 threshold·오탐 점검. 검색 필터 동일 적용</td>
+</tr>
+<tr>
+<td>I-05</td>
+<td style="text-align:center">☐</td>
+<td>Overview 변경에 따른 재임베딩, 본문만 변경 시 불필요한 재연산 방지</td>
+</tr>
+<tr>
+<td>I-06</td>
+<td style="text-align:center">☐</td>
+<td>Prompt 버전 추가/목록 조회, 불변 이력 유지</td>
+</tr>
+<tr>
+<td>I-07</td>
+<td style="text-align:center">☐</td>
+<td>구조화 LLM 요약(목적·핵심·결론·한계) Pydantic 검증</td>
+</tr>
+<tr>
+<td>I-08</td>
+<td style="text-align:center">☐</td>
+<td>Agent <code>search_and_summarize</code> 구현; 미검색 시 LLM 호출하지 않음</td>
+</tr>
+<tr>
+<td>I-09</td>
+<td style="text-align:center">☐</td>
+<td>API 오류·모델 오류에 대한 계약 테스트 및 반환 형식 점검</td>
+</tr>
+</tbody>
+</table>
+<h3>7.3 Advanced — 현업 안정성·도구 호출</h3>
+<table>
+<thead>
+<tr>
+<th>요구사항 ID</th>
+<th style="text-align:center">체크</th>
+<th>구현 내용 및 완료 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A-01</td>
+<td style="text-align:center">☐</td>
+<td><code>expected_revision</code> 기반 동시 수정 충돌 409 및 무손실 처리</td>
+</tr>
+<tr>
+<td>A-02</td>
+<td style="text-align:center">☐</td>
+<td>failed/pending 재색인 API·상태 전이·조회 제외·복구·중복 재실행</td>
+</tr>
+<tr>
+<td>A-03</td>
+<td style="text-align:center">☐</td>
+<td>Prompt 활성 버전 변경과 <code>prompt_reports.content</code> 동기화, 이전 버전 보존</td>
+</tr>
+<tr>
+<td>A-04</td>
+<td style="text-align:center">☐</td>
+<td>LLM Tool Calling: 허용 3개 Tool, 스키마 검증, 최대 호출 3회, 안전한 종료</td>
+</tr>
+<tr>
+<td>A-05</td>
+<td style="text-align:center">☐</td>
+<td>LLM 429/5xx/Timeout 재시도·예산·토큰 소비 요약(비밀/원문 로그 제외)</td>
+</tr>
+<tr>
+<td>A-06</td>
+<td style="text-align:center">☐</td>
+<td>검색 평가 세트와 Recall@k, false positive/negative 사례·threshold 분석</td>
+</tr>
+<tr>
+<td>A-07</td>
+<td style="text-align:center">☐</td>
+<td>Transaction Rollback·삭제 후 검색 제외·stale vector 회귀 테스트</td>
+</tr>
+<tr>
+<td>A-08</td>
+<td style="text-align:center">☐</td>
+<td>구조화 실행 로그·Agent Run 조회·실패 분류(PII/비밀 비저장)</td>
+</tr>
+<tr>
+<td>A-09</td>
+<td style="text-align:center">☐</td>
+<td>DB/키/모델 장애 시 사용자에게 안전한 오류 응답, 운영 절차 작성</td>
+</tr>
+</tbody>
+</table>
+<p><strong>필수 기능 범위는 앞서 합의된 범위를 따르되, 체크리스트 세분화는 실제 개발자가 확인할 단위에 맞춘다.</strong> Intermediate·Advanced는 선택적 도전 범위이며 수강생별 완료 수준을 분리 평가한다.</p>
+<h2>8. 검증 시나리오·합격 기준</h2>
+<p><strong>이번 개정의 추가 검증:</strong> 6개 상세 테이블 각각에 <code>title</code>, <code>content</code>, <code>author</code>, <code>create_at</code>, <code>update_at</code>가 존재해야 한다. 모든 행의 작성자·제목·본문은 공백이 아니며 <code>update_at &gt;= create_at</code>가 성립해야 한다. GET 응답의 <code>created_at</code>·<code>updated_at</code>는 DB의 해당 상세 행 <code>create_at</code>·<code>update_at</code> 값과 같다. ID·Title·Hybrid 검색은 동일한 <code>report_id</code>를 반환해야 한다.</p>
+<table>
+<thead>
+<tr>
+<th>TC ID</th>
+<th>난이도</th>
+<th>실행 절차</th>
+<th>기대 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-01</td>
+<td>B</td>
+<td>시드 적재·각 테이블 COUNT</td>
+<td>6 카테고리, 180 보고서, 상세 6×30, Prompt 60</td>
+</tr>
+<tr>
+<td>T-02</td>
+<td>B</td>
+<td><code>index_overviews.py</code> 인덱싱</td>
+<td>실제 180개 384차원 벡터, 모두 ready</td>
+</tr>
+<tr>
+<td>T-03</td>
+<td>B</td>
+<td>실험 보고서 POST → GET</td>
+<td>같은 title/content/author/overview/details, 상세 1개, create_at/update_at 존재</td>
+</tr>
+<tr>
+<td>T-04</td>
+<td>B</td>
+<td>title <code>가중치</code> 부분 검색</td>
+<td>관련 보고서 목록, total/페이지 정상</td>
+</tr>
+<tr>
+<td>T-05</td>
+<td>B</td>
+<td>query <code>가중치</code> 유사도 검색</td>
+<td>관련 보고서 1건(시드 Ground Truth 목록과 비교)</td>
+</tr>
+<tr>
+<td>T-06</td>
+<td>B</td>
+<td>무관 질문 검색</td>
+<td>판정 기준 미달 시 HTTP 200 / status not_found</td>
+</tr>
+<tr>
+<td>T-07</td>
+<td>B</td>
+<td>overview 수정 후 재검색</td>
+<td>이전 벡터 대신 새 개요를 반영, revision 일치</td>
+</tr>
+<tr>
+<td>T-08</td>
+<td>B</td>
+<td>삭제 후 ID 조회·검색</td>
+<td>ID 404 / 검색에서 제외, Detail/Vector 정리</td>
+</tr>
+<tr>
+<td>T-09</td>
+<td>B</td>
+<td>보고서 1건 LLM 요약</td>
+<td>실 LLM 호출, 원문 기반 요약, 실패 상태 별도</td>
+</tr>
+<tr>
+<td>T-10</td>
+<td>B</td>
+<td>Agent action별 호출</td>
+<td>각 명시적 action에 대응하는 Tool 호출 흔적</td>
+</tr>
+<tr>
+<td>T-11</td>
+<td>I</td>
+<td>Prompt v3 생성 후 버전 조회</td>
+<td>1·2·3 이력, 활성 버전 미변경</td>
+</tr>
+<tr>
+<td>T-12</td>
+<td>I</td>
+<td><code>search_and_summarize</code></td>
+<td>검색 성공 시 LLM 요약, not_found면 LLM 미호출</td>
+</tr>
+<tr>
+<td>T-13</td>
+<td>I</td>
+<td>모델 실패·요약 잘못된 JSON 모의</td>
+<td>오류 코드·검증 실패를 명시, 성공으로 위장 안 함</td>
+</tr>
+<tr>
+<td>T-14</td>
+<td>A</td>
+<td>Prompt v3 활성화</td>
+<td>prompt_reports.content 최신화, 이전 버전 유지</td>
+</tr>
+<tr>
+<td>T-15</td>
+<td>A</td>
+<td>고의 DB 오류·중복 재시도</td>
+<td>Rollback, 중복 Detail·Vector 없음</td>
+</tr>
+<tr>
+<td>T-16</td>
+<td>A</td>
+<td>LLM Tool Calling 잘못된 인자</td>
+<td>스키마에서 차단, 호출 수 제한과 종료 보장</td>
+</tr>
+<tr>
+<td>T-17</td>
+<td>A</td>
+<td>동시 수정 Revision 충돌</td>
+<td>409, 데이터 유실 방지</td>
+</tr>
+<tr>
+<td>T-18</td>
+<td>A</td>
+<td>검색 평가</td>
+<td>결과 CSV, 관련/무관 테스트 예측과 비교</td>
+</tr>
+</tbody>
+</table>
+<p><strong>정량 판정 예외:</strong> Semantic 모델 점수와 LLM 자연어 출력은 기기·모델 버전·API에 따라 달라진다. 정확한 Cosine 값·요약 문장을 고정값으로 채점하지 않는다. 대신 <strong>API Schema, 의미상 정답 집합, 출처 ID, not_found 처리, 데이터 무결성</strong>을 검증한다.</p>
+<p><strong>제출물:</strong> (1) 프로젝트 폴더, (2) 실행 가능한 README(설치·실행·환경값 설명), (3) Postman 테스트 실행 결과 또는 호출 로그, (4) 검증 SQL 결과, (5) 구현한 B/I/A ID 체크리스트, (6) 미완료 및 오류 내용. <code>.env</code>·실제 API 키·비밀번호·개인 데이터는 제외.</p>
+<h2>9. 오전 50분 설명 및 100분 라이브 시연 설계</h2>
+<h3>9.1 사전 강의 약 50분 — 명세를 코드로 바꾸는 방법</h3>
+<table>
+<thead>
+<tr>
+<th>시간</th>
+<th>학습 내용</th>
+<th>수강생이 알아야 할 판단</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0~10분</td>
+<td>요구사항 ID·난이도·완료 조건 읽기</td>
+<td>B-05는 어떤 SQL/HTTP 출력으로 증명하나?</td>
+</tr>
+<tr>
+<td>10~22분</td>
+<td>ERD 읽기: PK/FK/1:N/1:1, 6종 상세</td>
+<td>report_id를 왜 공통으로 쓰나?</td>
+</tr>
+<tr>
+<td>22~32분</td>
+<td>API 명세: Path·Method·Schema·Status</td>
+<td>JSON 계약과 데이터 유효성은 어디에서 검사하나?</td>
+</tr>
+<tr>
+<td>32~42분</td>
+<td>구현 의존 순서: DB·Seed→ORM·Session→E5 어댑터→CRUD→일괄 색인·검색→LLM·Agent</td>
+<td>왜 등록 전에 E5 어댑터가, 검색 전에 일괄 색인이 필요한가?</td>
+</tr>
+<tr>
+<td>42~50분</td>
+<td>테스트 우선 순위·디버깅·체크리스트</td>
+<td>API 200만 보면 왜 부족한가?</td>
+</tr>
+</tbody>
+</table>
+<h3>9.2 강사 시연 100분 — 실습과 <strong>동일한 계약</strong>의 Basic 완료 흐름</h3>
+<table>
+<thead>
+<tr>
+<th>시간</th>
+<th>라이브 구현</th>
+<th>제공/직접 작성 구분</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>00~10분</td>
+<td>빈 <code>report-agent/</code>, 목적별 폴더 생성, DB 접속 확인</td>
+<td>폴더 직접 작성, 환경 파일 제공본 활용</td>
+</tr>
+<tr>
+<td>10~25분</td>
+<td>PostgreSQL/pgvector DB 생성 → schema.sql/seed.sql 실행, 6/180/60건 확인</td>
+<td>SQL <strong>사전 제공</strong>, 직접 실행·ERD 설명</td>
+</tr>
+<tr>
+<td>25~40분</td>
+<td>ORM·DB Session·FastAPI 진입점 확인, E5 <code>encode</code>/<code>encode_overview</code> 준비</td>
+<td>제공 ORM 확인, Session·E5 핵심 연결 직접 작성</td>
+</tr>
+<tr>
+<td>40~62분</td>
+<td>공통 CRUD·ID/Title 조회, Postman 요청·DB 비교</td>
+<td>Router/Service/Repo 핵심 직접 작성</td>
+</tr>
+<tr>
+<td>62~78분</td>
+<td>초기 개요 180건 일괄 인덱싱·SQL 확인 후 Keyword·Semantic·Hybrid 검색</td>
+<td>앞서 준비한 E5 어댑터 재사용, 검색 로직 직접 연결</td>
+</tr>
+<tr>
+<td>78~90분</td>
+<td>LLM Client 연결·보고서 요약</td>
+<td>API 키 사전 준비, Error 사례 구분</td>
+</tr>
+<tr>
+<td>90~100분</td>
+<td>기본 Agent action 라우팅·통합 검증</td>
+<td><code>find_report</code> 결과 ID로 요약, <code>report_id</code>·<code>source_revision</code> 대조. <code>not_found</code>면 요약 중단</td>
+</tr>
+</tbody>
+</table>
+<p><strong>일괄 색인 수량:</strong> 180개는 초기 시드 기준이다. CRUD 시연에서 추가한 보고서는 정리하거나 추가 건수를 구분해 확인한다. E5 어댑터의 단건 생성 준비와 초기 데이터의 일괄 색인을 같은 작업으로 혼동하지 않는다.</p>
+<p><strong>운영 현실성:</strong> 100분 동안 6종 상세 ORM의 모든 필드를 수동 타이핑하고 180개 Embedding을 생성하면 시간 초과 위험이 크다. DDL/INSERT는 제공본을 실행하고 공통 Model 정의는 미리 정한 최소 필드를 사용한다. <strong>시연에서 핵심 CRUD·검색·LLM 연결 코드는 직접 입력</strong>하되, 시연 전 의존 패키지와 모델 캐시·DB 상태를 확인한다. 예기치 않은 장애 시 해당 단계의 사전 검증 Checkpoint를 사용하고, 직접 구현과 제공물을 명확히 구분한다.</p>
+<h2>10. 구현 및 운영 제약·비기능 요구사항</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>요구사항</th>
+<th>확인 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N-01</td>
+<td>SQL Injection 방지</td>
+<td>SQLAlchemy/psycopg parameter binding 사용, 문자열 SQL 접합 금지</td>
+</tr>
+<tr>
+<td>N-02</td>
+<td>Secret 보호</td>
+<td>키는 <code>.env</code>, <code>.env.example</code>은 빈 자리만; 로그·응답·Git에 비밀 없음</td>
+</tr>
+<tr>
+<td>N-03</td>
+<td>데이터 무결성</td>
+<td>FK/Unique/NOT NULL/CHECK, Commit/롤백, 삭제 후 누락 벡터 0</td>
+</tr>
+<tr>
+<td>N-04</td>
+<td>재현성</td>
+<td>seed 재실행해도 180 보고서 및 관계 중복 증가 없음</td>
+</tr>
+<tr>
+<td>N-05</td>
+<td>검색 일관성</td>
+<td>stale/failed 개요 벡터 후보 제외, <code>index_status</code> 추적</td>
+</tr>
+<tr>
+<td>N-06</td>
+<td>리소스 제한</td>
+<td><code>limit&lt;=100</code>, 검색어&lt;=200자, Agent Tool 최대 3회(Advanced)</td>
+</tr>
+<tr>
+<td>N-07</td>
+<td>보안·안전</td>
+<td>보고서의 프롬프트 인젝션 텍스트를 시스템 지시로 실행하지 않음, 삭제는 명시적 API만</td>
+</tr>
+<tr>
+<td>N-08</td>
+<td>관측성</td>
+<td>status code, 오류코드, 동작 시간 측정(Advanced), 개인정보/원문 출력 금지</td>
+</tr>
+<tr>
+<td>N-09</td>
+<td>교육용 실행</td>
+<td>Windows 11 환경, Docker·WSL 필수 아님, Windows 경로와 Git Bash 명령 구분</td>
+</tr>
+<tr>
+<td>N-10</td>
+<td>오류의 진실성</td>
+<td>Mock 성공을 실제 LLM/E5/DB 호출 성공으로 보고하지 않음</td>
+</tr>
+</tbody>
+</table>
+<h2>11. 단계별 제작물과 추적성</h2>
+<p>이 문서에서 <strong>확정한 계약을 임의로 바꾸지 않은 상태에서</strong> 후속 자료를 작성한다.</p>
+<table>
+<thead>
+<tr>
+<th>순서</th>
+<th>후속 결과물</th>
+<th>본 명세서와의 일치 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>schema.sql</code>, <code>seed.sql</code>, ERD 및 샘플 데이터 검수</td>
+<td>여섯 카테고리·180개 보고서·상세·Prompt 이력·벡터 규격 일치</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Postman Collection/Environment</td>
+<td>6.1절 API-00~14의 JSON, 실패 코드·Postman 변수 동일</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50분 강의 HTML</td>
+<td>명세서 읽기·구현 순서·도구 책임 중심, 독립 HTML 교안</td>
+</tr>
+<tr>
+<td>4</td>
+<td>100분 강사 시연 프로젝트</td>
+<td>Basic B-01~B-15 동작과 계약 동일</td>
+</tr>
+<tr>
+<td>5</td>
+<td>mentee 3수준·mentor 3수준</td>
+<td>같은 최종 구조, 다른 제공 시작점. mentor 3개는 완성·설명</td>
+</tr>
+<tr>
+<td>6</td>
+<td>최종 통합 검수</td>
+<td>SQL 개수·Swagger 동작·실제 E5/LLM(가능 환경)·TODO/정답 대응</td>
+</tr>
+</tbody>
+</table>
+<h2>12. 설계 근거와 주의사항</h2>
+<ol>
+<li>이전 Day24 실습에서 검증된 E5/pgvector 조건(<code>intfloat/multilingual-e5-small</code>, 384차원, <code>query: </code>/<code>passage: </code>, 실제 모델과 Mock 구분)을 재사용. Day24의 <code>ingest_*</code> 테이블을 재사용·삭제하는 것이 아니라 <strong>이번 프로젝트의 <code>report_*</code> 데이터 모델을 별도로 만든다</strong>.</li>
+<li>이번 과제는 <strong>보고서 한 건의 개요 벡터 하나</strong>가 검색 대상이므로 Day24의 <code>ParsedUnit→Chunk</code> 파이프라인을 모든 보고서에 필수 적용하지 않는다. 이전에 배운 기술을 잊지 않도록 선택 심화 과제로 Chunking/재색인을 응용할 수 있으나 하루 범위에서는 제외.</li>
+<li>pgvector는 PostgreSQL 내부에서 <code>vector(384)</code>를 저장하고 Cosine Distance <code>&lt;=&gt;</code>를 제공한다. SQLAlchemy는 DB Transaction의 Commit/Rollback을 관리한다.</li>
+<li>Basic의 명시적 action 라우팅을 <strong>LLM 자율 Agent와 동일시하지 않는다</strong>. 11월 20일 프로젝트에서는 Tool 역할 분리와 요청·응답 계약을 먼저 학습하고 Advanced에서 제한된 Tool Calling을 다룬다.</li>
+<li><strong>검색의 의미상 정확성은 데이터·질문·임계값에 의존</strong>하므로 “가중치 검색은 무조건 report_id=12”처럼 임의 고정하지 않는다. 샘플 데이터 제작 시 정답 보고서 후보 ID를 테스트 데이터에 별도 기록한다.</li>
+</ol>
+<p><strong>공식 참고</strong>: pgvector GitHub <code>https://github.com/pgvector/pgvector</code>, SQLAlchemy 2.0 Session <code>https://docs.sqlalchemy.org/en/20/orm/session_basics.html</code>, SentenceTransformers E5 모델 카드 <code>https://huggingface.co/intfloat/multilingual-e5-small</code>. 최신 공식 API 동작에 대한 추가 검증은 시연 코드 작성 시 진행한다.</p>
+<hr/>
+<h2>부록 A. 범위 및 용어 해석</h2>
+<ul>
+<li>사용자가 말한 보고서 종류는 <strong>6종</strong>: 실험 결과 보고서, 일일 업무 보고서, 연구 계획서, 데이터 처리 보고서, 프롬프트, 회의록.</li>
+<li><strong>Basic/Intermediate/Advanced는 서로 다른 프로젝트가 아니다.</strong> 동일한 API·ERD·최종 현업형 구조를 향해 구현 범위와 시작 조건만 다르다.</li>
+<li><strong>pgvector는 별도 서버가 아닌 PostgreSQL 확장</strong>이다. <code>report_embeddings</code>만 벡터 타입 <code>vector(384)</code>를 사용한다.</li>
+<li><strong>Overview(검색용 개요)</strong>: 보고서를 찾기 위한 10~1000자 텍스트로 사용자가 생성·수정 요청에 포함한다. 보고서 전체 원문과 다르다.</li>
+<li><strong>Summary(LLM 요약)</strong>: 해당 종류의 상세 보고서 테이블에 저장된 현재 <code>content</code>를 LLM API로 요약한 결과. Basic에서는 요청 시 생성하며 별도 테이블에 영속 저장하지 않는다.</li>
+<li><strong>Keyword Search</strong>: 제목·개요·본문의 텍스트 포함 검색. <strong>Semantic Search</strong>: <code>query: </code> 검색어와 <code>passage: </code> 개요의 E5 유사도.</li>
+<li><strong>Hybrid Search</strong>: Keyword와 Semantic 후보를 결합해 <strong>한 건 또는 <code>not_found</code></strong> 반환하는 기능. 전문 형태소 분석이나 BM25는 이번 필수 범위가 아니다.</li>
+<li><strong>Agent</strong>: Basic의 명시적 action 분기 → Intermediate의 search→summary 결합 → Advanced의 제한된 LLM Tool Calling. 자유로운 자동 삭제 기능은 허용하지 않는다.</li>
+<li><strong>보고서의 실제 저장 위치</strong>: <code>reports</code>는 전역 ID·분류·Overview·Index 상태·Revision만 보유한다. <code>title</code>, <code>content</code>, <code>author</code>, <code>create_at</code>, <code>update_at</code>는 <strong>6개 상세 테이블 각각</strong>에 실제 컬럼으로 저장한다. 같은 필드를 <code>reports</code>에 복제하지 않는다.</li>
+<li><strong>DB 컬럼명과 API 필드명</strong>: DB는 요청한 <code>create_at</code>, <code>update_at</code>, <code>author</code>를 사용한다. API에서는 기존 계약의 <code>created_at</code>, <code>updated_at</code>으로 직렬화한다(명시적 alias).</li>
+</ul>
+</main><aside><a href="#top">맨 위로 ↑</a></aside><script>(function(){
+ const board=document.getElementById('full-erd');if(!board)return;
+ const svg=board.querySelector('svg');const buttons=document.querySelectorAll('[data-zoom]');
+ function change(v){const width=v==='fit'?'100%':(1940*Number(v))+'px';svg.style.width=width;svg.style.height='auto';
+  buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.zoom===v)));}
+ buttons.forEach(b=>b.addEventListener('click',()=>change(b.dataset.zoom)));
+ change('fit');
+})();</script></body></html>

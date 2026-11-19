@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day25 · 보고서 처리 Agent</title>
+<meta name="description" content="Day25 개인 일일 프로젝트 진행 안내: 오전 강의·시연, 사전 준비 자료(SQL·Postman), 요구사항 명세서 v1.4, 오후 실습 구현 순서">
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root{--navy:#142849;--ink:#1c2b40;--muted:#52667e;--bg:#f9fbfe;--card:#fff;--soft:#f0f6fd;--line:#d8e4f2;--blue:#245c9c;--hover:#e3eefb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--navy:#a9c3ec;--ink:#e7eef9;--muted:#9dadc4;--bg:#0e1626;--card:#152038;--soft:#1a2844;--line:#2a3b5c;--blue:#9cc3ff;--hover:#223557}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif}
+main{max-width:860px;margin:0 auto;padding:36px 20px 64px}
+header.head{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.eyebrow{margin:0 0 6px;font-size:.82rem;font-weight:700;letter-spacing:.08em;color:var(--blue)}
+h1{margin:0 0 8px;font-size:1.95rem;line-height:1.3;color:var(--ink);word-break:keep-all}
+.lead{margin:0;color:var(--muted);word-break:keep-all}
+.steps{display:grid;gap:14px;margin-top:24px}
+.step{display:flex;gap:16px;align-items:flex-start;padding:20px 22px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--soft);color:var(--blue);font-weight:800;display:grid;place-items:center;font-size:.9rem;margin-top:2px}
+.step h2{margin:0 0 6px;font-size:1.08rem;color:var(--ink)}
+.step p{margin:0 0 12px;color:var(--muted);font-size:.95rem;word-break:keep-all}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.go{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;background:var(--soft);color:var(--blue);font-weight:650;text-decoration:none;font-size:.9rem}
+.go:hover,.go:focus-visible{background:var(--hover)}
+.step.off{opacity:.82}
+.tag{display:inline-block;padding:4px 10px;border-radius:7px;background:var(--soft);color:var(--muted);font-size:.84rem;font-weight:600}
+@media (max-width:600px){main{padding:24px 16px 48px}h1{font-size:1.55rem}.step{padding:16px;gap:12px}}
+</style>
+</head>
+<body>
+<main>
+<header class="head">
+  <p class="eyebrow">Day25 · 2026.11.20 · 생성형 AI·LLM 및 RAG 엔지니어링</p>
+  <h1>보고서 처리 Agent</h1>
+  <p class="lead">오늘은 오전 짧은 강의와 시연 뒤, 사전 준비와 요구사항 명세서를 기준으로 개인 일일 프로젝트를 직접 구현합니다.</p>
+</header>
+<section class="steps" aria-label="오늘 진행 순서">
+  <article class="step">
+    <span class="num">1</span>
+    <div>
+      <h2>오전 강의 및 시연</h2>
+      <p>명세서 읽는 법, DB 우선 구현 순서, 물리 DB 계약, API 핵심, 기술 전체 연결, 오후 프로젝트 시작점을 확인합니다.</p>
+      <div class="actions">
+        <a class="go" data-site href="lecture/">강의 자료 열기 →</a>
+      </div>
+    </div>
+  </article>
+  <article class="step">
+    <span class="num">2</span>
+    <div>
+      <h2>사전 준비 자료 실행 안내</h2>
+      <p>PostgreSQL DB 준비(<code>preflight</code>·<code>schema</code>·<code>seed</code>·<code>verify</code>), E5 모델 캐시, Postman Collection·Environment Import 순서와 실행 파일을 내려받습니다.</p>
+      <div class="actions">
+        <a class="go" data-site href="prep/">사전 준비 · 파일 내려받기 →</a>
+        <a class="go" data-site href="prep/#downloads">SQL · Postman 파일 바로 가기 ↓</a>
+      </div>
+    </div>
+  </article>
+  <article class="step">
+    <span class="num">3</span>
+    <div>
+      <h2>요구사항 명세서 v1.4</h2>
+      <p>전체 ERD 한 장, 초기 데이터 규격, 15개 HTTP API 계약, 난이도별 체크리스트와 합격 기준을 확인합니다.</p>
+      <div class="actions">
+        <a class="go" data-site href="spec/">요구사항 명세서 보기 →</a>
+      </div>
+    </div>
+  </article>
+  <article class="step off">
+    <span class="num">4</span>
+    <div>
+      <h2>실습 구현</h2>
+      <p>배포된 실습 프로젝트 폴더(<code>04_실습자료</code>)에서 요구사항 명세서의 API·체크리스트를 보고 직접 구현합니다.</p>
+      <span class="tag">오프라인 실습 폴더에서 진행</span>
+    </div>
+  </article>
+</section>
+</main>
+</body>
+</html>
