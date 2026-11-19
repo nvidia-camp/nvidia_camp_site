@@ -184,5 +184,6 @@
 | 2026-11-19 | 배포 | release 7bfaa5f: 구조 개편 후 첫 배포(내용 같음, GA 코드 모양만). 실제 사이트 확인: Colab 링크 12/12 · GA 전송 204 · /setup/docker/ 404 | 배포 |
 | 2026-11-19 | dl·vision | Colab 실습 폴더 8개 등록(site.toml [colab], Drive `03. 실습/03. DL`·`04. Vision`). Day11-2는 Drive 폴더 이름 20261103(Sequence 노트북) | 배포 |
 | 2026-11-19 | 전체 | 다크 모드 코드(web/theme.js)를 영역별로 나누고 설명 추가. 동작 변경 없음: ego-browser로 6개 페이지 27단계(OS 밝음·어두움, 버튼, 새로고침, 이동, 저장 지움) 상태가 정리 전과 같음, 화면 확인 | 배포 |
-| 2026-11-19 | llm/20261119 | 강의 목차 한눈에 보기(`tree.md`)의 실습 01–08 표기를 `Basic / Intermediate / Advanced` 대신 실제 실습 주제(원본 수집·Parsing·정제·Chunk·검증·Metadata·pgvector·일일프로젝트)로 보완하고 재빌드 | main만 |
-| 2026-11-19 | 전체 | `강의 목차 한눈에 보기` 실습 띠(`sitebuild/tree.py` `lab_row`)에서 앞 번호(`01 · ` 등)를 제거해 설명만 표시하도록 일괄 수정(23개 페이지 재빌드) | main만 |
+| 2026-11-19 | llm/20261119 | 강의 목차 한눈에 보기(`tree.md`)의 실습 01–08 표기를 `Basic / Intermediate / Advanced` 대신 실제 실습 주제(원본 수집·Parsing·정제·Chunk·검증·Metadata·pgvector·일일프로젝트)로 보완하고 재빌드 | 배포 |
+| 2026-11-19 | 전체 | `강의 목차 한눈에 보기` 실습 띠(`sitebuild/tree.py` `lab_row`)에서 앞 번호(`01 · ` 등)를 제거해 설명만 표시하도록 일괄 수정(23개 페이지 재빌드) | 배포 |
+| 2026-11-19 | 배포 | release e2160f8: Day24 강의 목차 실습 이름·전체 실습 띠 앞 번호 제거 배포 (Docker 제외) | 배포 |
