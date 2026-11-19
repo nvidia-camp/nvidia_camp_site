@@ -183,3 +183,4 @@
 | 2026-11-19 | 전체 | 구조 개편(refactor/structure → main): 설정 site.toml, CSS·JS·아이콘 web/, 빌드 코드 sitebuild/ 7개 모듈, AGENTS.md·README·Makefile·빌드 검사(sitebuild/check.py). 사이트 결과는 GA 코드 모양 외 동일(바이트 비교). 안 쓰는 파일 7개 삭제 | main (deploy는 18:20 자동 배포에 함께) |
 | 2026-11-19 | 배포 | release 7bfaa5f: 구조 개편 후 첫 배포(내용 같음, GA 코드 모양만). 실제 사이트 확인: Colab 링크 12/12 · GA 전송 204 · /setup/docker/ 404 | 배포 |
 | 2026-11-19 | dl·vision | Colab 실습 폴더 8개 등록(site.toml [colab], Drive `03. 실습/03. DL`·`04. Vision`). Day11-2는 Drive 폴더 이름 20261103(Sequence 노트북) | 배포 |
+| 2026-11-19 | 전체 | 다크 모드 코드(web/theme.js)를 영역별로 나누고 설명 추가. 동작 변경 없음: ego-browser로 6개 페이지 27단계(OS 밝음·어두움, 버튼, 새로고침, 이동, 저장 지움) 상태가 정리 전과 같음, 화면 확인 | 배포 |
