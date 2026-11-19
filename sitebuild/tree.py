@@ -87,7 +87,9 @@ def lab_row(c):
     if pg:
         t = t[:pg.start()]
     page = f'<em>{html.escape(pg.group(1).replace("PDF ", ""))}</em>' if pg else ""
-    return f'<p class="lt-lab-row"><b>실습</b><span>{wbr(re.sub(r"^실습\s*", "", t))}</span>{page}</p>'
+    # 카드 머리에 교시 번호가 이미 있으므로, 실습 띠에서는 '실습 01 · ' 같은 앞 번호를 빼고 설명만 남긴다.
+    label = re.sub(r"^실습\s*(?:\d+\s*[·.]\s*)?", "", t)
+    return f'<p class="lt-lab-row"><b>실습</b><span>{wbr(label)}</span>{page}</p>'
 
 
 def tree_block(path, open_=False, css=True):
