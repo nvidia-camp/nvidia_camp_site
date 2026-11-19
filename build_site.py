@@ -39,6 +39,7 @@ import posixpath
 import re
 import shutil
 import sys
+import tomllib
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -47,80 +48,50 @@ PUBLIC = HERE / "public"
 LECTURES = HERE / "lectures.json"
 SITE_NAME = "학습 아카이브"
 
+# ── 설정·웹 자원 읽기 ─────────────────────────────────────────────────────
+# 설정(과목·가이드·Colab 등)은 site.toml, 페이지에 끼워 넣는 CSS·JS·아이콘은 web/에 둔다.
+WEB = HERE / "web"
+CONFIG = tomllib.loads((HERE / "site.toml").read_text(encoding="utf-8"))
+
+
+def web(name):
+    """web/의 파일 내용 그대로"""
+    return (WEB / name).read_text(encoding="utf-8")
+
+
+def web_script(name):
+    """web/의 JS 파일을 <script>로 감싼다 (파일 끝 줄바꿈은 뺀다)"""
+    return "<script>" + web(name).rstrip("\n") + "</script>"
+
+
+def icon(name):
+    """web/icons/의 SVG 아이콘 (파일 끝 줄바꿈은 뺀다)"""
+    return web(f"icons/{name}.svg").rstrip("\n")
+
+
+ICON_DL = icon("download")      # HTML 받기
+ICON_VIEW = icon("view")        # 강의 자료 보기
+ICON_ARROW = icon("arrow")      # 카드·링크의 화살표
+
 # 시트의 교과목 → (사이트 경로, 짧은 이름). 경로가 None이면 일정 띠에만 보인다.
-SUBJECTS = {
-    "AI 교육과정 오리엔테이션": (None, "OT"),
-    "AI 개발을 위한 Python 데이터 처리 기초": ("python", "Python"),
-    "머신러닝 모델링 및 성능평가": ("ml", "ML"),
-    "딥러닝 핵심 아키텍처 및 학습": ("dl", "DL"),
-    "직업기초능력평가": (None, "평가"),
-    "Vision·멀티모달 AI 응용": ("vision", "Vision"),
-    "생성형 AI·LLM 및 RAG 엔지니어링": ("llm", "LLM·RAG"),
-    "LLM·RAG 실전 프로젝트": ("llm-project", "LLM·RAG 프로젝트"),
-    "NCA-GenL 자격 대비": (None, "NCA-GenL"),
-    "AI Agent 엔지니어링 및 서비스 개발": ("agent", "Agent"),
-    "AI Agent End-to-End 종합 프로젝트": ("agent-project", "Agent 프로젝트"),
-    "최종발표회 및 수료식": (None, "수료"),
-}
+SUBJECTS = {s["sheet_name"]: (s["path"] or None, s["short"]) for s in CONFIG["subjects"]}
 # 문제 풀이 사이트 (홈 위쪽 링크): (이름, assets/logos의 공식 아이콘, 주소)
-PRACTICE = [
-    ("SWEA", "swea.png", "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"),
-    ("Programmers", "programmers.png", "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"),
-]
+PRACTICE = [(p["name"], p["logo"], p["url"]) for p in CONFIG["practice"]]
 # 치트시트: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목). 과목 블록 아래 '참고' 줄에 나온다.
-CHEATSHEETS = {
-    "sklearn": ("scikit-learn 치트시트", "sklearn.svg", "머신러닝 · 모델 평가", "ml"),
-    "pytorch": ("PyTorch 치트시트", "pytorch.svg", "텐서 · 신경망 학습", "dl"),
-    "opencv": ("OpenCV 치트시트", "opencv.png", "이미지 · 영상 처리", "vision"),
-}
+CHEATSHEETS = {k: (v["name"], v["logo"], v["desc"], v["subject"]) for k, v in CONFIG["cheatsheets"].items()}
 
 # 설치 가이드: 경로 → (보이는 이름, 공식 로고 파일, 용도, 과목 또는 공통 묶음, 공개 여부). 공개 전에는 False로 둔다.
-SETUP = {
-    "postgresql": ("PostgreSQL 가이드", "postgresql.svg", "Windows 셋업 · pgAdmin 사용법 · psql", "llm", True),
-    "pgvector": ("pgvector 가이드", "postgresql.svg", "Windows 11 · PostgreSQL 18 · pgvector 0.8.7 설치 · 실행 확인", "llm", True),
-    "path": ("경로 설정 (PATH)", "path.svg", "명령을 찾을 수 없을 때 · PATH에 폴더 추가", "개발 환경", True),
-    "python-venv": ("Python 가상환경", "python.png", ".gpuenv · .backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결", "개발 환경", True),
-    "git": ("Git · GitHub", "git.svg", "commit · push · pull · upstream · branch · merge · .gitignore", "개발 환경", True),
-    "vscode-extensions": ("VS Code Extension", "vscode.png", "수업 안내 3개 · Python 기본 3개 · 추천 2개", "개발 환경", True),
-    "docker": ("Docker", "docker.png", "이미지 · 컨테이너 · Dockerfile · port · volume · compose", "개발 환경", False),
-    "local-ai": ("로컬 AI 코딩", "ollama.png", "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치", "AI 코딩", True),
-    "ai-coding": ("AI 코딩 도구", "code.svg", "OpenCode · Claude Code · Codex · agy 사용법", "AI 코딩", True),
-    "cli": ("CLI 도구", "terminal.svg", "AI 에이전트의 문서 조회 · 결과 검증 · 서비스 연결", "AI 코딩", True),
-}
+SETUP = {k: (v["name"], v["logo"], v["desc"], v["group"], v["public"]) for k, v in CONFIG["setup"].items()}
 # 과정 전체에서 쓰는 가이드의 묶음과 순서. 홈 '공통 가이드' 섹션에 묶음마다 한 줄씩 나온다.
-COMMON_GROUPS = ["개발 환경", "AI 코딩"]
+COMMON_GROUPS = CONFIG["common_groups"]
 # 페이지와 함께 내려받게 둘 파일: 사이트 경로 → [파일 이름]. 페이지에서는 data-site를 붙여 링크한다.
-FILES = {
-    "setup/local-ai": ["SETUP_FOR_AI.md"],
-    "setup/python-venv": ["requirements-gpu.txt", "requirements-backend.txt", "requirements-all.txt"],
-}
+FILES = CONFIG["files"]
 # 여러 페이지로 된 가이드: 경로 → [(하위 폴더, 페이지 이름)]. 첫 줄("")이 가이드 첫 페이지다.
-SETUP_PAGES = {
-    "postgresql": [("", "셋업"), ("pgadmin", "pgAdmin 사용법"), ("psql", "psql")],
-    "pgvector": [("", "설치 · 1–8단계"), ("run", "실행 · 9–10단계"), ("check", "문제 해결 · 체크리스트")],
-    "docker": [("", "기본"), ("build", "Dockerfile · build"), ("port-volume", "port · volume"), ("compose", "compose")],
-    "git": [("", "기본"), ("upstream", "upstream"), ("branch", "branch · merge"), ("undo", "undo · .gitignore"), ("practice", "실전 세팅")],
-    "ai-coding": [("", "공통"), ("opencode", "OpenCode"), ("claude-code", "Claude Code"), ("codex", "Codex"), ("agy", "agy")],
-}
+SETUP_PAGES = {k: [tuple(x) for x in v] for k, v in CONFIG["setup_pages"].items()}
 # Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.
-DAY_SUBPAGES = {
-    "llm/20261112": [("practice", "오전 실습 가이드")],
-}
+DAY_SUBPAGES = {k: [tuple(x) for x in v] for k, v in CONFIG["day_subpages"].items()}
 # Colab 실습 폴더: "과목/날짜" → Google Drive 폴더 주소 (공유: 링크가 있는 모든 사용자 · 뷰어). Day 줄·그날 페이지에 Colab 로고로 나온다.
-COLAB = {
-    "python/20261020": "https://drive.google.com/drive/folders/1B5op7ctuxo9d9V7YmH_S9Jt3hhZ3vS_d",
-    "python/20261021": "https://drive.google.com/drive/folders/1rufeODQSFSmxpUGNgPEhzI5xtoqU4D4L",
-    "python/20261022": "https://drive.google.com/drive/folders/10f0R6X9P8fOgoNVWN4CHBs1hW-q0Hb69",
-    "ml/20261023": "https://drive.google.com/drive/folders/1e66rHIQ2S0pmHYn9PKclqCP5HziOEL5m",
-    "ml/20261026": "https://drive.google.com/drive/folders/1Flqg4-TY5PO3uz68xwHl-UOgHFIKiKVf",
-    "ml/20261027": "https://drive.google.com/drive/folders/1ZLIl8z1c3p2p8HQjEnm6Hf4qWC6cjvWw",
-    "ml/20261028": "https://drive.google.com/drive/folders/1OT68E1f243AmRTAfV-pUkpUi8n736HNd",
-    "llm/20261113": "https://drive.google.com/drive/folders/14TnoVzqT0i4RWOdbONdwqW5a4Ce_vhEn",
-    "llm/20261116": "https://drive.google.com/drive/folders/19rB2g83VexXoU47XW-Br_QkKtCgBKo0f",
-    "llm/20261117": "https://drive.google.com/drive/folders/1jS8l2wm3YetcbodRCHgFhREVKyqgcvbN",
-    "llm/20261118": "https://drive.google.com/drive/folders/1WnWx98gymP7kz6NdyR-UAokG0cak8wm7",
-    "llm/20261119": "https://drive.google.com/drive/folders/1CGcHCMimaZ6Dv5OfC4SlBJ06BaPuSNwQ",
-}
+COLAB = CONFIG["colab"]
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다
 OPEN_AHEAD = datetime.time(18, 20)   # 이 시각부터 다음 수업일 자료를 공개한다 (auto_release.sh가 이 시각에 배포)
 
@@ -150,9 +121,6 @@ def refs_of(subject):
              for k, (name, logo, desc, subj) in CHEATSHEETS.items() if subj == subject]
     items += [(f"setup/{k}/", name, logo, desc) for k, name, logo, desc, subj in setup_items() if subj == subject]
     return items
-
-
-FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif'
 
 
 # ── 자료 읽기 ────────────────────────────────────────────────────────────
@@ -252,29 +220,7 @@ def write_lecture_font_css():
 
 
 # ── 내용 페이지 위쪽 메뉴 ────────────────────────────────────────────────
-NAV_CSS = f"""<style>
-.cn-nav{{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
-  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 {FONT}}}
-.cn-nav a{{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}}
-.cn-nav a:hover,.cn-nav a:focus-visible{{background:rgba(255,255,255,.16);outline:none}}
-.cn-nav .cn-here{{opacity:.7}}
-.cn-nav .cn-right{{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}}
-.cn-nav .cn-ico{{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}}
-.cn-nav .cn-ico svg{{display:block;width:1.15rem;height:1.15rem}}
-.cn-nav .cn-slack img{{display:block;width:1.15rem;height:1.15rem}}
-.cn-nav .cn-colab{{width:auto;padding:0 .3rem}}.cn-nav .cn-colab img{{display:block;width:1.7rem;height:1rem}}
-.cn-nav .cn-right{{align-items:center}}
-.cn-nav [data-tip]{{position:relative}}
-.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
-  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 {FONT};box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}}
-html{{scroll-padding-top:3rem}}
-@media (max-width:600px){{.cn-nav{{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}}.cn-nav .cn-right{{flex-wrap:nowrap}}html{{scroll-padding-top:2.5rem}}}}
-@media print{{.cn-nav{{display:none}}}}
-</style>"""
-
-
-ICON_DL = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-           '<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>')
+NAV_CSS = "<style>\n" + web("nav.css") + "</style>"
 DOWNLOAD_MARK = "<!--download-->"  # copy_page가 'HTML 받기' 링크로 바꾼다
 THEME_MARK = "<!--theme-->"        # 다크 모드가 있는 페이지면 테마 버튼으로, 없으면 빈 글자로 바꾼다
 
@@ -284,41 +230,7 @@ THEME_MARK = "<!--theme-->"        # 다크 모드가 있는 페이지면 테마
 # 항상 참/항상 거짓으로 바꿔 끼워 OS 설정과 관계없이 고른 쪽을 보여 준다. 고른 값은 localStorage에 둔다.
 # OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
 # 본문 속 <style>(강의 목차 블록 등)도 첫 화면 전에 바꾸도록 파싱 중 추가되는 style을 지켜본다.
-THEME_HEAD = """<script>(function(){
-var K='site-theme',d=document,root=d.documentElement,mq=matchMedia('(prefers-color-scheme: dark)'),
-RX=/\\(\\s*prefers-color-scheme\\s*:\\s*dark\\s*\\)/i,seen=[],rules=[],mem='';
-function get(){try{var v=localStorage.getItem(K);return v==='dark'||v==='light'?v:''}catch(e){return mem}}
-function put(v){mem=v;try{v?localStorage.setItem(K,v):localStorage.removeItem(K)}catch(e){}}
-function scan(list){for(var i=0;i<list.length;i++){var r=list[i];
-  if(r.media&&RX.test(r.media.mediaText))rules.push([r,r.media.mediaText]);if(r.cssRules)scan(r.cssRules)}}
-function apply(){
-  var ss=d.styleSheets;for(var i=0;i<ss.length;i++){var s=ss[i];if(seen.indexOf(s)<0){seen.push(s);try{scan(s.cssRules)}catch(e){}}}
-  var f=get(),m=f||(mq.matches?'dark':'light');
-  for(var j=0;j<rules.length;j++){var p=rules[j];
-    p[0].media.mediaText=f?p[1].replace(RX,f==='dark'?'(min-width:0px)':'(max-width:0px) and (min-width:1px)'):p[1]}
-  root.setAttribute('data-theme',m);root.style.colorScheme=f;
-  var b=d.querySelectorAll('.theme-toggle'),t=m==='dark'?'밝은 화면으로 보기':'어두운 화면으로 보기';
-  for(var k=0;k<b.length;k++){b[k].setAttribute('aria-label',t);b[k].setAttribute('data-tip',t)}}
-d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.theme-toggle');if(!b)return;
-  var m=root.getAttribute('data-theme')==='dark'?'light':'dark';put(m===(mq.matches?'dark':'light')?'':m);apply()});
-mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
-apply();
-var mo=window.MutationObserver&&new MutationObserver(function(l){for(var i=0;i<l.length;i++)for(var j=0;j<l[i].addedNodes.length;j++){
-  var n=l[i].addedNodes[j].nodeName;if(n==='STYLE'||n==='LINK'){apply();return}}});
-if(mo)mo.observe(root,{childList:true,subtree:true});
-d.addEventListener('DOMContentLoaded',function(){if(mo)mo.disconnect();apply()});
-})();</script>
-<style>
-.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
-.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
-.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
-:root[data-theme=dark] .theme-toggle .i-sun{display:block}
-.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
-.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
-@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
-  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
-@media print{.theme-toggle{display:none!important}}
-</style>"""
+THEME_HEAD = web_script("theme.js") + "\n<style>\n" + web("theme.css") + "</style>"
 THEME_BTN = ('<button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기">'
              '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
              'stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>'
@@ -364,68 +276,14 @@ def nav_html(depth, crumbs, here=None, prev=None, next_=None, lecture=None, view
 
 # 방문 통계: 모든 사이트 화면에 넣는다 (download.html 원본·강의 view.html에는 넣지 않는다)
 # - Vercel Web Analytics (Vercel 프로젝트에서 Analytics를 켜 둬야 동작)
-# - Google Analytics 4: 실제 사이트 주소(GA_HOST)에서만 보낸다. 미리보기·로컬 확인은 통계에 섞이지 않는다.
+# - Google Analytics 4 (web/analytics.js): 실제 사이트 주소에서만 보낸다. 미리보기·로컬 확인은 통계에 섞이지 않는다.
 #   주소 끝에 ?ga_debug=1 을 붙이면 GA 관리 > DebugView에서 이벤트를 바로 볼 수 있다.
 #   페이지 공통 값(set): content_group(과목 키·home·setup·cheatsheet), page_type, day_label(메뉴의 DayNN)
 #   이벤트: section_view(h2 단락이 화면에 들어옴, 페이지당 1회) · toc_open/details_open(접힌 상자 펼침)
 #           site_click(모든 링크, link_type으로 구분) · theme_toggle · slide_view/lecture_progress(강의 화면)
-GA_ID = "G-9743VJ73E0"
-GA_HOST = "nvidiasesac.vercel.app"
-GA_SCRIPT = r"""<script>(function(){
-var ID='__GA_ID__';if(location.hostname!=='__GA_HOST__')return;
-var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+ID;document.head.appendChild(s);
-window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('js',new Date());
-var d=document,dbg=/[?&]ga_debug=1/.test(location.search),PK='ga-pending-click';
-function cut(t){return (t||'').replace(/\s+/g,' ').trim().slice(0,100)}
-function ev(n,p){p=p||{};if(dbg)p.debug_mode=true;gtag('event',n,p)}
-function init(){
-  var seg=location.pathname.split('/').filter(Boolean),top=seg[0]||'home',type;
-  if(!seg.length)type='home';else if(top==='setup')type='guide';else if(top==='cheatsheet')type='cheatsheet';
-  else if(seg.length===1)type='subject';else if(/^\d{8}/.test(seg[1]))type=seg[2]==='lecture'?'lecture':seg[2]?'day_sub':'day';else type='other';
-  var nav=d.querySelector('.cn-nav'),m=nav&&nav.textContent.match(/Day\d+(?:-\d+)?/);
-  gtag('set',{content_group:top,page_type:type,day_label:m?m[0]:'(none)'});
-  gtag('config',ID,dbg?{debug_mode:true}:{});
-  try{var pend=sessionStorage.getItem(PK);if(pend){sessionStorage.removeItem(PK);ev('site_click',JSON.parse(pend))}}catch(x){}
-  // 단락: h2가 화면 위쪽 60%까지 올라오면 한 번 (빠르게 스크롤해 지나친 단락도 세도록 위쪽 경계는 열어 둔다)
-  if('IntersectionObserver' in window){
-    var hs=[].slice.call(d.querySelectorAll('h2')).filter(function(h){return !h.closest('.cn-nav')});
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;io.unobserve(e.target);
-      ev('section_view',{section_id:e.target.id||'(none)',section_title:cut(e.target.textContent),section_index:hs.indexOf(e.target)+1})})},{rootMargin:'100000px 0px -40% 0px'});
-    hs.forEach(function(h){io.observe(h)});
-  }
-  // 접힌 상자: 강의 목차(lt-box)와 그 밖의 details
-  d.addEventListener('toggle',function(e){var t=e.target;if(t.tagName!=='DETAILS'||!t.open)return;
-    var sm=t.querySelector('summary');ev(t.classList.contains('lt-box')?'toc_open':'details_open',{details_label:cut(sm&&(sm.innerText||sm.textContent))})},true);
-  // 링크
-  d.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('.theme-toggle');
-    if(b){setTimeout(function(){ev('theme_toggle',{theme:d.documentElement.getAttribute('data-theme')||''})},0);return}
-    var a=e.target.closest&&e.target.closest('a[href]');if(!a)return;
-    var u=a.href,h=a.getAttribute('href'),ext=a.host&&a.host!==location.host,k;
-    if(a.classList.contains('cn-colab')||/colab\.research|drive\.google/.test(u))k='colab';
-    else if(a.classList.contains('cn-dl')||a.hasAttribute('download'))k='html_download';
-    else if(a.classList.contains('cn-slack')||/slack\.com/.test(u))k='slack';
-    else if(/swexpertacademy/.test(u))k='swea';else if(/programmers\.co\.kr/.test(u))k='programmers';
-    else if(/\.pdf(\?|#|$)/i.test(u))k='pdf';else if(/(^|\/)lecture\/?$/.test(h))k='lecture_view';
-    else if(h.charAt(0)==='#')k='anchor';else k=ext?'outbound':'internal';
-    var p={link_type:k,link_text:cut(a.getAttribute('aria-label')||a.textContent),link_url:u,link_area:a.closest('.cn-nav')?'nav':'body',link_from:location.pathname};
-    // 같은 탭에서 사이트 안 다른 페이지로 가면 떠나는 순간 이벤트가 사라질 수 있어 다음 페이지에서 보낸다
-    if(!ext&&k!=='anchor'&&k!=='html_download'&&a.target!=='_blank'&&!e.defaultPrevented&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey){
-      try{sessionStorage.setItem(PK,JSON.stringify(p));return}catch(x){}}
-    ev('site_click',p)},true);
-  // 강의 화면: 슬라이드는 iframe 주소의 #id로 바뀐다(replaceState라 이벤트가 없어 1초마다 읽는다)
-  var f=d.querySelector('iframe.lecture-frame');
-  if(f){var last='',seen={},n=0,sent=false;
-    setInterval(function(){var id='';try{id=f.contentWindow.location.hash.slice(1)}catch(x){return}
-      if(!id||id===last)return;last=id;if(!seen[id]){seen[id]=1;n++}ev('slide_view',{slide_id:id,slides_seen:n})},1000);
-    d.addEventListener('visibilitychange',function(){if(d.visibilityState==='hidden'&&n&&!sent){sent=true;ev('lecture_progress',{slides_seen:n,last_slide:last})}});
-  }
-}
-d.readyState==='loading'?d.addEventListener('DOMContentLoaded',init):init();
-})();</script>""".replace("__GA_ID__", GA_ID).replace("__GA_HOST__", GA_HOST)
-ANALYTICS = """<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
-<script defer src="/_vercel/insights/script.js"></script>
-""" + GA_SCRIPT
+GA_SCRIPT = web_script("analytics.js")
+ANALYTICS = ('<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>\n'
+             '<script defer src="/_vercel/insights/script.js"></script>\n' + GA_SCRIPT)
 
 # 사이트 안 다른 페이지로 가는 링크는 data-site를 붙여 두면 살린다
 LOCAL_LINK = re.compile(r'<a\s(?![^>]*data-site)[^>]*href="(?!https?:|#|mailto:|data:)[^"]*"[^>]*>(.*?)</a>', re.S)
@@ -557,160 +415,10 @@ OWN_ICONS = {"code.svg", "terminal.svg", "path.svg"}
 DARK_LOGOS = {"ollama.png": "ollama-dark.png"}
 
 
-PAGE_CSS = """
-:root{--bg:#FBFCFE;--surface:#FFFFFF;--soft:#EFF4FB;--line:rgba(20,40,73,.10);--line-2:rgba(20,40,73,.18);
-  --primary:#142849;--heading:#1C2B40;--text:#222F44;--muted:#52667E;--accent:#2F66DE;--accent-soft:rgba(47,102,222,.10);
-  --cell:#E3EAF4;--cell-past:#C5D3E7;--focus:#2F66DE;
-  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --mono:ui-monospace,"SFMono-Regular",Consolas,"Malgun Gothic",monospace}
-@media (prefers-color-scheme:dark){:root{--bg:#0E1626;--surface:#152038;--soft:#1A2844;--line:rgba(169,195,236,.12);--line-2:rgba(169,195,236,.22);
-  --primary:#A9C3EC;--heading:#E7EEF9;--text:#D4DDEB;--muted:#9DADC4;--accent:#7FA6FF;--accent-soft:rgba(127,166,255,.16);
-  --cell:#1C2943;--cell-past:#33476B;--focus:#A9C3EC;color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--font);word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
-main{max-width:1160px;margin:0 auto;padding:36px 24px 80px}
-h1,h2,h3,p,ol,ul{margin:0}
-ol,ul{padding:0;list-style:none}
-h1,h2,h3{color:var(--heading);text-wrap:balance}
-a{color:inherit;text-decoration:none}
-a:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:8px}
-svg{display:block}
+PAGE_CSS = "\n" + web("list.css")
 
-/* 맨 위: 브랜드 줄 + 문제 풀이 */
-.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.brand{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
-.brand-logos{display:inline-flex;align-items:center;gap:12px;border-radius:8px}
-.brand-logos img{display:block;width:auto;height:32px;object-fit:contain}
-.brand-sep{width:1px;height:22px;background:#D8E4F2}
-.brand p{color:var(--muted);font-size:14px;font-weight:600}
-.links{display:flex;flex-wrap:wrap;gap:8px}
-.links a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px 0 10px;border:1px solid var(--line);border-radius:999px;
-  background:var(--surface);font-size:13px;font-weight:600;color:var(--heading);transition:border-color .15s}
-.links a:hover{border-color:var(--accent)}
-.top-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.top .theme-toggle{width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--heading)}
-.top .theme-toggle:hover{border-color:var(--accent)}
-.top .theme-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-.links img{display:block;width:20px;height:20px;border-radius:5px}
-@media (prefers-color-scheme:dark){.brand-logos{background:#FFFFFF;padding:4px 10px}}
 
-/* 첫 화면: 제목 · 최근 수업 · 지금 과목 표지 */
-.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:end;margin:44px 0 40px}
-.hero-l{display:grid;gap:22px}
-.title{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.045em;line-height:1.02}
-.count{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums}
-.count b{color:var(--heading)}
-.label{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
-.recent{border-top:1px solid var(--line-2)}
-.recent a{display:grid;grid-template-columns:72px minmax(0,1fr) auto 20px;gap:12px;align-items:center;padding:13px 4px;
-  border-bottom:1px solid var(--line);font-size:15px;color:var(--heading);transition:background .15s,padding .15s}
-.recent a:hover{background:var(--soft);padding-left:10px}
-.recent .no,.recent .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.recent .go{opacity:0;transition:opacity .15s;color:var(--accent)}
-.recent a:hover .go{opacity:1}
-.recent .go svg{width:16px;height:16px}
-.recent li.on .t{font-weight:700}
-.recent li.on .no{color:var(--accent);font-weight:700}
-.recent li.on .no::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:7px;vertical-align:2px;box-shadow:0 0 0 3px var(--accent-soft)}
-.cover{position:relative;overflow:hidden;display:grid;gap:12px;align-content:end;min-height:340px;padding:30px;border-radius:20px;color:#FFFFFF;
-  background:radial-gradient(120% 90% at 100% 0%,#2A4B82 0%,rgba(42,75,130,0) 55%),linear-gradient(165deg,#1A335E 0%,#142849 50%,#0D1B33 100%);
-  box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 24px 48px -24px rgba(20,40,73,.55)}
-.cover::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.16) 1px,transparent 1px);background-size:16px 16px;
-  -webkit-mask:linear-gradient(200deg,#000 0%,transparent 55%);mask:linear-gradient(200deg,#000 0%,transparent 55%)}
-.cover>*{position:relative}
-.cover .wm{position:absolute;right:-6px;top:-34px;font-size:190px;font-weight:800;letter-spacing:-.06em;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.13)}
-.cover .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.65}
-.cover b{font-size:44px;letter-spacing:-.04em;line-height:1}
-.cover .c-n{font-size:15px;opacity:.72}
-.cover .prog{display:flex;align-items:center;gap:12px;margin-top:4px}
-.cover .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.16)}
-.cover .bar i{display:block;height:100%;border-radius:99px;background:#5B8BF0;box-shadow:0 0 12px #5B8BF0}
-.cover .c-k{font-family:var(--mono);font-size:12px;opacity:.75}
-.cover .c-go{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-weight:600;font-size:15px}
-.cover .c-go svg{width:18px;height:18px;flex:none;transition:transform .15s}
-.cover:hover .c-go svg{transform:translateX(4px)}
-@media (prefers-color-scheme:dark){.cover{box-shadow:0 0 0 1px rgba(169,195,236,.16)}}
 
-/* 100일 일정 */
-.timeline{display:flex;flex-wrap:wrap;gap:12px 22px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.tl{display:grid;gap:6px;min-width:0}
-.tl-name{font-size:12px;font-weight:700;color:var(--heading)}
-.tl-cells{display:flex;flex-wrap:wrap;gap:3px}
-.cell{width:11px;height:11px;border-radius:2px;display:inline-block;background:var(--cell)}
-.cell.past{background:var(--cell-past)}
-.cell.has{background:var(--primary)}
-a.cell:hover{transform:scale(1.3)}
-.cell.today{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-
-/* 참고 문서 모음 */
-.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:32px 0 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
-.shelf .col{display:grid;gap:2px;align-content:start;padding:14px 18px}
-.shelf .col+.col{border-left:1px solid var(--line)}
-.shelf+.chapter{border-top:0}
-.shelf h2{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-.shelf a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:14px;font-weight:600;color:var(--heading);transition:background .15s}
-.shelf a:hover{background:var(--soft)}
-.ref-logo{display:flex;align-items:center;justify-content:center;flex:none;border-radius:6px}
-.ref-logo img{display:block;width:auto;height:18px;max-width:30px;object-fit:contain}
-.ch-refs{display:grid;gap:2px;margin-top:12px}
-.ch-refs a{display:flex;align-items:center;gap:8px;padding:4px 8px;margin:0 -8px;border-radius:8px;font-size:13px;font-weight:600;color:var(--heading);transition:background .15s}
-.ch-refs a:hover{background:var(--soft)}
-.ref-logo .lg-d{display:none}
-@media (prefers-color-scheme:dark){.ref-logo .lg-l{display:none}.ref-logo .lg-d{display:block}}
-.shelf .soon{margin:2px 0}
-.soon{white-space:nowrap;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:2px 10px;justify-self:start}
-
-/* 과목 = 챕터 */
-.chapter{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;padding:44px 0;border-top:1px solid var(--line-2)}
-.row.off{cursor:default}.row.off:hover{background:none}.row.off .t{color:var(--text);font-weight:500}
-.pend{display:inline-block;margin-left:8px;vertical-align:2px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:1px 8px;letter-spacing:0}
-.rows li.all .row.off,.rows li.all .row.off:hover{background:linear-gradient(90deg,var(--soft),transparent 70%)}
-.ch-side{display:grid;gap:4px;align-content:start}
-.ch-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
-.ch-side h2{font-size:28px;letter-spacing:-.03em;line-height:1.15;margin:2px 0 6px}
-.ch-side h2 a:hover{text-decoration:underline;text-underline-offset:4px}
-.ch-meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.ch-side .soon{margin-top:6px}
-.rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line)}
-.rows li:first-child{border-top:1px solid var(--line)}
-.row{display:grid;grid-template-columns:72px minmax(0,1fr) 52px;gap:14px;align-items:center;padding:16px 6px;border-radius:10px;transition:background .15s}
-.row:hover{background:var(--soft)}
-.row:hover .t{color:var(--accent)}
-.row .no{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--muted)}
-.row .t{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--heading);transition:color .15s}
-.row .d{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
-.lk{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;padding-right:4px}
-.mini{position:relative;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;border:0;background:var(--soft);
-  font-size:12px;font-weight:600;color:var(--heading);white-space:nowrap;transition:background .15s,box-shadow .15s}
-.mini:hover{box-shadow:inset 0 0 0 1px var(--accent)}
-.mini[data-tip]:hover::after,.mini[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);right:0;z-index:50;white-space:nowrap;
-  padding:5px 9px;border-radius:6px;background:#0B1730;color:#fff;font-size:12px;font-weight:500;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.3);pointer-events:none}
-.mini svg{width:14px;height:14px}
-.mini.view{background:var(--accent-soft);color:var(--accent)}
-.rows li.all .row{background:linear-gradient(90deg,var(--soft),transparent 70%)}
-.rows li.all .no{color:var(--accent)}
-.mini.slack{padding:0 8px}.mini.slack img{display:block;width:16px;height:16px}
-.mini.colab{padding:0 8px}.mini.colab img{display:block;width:27px;height:16px}
-/* 그날 페이지: 머리 · 자료 줄 · 강의 목차 한눈에 보기 */
-.day-head{display:grid;gap:10px;margin:8px 0 22px}
-.day-head .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent)}
-.day-head h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
-.day-head .sub{font-size:15px;color:var(--muted)}
-.sum-empty{margin-top:28px;padding:28px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;color:var(--muted);font-size:15px}
-
-@media (max-width:880px){.hero{grid-template-columns:1fr;gap:28px;margin-top:32px}.shelf{grid-template-columns:1fr}.shelf .col+.col{border-top:1px solid var(--line)}
-  .shelf .col+.col{border-left:0}.chapter{grid-template-columns:1fr;gap:16px;padding:32px 0}.rows li{grid-template-columns:1fr}
-  .lk{justify-content:flex-start;padding:0 6px 14px}.row{grid-template-columns:60px minmax(0,1fr)}.row .d{display:none}}
-@media (max-width:600px){main{padding:24px 16px 64px}.cover{min-height:280px;padding:24px}.cover b{font-size:36px}.cover .wm{font-size:150px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}a.cell:hover{transform:none}}
-"""
-
-ICON_DOC = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-            '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>')
-ICON_EXT = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-            '<path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>')
-ICON_ARROW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-              '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>')
 def day_range(ds):
     """과목의 Day 범위. 같은 날 두 번째 회차 표시(-2)는 뺀다: Day9–11"""
     return f'Day{ds[0]["n"].split("-")[0]}–{ds[-1]["n"].split("-")[0]}'
@@ -728,8 +436,6 @@ PLANNED_TITLES = {
     "dl/20261029": "신경망 학습 기초",
     "llm/20261116": "Prompt · Context Engineering",
 }
-ICON_VIEW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-             '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>')
 # 과목 번호(챕터): SUBJECTS에서 경로가 있는 과목의 순서
 CHAPTER = {key: i for i, key in enumerate([k for k, _ in SUBJECTS.values() if k], 1)}
 
@@ -955,59 +661,7 @@ def tree_flat(n):
 
 
 # '강의 목차 한눈에 보기' 블록의 스타일. 요약 페이지에도 그대로 끼워 넣을 수 있게 .lt 안에서만 쓰고 색도 따로 둔다.
-TREE_CSS = """<style>
-.lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
-  margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
-@media (prefers-color-scheme:dark){.lt-top:not(.lt-light) .lt,.lt-top:not(.lt-light) .lt-res,body>main>.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
-.lt-top{display:grid;gap:12px}
-.lt-res{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);display:flex;flex-wrap:wrap;gap:8px}
-.lt-res a{box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--lt-line);border-radius:10px;
-  background:var(--lt-bg);font-size:14px;font-weight:600;line-height:1;color:var(--lt-head);text-decoration:none;transition:border-color .15s,background .15s}
-.lt-res a:hover{border-color:var(--lt-acc);background:var(--lt-soft)}
-.lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
-.lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
-.lt-res a.slack img{width:16px;height:16px}
-.lt-res a.slack:not(:has(span)){padding:0 11px}
-.lt-res a.colab img{display:block}
-.lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
-.lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
-.lt summary::before,.lt summary::after{content:none;display:none}.lt-top{margin-top:16px;text-align:left}
-.lt-box{border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-bg)}
-.lt-box>summary{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;list-style:none;border-radius:16px}
-.lt-box>summary::-webkit-details-marker{display:none}
-.lt-box>summary:hover{background:var(--lt-soft)}
-.lt-box>summary:focus-visible{outline:2px solid var(--lt-acc);outline-offset:2px}
-.lt-t{flex:1;min-width:0;display:grid;gap:2px}
-.lt-t b{font-size:18px;font-weight:800;color:var(--lt-head);letter-spacing:-.02em}
-.lt-t small{font-size:13px;color:var(--lt-muted)}
-.lt-btn{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--lt-acc);background:var(--lt-acc-soft);border-radius:999px;padding:6px 12px}
-.lt-btn::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
-.lt-box[open] .lt-btn::after{transform:rotate(-135deg) translateX(-2px)}
-.lt-box .lt-btn .c{display:none}.lt-box[open] .lt-btn .o{display:none}.lt-box[open] .lt-btn .c{display:inline}
-.lt-body{display:grid;gap:12px;padding:4px 20px 20px}
-.lt-intro{display:flex;gap:10px;align-items:baseline;font-size:13px;color:var(--lt-muted)}
-.lt-intro b{flex:none;font-size:12px;color:var(--lt-head)}
-.lt-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.lt-cd{display:flex;flex-direction:column;border:1px solid var(--lt-line);border-radius:14px;background:var(--lt-bg);overflow:hidden}
-.lt-cd header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:12px 14px 10px;border-bottom:1px solid var(--lt-line);background:var(--lt-soft)}
-.lt-n{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12px;font-weight:700;color:var(--lt-acc)}
-.lt-c{font-size:11px;color:var(--lt-muted);font-variant-numeric:tabular-nums}
-.lt-cd h3{grid-column:1/-1;font-size:15px;font-weight:700;line-height:1.3;color:var(--lt-head)}
-.lt-cd>ol{flex:1;display:grid;align-content:start;gap:1px;padding:10px 14px 12px}
-.lt-cd li{display:grid;grid-template-columns:4px minmax(0,1fr) auto;column-gap:8px;font-size:13px;line-height:1.45;padding:2px 0}
-.lt-cd li::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--lt-line);margin-top:.6em}
-.lt-cd li em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;color:var(--lt-muted)}
-.lt-cd li.lt-sg{display:block;margin-top:4px}.lt-cd li.lt-sg::before{display:none}.lt-cd li.lt-sg>span{font-size:12px;font-weight:700;color:var(--lt-muted)}
-.lt-cd li.lt-sg ul{padding:0 0 4px 10px}
-.lt-cd li.lt-lab>span{font-weight:700;color:var(--lt-acc)}
-.lt-lab-row{display:flex;gap:8px;align-items:baseline;padding:10px 14px;border-top:1px solid var(--lt-line);background:var(--lt-acc-soft);font-size:13px;font-weight:700;color:var(--lt-acc)}
-.lt-lab-row span{flex:1;min-width:0}.lt-lab-row em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;font-weight:500;opacity:.8}
-.lt-lab-row b{flex:none;font-size:11px;color:#fff;background:var(--lt-acc);border-radius:6px;padding:1px 6px}
-.lt-note{font-size:12px;color:var(--lt-muted)}
-@media (max-width:1000px){.lt-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:600px){.lt-board{grid-template-columns:1fr}.lt-body{padding:4px 12px 14px}.lt-box>summary{padding:14px}.lt-t b{font-size:16px}}
-@media print{.lt-box>summary .lt-btn{display:none}}
-</style>"""
+TREE_CSS = "<style>\n" + web("tree.css") + "</style>"
 
 
 def day_top(d):

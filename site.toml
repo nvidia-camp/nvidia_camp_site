@@ -1,0 +1,204 @@
+# 사이트 설정. 페이지를 등록하거나 공개 여부·Colab 링크를 바꿀 때는 이 파일만 고친다.
+# build_site.py가 읽는다. 순서가 곧 화면 순서다.
+# TOML 규칙: [표 이름] 아래 줄은 다음 [표 이름]까지 그 표에 속한다. 표 밖의 값은 맨 위에만 둔다.
+
+# 과정 전체에서 쓰는 가이드의 묶음과 순서 (홈 '공통 가이드' 섹션)
+common_groups = ["개발 환경", "AI 코딩"]
+
+# 시트의 교과목 → 사이트 경로(path, 빈 값이면 일정 띠에만 보임)와 짧은 이름
+
+[[subjects]]
+sheet_name = "AI 교육과정 오리엔테이션"
+path = ""
+short = "OT"
+
+[[subjects]]
+sheet_name = "AI 개발을 위한 Python 데이터 처리 기초"
+path = "python"
+short = "Python"
+
+[[subjects]]
+sheet_name = "머신러닝 모델링 및 성능평가"
+path = "ml"
+short = "ML"
+
+[[subjects]]
+sheet_name = "딥러닝 핵심 아키텍처 및 학습"
+path = "dl"
+short = "DL"
+
+[[subjects]]
+sheet_name = "직업기초능력평가"
+path = ""
+short = "평가"
+
+[[subjects]]
+sheet_name = "Vision·멀티모달 AI 응용"
+path = "vision"
+short = "Vision"
+
+[[subjects]]
+sheet_name = "생성형 AI·LLM 및 RAG 엔지니어링"
+path = "llm"
+short = "LLM·RAG"
+
+[[subjects]]
+sheet_name = "LLM·RAG 실전 프로젝트"
+path = "llm-project"
+short = "LLM·RAG 프로젝트"
+
+[[subjects]]
+sheet_name = "NCA-GenL 자격 대비"
+path = ""
+short = "NCA-GenL"
+
+[[subjects]]
+sheet_name = "AI Agent 엔지니어링 및 서비스 개발"
+path = "agent"
+short = "Agent"
+
+[[subjects]]
+sheet_name = "AI Agent End-to-End 종합 프로젝트"
+path = "agent-project"
+short = "Agent 프로젝트"
+
+[[subjects]]
+sheet_name = "최종발표회 및 수료식"
+path = ""
+short = "수료"
+
+# 문제 풀이 사이트 (홈 위쪽 링크). logo는 assets/logos의 공식 아이콘
+
+[[practice]]
+name = "SWEA"
+logo = "swea.png"
+url = "https://swexpertacademy.com/main/talk/solvingClub/clubView.do?solveclubId=AaFX6-bK02vHBISG"
+
+[[practice]]
+name = "Programmers"
+logo = "programmers.png"
+url = "https://school.programmers.co.kr/learn/challenges?order=recent&page=1&languages=python3"
+
+# 치트시트: pages/cheatsheet/<키>/ · 과목 블록 아래 '참고' 줄에 나온다
+
+[cheatsheets.sklearn]
+name = "scikit-learn 치트시트"
+logo = "sklearn.svg"
+desc = "머신러닝 · 모델 평가"
+subject = "ml"
+
+[cheatsheets.pytorch]
+name = "PyTorch 치트시트"
+logo = "pytorch.svg"
+desc = "텐서 · 신경망 학습"
+subject = "dl"
+
+[cheatsheets.opencv]
+name = "OpenCV 치트시트"
+logo = "opencv.png"
+desc = "이미지 · 영상 처리"
+subject = "vision"
+
+# 설치 가이드: pages/setup/<키>/ · group은 과목 키 또는 공통 묶음 이름 · public = false면 --release에서 빠진다
+
+[setup.postgresql]
+name = "PostgreSQL 가이드"
+logo = "postgresql.svg"
+desc = "Windows 셋업 · pgAdmin 사용법 · psql"
+group = "llm"
+public = true
+
+[setup.pgvector]
+name = "pgvector 가이드"
+logo = "postgresql.svg"
+desc = "Windows 11 · PostgreSQL 18 · pgvector 0.8.7 설치 · 실행 확인"
+group = "llm"
+public = true
+
+[setup.path]
+name = "경로 설정 (PATH)"
+logo = "path.svg"
+desc = "명령을 찾을 수 없을 때 · PATH에 폴더 추가"
+group = "개발 환경"
+public = true
+
+[setup."python-venv"]
+name = "Python 가상환경"
+logo = "python.png"
+desc = ".gpuenv · .backendenv · 명령 두 줄로 만들고 설치 · 터미널과 VS Code 연결"
+group = "개발 환경"
+public = true
+
+[setup.git]
+name = "Git · GitHub"
+logo = "git.svg"
+desc = "commit · push · pull · upstream · branch · merge · .gitignore"
+group = "개발 환경"
+public = true
+
+[setup."vscode-extensions"]
+name = "VS Code Extension"
+logo = "vscode.png"
+desc = "수업 안내 3개 · Python 기본 3개 · 추천 2개"
+group = "개발 환경"
+public = true
+
+[setup.docker]
+name = "Docker"
+logo = "docker.png"
+desc = "이미지 · 컨테이너 · Dockerfile · port · volume · compose"
+group = "개발 환경"
+public = false
+
+[setup."local-ai"]
+name = "로컬 AI 코딩"
+logo = "ollama.png"
+desc = "내 PC의 GPU로 AI 모델 돌리기 · Ollama + OpenCode 설치"
+group = "AI 코딩"
+public = true
+
+[setup."ai-coding"]
+name = "AI 코딩 도구"
+logo = "code.svg"
+desc = "OpenCode · Claude Code · Codex · agy 사용법"
+group = "AI 코딩"
+public = true
+
+[setup.cli]
+name = "CLI 도구"
+logo = "terminal.svg"
+desc = "AI 에이전트의 문서 조회 · 결과 검증 · 서비스 연결"
+group = "AI 코딩"
+public = true
+
+# 여러 페이지로 된 가이드: [하위 폴더, 페이지 이름]. 첫 줄("")이 가이드 첫 페이지
+[setup_pages]
+"postgresql" = [["", "셋업"], ["pgadmin", "pgAdmin 사용법"], ["psql", "psql"]]
+"pgvector" = [["", "설치 · 1–8단계"], ["run", "실행 · 9–10단계"], ["check", "문제 해결 · 체크리스트"]]
+"docker" = [["", "기본"], ["build", "Dockerfile · build"], ["port-volume", "port · volume"], ["compose", "compose"]]
+"git" = [["", "기본"], ["upstream", "upstream"], ["branch", "branch · merge"], ["undo", "undo · .gitignore"], ["practice", "실전 세팅"]]
+"ai-coding" = [["", "공통"], ["opencode", "OpenCode"], ["claude-code", "Claude Code"], ["codex", "Codex"], ["agy", "agy"]]
+
+# Day 페이지 아래 하위 페이지: "과목/날짜" = [[하위 폴더, 이름]]
+[day_subpages]
+"llm/20261112" = [["practice", "오전 실습 가이드"]]
+
+# 페이지와 함께 내려받게 둘 파일: 사이트 경로 = [파일 이름]. 페이지에서는 data-site를 붙여 링크한다
+[files]
+"setup/local-ai" = ["SETUP_FOR_AI.md"]
+"setup/python-venv" = ["requirements-gpu.txt", "requirements-backend.txt", "requirements-all.txt"]
+
+# Colab 실습 폴더: "과목/날짜" = Google Drive 폴더 주소 (링크가 있는 모든 사용자 · 뷰어)
+[colab]
+"python/20261020" = "https://drive.google.com/drive/folders/1B5op7ctuxo9d9V7YmH_S9Jt3hhZ3vS_d"
+"python/20261021" = "https://drive.google.com/drive/folders/1rufeODQSFSmxpUGNgPEhzI5xtoqU4D4L"
+"python/20261022" = "https://drive.google.com/drive/folders/10f0R6X9P8fOgoNVWN4CHBs1hW-q0Hb69"
+"ml/20261023" = "https://drive.google.com/drive/folders/1e66rHIQ2S0pmHYn9PKclqCP5HziOEL5m"
+"ml/20261026" = "https://drive.google.com/drive/folders/1Flqg4-TY5PO3uz68xwHl-UOgHFIKiKVf"
+"ml/20261027" = "https://drive.google.com/drive/folders/1ZLIl8z1c3p2p8HQjEnm6Hf4qWC6cjvWw"
+"ml/20261028" = "https://drive.google.com/drive/folders/1OT68E1f243AmRTAfV-pUkpUi8n736HNd"
+"llm/20261113" = "https://drive.google.com/drive/folders/14TnoVzqT0i4RWOdbONdwqW5a4Ce_vhEn"
+"llm/20261116" = "https://drive.google.com/drive/folders/19rB2g83VexXoU47XW-Br_QkKtCgBKo0f"
+"llm/20261117" = "https://drive.google.com/drive/folders/1jS8l2wm3YetcbodRCHgFhREVKyqgcvbN"
+"llm/20261118" = "https://drive.google.com/drive/folders/1WnWx98gymP7kz6NdyR-UAokG0cak8wm7"
+"llm/20261119" = "https://drive.google.com/drive/folders/1CGcHCMimaZ6Dv5OfC4SlBJ06BaPuSNwQ"
