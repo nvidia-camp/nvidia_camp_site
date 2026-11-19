@@ -44,6 +44,15 @@ def add_totop(text, dark):
     return text if n else text + block
 
 
+def add_copy(text):
+    """<pre data-copy>가 있는 페이지면 </body> 앞에 복사 버튼 CSS·JS를 넣는다 (모양 web/copy.css, 동작 web/copy.js)."""
+    if not re.search(r"<pre\b[^>]*\bdata-copy\b", text):
+        return text
+    block = f"<style>\n{web('copy.css')}</style>\n{web_script('copy.js')}\n"
+    text, n = re.subn(r"</body>", lambda m: block + "</body>", text, count=1, flags=re.I)
+    return text if n else text + block
+
+
 def add_theme(text, nav, dark):
     """다크 모드가 있는 페이지에만 테마 스크립트(</head> 앞)와 버튼(메뉴 오른쪽 끝)을 넣는다."""
     if not dark:

@@ -23,6 +23,7 @@ web/                   ← 모든 페이지에 끼우는 CSS·JS·아이콘
 │   nav.css list.css tree.css theme.css   위쪽 메뉴 · 홈 목록 · 강의 목차 · 다크 모드
 │   theme.js analytics.js                 다크 모드 전환 · Google Analytics
 │   totop.css totop-dark.css totop.js     강의 요약 맨 위로 버튼 (읽은 만큼 차는 원)
+│   copy.css copy.js                      <pre data-copy> 코드 셀 오른쪽 위 복사 아이콘
 │   icons/*.svg
 sitebuild/             ← 빌드 코드 (역할별, 아래 표)
 build_site.py          ← 빌드 시작점: pages/ + site.toml + web/ → public/

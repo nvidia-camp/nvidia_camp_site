@@ -792,14 +792,14 @@ html{scroll-padding-top:3rem}
       <h3>진행 순서</h3>
       <ol class="steps">
         <li><div><span>VS Code로 <code>01_FastAPI</code> 폴더를 열고 설치합니다.</span>
-<pre class="code"><code>python -m pip install -r requirements-check.txt</code></pre></div></li>
+<pre data-copy class="code"><code>python -m pip install -r requirements-check.txt</code></pre></div></li>
         <li><div><span>서버를 켜고 <code>http://127.0.0.1:8000/docs</code>를 엽니다. <code>main.py</code>를 저장할 때마다 서버가 다시 켜집니다.</span>
-<pre class="code"><code>python -m uvicorn main:app --reload</code></pre></div></li>
+<pre data-copy class="code"><code>python -m uvicorn main:app --reload</code></pre></div></li>
         <li><div><span>/docs에서 API를 펼치고 Try it out → Execute. 아직 안 푼 문제면 500이 나오고, 서버 터미널에 문제 번호가 나옵니다.</span>
 <pre class="out">NotImplementedError: B-API-01: 주석 요구사항을 완성하세요.</pre></div></li>
         <li><div><span>그 문제의 <code>raise NotImplementedError(…)</code> 줄을 지우고 TODO 주석대로 코드를 씁니다. 저장 후 다시 Execute.</span></div></li>
         <li><div><span>6개를 다 풀면 다른 터미널에서 채점합니다.</span>
-<pre class="code"><code>python check_api.py</code></pre>
+<pre data-copy class="code"><code>python check_api.py</code></pre>
 <pre class="out">검사 통과: 40개 확인 / B / 임시 데이터만 사용</pre>
 <span class="sub">덜 풀었으면 <code>검사 실패: NotImplementedError: B-API-02</code>처럼 다음 문제를 알려 줍니다.</span></div></li>
       </ol>
@@ -1166,6 +1166,90 @@ document.querySelectorAll('.tabs button').forEach(function (btn) {
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   });
+})();</script>
+<style>
+/* 코드 복사 버튼 — 페이지의 <pre data-copy> 오른쪽 위에 복사 아이콘 (web/copy.js).
+   코드 셀은 라이트·다크 모두 어두운 바탕이라 버튼은 한 가지 색으로 둔다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(255,255,255,.18);border-radius:8px;
+  background:rgba(255,255,255,.06);color:#c9d6e8;
+  opacity:.8;transition:opacity .15s,background .15s,color .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:rgba(255,255,255,.14);color:#fff}
+.cp-btn:focus-visible{outline:2px solid #93c5fd;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;color:#8fd1a6;border-color:rgba(143,209,166,.5)}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 버튼 — <pre data-copy>마다 오른쪽 위에 복사 아이콘을 단다
+ *
+ * - 누르면 코드 글자 그대로(줄바꿈 포함) 클립보드에 넣고, 1.5초 동안 체크 표시.
+ * - 페이지 원본에는 data-copy 표시만 있고, 버튼은 여기서 만든다.
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function attach(pre) {
+    var text = pre.innerText.replace(/\n+$/, '');       // 버튼을 달기 전에 코드 글자만 읽어 둔다
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+
+    var timer;
+    btn.addEventListener('click', function () {
+      copyText(text).then(function () {
+        btn.classList.add('done');
+        btn.setAttribute('aria-label', '복사됨');
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          btn.classList.remove('done');
+          btn.setAttribute('aria-label', '코드 복사');
+        }, 1500);
+      });
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
 })();</script>
 </body>
 </html>

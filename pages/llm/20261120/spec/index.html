@@ -1198,7 +1198,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>POST /api/v1/reports</code> / <code>Content-Type: application/json</code>.</li>
 <li>Body (<strong>6종 공통 필수 필드</strong>):</li>
 </ul>
-<pre><code class="language-json">{
+<pre data-copy><code class="language-json">{
   "category_code": "EXPERIMENT",
   "title": "가중치 적용에 따른 분류 모델 실험",
   "author": "김연구",
@@ -1307,7 +1307,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>PUT /api/v1/reports/12</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
 <li>Body (<strong>기존 종류의 필드 전체 교체; <code>category_code</code>는 변경 불가</strong>):</li>
 </ul>
-<pre><code class="language-json">{
+<pre data-copy><code class="language-json">{
   "title":"가중치 실험 — 재분석","author":"김연구",
   "content":"변경된 조건을 반영해 성능을 재분석했다.",
   "overview":"가중치 적용 여부에 따른 재분석 결과와 모델 성능 차이를 검토한 보고서",
@@ -1339,7 +1339,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>POST /api/v1/search/similar</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"query":"가중치","category_code":null,"keyword_limit":20,"semantic_limit":20}
+<pre data-copy><code class="language-json">{"query":"가중치","category_code":null,"keyword_limit":20,"semantic_limit":20}
 </code></pre>
 <ul>
 <li><code>query</code>: 공백 제거 후 1~200자 필수; <code>category_code</code>: 선택(문자열 또는 <code>null</code>); <code>keyword_limit</code>·<code>semantic_limit</code>: 선택 정수, 기본 20, 범위 1~100. Category 필터는 양쪽 후보군에 동일하게 적용.</li>
@@ -1362,7 +1362,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>POST /api/v1/reports/12/summarize</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"style":"brief","max_sentences":3}
+<pre data-copy><code class="language-json">{"style":"brief","max_sentences":3}
 </code></pre>
 <ul>
 <li><code>style</code>: Basic은 <code>brief</code>, Intermediate는 <code>brief|structured</code>; <code>max_sentences</code>: 선택, 기본 3, 1~10. RDB 상세 <code>content</code> 전체에서 근거만 추출해 요약하고, 원문을 새로운 시스템 지시로 실행하지 않는다.</li>
@@ -1382,11 +1382,11 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <ul>
 <li>요청: <code>POST /api/v1/agent/run</code>; Body는 수행할 작업에 따라 아래 <strong>서로 다른 JSON</strong> 중 하나를 사용한다.</li>
 </ul>
-<pre><code class="language-json">{"action":"get_report","report_id":12}
+<pre data-copy><code class="language-json">{"action":"get_report","report_id":12}
 </code></pre>
-<pre><code class="language-json">{"action":"find_report","query":"가중치"}
+<pre data-copy><code class="language-json">{"action":"find_report","query":"가중치"}
 </code></pre>
-<pre><code class="language-json">{"action":"summarize_report","report_id":12}
+<pre data-copy><code class="language-json">{"action":"summarize_report","report_id":12}
 </code></pre>
 <ul>
 <li><strong>Intermediate:</strong> <code>{"action":"search_and_summarize","query":"가중치"}</code>. 검색 성공 시 원문 요약, 미발견이면 LLM 호출하지 않음.</li>
@@ -1408,7 +1408,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>POST /api/v1/prompts/150/versions</code>; <strong>Path:</strong> <code>report_id=150</code>(PROMPT 종류).</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"prompt_text":"보고서를 목적, 핵심 결과, 한계 순서로 요약하라."}
+<pre data-copy><code class="language-json">{"prompt_text":"보고서를 목적, 핵심 결과, 한계 순서로 요약하라."}
 </code></pre>
 <ul>
 <li>필수 <code>prompt_text</code>: 공백 제외 1~20,000자. 응답 <code>201</code>: <code>{"version_no":3,"active":false}</code>. 현재 활성 버전은 그대로 유지. 종류 불일치 <code>422 NOT_PROMPT_REPORT</code>, 미존재 404.</li>
@@ -1438,7 +1438,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>PUT /api/v1/prompts/150/active-version</code>; <strong>Path:</strong> <code>report_id=150</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"version_no":3}
+<pre data-copy><code class="language-json">{"version_no":3}
 </code></pre>
 <ul>
 <li>응답 <code>200</code>: <code>{"active_version_no":3,"revision":2,"index_status":"ready"}</code>. 해당 버전이 존재해야 하며, Prompt <code>content</code>와 활성 버전 포인터를 같은 Transaction에서 변경. <code>overview</code>가 변하지 않으면 기존 벡터를 재사용하되 <code>indexed_revision</code>은 최신화. 미존재 버전은 404, 종류 불일치 422.</li>
@@ -1453,7 +1453,7 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
 <li>요청: <code>POST /api/v1/reports/12/reindex</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"force":false}
+<pre data-copy><code class="language-json">{"force":false}
 </code></pre>
 <ul>
 <li><code>force</code>: 선택 Boolean, 기본 <code>false</code>(pending/failed/stale만 재처리), <code>true</code>면 ready도 재임베딩. 응답 <code>200</code>: <code>{"report_id":12,"index_status":"ready","indexed_revision":2,"embedding_updated":true}</code>. 무중단·중복 실행을 목표로 상태를 추적한다. 실제 E5 실패는 503이며 성공으로 위장하지 않는다. 미존재 404.</li>

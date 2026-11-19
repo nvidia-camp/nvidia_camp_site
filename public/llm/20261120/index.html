@@ -7,6 +7,7 @@
   --hdr-bg:linear-gradient(110deg,#172d49,#1d3a5f);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#c9ddf3;--hdr-p:#dce8f5;
   --tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
   --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a;
+  --cell-bg:#142032;--cell-fg:#e6effa;--cell-border:#2c425d;
   --dl-bg:#f7fbff;--dl-btn-bg:#ffffff;--dl-btn-border:#b7cce3;--dl-btn-hover:#eaf3fd;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -17,6 +18,7 @@
   --hdr-bg:linear-gradient(110deg,#0f2139,#132c45);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#95b9d5;--hdr-p:#bcd1e0;
   --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
   --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5;
+  --cell-bg:#091321;--cell-fg:#ccdfef;--cell-border:#2c4560;
   --dl-bg:#132840;--dl-btn-bg:#182d47;--dl-btn-border:#35536d;--dl-btn-hover:#203a5a;
 }}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -50,8 +52,9 @@ nav.sec-nav{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 2px 20px}nav.sec-n
 p,li,td,th{overflow-wrap:break-word}
 p{margin:12px 0}li{margin:8px 0}
 code{font:0.91em/1.6 Consolas,"Malgun Gothic",monospace;background:var(--code-bg);color:var(--code-fg);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}
-pre{padding:16px 18px;background:var(--pre-bg);border:1px solid var(--pre-border);border-radius:7px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
-pre code{background:none;padding:0;color:inherit}
+/* 실행 명령은 명세서와 같은 어두운 코드 셀 (라이트·다크 모두) */
+pre{background:var(--cell-bg);color:var(--cell-fg);padding:16px 18px;max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;border:1px solid var(--cell-border);border-radius:10px;font-size:13px;line-height:1.6}
+pre code{background:none;color:inherit;padding:0;font-size:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
 .table{overflow-x:auto;margin:16px 0}
 table{border-collapse:collapse;width:100%;font-size:15px}
 th,td{border:1px solid var(--tbl-border);padding:12px 14px;vertical-align:top;text-align:left}
@@ -488,18 +491,18 @@ html{scroll-padding-top:3rem}
 <div class="dl-group"><span class="dl-label">Postman · Python 패키지</span><div class="dl-list"><a class="dl-btn" data-site href="Report_Agent.postman_collection.json" download>Report_Agent.postman_collection.json</a><a class="dl-btn" data-site href="Report_Agent.postman_environment.json" download>Report_Agent.postman_environment.json</a><a class="dl-btn" data-site href="requirements.txt" download>requirements.txt</a></div></div>
 </section>
 <section id="files"><h2>1. 무엇을 미리 제공하는가</h2><div class="table"><table><thead><tr><th>파일 또는 폴더</th><th>역할</th><th>사용 시점</th></tr></thead><tbody><tr><td><code>common/sql/00_create_database.sql</code></td><td>실습 DB 생성</td><td>실습 DB가 없을 때 1회</td></tr><tr><td><code>common/sql/preflight.sql</code></td><td>연결 DB·서버 확장·기존 구조를 읽기 전용으로 확인</td><td>DB 생성 후, schema 전</td></tr><tr><td><code>common/sql/schema.sql</code></td><td>10개 테이블·제약조건·조회 VIEW 생성</td><td>사전 준비</td></tr><tr><td><code>common/sql/seed.sql</code></td><td>6종 보고서 180건·상세·Prompt 버전 60건 적재</td><td>사전 준비</td></tr><tr><td><code>common/sql/verify.sql</code></td><td>초기 개수와 벡터·상세·Prompt 무결성 확인</td><td>시드 후 / 실제 색인 후</td></tr><tr><td><code>common/postman/Report_Agent.postman_collection.json</code></td><td>39개 API 요청과 응답 검증 스크립트</td><td>사전 Import → 구현 후 실행</td></tr><tr><td><code>common/postman/Report_Agent.postman_environment.json</code></td><td>로컬 주소·시드 ID·생성 ID·유료 요청 제어값</td><td>Collection와 함께 Import</td></tr><tr><td><code>common/postman/POSTMAN_GUIDE.md</code></td><td>요청 실행·정리·검색 의미 확인 설명</td><td>구현 중·완료 검증</td></tr><tr><td><code>common/.env.example</code> / <code>requirements.txt</code> / <code>.gitignore</code></td><td>환경값 예시·패키지 목록·Git 제외 규칙</td><td>패키지는 사전, .env는 프로젝트 루트에</td></tr><tr><td><code>common/data/</code></td><td>시드 원문 목록·수동 검색 5문항·Advanced 평가 6문항</td><td>구현 후 검색 결과 확인</td></tr><tr><td><code>common/docs/</code></td><td>요구사항명세서 v1.4와 ERD</td><td>구현 기준 확인</td></tr><tr><td><code>common/README_START.md</code></td><td>오후 전체 프로젝트 구현 순서</td><td>학생 프로젝트를 받은 뒤</td></tr></tbody></table></div><p>SQL과 Postman JSON은 완성된 제공 파일입니다. <code>app/</code>, 완성된 E5 색인 스크립트, 강사 Python 정답은 이 묶음에 포함하지 않습니다. 데이터 파일은 DB에 추가로 넣는 두 번째 시드가 아닙니다.</p></section>
-<div class="part" id="part-2"><span class="part-n">PART 2</span><b class="part-t">설치·실행</b><span class="part-d">Python 환경 · SQL · Postman</span></div><section id="setup"><h2>2. 사전 준비 — Windows 11</h2><h3>2-1. 기존 가상환경 확인</h3><p>압축을 푼 <strong>이 폴더 전체</strong>를 VS Code로 엽니다. <code>Python: Select Interpreter</code>에서 수업에 쓰던 가상환경의 <code>Scripts/python.exe</code>를 선택한 뒤 새 Git Bash 터미널을 엽니다. 아래 첫 명령이 의도한 가상환경 경로를 출력하는지 확인합니다.</p><pre><code>python -c &quot;import sys; print(sys.executable)&quot;
+<div class="part" id="part-2"><span class="part-n">PART 2</span><b class="part-t">설치·실행</b><span class="part-d">Python 환경 · SQL · Postman</span></div><section id="setup"><h2>2. 사전 준비 — Windows 11</h2><h3>2-1. 기존 가상환경 확인</h3><p>압축을 푼 <strong>이 폴더 전체</strong>를 VS Code로 엽니다. <code>Python: Select Interpreter</code>에서 수업에 쓰던 가상환경의 <code>Scripts/python.exe</code>를 선택한 뒤 새 Git Bash 터미널을 엽니다. 아래 첫 명령이 의도한 가상환경 경로를 출력하는지 확인합니다.</p><pre data-copy><code>python -c &quot;import sys; print(sys.executable)&quot;
 python -m pip install -r common/requirements.txt
 python -m pip check</code></pre><p>마지막 명령은 <code>No broken requirements found.</code>가 기대 결과입니다. 충돌이 있으면 해당 메시지를 강사에게 보여 주세요. <code>ModuleNotFoundError</code>가 나면 먼저 같은 가상환경에 설치했는지 확인합니다.</p>
-<details><summary>Git Bash에서 기존 가상환경을 직접 활성화해야 할 때</summary><p>아래는 <code>C:\course\.venv</code>에 가상환경이 있는 경우의 예시입니다. 본인의 실제 위치로 바꿉니다.</p><pre><code>source /c/course/.venv/Scripts/activate
-python -c &quot;import sys; print(sys.executable)&quot;</code></pre></details><h3>2-2. E5 모델을 미리 불러오기</h3><p>같은 가상환경에서 다음 명령을 실행합니다. 처음에는 모델 파일 다운로드로 시간이 걸릴 수 있습니다. 출력 차원은 <strong>384</strong>입니다. 이 작업은 모델 캐시 준비이며 DB 벡터 적재나 <code>encode()</code> TODO 구현은 하지 않습니다. <a href="#ref-e5">[공식 모델 자료]</a></p><pre><code>python -c &quot;import torch; torch.set_num_threads(1); from sentence_transformers import SentenceTransformer; m=SentenceTransformer(&#x27;intfloat/multilingual-e5-small&#x27;,device=&#x27;cpu&#x27;); print(&#x27;embedding_dimension=&#x27;,m.get_sentence_embedding_dimension())&quot;</code></pre><h3>2-3. 설정값은 프로젝트에서 사용</h3><p><code>common/.env.example</code>의 DB 접속값을 확인합니다. PostgreSQL에 접속할 때 쓰는 계정·비밀번호와 DB 이름을 사용합니다. 실제 <code>.env</code>는 학생 프로젝트를 받은 뒤 그 프로젝트 루트에 만듭니다.</p><div class="table"><table><thead><tr><th>설정</th><th>준비할 값</th></tr></thead><tbody><tr><td><code>DATABASE_URL</code></td><td>제공 예시의 <code>CHANGE_ME</code>를 실제 PostgreSQL 비밀번호로 변경. DB는 <code>report_agent_lab</code></td></tr><tr><td><code>EMBEDDING_MODEL</code></td><td><code>intfloat/multilingual-e5-small</code> 유지</td></tr><tr><td><code>PROJECT_LEVEL</code></td><td>선택한 프로젝트에 맞춰 <code>basic</code> / <code>intermediate</code> / <code>advanced</code></td></tr><tr><td><code>OPENAI_API_KEY</code> / <code>LLM_MODEL</code></td><td>실제 요약을 실행할 때 사용할 본인의 값. SQL 준비에는 필요하지 않음</td></tr><tr><td><code>SEARCH_MIN_SIMILARITY</code></td><td>초기값 <code>0.75</code>. 실제 검색 평가 후 근거를 기록하여 보정</td></tr></tbody></table></div><p>비밀번호에 <code>@</code>, <code>:</code>, <code>/</code>, <code>#</code> 등이 있으면 접속 URL의 비밀번호 부분에 URL 인코딩이 필요할 수 있습니다. 값이 담긴 <code>.env</code>는 제출·공유하지 않습니다.</p></section>
+<details><summary>Git Bash에서 기존 가상환경을 직접 활성화해야 할 때</summary><p>아래는 <code>C:\course\.venv</code>에 가상환경이 있는 경우의 예시입니다. 본인의 실제 위치로 바꿉니다.</p><pre data-copy><code>source /c/course/.venv/Scripts/activate
+python -c &quot;import sys; print(sys.executable)&quot;</code></pre></details><h3>2-2. E5 모델을 미리 불러오기</h3><p>같은 가상환경에서 다음 명령을 실행합니다. 처음에는 모델 파일 다운로드로 시간이 걸릴 수 있습니다. 출력 차원은 <strong>384</strong>입니다. 이 작업은 모델 캐시 준비이며 DB 벡터 적재나 <code>encode()</code> TODO 구현은 하지 않습니다. <a href="#ref-e5">[공식 모델 자료]</a></p><pre data-copy><code>python -c &quot;import torch; torch.set_num_threads(1); from sentence_transformers import SentenceTransformer; m=SentenceTransformer(&#x27;intfloat/multilingual-e5-small&#x27;,device=&#x27;cpu&#x27;); print(&#x27;embedding_dimension=&#x27;,m.get_sentence_embedding_dimension())&quot;</code></pre><h3>2-3. 설정값은 프로젝트에서 사용</h3><p><code>common/.env.example</code>의 DB 접속값을 확인합니다. PostgreSQL에 접속할 때 쓰는 계정·비밀번호와 DB 이름을 사용합니다. 실제 <code>.env</code>는 학생 프로젝트를 받은 뒤 그 프로젝트 루트에 만듭니다.</p><div class="table"><table><thead><tr><th>설정</th><th>준비할 값</th></tr></thead><tbody><tr><td><code>DATABASE_URL</code></td><td>제공 예시의 <code>CHANGE_ME</code>를 실제 PostgreSQL 비밀번호로 변경. DB는 <code>report_agent_lab</code></td></tr><tr><td><code>EMBEDDING_MODEL</code></td><td><code>intfloat/multilingual-e5-small</code> 유지</td></tr><tr><td><code>PROJECT_LEVEL</code></td><td>선택한 프로젝트에 맞춰 <code>basic</code> / <code>intermediate</code> / <code>advanced</code></td></tr><tr><td><code>OPENAI_API_KEY</code> / <code>LLM_MODEL</code></td><td>실제 요약을 실행할 때 사용할 본인의 값. SQL 준비에는 필요하지 않음</td></tr><tr><td><code>SEARCH_MIN_SIMILARITY</code></td><td>초기값 <code>0.75</code>. 실제 검색 평가 후 근거를 기록하여 보정</td></tr></tbody></table></div><p>비밀번호에 <code>@</code>, <code>:</code>, <code>/</code>, <code>#</code> 등이 있으면 접속 URL의 비밀번호 부분에 URL 인코딩이 필요할 수 있습니다. 값이 담긴 <code>.env</code>는 제출·공유하지 않습니다.</p></section>
 <section id="database"><h2>3. SQL — 실행할 DB부터 확인</h2><p>SQL 파일은 <strong>pgAdmin Query Tool</strong>에서 실행합니다. VS Code의 Python 실행 버튼이나 Git Bash에 SQL 내용을 직접 넣지 않습니다. Query Tool에서 파일을 연 뒤 SQL 편집창 안에서 <code>Ctrl+A → F5(Execute script)</code>로 전체를 실행합니다. <a href="#ref-pgadmin">[pgAdmin 실행 안내]</a></p><div class="table"><table><thead><tr><th>순서</th><th>연결할 DB</th><th>실행할 파일·정상 결과</th></tr></thead><tbody><tr><td>1. DB 생성</td><td><code>postgres</code></td><td><code>00_create_database.sql</code> — <code>report_agent_lab</code>이 없을 때만. Auto-commit을 켠 새 Query Tool에서 이 파일만 실행</td></tr><tr><td>2. 다시 연결</td><td><code>report_agent_lab</code></td><td>왼쪽 Databases 새로고침 → 실습 DB 선택 → 새 Query Tool. 기존 postgres 연결 탭과 구분</td></tr><tr><td>3. 사전 점검</td><td><code>report_agent_lab</code></td><td><code>preflight.sql</code> — DB 이름, UTF8, 서버 버전, vector 사용 가능 여부, 기존 테이블 확인</td></tr><tr><td>4. 구조 생성</td><td><code>report_agent_lab</code></td><td><code>schema.sql</code> — vector 확장 활성화, 10개 테이블·조회 VIEW 생성</td></tr><tr><td>5. 시드 적재</td><td><code>report_agent_lab</code></td><td><code>seed.sql</code> — 파일의 BEGIN부터 COMMIT까지 전체 실행. API 요청을 보내지 않는 상태에서 적재</td></tr><tr><td>6. 상태 확인</td><td><code>report_agent_lab</code></td><td><code>verify.sql</code> — SELECT 묶음별로 실행하여 아래 초기 상태와 비교</td></tr></tbody></table></div><p><code>CREATE DATABASE</code>는 트랜잭션 블록 안에서 실행할 수 없으므로 DB 생성 파일을 schema·seed와 합쳐 실행하지 않습니다. DB가 이미 있다면 생성 단계는 건너뜁니다. <a href="#ref-createdb">[PostgreSQL 규칙]</a></p>
 <h3>preflight에서 볼 항목</h3><p><code>connected_database</code>는 <code>report_agent_lab</code>, <code>correct_database</code>는 true, <code>server_encoding</code>은 <code>UTF8</code>이어야 합니다. 수업 기준은 PostgreSQL 18 계열입니다. <code>vector_available_to_install</code>이 true이면 서버가 vector 설치 정보를 인식합니다. schema 실행 전에는 <code>vector_active_in_this_database</code>가 false여도 정상일 수 있습니다.</p>
 <p><strong>Python의 pgvector 패키지와 PostgreSQL 서버의 vector 확장은 별도입니다.</strong> <code>vector_available_to_install=false</code>이면 아래 Windows 설치 항목을 확인한 뒤 다시 진행합니다. 기존 <code>reports</code>가 보이면 같은 Day25 DB를 이어 쓰는지 확인하며 자동 삭제하지 않습니다.</p>
 <h3>처음 빈 DB에 시드를 넣었을 때의 정상 상태</h3><div class="table"><table><thead><tr><th>항목</th><th>사전 준비 완료: expected_seed</th><th>실제 색인 후: expected_indexed</th></tr></thead><tbody><tr><td>카테고리</td><td>6</td><td>6</td></tr><tr><td>보고서</td><td>180</td><td>180</td></tr><tr><td>종류별 상세 테이블</td><td>각각 30</td><td>각각 30</td></tr><tr><td>Prompt 버전</td><td>60</td><td>60</td></tr><tr><td>개요 벡터</td><td><strong>0</strong></td><td>180</td></tr><tr><td>보고서 상태</td><td><strong>pending 180</strong></td><td>ready 180</td></tr></tbody></table></div><p><code>verify.sql</code>은 여러 결과를 반환합니다. 개수·상태·무결성 검사의 각 SQL 묶음을 선택해서 실행하세요. <code>UNION ALL</code> 또는 <code>WITH</code>가 포함되면 세미콜론까지 한 묶음 전체를 선택합니다. 무결성 검사 열 <code>error_count</code>는 0이어야 합니다.</p>
 <p>위 숫자는 <strong>처음 제공한 시드 상태</strong>의 기준입니다. 이미 색인한 DB에 seed를 다시 실행해도 벡터가 0으로 돌아가거나 ready가 pending으로 초기화되지 않습니다. CRUD·Prompt 버전 생성 후에는 행 수가 달라질 수 있습니다.</p>
 <details><summary>같은 SQL을 다시 실행하면 무엇이 유지되는가</summary><p>seed는 같은 ID가 있으면 중복 삽입하거나 덮어쓰지 않습니다. 삭제되어 없는 시드 행은 다시 들어갈 수 있지만, 실습 중 수정한 내용과 추가한 데이터를 초기 상태로 복원하지는 않습니다. <code>CREATE TABLE IF NOT EXISTS</code>도 기존 테이블 구조를 자동 수정하는 기능이 아닙니다. 다른 구조가 남아 있다면 강사와 DB 상태를 확인합니다.</p></details>
-<details><summary>Windows PostgreSQL에 pgvector가 아직 없을 때 — 강사와 함께 준비</summary><p>이미 서버에서 vector를 사용할 수 있다면 이 절은 건너뜁니다. 공식 Windows 방식은 Visual Studio의 C++ 빌드 도구를 사용합니다. <strong>VS Code와 Visual Studio C++ 빌드 도구는 다른 프로그램</strong>입니다. <a href="#ref-pgvector">[공식 설치 안내]</a></p><ol><li>Visual Studio Installer에서 C++ 데스크톱 개발 지원과 Windows SDK를 준비합니다.</li><li>시작 메뉴에서 <strong>x64 Native Tools Command Prompt for VS</strong>를 관리자 권한으로 엽니다. 아래 명령은 Git Bash·PowerShell·pgAdmin용이 아닙니다.</li><li>PostgreSQL 설치 폴더를 확인하여 PGROOT를 맞춘 뒤 실행합니다. 아래는 PostgreSQL 18 기본 경로와 확인한 pgvector v0.8.7 예시입니다.</li></ol><pre><code>set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
+<details><summary>Windows PostgreSQL에 pgvector가 아직 없을 때 — 강사와 함께 준비</summary><p>이미 서버에서 vector를 사용할 수 있다면 이 절은 건너뜁니다. 공식 Windows 방식은 Visual Studio의 C++ 빌드 도구를 사용합니다. <strong>VS Code와 Visual Studio C++ 빌드 도구는 다른 프로그램</strong>입니다. <a href="#ref-pgvector">[공식 설치 안내]</a></p><ol><li>Visual Studio Installer에서 C++ 데스크톱 개발 지원과 Windows SDK를 준비합니다.</li><li>시작 메뉴에서 <strong>x64 Native Tools Command Prompt for VS</strong>를 관리자 권한으로 엽니다. 아래 명령은 Git Bash·PowerShell·pgAdmin용이 아닙니다.</li><li>PostgreSQL 설치 폴더를 확인하여 PGROOT를 맞춘 뒤 실행합니다. 아래는 PostgreSQL 18 기본 경로와 확인한 pgvector v0.8.7 예시입니다.</li></ol><pre data-copy><code>set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
 cd /d &quot;%TEMP%&quot;
 git clone --branch v0.8.7 https://github.com/pgvector/pgvector.git pgvector_day25_087
 cd pgvector_day25_087
@@ -595,5 +598,89 @@ nmake /F Makefile.win install</code></pre><p>각 명령이 성공한 뒤 다음 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   });
+})();</script>
+<style>
+/* 코드 복사 버튼 — 페이지의 <pre data-copy> 오른쪽 위에 복사 아이콘 (web/copy.js).
+   코드 셀은 라이트·다크 모두 어두운 바탕이라 버튼은 한 가지 색으로 둔다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(255,255,255,.18);border-radius:8px;
+  background:rgba(255,255,255,.06);color:#c9d6e8;
+  opacity:.8;transition:opacity .15s,background .15s,color .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:rgba(255,255,255,.14);color:#fff}
+.cp-btn:focus-visible{outline:2px solid #93c5fd;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;color:#8fd1a6;border-color:rgba(143,209,166,.5)}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 버튼 — <pre data-copy>마다 오른쪽 위에 복사 아이콘을 단다
+ *
+ * - 누르면 코드 글자 그대로(줄바꿈 포함) 클립보드에 넣고, 1.5초 동안 체크 표시.
+ * - 페이지 원본에는 data-copy 표시만 있고, 버튼은 여기서 만든다.
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function attach(pre) {
+    var text = pre.innerText.replace(/\n+$/, '');       // 버튼을 달기 전에 코드 글자만 읽어 둔다
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+
+    var timer;
+    btn.addEventListener('click', function () {
+      copyText(text).then(function () {
+        btn.classList.add('done');
+        btn.setAttribute('aria-label', '복사됨');
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          btn.classList.remove('done');
+          btn.setAttribute('aria-label', '코드 복사');
+        }, 1500);
+      });
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
 })();</script>
 </body></html>

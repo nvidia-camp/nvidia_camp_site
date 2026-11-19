@@ -1,0 +1,20 @@
+/* 코드 복사 버튼 — 페이지의 <pre data-copy> 오른쪽 위에 복사 아이콘 (web/copy.js).
+   코드 셀은 라이트·다크 모두 어두운 바탕이라 버튼은 한 가지 색으로 둔다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(255,255,255,.18);border-radius:8px;
+  background:rgba(255,255,255,.06);color:#c9d6e8;
+  opacity:.8;transition:opacity .15s,background .15s,color .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:rgba(255,255,255,.14);color:#fff}
+.cp-btn:focus-visible{outline:2px solid #93c5fd;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;color:#8fd1a6;border-color:rgba(143,209,166,.5)}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}

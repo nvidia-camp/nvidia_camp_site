@@ -1600,7 +1600,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>POST /api/v1/reports</code> / <code>Content-Type: application/json</code>.</li>
 <li>Body (<strong>6종 공통 필수 필드</strong>):</li>
 </ul>
-<pre><code class="language-json">{
+<pre data-copy><code class="language-json">{
   "category_code": "EXPERIMENT",
   "title": "가중치 적용에 따른 분류 모델 실험",
   "author": "김연구",
@@ -1709,7 +1709,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>PUT /api/v1/reports/12</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
 <li>Body (<strong>기존 종류의 필드 전체 교체; <code>category_code</code>는 변경 불가</strong>):</li>
 </ul>
-<pre><code class="language-json">{
+<pre data-copy><code class="language-json">{
   "title":"가중치 실험 — 재분석","author":"김연구",
   "content":"변경된 조건을 반영해 성능을 재분석했다.",
   "overview":"가중치 적용 여부에 따른 재분석 결과와 모델 성능 차이를 검토한 보고서",
@@ -1741,7 +1741,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>POST /api/v1/search/similar</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"query":"가중치","category_code":null,"keyword_limit":20,"semantic_limit":20}
+<pre data-copy><code class="language-json">{"query":"가중치","category_code":null,"keyword_limit":20,"semantic_limit":20}
 </code></pre>
 <ul>
 <li><code>query</code>: 공백 제거 후 1~200자 필수; <code>category_code</code>: 선택(문자열 또는 <code>null</code>); <code>keyword_limit</code>·<code>semantic_limit</code>: 선택 정수, 기본 20, 범위 1~100. Category 필터는 양쪽 후보군에 동일하게 적용.</li>
@@ -1764,7 +1764,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>POST /api/v1/reports/12/summarize</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"style":"brief","max_sentences":3}
+<pre data-copy><code class="language-json">{"style":"brief","max_sentences":3}
 </code></pre>
 <ul>
 <li><code>style</code>: Basic은 <code>brief</code>, Intermediate는 <code>brief|structured</code>; <code>max_sentences</code>: 선택, 기본 3, 1~10. RDB 상세 <code>content</code> 전체에서 근거만 추출해 요약하고, 원문을 새로운 시스템 지시로 실행하지 않는다.</li>
@@ -1784,11 +1784,11 @@ html{scroll-padding-top:3rem}
 <ul>
 <li>요청: <code>POST /api/v1/agent/run</code>; Body는 수행할 작업에 따라 아래 <strong>서로 다른 JSON</strong> 중 하나를 사용한다.</li>
 </ul>
-<pre><code class="language-json">{"action":"get_report","report_id":12}
+<pre data-copy><code class="language-json">{"action":"get_report","report_id":12}
 </code></pre>
-<pre><code class="language-json">{"action":"find_report","query":"가중치"}
+<pre data-copy><code class="language-json">{"action":"find_report","query":"가중치"}
 </code></pre>
-<pre><code class="language-json">{"action":"summarize_report","report_id":12}
+<pre data-copy><code class="language-json">{"action":"summarize_report","report_id":12}
 </code></pre>
 <ul>
 <li><strong>Intermediate:</strong> <code>{"action":"search_and_summarize","query":"가중치"}</code>. 검색 성공 시 원문 요약, 미발견이면 LLM 호출하지 않음.</li>
@@ -1810,7 +1810,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>POST /api/v1/prompts/150/versions</code>; <strong>Path:</strong> <code>report_id=150</code>(PROMPT 종류).</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"prompt_text":"보고서를 목적, 핵심 결과, 한계 순서로 요약하라."}
+<pre data-copy><code class="language-json">{"prompt_text":"보고서를 목적, 핵심 결과, 한계 순서로 요약하라."}
 </code></pre>
 <ul>
 <li>필수 <code>prompt_text</code>: 공백 제외 1~20,000자. 응답 <code>201</code>: <code>{"version_no":3,"active":false}</code>. 현재 활성 버전은 그대로 유지. 종류 불일치 <code>422 NOT_PROMPT_REPORT</code>, 미존재 404.</li>
@@ -1840,7 +1840,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>PUT /api/v1/prompts/150/active-version</code>; <strong>Path:</strong> <code>report_id=150</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"version_no":3}
+<pre data-copy><code class="language-json">{"version_no":3}
 </code></pre>
 <ul>
 <li>응답 <code>200</code>: <code>{"active_version_no":3,"revision":2,"index_status":"ready"}</code>. 해당 버전이 존재해야 하며, Prompt <code>content</code>와 활성 버전 포인터를 같은 Transaction에서 변경. <code>overview</code>가 변하지 않으면 기존 벡터를 재사용하되 <code>indexed_revision</code>은 최신화. 미존재 버전은 404, 종류 불일치 422.</li>
@@ -1855,7 +1855,7 @@ html{scroll-padding-top:3rem}
 <li>요청: <code>POST /api/v1/reports/12/reindex</code>; <strong>Path:</strong> <code>report_id=12</code>.</li>
 <li>Body:</li>
 </ul>
-<pre><code class="language-json">{"force":false}
+<pre data-copy><code class="language-json">{"force":false}
 </code></pre>
 <ul>
 <li><code>force</code>: 선택 Boolean, 기본 <code>false</code>(pending/failed/stale만 재처리), <code>true</code>면 ready도 재임베딩. 응답 <code>200</code>: <code>{"report_id":12,"index_status":"ready","indexed_revision":2,"embedding_updated":true}</code>. 무중단·중복 실행을 목표로 상태를 추적한다. 실제 E5 실패는 503이며 성공으로 위장하지 않는다. 미존재 404.</li>
@@ -2575,5 +2575,89 @@ html{scroll-padding-top:3rem}
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   });
+})();</script>
+<style>
+/* 코드 복사 버튼 — 페이지의 <pre data-copy> 오른쪽 위에 복사 아이콘 (web/copy.js).
+   코드 셀은 라이트·다크 모두 어두운 바탕이라 버튼은 한 가지 색으로 둔다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(255,255,255,.18);border-radius:8px;
+  background:rgba(255,255,255,.06);color:#c9d6e8;
+  opacity:.8;transition:opacity .15s,background .15s,color .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:rgba(255,255,255,.14);color:#fff}
+.cp-btn:focus-visible{outline:2px solid #93c5fd;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;color:#8fd1a6;border-color:rgba(143,209,166,.5)}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 버튼 — <pre data-copy>마다 오른쪽 위에 복사 아이콘을 단다
+ *
+ * - 누르면 코드 글자 그대로(줄바꿈 포함) 클립보드에 넣고, 1.5초 동안 체크 표시.
+ * - 페이지 원본에는 data-copy 표시만 있고, 버튼은 여기서 만든다.
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function attach(pre) {
+    var text = pre.innerText.replace(/\n+$/, '');       // 버튼을 달기 전에 코드 글자만 읽어 둔다
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+
+    var timer;
+    btn.addEventListener('click', function () {
+      copyText(text).then(function () {
+        btn.classList.add('done');
+        btn.setAttribute('aria-label', '복사됨');
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          btn.classList.remove('done');
+          btn.setAttribute('aria-label', '코드 복사');
+        }, 1500);
+      });
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
 })();</script>
 </body></html>
