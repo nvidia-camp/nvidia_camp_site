@@ -21,7 +21,7 @@
 ## 2. 고친 뒤 확인
 
 ```bash
-make check                 # 파이썬·JS 검사 → main 빌드 검사 → release 빌드 검사
+make check                 # 파이썬·JS 검사 → release 빌드 검사 → main 빌드 검사 (끝나면 public/은 main 빌드)
 make serve                 # http://localhost:8000 에서 직접 보기
 ```
 
