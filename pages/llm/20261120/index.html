@@ -21,10 +21,10 @@
 }}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.8 system-ui,"Malgun Gothic",sans-serif}
-header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(24px,calc((100vw - 1080px)/2))}
+header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(24px,calc((100% - 1120px)/2))}
 header h1{color:var(--hdr-fg);margin:6px 0 12px;font-size:34px;line-height:1.4}
 header p{margin:0}.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;letter-spacing:.08em}
-.tabs-wrap{max-width:1160px;margin:18px auto 0;padding:0 24px}
+.tabs-wrap{max-width:1168px;margin:18px auto 0;padding:0 24px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650}
 .tabs a:hover{border-color:var(--link)}
@@ -33,9 +33,8 @@ header p{margin:0}.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;l
 .tabs a[aria-current='page'] .n{background:var(--tab-act-fg);color:var(--tab-act-bg)}
 .tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
 .tabs a.lec:hover{border-color:var(--link)}
-nav{display:flex;flex-wrap:wrap;gap:8px 20px;max-width:1160px;margin:auto;padding:18px 24px}
-.tabs-wrap nav{padding:0;margin:0}
-a{color:var(--link);text-underline-offset:3px}nav a{font-weight:650}
+nav.sec-nav{display:flex;flex-wrap:wrap;gap:8px 20px;max-width:1168px;margin:auto;padding:16px 24px}
+a{color:var(--link);text-underline-offset:3px}nav.sec-nav a{font-weight:650}
 main{max-width:1120px;margin:0 auto 40px;background:var(--surface);padding:30px 34px;border:1px solid var(--border);border-radius:12px}
 h2{font-size:24px;line-height:1.45;margin:0 0 18px;color:var(--heading)}
 h3{font-size:19px;color:var(--subhead);margin:28px 0 10px}
@@ -68,10 +67,10 @@ footer{max-width:1120px;margin:0 auto;padding:0 24px 30px;color:var(--muted);fon
 .dl-btn.primary{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
 .dl-btn.primary:hover{opacity:.92}
 @media(max-width:680px){header{padding:25px 20px}header h1{font-size:27px}.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}main{padding:20px;border:0;border-radius:0}h2{font-size:22px}table{font-size:14px}th,td{padding:10px}#files td:first-child{min-width:180px}body{font-size:15px}}
-@media print{body{background:white;color:#111}nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header .eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
+@media print{body{background:white;color:#111}nav.sec-nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header .eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
 </style></head><body><header><p class="eyebrow">2026.11.20 · DAY25 · REQUIREMENTS v1.4</p><h1>보고서 처리 Agent</h1><p>SQL·초기 데이터·Postman·환경 파일을 준비하고, 오후에는 Python 구현에 집중합니다.</p></header>
 <div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="./" aria-current="page"><span class="n">1</span>사전 준비</a><a data-site href="spec/"><span class="n">2</span>요구사항 명세서</a><a class="lec" data-site href="lecture/">오전 강의 자료 →</a></nav></div>
-<nav><a href="#files">제공 파일</a><a href="#setup">사전 준비</a><a href="#database">DB 실행 순서</a><a href="#postman">Postman</a><a href="#project">프로젝트 연결</a><a href="#troubles">오류 해결</a></nav>
+<nav class="sec-nav"><a href="#files">제공 파일</a><a href="#setup">사전 준비</a><a href="#database">DB 실행 순서</a><a href="#postman">Postman</a><a href="#project">프로젝트 연결</a><a href="#troubles">오류 해결</a></nav>
 <main><section class="notice"><h2>지금의 완료 기준</h2><p><strong>사전 준비는 DB 시드·모델 캐시·Postman Import까지입니다.</strong> 처음 준비한 DB의 벡터 0개·pending 180개는 정상입니다. 실제 색인과 API 요청은 학생 프로젝트에서 해당 기능을 구현한 뒤 확인합니다.</p><p>이 묶음은 <code>Day25_실습자료_v1.4_필수보완.zip</code>과 함께 사용합니다. 기존 Basic 30개 TODO와 10·12·15개 API 범위를 유지합니다.</p></section>
 <section id="downloads" class="dl-box" aria-label="사전 준비 파일 내려받기">
 <h2>사전 준비 파일 내려받기</h2>
