@@ -1,0 +1,6 @@
+# 파이썬 검사 설정 (make lint). 지금은 실수 찾기(F: 안 쓰는 import·정의 안 된 이름)만 켠다.
+line-length = 140
+target-version = "py312"
+
+[lint]
+select = ["F"]

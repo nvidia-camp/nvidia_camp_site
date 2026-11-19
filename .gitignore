@@ -8,3 +8,9 @@ _work/
 .playwright-cli/
 output/playwright/
 .omx/
+
+# make snapshot이 만드는 비교용 빌드
+.snapshot/
+# 도구 흔적
+.gstack/
+output/
