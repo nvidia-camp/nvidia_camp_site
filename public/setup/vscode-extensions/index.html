@@ -680,8 +680,8 @@ html{scroll-padding-top:3rem}
   <details>
     <summary>명령으로 한 번에 설치하기</summary>
     <div class="code">
-      <div class="code-head"><span>PowerShell · 수업 안내 3개 + Python 기본 3개</span><button type="button" data-copy="c1">코드 복사</button></div>
-      <pre id="c1">code --install-extension formulahendry.code-runner
+      <div class="code-head"><span>PowerShell · 수업 안내 3개 + Python 기본 3개</span><button data-cp-src="1" type="button" data-copy="c1">코드 복사</button></div>
+      <pre data-cp="1" id="c1">code --install-extension formulahendry.code-runner
 code --install-extension ritwickdey.LiveServer
 code --install-extension PKief.material-icon-theme
 code --install-extension ms-python.python
@@ -808,5 +808,114 @@ document.querySelectorAll('[data-copy]').forEach(function (btn) {
   });
 });
 </script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
 </body>
 </html>

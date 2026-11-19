@@ -724,8 +724,8 @@ html{scroll-padding-top:3rem}
   <div class="step-head"><span class="num">2</span><h2 id="p2b">최초 1회 · 저장소 둘 연결</h2></div>
   <p>GitHub에서 <code>practice</code> 저장소를 <b>빈 저장소</b>(README · .gitignore · license 체크 해제)로 먼저 만듭니다. 그다음 저장소를 둘 폴더에서:</p>
   <div class="code">
-    <div class="code-head"><span>PowerShell · Git Bash 공통</span><button type="button" data-copy="c-p1">코드 복사</button></div>
-    <pre id="c-p1">mkdir practice
+    <div class="code-head"><span>PowerShell · Git Bash 공통</span><button data-cp-src="1" type="button" data-copy="c-p1">코드 복사</button></div>
+    <pre data-cp="1" id="c-p1">mkdir practice
 cd practice
 git init
 git remote add upstream https://github.com/kangminjun2024/practice_assignment.git
@@ -733,8 +733,8 @@ git remote set-url --push upstream no-push    <span class="c"># 강사님 저장
 git remote add origin https://github.com/내아이디/practice.git</pre>
   </div>
   <div class="code">
-    <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> .gitignore 받고 첫 push</span><button type="button" data-copy="c-p2">코드 복사</button></div>
-    <pre id="c-p2" data-bash="curl -L https://www.toptal.com/developers/gitignore/api/python,windows,macos,visualstudiocode -o .gitignore
+    <div class="code-head"><span class="lbl"><span class="seg" role="group" aria-label="명령을 입력할 창"><button type="button" data-shell-btn="ps" aria-pressed="true">PowerShell</button><button type="button" data-shell-btn="bash" aria-pressed="false">Git Bash</button></span> .gitignore 받고 첫 push</span><button data-cp-src="2" type="button" data-copy="c-p2">코드 복사</button></div>
+    <pre data-cp="2" id="c-p2" data-bash="curl -L https://www.toptal.com/developers/gitignore/api/python,windows,macos,visualstudiocode -o .gitignore
 git add .gitignore
 git commit -m &quot;first commit&quot;
 git push -u origin main">curl.exe -L https://www.toptal.com/developers/gitignore/api/python,windows,macos,visualstudiocode -o .gitignore
@@ -752,16 +752,16 @@ upstream  no-push (push)          ← 막혀 있으면 성공</pre>
 <section class="card" aria-labelledby="p2c">
   <div class="step-head"><span class="num">3</span><h2 id="p2c">매일 · 오늘 폴더 가져오기 → 풀기 → 올리기</h2></div>
   <div class="code">
-    <div class="code-head"><span>PowerShell · Git Bash 공통 · 가져오기</span><button type="button" data-copy="c-d1">코드 복사</button></div>
-    <pre id="c-d1">git fetch upstream                          <span class="c"># 강사님 최신본 받아 두기</span>
+    <div class="code-head"><span>PowerShell · Git Bash 공통 · 가져오기</span><button data-cp-src="3" type="button" data-copy="c-d1">코드 복사</button></div>
+    <pre data-cp="3" id="c-d1">git fetch upstream                          <span class="c"># 강사님 최신본 받아 두기</span>
 git ls-tree --name-only upstream/main       <span class="c"># 폴더 목록 보기</span>
 git restore -s upstream/main -- 20261117    <span class="c"># 오늘 폴더만 가져오기</span>
 git add 20261117
 git commit -m "chore: 20261117 자료 가져오기"</pre>
   </div>
   <div class="code">
-    <div class="code-head"><span>PowerShell · Git Bash 공통 · 풀고 나서</span><button type="button" data-copy="c-d2">코드 복사</button></div>
-    <pre id="c-d2">git add 20261117
+    <div class="code-head"><span>PowerShell · Git Bash 공통 · 풀고 나서</span><button data-cp-src="4" type="button" data-copy="c-d2">코드 복사</button></div>
+    <pre data-cp="4" id="c-d2">git add 20261117
 git commit -m "feat: 20261117 실습"
 git push</pre>
   </div>
@@ -1061,5 +1061,114 @@ git push</pre>
   });
 })();
 </script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
 </body>
 </html>

@@ -102,7 +102,7 @@ p.where code{background:#ffffff1f;color:#fff}
   .next-page b { color: #93C5FD; }
   .next-page small { color: #BBC6D3; }
 }
-</style></head><body><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main>
+</style></head><body><main>
 <section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
 <p>설치·실행 중 막혔을 때 보는 <b>오류별 해결 방법</b>과, 마지막에 확인하는 <b>설치 완료 체크리스트</b>입니다.</p></section>
 <nav class="tabs" aria-label="pgvector 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="../run/"><span class="n">2</span>실행 · 9–10단계</a><a data-site href="../check/" aria-current="page"><span class="n">3</span>문제 해결 · 체크리스트</a></nav>
@@ -235,26 +235,6 @@ p.where code{background:#ffffff1f;color:#fff}
     img.addEventListener('click', function () { big.src = img.src; big.alt = img.alt; dlg.showModal(); });
   });
   dlg.addEventListener('click', function () { dlg.close(); });
-})();
-(function () {
-  function copyText(text, done) {
-    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
-    else fallback(text, done);
-  }
-  function fallback(text, done) {
-    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
-    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
-  }
-  document.querySelectorAll('main pre').forEach(function (pre) {
-    if (pre.closest('.out')) return;
-    var box = document.createElement('div'); box.className = 'codebox';
-    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
-    b.addEventListener('click', function () {
-      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
-    });
-    box.appendChild(b);
-  });
 })();
 </script>
 </body></html>

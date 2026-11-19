@@ -6,7 +6,7 @@ import shutil
 
 from .config import FILES, HERE, ICON_DL, PUBLIC, RELEASE, SETUP
 from .fonts import unify_fonts
-from .nav import ANALYTICS, DOWNLOAD_MARK, THEME_MARK, add_copy, add_theme, add_totop
+from .nav import ANALYTICS, DOWNLOAD_MARK, THEME_MARK, add_copy, add_theme, add_totop, link_old_copy_buttons
 
 
 # 사이트 안 다른 페이지로 가는 링크는 data-site를 붙여 두면 살린다
@@ -104,7 +104,7 @@ def copy_page(src, dest, nav, top="", totop=False):
     text, nav = add_theme(text, nav, "prefers-color-scheme" in original)   # 끼운 목차 블록의 CSS가 아니라 원본 기준
     if totop:
         text = add_totop(text, "prefers-color-scheme" in original)
-    text = add_copy(text)
+    text = add_copy(link_old_copy_buttons(text))   # 모든 페이지의 복사 버튼을 같은 아이콘으로
     text, n_body = re.subn(r"(<body[^>]*>)", lambda m: m.group(1) + nav + ANALYTICS, text, count=1)
     assert n_body == 1, f"<body> 없음: {src}"
     out = PUBLIC / dest

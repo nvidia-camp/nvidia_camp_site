@@ -44,9 +44,51 @@ def add_totop(text, dark):
     return text if n else text + block
 
 
+OLD_COPY_BTN = re.compile(r"<button\b([^>]*)>((?:(?!</button>).)*?)</button>", re.S)
+
+
+def _target_pre(text, target_id, after):
+    """복사 버튼이 가리키는 코드 칸(<pre>)의 위치. id가 pre면 그것, pre 안의 요소면 감싼 pre, 아니면 그 뒤 첫 pre."""
+    if target_id:
+        m = re.search(r'<(\w+)\b[^>]*\bid="%s"' % re.escape(target_id), text)
+        if not m:
+            return None
+        if m.group(1).lower() == "pre":
+            return m.start()
+        open_ = text.rfind("<pre", 0, m.start())
+        if open_ != -1 and text.rfind("</pre>", open_, m.start()) == -1:
+            return open_
+        after = m.end()
+    nxt = text.find("<pre", after)
+    return nxt if nxt != -1 else None
+
+
+def link_old_copy_buttons(text):
+    """페이지에 원래 있던 글자 복사 버튼('코드 복사' 등)을 숨기고, 그 버튼이 복사하던 코드 칸에 같은 복사 아이콘을 단다.
+    아이콘을 누르면 원래 버튼을 대신 눌러, 페이지마다의 복사 방식(줄 번호 빼기, PowerShell·Bash 전환 등)을 그대로 쓴다.
+    원래 버튼: data-copy="id" · data-target="id" · id="copy" · id="copy-btn" 이면서 글자에 '복사'가 있는 것."""
+    edits, n = [], 0
+    for m in OLD_COPY_BTN.finditer(text):
+        attrs, inner = m.group(1), m.group(2)
+        if "복사" not in re.sub(r"<[^>]+>", "", inner) or "data-cp-src" in attrs:
+            continue
+        tid = re.search(r'\bdata-(?:copy|target)="([^"]+)"', attrs)
+        if not tid and not re.search(r'\bid="(?:copy|copy-btn)"', attrs):
+            continue
+        pre = _target_pre(text, tid.group(1) if tid else None, m.end())
+        if pre is None or text.startswith("<pre data-cp=", pre):
+            continue
+        n += 1
+        edits += [(m.start(), len("<button"), f'<button data-cp-src="{n}"'), (pre, len("<pre"), f'<pre data-cp="{n}"')]
+    for pos, size, new in sorted(edits, reverse=True):
+        text = text[:pos] + new + text[pos + size:]
+    return text
+
+
 def add_copy(text):
-    """<pre data-copy>가 있는 페이지면 </body> 앞에 복사 버튼 CSS·JS를 넣는다 (모양 web/copy.css, 동작 web/copy.js)."""
-    if not re.search(r"<pre\b[^>]*\bdata-copy\b", text):
+    """<pre data-copy>(이 사이트가 단 표시)나 <pre data-cp>(원래 복사 버튼과 이은 칸)가 있으면
+    </body> 앞에 복사 아이콘 CSS·JS를 넣는다 (모양 web/copy.css, 동작 web/copy.js)."""
+    if not re.search(r"<pre\b[^>]*\bdata-(?:copy|cp)\b", text):
         return text
     block = f"<style>\n{web('copy.css')}</style>\n{web_script('copy.js')}\n"
     text, n = re.subn(r"</body>", lambda m: block + "</body>", text, count=1, flags=re.I)

@@ -504,7 +504,7 @@ html{scroll-padding-top:3rem}
 
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
-})();</script><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
+})();</script><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
 <p>1–8단계에서 설치한 pgvector를 pgAdmin SQL과 Python에서 확인합니다. 설치를 아직 마치지 않았다면 <a data-site href="../">설치 · 1–8단계</a>부터 진행합니다.</p></section>
 <nav class="tabs" aria-label="pgvector 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="../run/" aria-current="page"><span class="n">2</span>실행 · 9–10단계</a><a data-site href="../check/"><span class="n">3</span>문제 해결 · 체크리스트</a></nav>
 <nav class="steps-nav" aria-label="단계 바로 가기"><div class="grp"><b>검증</b><div><a href="#s9"><span class="n">9</span>거리·검색 검증</a></div></div><div class="grp"><b>Python 연결</b><div><a href="#s10"><span class="n">10</span>Python 연결</a></div></div></nav>
@@ -512,7 +512,7 @@ html{scroll-padding-top:3rem}
 <section class="step" id="s9"><div class="step-head"><span class="badge">9</span><h2>pgvector 거리 계산과 검색 기능 검증</h2><span class="tool">pgAdmin Query Tool</span></div>
 <h3>9-1. 벡터 거리 계산(데이터베이스 변경 없음)</h3>
 <p class="where"><strong>실행 위치: pgAdmin Query Tool</strong></p>
-<pre><code class="language-sql">-- 코사인 거리(&lt;=&gt;)는 작을수록 가깝습니다.
+<pre data-copy><code class="language-sql">-- 코사인 거리(&lt;=&gt;)는 작을수록 가깝습니다.
 SELECT
   '[1,0,0]'::vector &lt;=&gt; '[1,0,0]'::vector AS same_direction,
   '[1,0,0]'::vector &lt;=&gt; '[0,1,0]'::vector AS perpendicular,
@@ -521,7 +521,7 @@ SELECT
 <p><strong>정상 기대값:</strong> <code>same_direction = 0</code>, <code>perpendicular = 1</code>, <code>opposite_direction = 2</code> (실수 표현에 따른 아주 작은 오차는 가능).</p>
 <h3>9-2. 임시 테이블에 저장하고 Top-k 조회</h3>
 <p>아래 SQL은 <strong>해당 Query Tool 세션의 임시 테이블만</strong> 사용하므로 기존 <code>knowledge</code> 테이블을 변경하지 않습니다.</p>
-<pre><code class="language-sql">-- 실습을 다시 실행할 때 현재 세션의 동명 임시 테이블만 제거
+<pre data-copy><code class="language-sql">-- 실습을 다시 실행할 때 현재 세션의 동명 임시 테이블만 제거
 DROP TABLE IF EXISTS pg_temp.day23_vector_check;
 
 CREATE TEMP TABLE day23_vector_check (
@@ -577,7 +577,7 @@ LIMIT 3;
 </blockquote>
 <h3>10-1. 기존 가상환경 확인</h3>
 <p>수강생은 이전 수업에서 사용하던 VS Code 프로젝트를 열고, 해당 가상환경을 활성화합니다. <code>.venv</code>라는 이름을 사용하는 경우 Git Bash에서는 다음과 같습니다.</p>
-<pre><code class="language-bash"># 프로젝트 폴더에서 실행. 기존 환경 이름이 다르면 실제 이름을 사용하세요.
+<pre data-copy><code class="language-bash"># 프로젝트 폴더에서 실행. 기존 환경 이름이 다르면 실제 이름을 사용하세요.
 source .venv/Scripts/activate
 python -c &quot;import sys; print(sys.executable)&quot;
 python -m pip show pgvector psycopg python-dotenv
@@ -586,24 +586,24 @@ python -m pip show pgvector psycopg python-dotenv
 <li><code>sys.executable</code>이 기존 강의 가상환경의 Python을 가리키는지 확인합니다.</li>
 <li>이미 있는 패키지는 그대로 사용합니다. 아래 설치 명령은 없는 패키지에 한해 실행해도 됩니다.</li>
 </ul>
-<pre><code class="language-bash">python -m pip install pgvector 'psycopg[binary]' python-dotenv
+<pre data-copy><code class="language-bash">python -m pip install pgvector 'psycopg[binary]' python-dotenv
 python -m pip check
 </code></pre>
 <p><code>Successfully installed ...</code> 또는 <code>Requirement already satisfied ...</code>와 의존성 확인 성공을 확인합니다. <strong>Python 패키지 설치는 앞선 Windows 서버 확장 설치를 대신하지 않습니다.</strong></p>
 <h3>10-2. <code>.env</code> 파일 작성</h3>
 <p>프로젝트의 Python 확인 파일과 <strong>같은 폴더</strong>에 <code>.env</code> 파일을 만듭니다.</p>
-<pre><code class="language-dotenv">PGHOST=127.0.0.1
+<pre data-copy><code class="language-dotenv">PGHOST=127.0.0.1
 PGPORT=5432
 PGDATABASE=knowledge_lab
 PGUSER=postgres
 PGPASSWORD=본인의_DB_비밀번호
 </code></pre>
 <p><strong>반드시 확인:</strong> <code>PGDATABASE</code>, <code>PGPORT</code>, <code>PGUSER</code>, <code>PGPASSWORD</code>는 본인의 PostgreSQL 설정으로 교체합니다. <code>knowledge_lab</code>, <code>postgres</code>, <code>5432</code>는 예시이므로 실제 환경과 다를 수 있습니다. <code>.env</code>는 Git에 올리지 않습니다. 프로젝트의 <code>.gitignore</code>에 아래 한 줄을 추가합니다.</p>
-<pre><code class="language-gitignore">.env
+<pre data-copy><code class="language-gitignore">.env
 </code></pre>
 <h3>10-3. <code>verify_pgvector.py</code> 파일 작성</h3>
 <p><code>.env</code>와 같은 폴더에 <code>verify_pgvector.py</code>를 만들고 그대로 붙여넣습니다.</p>
-<pre><code class="language-python">&quot;&quot;&quot;Windows 11 · PostgreSQL 18 · pgvector 설치 확인용, 데이터 수정 없음.&quot;&quot;&quot;
+<pre data-copy><code class="language-python">&quot;&quot;&quot;Windows 11 · PostgreSQL 18 · pgvector 설치 확인용, 데이터 수정 없음.&quot;&quot;&quot;
 from pathlib import Path
 import psycopg
 from dotenv import dotenv_values
@@ -642,10 +642,10 @@ with psycopg.connect(
     print(&quot;DB 연결 및 pgvector 확인 완료&quot;)
 </code></pre>
 <p class="where"><strong>실행 위치: VS Code의 Git Bash, 기존 가상환경 활성화 상태</strong></p>
-<pre><code class="language-bash">python verify_pgvector.py
+<pre data-copy><code class="language-bash">python verify_pgvector.py
 </code></pre>
 <p><strong>정상 예상 출력 예시:</strong></p>
-<pre><code class="language-text">연결 DB: knowledge_lab
+<pre data-copy><code class="language-text">연결 DB: knowledge_lab
 벡터 차원: 3
 자기 자신과의 코사인 거리: 0.0
 DB 연결 및 pgvector 확인 완료
@@ -662,25 +662,114 @@ DB 연결 및 pgvector 확인 완료
   });
   dlg.addEventListener('click', function () { dlg.close(); });
 })();
-(function () {
-  function copyText(text, done) {
-    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
-    else fallback(text, done);
-  }
-  function fallback(text, done) {
-    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
-    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
-  }
-  document.querySelectorAll('main pre').forEach(function (pre) {
-    if (pre.closest('.out')) return;
-    var box = document.createElement('div'); box.className = 'codebox';
-    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
-    b.addEventListener('click', function () {
-      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
-    });
-    box.appendChild(b);
-  });
-})();
 </script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
 </body></html>

@@ -699,8 +699,8 @@ html{scroll-padding-top:3rem}
   <h3>WSL 2 설치</h3>
   <p>PowerShell을 <b>관리자 권한으로 실행</b>해 아래를 입력하고 PC를 다시 시작합니다. 이미 설치되어 있으면 <code>wsl --update</code>만 합니다.</p>
   <div class="code">
-    <div class="code-head"><span>PowerShell (관리자)</span><button type="button" data-copy="c-wsl">코드 복사</button></div>
-    <pre id="c-wsl">wsl --install</pre>
+    <div class="code-head"><span>PowerShell (관리자)</span><button data-cp-src="1" type="button" data-copy="c-wsl">코드 복사</button></div>
+    <pre data-cp="1" id="c-wsl">wsl --install</pre>
   </div>
   <h3>Docker Desktop 설치</h3>
   <ol class="plain">
@@ -710,8 +710,8 @@ html{scroll-padding-top:3rem}
   </ol>
   <h3>설치 확인</h3>
   <div class="code">
-    <div class="code-head"><span>PowerShell · Git Bash 공통 · 새 창에서</span><button type="button" data-copy="c-chk">코드 복사</button></div>
-    <pre id="c-chk">docker --version
+    <div class="code-head"><span>PowerShell · Git Bash 공통 · 새 창에서</span><button data-cp-src="2" type="button" data-copy="c-chk">코드 복사</button></div>
+    <pre data-cp="2" id="c-chk">docker --version
 docker run hello-world   <span class="c"># Hello from Docker! 가 나오면 끝</span></pre>
   </div>
   <p class="hint">docker 명령이 오류를 내면 Docker Desktop을 켜고, 작업 표시줄의 고래 아이콘이 멈출 때까지 기다린 뒤 다시 실행합니다. 이 가이드의 docker 명령은 PowerShell과 Git Bash에서 똑같습니다.</p>
@@ -721,16 +721,16 @@ docker run hello-world   <span class="c"># Hello from Docker! 가 나오면 끝<
   <div class="step-head"><span class="num">2</span><h2 id="s2">기본 명령 · pull · run · stop · rm</h2></div>
   <p class="flowline"><span>pull</span><i>→</i><span>run</span><i>→</i><span>ps</span><i>→</i><span>stop</span><i>→</i><span>rm</span></p>
   <div class="code">
-    <div class="code-head"><span>PowerShell · Git Bash 공통</span><button type="button" data-copy="c-run">코드 복사</button></div>
-    <pre id="c-run">docker pull nginx                           <span class="c"># 이미지 받기</span>
+    <div class="code-head"><span>PowerShell · Git Bash 공통</span><button data-cp-src="3" type="button" data-copy="c-run">코드 복사</button></div>
+    <pre data-cp="3" id="c-run">docker pull nginx                           <span class="c"># 이미지 받기</span>
 docker run -d -p 8080:80 --name web nginx   <span class="c"># 컨테이너 web 실행</span>
 docker ps                                   <span class="c"># 실행 중인 컨테이너</span>
 docker stop web                             <span class="c"># 멈추기</span>
 docker rm web                               <span class="c"># 지우기 (이미지는 남음)</span></pre>
   </div>
   <div class="code">
-    <div class="code-head"><span>PowerShell · Git Bash 공통 · 확인</span><button type="button" data-copy="c-look">코드 복사</button></div>
-    <pre id="c-look">docker images      <span class="c"># 받아 둔 이미지</span>
+    <div class="code-head"><span>PowerShell · Git Bash 공통 · 확인</span><button data-cp-src="4" type="button" data-copy="c-look">코드 복사</button></div>
+    <pre data-cp="4" id="c-look">docker images      <span class="c"># 받아 둔 이미지</span>
 docker ps -a       <span class="c"># 멈춘 컨테이너까지 전부</span>
 docker logs web    <span class="c"># 컨테이너가 출력한 내용</span></pre>
   </div>
@@ -1022,5 +1022,114 @@ docker logs web    <span class="c"># 컨테이너가 출력한 내용</span></pr
   });
 })();
 </script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
 </body>
 </html>

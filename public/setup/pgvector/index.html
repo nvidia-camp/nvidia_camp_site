@@ -504,7 +504,7 @@ html{scroll-padding-top:3rem}
 
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
-})();</script><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
+})();</script><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
 <p><strong>강의일:</strong> 2026년 11월 18일(수)<br />
 <strong>목표:</strong> 기존 PostgreSQL을 유지하면서 pgvector 0.8.7을 설치하고, pgAdmin SQL과 Python에서 정상 동작을 확인한다.</p>
 <blockquote>
@@ -569,7 +569,7 @@ html{scroll-padding-top:3rem}
 <li>사용 중인 강의용 DB(예: <code>knowledge_lab</code>)를 마우스 오른쪽 클릭하고 <strong>Query Tool</strong>을 선택합니다.</li>
 <li>아래 SQL을 붙여넣고 <strong>F5</strong>로 실행합니다.</li>
 </ol>
-<pre><code class="language-sql">-- 서버 버전, 현재 연결한 데이터베이스 및 계정 확인
+<pre data-copy><code class="language-sql">-- 서버 버전, 현재 연결한 데이터베이스 및 계정 확인
 SELECT version();
 SELECT current_database(), current_user, inet_server_port();
 
@@ -614,7 +614,7 @@ WHERE name = 'vector';
 </section>
 <section class="step" id="s2"><div class="step-head"><span class="badge">2</span><h2>PostgreSQL 18.6 프로그램 경로 확인</h2><span class="tool">일반 CMD</span></div>
 <p class="where"><strong>실행 위치: 일반 CMD</strong> (Windows 키 → <code>cmd</code> 검색 → 명령 프롬프트 실행)</p>
-<pre><code class="language-cmd">&quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --version
+<pre data-copy><code class="language-cmd">&quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --version
 &quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --includedir-server
 &quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --pkglibdir
 </code></pre>
@@ -660,7 +660,7 @@ C:/PROGRA~1/POSTGR~1/18/lib</pre><p class="out-note"><code>PROGRA~1</code>은 <c
 <li><strong>이 창은 CMD 기반 개발자 명령 프롬프트입니다.</strong> Python 실습용 Git Bash가 아닙니다.</li>
 </ol>
 <p>다음 명령을 <strong>한 줄씩</strong> 실행합니다.</p>
-<pre><code class="language-cmd">where cl
+<pre data-copy><code class="language-cmd">where cl
 where nmake
 where git
 echo %VSCMD_ARG_TGT_ARCH%
@@ -678,7 +678,7 @@ echo %VSCMD_ARG_TGT_ARCH%
 </section>
 <section class="step" id="s5"><div class="step-head"><span class="badge">5</span><h2><code>PGROOT</code> 환경변수와 개발용 파일 확인</h2><span class="tool">x64 Native Tools · 관리자</span></div>
 <p class="where"><strong>실행 위치: 방금 연 관리자 권한 x64 Native Tools Command Prompt</strong></p>
-<pre><code class="language-cmd">set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
+<pre data-copy><code class="language-cmd">set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
 echo %PGROOT%
 &quot;%PGROOT%\bin\pg_config.exe&quot; --version
 dir &quot;%PGROOT%\include\server\postgres.h&quot;
@@ -705,7 +705,7 @@ dir &quot;%PGROOT%\lib\postgres.lib&quot;
 </section>
 <section class="step" id="s6"><div class="step-head"><span class="badge">6</span><h2>pgvector 0.8.7 공식 소스 다운로드</h2><span class="tool">x64 Native Tools · 관리자</span></div>
 <p class="where"><strong>실행 위치: 동일한 관리자 권한 x64 Native Tools Command Prompt</strong></p>
-<pre><code class="language-cmd">if not exist C:\pgvector-build mkdir C:\pgvector-build
+<pre data-copy><code class="language-cmd">if not exist C:\pgvector-build mkdir C:\pgvector-build
 cd /d C:\pgvector-build
 git clone --branch v0.8.7 --depth 1 https://github.com/pgvector/pgvector.git
 cd pgvector
@@ -724,13 +724,13 @@ You are in &#x27;detached HEAD&#x27; state. (영어 안내 몇 줄)
 </section>
 <section class="step" id="s7"><div class="step-head"><span class="badge">7</span><h2><code>nmake</code>로 DLL 컴파일 및 서버 확장 파일 설치</h2><span class="tool">x64 Native Tools · 관리자</span></div>
 <p>여전히 <strong><code>C:\pgvector-build\pgvector</code> 폴더</strong>에 있어야 합니다. 먼저 DLL을 만듭니다.</p>
-<pre><code class="language-cmd">nmake /F Makefile.win
+<pre data-copy><code class="language-cmd">nmake /F Makefile.win
 echo %ERRORLEVEL%
 dir vector.dll
 </code></pre>
 <p><strong>정상 확인:</strong> <code>nmake</code> 실행이 오류 없이 완료되고, 그 직후 <code>echo %ERRORLEVEL%</code>이 <code>0</code>을 표시하며 <code>vector.dll</code> 파일이 생성됩니다. 컴파일러가 표시하는 단순 warning과 실제 오류(<code>fatal error</code>, <code>NMAKE : fatal error</code>)는 구분하세요.</p>
 <p><strong>컴파일 성공 후에만</strong> 다음 명령으로 PostgreSQL 설치 폴더에 확장 파일을 복사합니다.</p>
-<pre><code class="language-cmd">nmake /F Makefile.win install
+<pre data-copy><code class="language-cmd">nmake /F Makefile.win install
 dir &quot;%PGROOT%\lib\vector.dll&quot;
 dir &quot;%PGROOT%\share\extension\vector.control&quot;
 dir &quot;%PGROOT%\share\extension\vector--*.sql&quot;
@@ -771,7 +771,7 @@ dir &quot;%PGROOT%\share\extension\vector--*.sql&quot;
 <li><strong>pgAdmin → 강의용 DB(예: <code>knowledge_lab</code>) → Query Tool</strong>을 엽니다.</li>
 <li>SQL을 실행하기 전에 DB 이름을 다시 확인합니다.</li>
 </ol>
-<pre><code class="language-sql">SELECT current_database();
+<pre data-copy><code class="language-sql">SELECT current_database();
 
 -- 설치 파일 발견 여부 확인
 SELECT name, default_version, installed_version
@@ -790,7 +790,7 @@ WHERE extname = 'vector';
 <p><code>pg_available_extensions</code>가 0행이면 DLL·control 파일이 <strong>현재 서버 설치 폴더에</strong> 들어갔는지 확인하세요. <code>postgres</code> DB에 활성화했다고 <code>knowledge_lab</code>에서도 자동 활성화되지는 않습니다.</p>
 <h3>실패한 트랜잭션을 복구해야 한다면</h3>
 <p>이전에 오류가 발생해 <code>current transaction is aborted</code>가 나오면, 오류가 난 Query Tool에서 아래 명령을 실행하고 실패 원인을 해결한 다음 다시 시도합니다.</p>
-<pre><code class="language-sql">ROLLBACK;
+<pre data-copy><code class="language-sql">ROLLBACK;
 </code></pre>
 <p>정상 실행 중인 트랜잭션에 무작정 <code>ROLLBACK</code>을 하지 말고, <strong>오류로 중단된 트랜잭션일 때만</strong> 실행합니다.</p>
 </section>
@@ -804,25 +804,114 @@ WHERE extname = 'vector';
   });
   dlg.addEventListener('click', function () { dlg.close(); });
 })();
-(function () {
-  function copyText(text, done) {
-    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
-    else fallback(text, done);
-  }
-  function fallback(text, done) {
-    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
-    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
-  }
-  document.querySelectorAll('main pre').forEach(function (pre) {
-    if (pre.closest('.out')) return;
-    var box = document.createElement('div'); box.className = 'codebox';
-    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
-    b.addEventListener('click', function () {
-      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
-    });
-    box.appendChild(b);
-  });
-})();
 </script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
 </body></html>
