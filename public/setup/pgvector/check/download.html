@@ -59,7 +59,50 @@ p.where code{background:#ffffff1f;color:#fff}
 .next-page b{font-size:19px;color:var(--navy)}
 .next-page small{font-size:14px;color:#52667e}
 @media print{.tabs,.next-page{display:none}}
-</style></head><body><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main>
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --ink:#D8E3F0; --navy:#1E3A5F; --blue:#7FAEE0; --bg:#0B1220; --line:#293C57; --white:#132033; }
+  h2 { border-bottom: 2px solid #30445A; }
+  p code,li code,td code { background: #142434; }
+  th { background: #142134; color: #B1C3DD; }
+  th,td { border: 1px solid #30435A; }
+  blockquote { background: #142434; }
+  hr { border-top: 1px solid #30435A; }
+  .print-button { background: #132033; color: #B0C1DE; }
+  figure.shot img { background: #132033; }
+  figure.shot figcaption { color: #BBC6D3; }
+  .intro,.step { background: #132033; }
+  .step-head { border-bottom: 2px solid #30445A; }
+  .step-head .tool { background: #142434; border: 1px solid #30435A; }
+  .phase { border-color: #93C5FD; }
+  .phase b { color: #93C5FD; }
+  .phase span { color: #BBC6D3; }
+  .steps-nav { background: #132033; }
+  .steps-nav .grp>b { color: #BBC6D3; }
+  .steps-nav a { color: #93C5FD; }
+  .steps-nav a { background: #132033; }
+  .steps-nav a:hover { border-color: #93C5FD; }
+  .steps-nav .n { color: #93C5FD; }
+  .steps-nav .n { background: #142434; }
+  .step.refs { background: #142034; }
+  .out { border: 1px solid #30435A; background: #142434; }
+  .out-h { background: #142434; border-bottom: 1px solid #30435A; }
+  .out-note { color: #BBC6D3; }
+  .copy-btn.done { border-color: #305A3E; }
+  .tabs a { background: #132033; }
+  .tabs a:hover { border-color: #93C5FD; }
+  .tabs .n { color: #93C5FD; }
+  .tabs .n { background: #142434; }
+  .tabs a[aria-current="page"] { border-color: #93C5FD; }
+  .tabs a[aria-current="page"] .n { color: #93C5FD; }
+  .tabs a[aria-current="page"] .n { background: #132033; }
+  .next-page { background: #132033; }
+  .next-page:hover { border-color: #93C5FD; }
+  .next-page span { color: #BBC6D3; }
+  .next-page b { color: #93C5FD; }
+  .next-page small { color: #BBC6D3; }
+}
+</style></head><body><main>
 <section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
 <p>설치·실행 중 막혔을 때 보는 <b>오류별 해결 방법</b>과, 마지막에 확인하는 <b>설치 완료 체크리스트</b>입니다.</p></section>
 <nav class="tabs" aria-label="pgvector 가이드 페이지"><a data-site href="../"><span class="n">1</span>설치 · 1–8단계</a><a data-site href="../run/"><span class="n">2</span>실행 · 9–10단계</a><a data-site href="../check/" aria-current="page"><span class="n">3</span>문제 해결 · 체크리스트</a></nav>
@@ -192,26 +235,6 @@ p.where code{background:#ffffff1f;color:#fff}
     img.addEventListener('click', function () { big.src = img.src; big.alt = img.alt; dlg.showModal(); });
   });
   dlg.addEventListener('click', function () { dlg.close(); });
-})();
-(function () {
-  function copyText(text, done) {
-    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
-    else fallback(text, done);
-  }
-  function fallback(text, done) {
-    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
-    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
-  }
-  document.querySelectorAll('main pre').forEach(function (pre) {
-    if (pre.closest('.out')) return;
-    var box = document.createElement('div'); box.className = 'codebox';
-    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
-    b.addEventListener('click', function () {
-      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
-    });
-    box.appendChild(b);
-  });
 })();
 </script>
 </body></html>

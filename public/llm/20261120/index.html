@@ -1,0 +1,711 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Day25 · 보고서 처리 Agent</title><style>
+:root{
+  --bg:#eef2f6;--surface:#ffffff;--text:#162237;--heading:#142c49;--subhead:#163c64;--muted:#40546a;
+  --border:#d8e1eb;--tbl-border:#ccd7e3;--th-bg:#e7eef6;--tr-even:#f8fafc;
+  --soft:#f8fafc;--code-bg:#edf1f5;--code-fg:#14253c;--pre-bg:#eff3f7;--pre-border:#cbd7e3;
+  --notice-bg:#eef6ff;--notice-border:#b8d0e9;--link:#124d8a;
+  --hdr-bg:linear-gradient(110deg,#172d49,#1d3a5f);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#c9ddf3;--hdr-p:#dce8f5;
+  --tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
+  --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a;
+  --cell-bg:#142032;--cell-fg:#e6effa;--cell-border:#2c425d;
+  --dl-bg:#f7fbff;--dl-btn-bg:#ffffff;--dl-btn-border:#b7cce3;--dl-btn-hover:#eaf3fd;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1220;--surface:#102137;--text:#e5eaf2;--heading:#e5eaf2;--subhead:#a8cdf2;--muted:#98aec5;
+  --border:#29384e;--tbl-border:#2d425d;--th-bg:#182d47;--tr-even:#16263b;
+  --soft:#16263b;--code-bg:#1c2e47;--code-fg:#a5e3d0;--pre-bg:#0d1828;--pre-border:#2d425d;
+  --notice-bg:#132840;--notice-border:#315478;--link:#93c5fd;
+  --hdr-bg:linear-gradient(110deg,#0f2139,#132c45);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#95b9d5;--hdr-p:#bcd1e0;
+  --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
+  --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5;
+  --cell-bg:#091321;--cell-fg:#ccdfef;--cell-border:#2c4560;
+  --dl-bg:#132840;--dl-btn-bg:#182d47;--dl-btn-border:#35536d;--dl-btn-hover:#203a5a;
+}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard Variable", Pretendard, "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;font-size:16px;line-height:1.75}
+header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(30px,calc((100% - 1180px)/2));border-bottom:1px solid var(--hdr-border)}
+header h1{color:var(--hdr-fg);margin:.4rem 0;font-size:33px}
+header p{max-width:1000px;color:var(--hdr-p);margin:0;font-size:15px}header p.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;letter-spacing:.12em}
+.tabs-wrap{max-width:1240px;margin:18px auto 0;padding:0 30px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650}
+.tabs a:hover{border-color:var(--link)}
+.tabs .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--tab-n-bg);color:var(--tab-n-fg);font-size:13px;font-weight:700}
+.tabs a[aria-current='page']{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
+.tabs a[aria-current='page'] .n{background:var(--tab-act-fg);color:var(--tab-act-bg)}
+.tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
+.tabs a.lec:hover{border-color:var(--link)}
+a{color:var(--link);text-underline-offset:3px}
+main{max-width:1180px;margin:20px auto 48px;padding:0;min-width:0}
+h2{font-size:24px;line-height:1.45;margin:0 0 18px;color:var(--heading)}
+h3{font-size:19px;color:var(--subhead);margin:28px 0 10px}
+main>section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 34px;margin:0 0 16px;scroll-margin-top:64px}
+main>section.notice{background:var(--notice-bg);border-color:var(--notice-border)}
+/* 섹션 카드 + PART 묶음: 큰 카드 하나 대신 섹션마다 카드, 섹션 몇 개를 PART 제목 줄로 묶는다 */
+.part{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:44px 2px 14px;padding-bottom:10px;border-bottom:2px solid var(--heading);scroll-margin-top:64px}
+main>.part:first-of-type{margin-top:4px}
+.part-n{font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--link)}
+.part-t{font-size:22px;line-height:1.4;color:var(--heading)}
+.part-d{font-size:14px;color:var(--muted)}
+nav.sec-nav{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 2px 20px}nav.sec-nav a{font-weight:650}
+.notice h2{font-size:21px}
+p,li,td,th{overflow-wrap:break-word}
+p{margin:12px 0}li{margin:8px 0}
+code{font:0.91em/1.6 Consolas,"Malgun Gothic",monospace;background:var(--code-bg);color:var(--code-fg);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}
+/* 실행 명령은 명세서와 같은 어두운 코드 셀 (라이트·다크 모두) */
+pre{background:var(--cell-bg);color:var(--cell-fg);padding:16px 18px;max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;border:1px solid var(--cell-border);border-radius:10px;font-size:13px;line-height:1.6}
+pre code{background:none;color:inherit;padding:0;font-size:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+.table{overflow-x:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border:1px solid var(--tbl-border);padding:12px 14px;vertical-align:top;text-align:left}
+th{background:var(--th-bg);color:var(--heading)}
+tbody tr:nth-child(even){background:var(--tr-even)}
+#database td:nth-child(2) code{white-space:nowrap}
+#files td:first-child{min-width:260px}
+details{border:1px solid var(--pre-border);border-radius:7px;padding:16px 18px;margin:18px 0;background:var(--soft)}
+summary{font-weight:700;color:var(--subhead);cursor:pointer}
+.sources{font-size:14px}
+footer{max-width:1240px;margin:0 auto;padding:0 30px 30px;color:var(--muted);font-size:13px}
+main>section.dl-box{border-color:var(--notice-border);background:var(--dl-bg)}
+.dl-box h2{margin:0 0 8px;font-size:20px;color:var(--heading)}
+.dl-box p{margin:0 0 14px;font-size:15px;color:var(--muted)}
+.dl-group{margin-top:12px}.dl-label{display:block;margin:0 0 6px;font-size:13px;font-weight:700;color:var(--muted)}
+.dl-list{display:flex;flex-wrap:wrap;gap:8px}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--dl-btn-border);border-radius:8px;background:var(--dl-btn-bg);color:var(--link);font-size:14px;font-weight:650;text-decoration:none}
+.dl-btn:hover{background:var(--dl-btn-hover);border-color:var(--link)}
+.dl-btn.primary{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
+.dl-btn.primary:hover{opacity:.92}
+@media(max-width:720px){header{padding:25px 20px}header h1{font-size:26px}.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}main{margin:12px 0 0;padding:0}main>section{padding:20px 16px;border-left:0;border-right:0;border-radius:0;margin-bottom:12px}.part{margin:32px 16px 12px}nav.sec-nav{margin:0 16px 16px}footer{padding:16px}h2{font-size:22px}table{font-size:14px}th,td{padding:10px}#files td:first-child{min-width:180px}body{font-size:15px}}
+@media print{body{background:white;color:#111}nav.sec-nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header p,header p.eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
+</style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
+</style>
+</head><body><style>
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;width:100%;max-width:none;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-ico{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}
+.cn-nav .cn-ico svg{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-slack img{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-colab{width:auto;padding:0 .3rem}.cn-nav .cn-colab img{display:block;width:1.7rem;height:1rem}
+.cn-nav .cn-right{align-items:center}
+.cn-nav [data-tip]{position:relative}
+.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
+  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}
+html{scroll-padding-top:3rem}
+@media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../llm/">LLM·RAG</a><a href="../../llm/20261120/">Day25</a><span class="cn-here">사전 준비</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="Day25_보고서_처리_Agent.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a class="cn-ico" href="lecture/" data-tip="강의 자료 보기" aria-label="강의 자료 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a><a href="../../llm/20261119/">‹ Day24</a><a href="../../llm/20261120/spec/">요구사항 명세서 ›</a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>/* =====================================================================
+ * Google Analytics 4 — 사이트 방문·행동 기록
+ *
+ * build_site.py가 이 파일을 모든 사이트 화면에 <script>로 끼워 넣는다.
+ * (내려받기용 download.html 원본과 강의 view.html에는 넣지 않는다)
+ *
+ * 확인 방법: 주소 끝에 ?ga_debug=1 → GA 관리 > DebugView 에서 바로 보인다.
+ *
+ * 보내는 이벤트
+ *   page_view         페이지 열림 (GA 기본)
+ *   section_view      요약의 단락 제목(h2)까지 내려옴 — 단락마다 1번
+ *   toc_open          강의 목차 상자를 펼침 (details_open: 그 밖의 접힌 상자)
+ *   site_click        링크 클릭 — link_type으로 종류 구분 (colab, html_download, …)
+ *   theme_toggle      다크/라이트 전환
+ *   slide_view        강의 자료에서 슬라이드를 넘김
+ *   lecture_progress  강의 자료를 떠날 때 본 슬라이드 수
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var GA_ID = 'G-9743VJ73E0';                 // GA 측정 ID
+  var LIVE_HOST = 'nvidiasesac.vercel.app';   // 이 주소에서만 기록을 보낸다
+  var PENDING_KEY = 'ga-pending-click';       // 페이지 이동 클릭을 잠시 맡겨 두는 이름
+
+  // 미리보기·내 컴퓨터에서 열면 아무것도 하지 않는다 (통계에 섞이지 않게)
+  if (location.hostname !== LIVE_HOST) return;
+
+  var doc = document;
+  var debug = /[?&]ga_debug=1/.test(location.search);
+
+
+  /* ── 2. GA 기본 설치 (GA 공식 코드와 같다) ─────────────────────────── */
+  var tag = doc.createElement('script');
+  tag.async = true;
+  tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  doc.head.appendChild(tag);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+
+
+  /* ── 3. 공통 도구 ─────────────────────────────────────────────────── */
+
+  // 이벤트 보내기: 모든 이벤트는 여기를 지난다
+  function send(name, params) {
+    params = params || {};
+    if (debug) params.debug_mode = true;
+    gtag('event', name, params);
+  }
+
+  // 글자 정리: 공백을 하나로 줄이고 100자까지만 (GA 값 길이 제한)
+  function shorten(text) {
+    return (text || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+  }
+
+
+  /* ── 4. 페이지 정보: 과목·페이지 종류·Day ───────────────────────────
+   *   주소 예: /llm/20261118/lecture/  →  과목 llm · 종류 lecture
+   *   Day는 위쪽 메뉴 글자(Day24)에서 읽는다.                            */
+  function pageType(parts) {
+    var top = parts[0];
+    if (!parts.length) return 'home';
+    if (top === 'setup') return 'guide';
+    if (top === 'cheatsheet') return 'cheatsheet';
+    if (parts.length === 1) return 'subject';                // /llm/
+    if (/^\d{8}/.test(parts[1])) {                           // /llm/20261118/…
+      if (parts[2] === 'lecture') return 'lecture';
+      return parts[2] ? 'day_sub' : 'day';
+    }
+    return 'other';
+  }
+
+  function startPage() {
+    var parts = location.pathname.split('/').filter(Boolean);
+    var nav = doc.querySelector('.cn-nav');
+    var day = nav && nav.textContent.match(/Day\d+(?:-\d+)?/);
+
+    // 이 페이지에서 보내는 모든 이벤트에 붙는 값
+    gtag('set', {
+      content_group: parts[0] || 'home',
+      page_type: pageType(parts),
+      day_label: day ? day[0] : '(none)'
+    });
+    gtag('config', GA_ID, debug ? { debug_mode: true } : {});   // ← 여기서 page_view가 나간다
+
+    // 앞 페이지에서 맡겨 둔 클릭이 있으면 지금 보낸다 (8번 참고)
+    try {
+      var pending = sessionStorage.getItem(PENDING_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_KEY);
+        send('site_click', JSON.parse(pending));
+      }
+    } catch (e) {}
+  }
+
+
+  /* ── 5. 단락 도달: section_view ────────────────────────────────────
+   *   h2 제목이 화면 위쪽 60%까지 올라오면 한 번 보낸다.
+   *   위쪽 경계를 크게 열어 두어, 빠르게 스크롤해 지나친 단락도 센다.     */
+  function watchSections() {
+    if (!('IntersectionObserver' in window)) return;
+    var headings = [].slice.call(doc.querySelectorAll('h2')).filter(function (h) {
+      return !h.closest('.cn-nav');
+    });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);                     // 단락마다 한 번만
+        send('section_view', {
+          section_id: entry.target.id || '(none)',
+          section_title: shorten(entry.target.textContent),
+          section_index: headings.indexOf(entry.target) + 1
+        });
+      });
+    }, { rootMargin: '100000px 0px -40% 0px' });
+    headings.forEach(function (h) { observer.observe(h); });
+  }
+
+
+  /* ── 6. 접힌 상자 펼침: toc_open / details_open ────────────────── */
+  function watchDetails() {
+    doc.addEventListener('toggle', function (e) {
+      var box = e.target;
+      if (box.tagName !== 'DETAILS' || !box.open) return;
+      var summary = box.querySelector('summary');
+      send(box.classList.contains('lt-box') ? 'toc_open' : 'details_open', {
+        details_label: shorten(summary && (summary.innerText || summary.textContent))
+      });
+    }, true);
+  }
+
+
+  /* ── 7. 링크 종류 나누기 (site_click의 link_type) ──────────────── */
+  function linkType(a) {
+    var url = a.href, href = a.getAttribute('href');
+    var external = a.host && a.host !== location.host;
+    if (a.classList.contains('cn-colab') || /colab\.research|drive\.google/.test(url)) return 'colab';
+    if (a.classList.contains('cn-dl') || a.hasAttribute('download')) return 'html_download';
+    if (a.classList.contains('cn-slack') || /slack\.com/.test(url)) return 'slack';
+    if (/swexpertacademy/.test(url)) return 'swea';
+    if (/programmers\.co\.kr/.test(url)) return 'programmers';
+    if (/\.pdf(\?|#|$)/i.test(url)) return 'pdf';
+    if (/(^|\/)lecture\/?$/.test(href)) return 'lecture_view';
+    if (href.charAt(0) === '#') return 'anchor';
+    return external ? 'outbound' : 'internal';
+  }
+
+
+  /* ── 8. 클릭: site_click · theme_toggle ────────────────────────────
+   *   같은 탭에서 사이트 안 다른 페이지로 가면, 떠나는 순간 기록이 사라질
+   *   수 있다. 그런 클릭은 sessionStorage에 맡겨 두고 다음 페이지가 보낸다. */
+  function watchClicks() {
+    doc.addEventListener('click', function (e) {
+      // 다크 모드 버튼: 테마가 바뀐 뒤의 값을 보낸다
+      var themeBtn = e.target.closest && e.target.closest('.theme-toggle');
+      if (themeBtn) {
+        setTimeout(function () {
+          send('theme_toggle', { theme: doc.documentElement.getAttribute('data-theme') || '' });
+        }, 0);
+        return;
+      }
+
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var type = linkType(a);
+      var external = a.host && a.host !== location.host;
+      var params = {
+        link_type: type,
+        link_text: shorten(a.getAttribute('aria-label') || a.textContent),
+        link_url: a.href,
+        link_area: a.closest('.cn-nav') ? 'nav' : 'body',
+        link_from: location.pathname
+      };
+
+      var leavesThisTab = !external && type !== 'anchor' && type !== 'html_download' &&
+        a.target !== '_blank' && !e.defaultPrevented && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+      if (leavesThisTab) {
+        try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(params)); return; } catch (x) {}
+      }
+      send('site_click', params);
+    }, true);
+  }
+
+
+  /* ── 9. 강의 자료: slide_view · lecture_progress ───────────────────
+   *   강의는 iframe 안에서 열리고, 슬라이드를 넘기면 주소의 #id만 바뀐다.
+   *   (replaceState라 알림 이벤트가 없어서 1초마다 주소를 읽는다)          */
+  function watchLecture() {
+    var frame = doc.querySelector('iframe.lecture-frame');
+    if (!frame) return;
+    var last = '', seen = {}, count = 0, reported = false;
+
+    setInterval(function () {
+      var id = '';
+      try { id = frame.contentWindow.location.hash.slice(1); } catch (x) { return; }
+      if (!id || id === last) return;
+      last = id;
+      if (!seen[id]) { seen[id] = 1; count++; }
+      send('slide_view', { slide_id: id, slides_seen: count });
+    }, 1000);
+
+    // 탭을 닫거나 다른 곳으로 갈 때 한 번: 몇 장까지 봤나
+    doc.addEventListener('visibilitychange', function () {
+      if (doc.visibilityState === 'hidden' && count && !reported) {
+        reported = true;
+        send('lecture_progress', { slides_seen: count, last_slide: last });
+      }
+    });
+  }
+
+
+  /* ── 10. 시작 ──────────────────────────────────────────────────── */
+  function init() {
+    startPage();
+    watchSections();
+    watchDetails();
+    watchClicks();
+    watchLecture();
+  }
+
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
+  else init();
+})();</script><header><p class="eyebrow">2026.11.20 · DAY25 · REQUIREMENTS V1.4</p><h1>보고서 처리 Agent</h1><p>SQL·초기 데이터·Postman·환경 파일을 준비하고, 오후에는 Python 구현에 집중합니다.</p></header>
+<div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="./" aria-current="page"><span class="n">1</span>사전 준비</a><a data-site href="spec/"><span class="n">2</span>요구사항 명세서</a><a class="lec" data-site href="lecture/">오전 강의 자료 →</a></nav></div>
+<main><nav class="sec-nav"><a href="#files">제공 파일</a><a href="#setup">사전 준비</a><a href="#database">DB 실행 순서</a><a href="#postman">Postman</a><a href="#project">프로젝트 연결</a><a href="#troubles">오류 해결</a></nav>
+<div class="part" id="part-1"><span class="part-n">PART 1</span><b class="part-t">제공 파일</b><span class="part-d">완료 기준 · 파일 내려받기 · 제공 파일 목록</span></div><section class="notice"><h2>지금의 완료 기준</h2><p><strong>사전 준비는 DB 시드·모델 캐시·Postman Import까지입니다.</strong> 처음 준비한 DB의 벡터 0개·pending 180개는 정상입니다. 실제 색인과 API 요청은 학생 프로젝트에서 해당 기능을 구현한 뒤 확인합니다.</p><p>이 묶음은 <code>Day25_실습자료_v1.4_필수보완.zip</code>과 함께 사용합니다. 기존 Basic 30개 TODO와 10·12·15개 API 범위를 유지합니다.</p></section>
+<section id="downloads" class="dl-box" aria-label="사전 준비 파일 내려받기">
+<h2>사전 준비 파일 내려받기</h2>
+<p>전체 폴더 구조(<code>common/sql/</code>, <code>common/postman/</code>, <code>common/data/</code>, <code>common/docs/</code>, <code>.env.example</code>, <code>requirements.txt</code>)가 한 번에 필요하면 ZIP을 받고, 필요한 파일만 골라 받으려면 아래 개별 버튼을 누르세요.</p>
+<div class="dl-group"><span class="dl-label">전체 묶음 (common/ 폴더 전체)</span><div class="dl-list"><a class="dl-btn primary" data-site href="Day25_사전준비자료_common.zip" download>Day25_사전준비자료_common.zip</a></div></div>
+<div class="dl-group"><span class="dl-label">SQL 실행 파일 (pgAdmin Query Tool 순서대로)</span><div class="dl-list"><a class="dl-btn" data-site href="00_create_database.sql" download>00_create_database.sql</a><a class="dl-btn" data-site href="preflight.sql" download>preflight.sql</a><a class="dl-btn" data-site href="schema.sql" download>schema.sql</a><a class="dl-btn" data-site href="seed.sql" download>seed.sql</a><a class="dl-btn" data-site href="verify.sql" download>verify.sql</a></div></div>
+<div class="dl-group"><span class="dl-label">Postman · Python 패키지</span><div class="dl-list"><a class="dl-btn" data-site href="Report_Agent.postman_collection.json" download>Report_Agent.postman_collection.json</a><a class="dl-btn" data-site href="Report_Agent.postman_environment.json" download>Report_Agent.postman_environment.json</a><a class="dl-btn" data-site href="requirements.txt" download>requirements.txt</a></div></div>
+</section>
+<section id="files"><h2>1. 무엇을 미리 제공하는가</h2><div class="table"><table><thead><tr><th>파일 또는 폴더</th><th>역할</th><th>사용 시점</th></tr></thead><tbody><tr><td><code>common/sql/00_create_database.sql</code></td><td>실습 DB 생성</td><td>실습 DB가 없을 때 1회</td></tr><tr><td><code>common/sql/preflight.sql</code></td><td>연결 DB·서버 확장·기존 구조를 읽기 전용으로 확인</td><td>DB 생성 후, schema 전</td></tr><tr><td><code>common/sql/schema.sql</code></td><td>10개 테이블·제약조건·조회 VIEW 생성</td><td>사전 준비</td></tr><tr><td><code>common/sql/seed.sql</code></td><td>6종 보고서 180건·상세·Prompt 버전 60건 적재</td><td>사전 준비</td></tr><tr><td><code>common/sql/verify.sql</code></td><td>초기 개수와 벡터·상세·Prompt 무결성 확인</td><td>시드 후 / 실제 색인 후</td></tr><tr><td><code>common/postman/Report_Agent.postman_collection.json</code></td><td>39개 API 요청과 응답 검증 스크립트</td><td>사전 Import → 구현 후 실행</td></tr><tr><td><code>common/postman/Report_Agent.postman_environment.json</code></td><td>로컬 주소·시드 ID·생성 ID·유료 요청 제어값</td><td>Collection와 함께 Import</td></tr><tr><td><code>common/postman/POSTMAN_GUIDE.md</code></td><td>요청 실행·정리·검색 의미 확인 설명</td><td>구현 중·완료 검증</td></tr><tr><td><code>common/.env.example</code> / <code>requirements.txt</code> / <code>.gitignore</code></td><td>환경값 예시·패키지 목록·Git 제외 규칙</td><td>패키지는 사전, .env는 프로젝트 루트에</td></tr><tr><td><code>common/data/</code></td><td>시드 원문 목록·수동 검색 5문항·Advanced 평가 6문항</td><td>구현 후 검색 결과 확인</td></tr><tr><td><code>common/docs/</code></td><td>요구사항명세서 v1.4와 ERD</td><td>구현 기준 확인</td></tr><tr><td><code>common/README_START.md</code></td><td>오후 전체 프로젝트 구현 순서</td><td>학생 프로젝트를 받은 뒤</td></tr></tbody></table></div><p>SQL과 Postman JSON은 완성된 제공 파일입니다. <code>app/</code>, 완성된 E5 색인 스크립트, 강사 Python 정답은 이 묶음에 포함하지 않습니다. 데이터 파일은 DB에 추가로 넣는 두 번째 시드가 아닙니다.</p></section>
+<div class="part" id="part-2"><span class="part-n">PART 2</span><b class="part-t">설치·실행</b><span class="part-d">Python 환경 · SQL · Postman</span></div><section id="setup"><h2>2. 사전 준비 — Windows 11</h2><h3>2-1. 기존 가상환경 확인</h3><p>압축을 푼 <strong>이 폴더 전체</strong>를 VS Code로 엽니다. <code>Python: Select Interpreter</code>에서 수업에 쓰던 가상환경의 <code>Scripts/python.exe</code>를 선택한 뒤 새 Git Bash 터미널을 엽니다. 아래 첫 명령이 의도한 가상환경 경로를 출력하는지 확인합니다.</p><pre data-copy><code>python -c &quot;import sys; print(sys.executable)&quot;
+python -m pip install -r common/requirements.txt
+python -m pip check</code></pre><p>마지막 명령은 <code>No broken requirements found.</code>가 기대 결과입니다. 충돌이 있으면 해당 메시지를 강사에게 보여 주세요. <code>ModuleNotFoundError</code>가 나면 먼저 같은 가상환경에 설치했는지 확인합니다.</p>
+<details><summary>Git Bash에서 기존 가상환경을 직접 활성화해야 할 때</summary><p>아래는 <code>C:\course\.venv</code>에 가상환경이 있는 경우의 예시입니다. 본인의 실제 위치로 바꿉니다.</p><pre data-copy><code>source /c/course/.venv/Scripts/activate
+python -c &quot;import sys; print(sys.executable)&quot;</code></pre></details><h3>2-2. E5 모델을 미리 불러오기</h3><p>같은 가상환경에서 다음 명령을 실행합니다. 처음에는 모델 파일 다운로드로 시간이 걸릴 수 있습니다. 출력 차원은 <strong>384</strong>입니다. 이 작업은 모델 캐시 준비이며 DB 벡터 적재나 <code>encode()</code> TODO 구현은 하지 않습니다. <a href="#ref-e5">[공식 모델 자료]</a></p><pre data-copy><code>python -c &quot;import torch; torch.set_num_threads(1); from sentence_transformers import SentenceTransformer; m=SentenceTransformer(&#x27;intfloat/multilingual-e5-small&#x27;,device=&#x27;cpu&#x27;); print(&#x27;embedding_dimension=&#x27;,m.get_sentence_embedding_dimension())&quot;</code></pre><h3>2-3. 설정값은 프로젝트에서 사용</h3><p><code>common/.env.example</code>의 DB 접속값을 확인합니다. PostgreSQL에 접속할 때 쓰는 계정·비밀번호와 DB 이름을 사용합니다. 실제 <code>.env</code>는 학생 프로젝트를 받은 뒤 그 프로젝트 루트에 만듭니다.</p><div class="table"><table><thead><tr><th>설정</th><th>준비할 값</th></tr></thead><tbody><tr><td><code>DATABASE_URL</code></td><td>제공 예시의 <code>CHANGE_ME</code>를 실제 PostgreSQL 비밀번호로 변경. DB는 <code>report_agent_lab</code></td></tr><tr><td><code>EMBEDDING_MODEL</code></td><td><code>intfloat/multilingual-e5-small</code> 유지</td></tr><tr><td><code>PROJECT_LEVEL</code></td><td>선택한 프로젝트에 맞춰 <code>basic</code> / <code>intermediate</code> / <code>advanced</code></td></tr><tr><td><code>OPENAI_API_KEY</code> / <code>LLM_MODEL</code></td><td>실제 요약을 실행할 때 사용할 본인의 값. SQL 준비에는 필요하지 않음</td></tr><tr><td><code>SEARCH_MIN_SIMILARITY</code></td><td>초기값 <code>0.75</code>. 실제 검색 평가 후 근거를 기록하여 보정</td></tr></tbody></table></div><p>비밀번호에 <code>@</code>, <code>:</code>, <code>/</code>, <code>#</code> 등이 있으면 접속 URL의 비밀번호 부분에 URL 인코딩이 필요할 수 있습니다. 값이 담긴 <code>.env</code>는 제출·공유하지 않습니다.</p></section>
+<section id="database"><h2>3. SQL — 실행할 DB부터 확인</h2><p>SQL 파일은 <strong>pgAdmin Query Tool</strong>에서 실행합니다. VS Code의 Python 실행 버튼이나 Git Bash에 SQL 내용을 직접 넣지 않습니다. Query Tool에서 파일을 연 뒤 SQL 편집창 안에서 <code>Ctrl+A → F5(Execute script)</code>로 전체를 실행합니다. <a href="#ref-pgadmin">[pgAdmin 실행 안내]</a></p><div class="table"><table><thead><tr><th>순서</th><th>연결할 DB</th><th>실행할 파일·정상 결과</th></tr></thead><tbody><tr><td>1. DB 생성</td><td><code>postgres</code></td><td><code>00_create_database.sql</code> — <code>report_agent_lab</code>이 없을 때만. Auto-commit을 켠 새 Query Tool에서 이 파일만 실행</td></tr><tr><td>2. 다시 연결</td><td><code>report_agent_lab</code></td><td>왼쪽 Databases 새로고침 → 실습 DB 선택 → 새 Query Tool. 기존 postgres 연결 탭과 구분</td></tr><tr><td>3. 사전 점검</td><td><code>report_agent_lab</code></td><td><code>preflight.sql</code> — DB 이름, UTF8, 서버 버전, vector 사용 가능 여부, 기존 테이블 확인</td></tr><tr><td>4. 구조 생성</td><td><code>report_agent_lab</code></td><td><code>schema.sql</code> — vector 확장 활성화, 10개 테이블·조회 VIEW 생성</td></tr><tr><td>5. 시드 적재</td><td><code>report_agent_lab</code></td><td><code>seed.sql</code> — 파일의 BEGIN부터 COMMIT까지 전체 실행. API 요청을 보내지 않는 상태에서 적재</td></tr><tr><td>6. 상태 확인</td><td><code>report_agent_lab</code></td><td><code>verify.sql</code> — SELECT 묶음별로 실행하여 아래 초기 상태와 비교</td></tr></tbody></table></div><p><code>CREATE DATABASE</code>는 트랜잭션 블록 안에서 실행할 수 없으므로 DB 생성 파일을 schema·seed와 합쳐 실행하지 않습니다. DB가 이미 있다면 생성 단계는 건너뜁니다. <a href="#ref-createdb">[PostgreSQL 규칙]</a></p>
+<h3>preflight에서 볼 항목</h3><p><code>connected_database</code>는 <code>report_agent_lab</code>, <code>correct_database</code>는 true, <code>server_encoding</code>은 <code>UTF8</code>이어야 합니다. 수업 기준은 PostgreSQL 18 계열입니다. <code>vector_available_to_install</code>이 true이면 서버가 vector 설치 정보를 인식합니다. schema 실행 전에는 <code>vector_active_in_this_database</code>가 false여도 정상일 수 있습니다.</p>
+<p><strong>Python의 pgvector 패키지와 PostgreSQL 서버의 vector 확장은 별도입니다.</strong> <code>vector_available_to_install=false</code>이면 아래 Windows 설치 항목을 확인한 뒤 다시 진행합니다. 기존 <code>reports</code>가 보이면 같은 Day25 DB를 이어 쓰는지 확인하며 자동 삭제하지 않습니다.</p>
+<h3>처음 빈 DB에 시드를 넣었을 때의 정상 상태</h3><div class="table"><table><thead><tr><th>항목</th><th>사전 준비 완료: expected_seed</th><th>실제 색인 후: expected_indexed</th></tr></thead><tbody><tr><td>카테고리</td><td>6</td><td>6</td></tr><tr><td>보고서</td><td>180</td><td>180</td></tr><tr><td>종류별 상세 테이블</td><td>각각 30</td><td>각각 30</td></tr><tr><td>Prompt 버전</td><td>60</td><td>60</td></tr><tr><td>개요 벡터</td><td><strong>0</strong></td><td>180</td></tr><tr><td>보고서 상태</td><td><strong>pending 180</strong></td><td>ready 180</td></tr></tbody></table></div><p><code>verify.sql</code>은 여러 결과를 반환합니다. 개수·상태·무결성 검사의 각 SQL 묶음을 선택해서 실행하세요. <code>UNION ALL</code> 또는 <code>WITH</code>가 포함되면 세미콜론까지 한 묶음 전체를 선택합니다. 무결성 검사 열 <code>error_count</code>는 0이어야 합니다.</p>
+<p>위 숫자는 <strong>처음 제공한 시드 상태</strong>의 기준입니다. 이미 색인한 DB에 seed를 다시 실행해도 벡터가 0으로 돌아가거나 ready가 pending으로 초기화되지 않습니다. CRUD·Prompt 버전 생성 후에는 행 수가 달라질 수 있습니다.</p>
+<details><summary>같은 SQL을 다시 실행하면 무엇이 유지되는가</summary><p>seed는 같은 ID가 있으면 중복 삽입하거나 덮어쓰지 않습니다. 삭제되어 없는 시드 행은 다시 들어갈 수 있지만, 실습 중 수정한 내용과 추가한 데이터를 초기 상태로 복원하지는 않습니다. <code>CREATE TABLE IF NOT EXISTS</code>도 기존 테이블 구조를 자동 수정하는 기능이 아닙니다. 다른 구조가 남아 있다면 강사와 DB 상태를 확인합니다.</p></details>
+<details><summary>Windows PostgreSQL에 pgvector가 아직 없을 때 — 강사와 함께 준비</summary><p>이미 서버에서 vector를 사용할 수 있다면 이 절은 건너뜁니다. 공식 Windows 방식은 Visual Studio의 C++ 빌드 도구를 사용합니다. <strong>VS Code와 Visual Studio C++ 빌드 도구는 다른 프로그램</strong>입니다. <a href="#ref-pgvector">[공식 설치 안내]</a></p><ol><li>Visual Studio Installer에서 C++ 데스크톱 개발 지원과 Windows SDK를 준비합니다.</li><li>시작 메뉴에서 <strong>x64 Native Tools Command Prompt for VS</strong>를 관리자 권한으로 엽니다. 아래 명령은 Git Bash·PowerShell·pgAdmin용이 아닙니다.</li><li>PostgreSQL 설치 폴더를 확인하여 PGROOT를 맞춘 뒤 실행합니다. 아래는 PostgreSQL 18 기본 경로와 확인한 pgvector v0.8.7 예시입니다.</li></ol><pre data-copy><code>set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
+cd /d &quot;%TEMP%&quot;
+git clone --branch v0.8.7 https://github.com/pgvector/pgvector.git pgvector_day25_087
+cd pgvector_day25_087
+nmake /F Makefile.win
+nmake /F Makefile.win install</code></pre><p>각 명령이 성공한 뒤 다음 명령으로 진행합니다. 폴더가 이미 있으면 무조건 삭제하지 말고 기존 준비 상태를 확인합니다. <code>nmake</code>를 못 찾으면 실행 창과 C++ 도구 설치를, <code>postgres.h</code> 오류면 PGROOT를, 접근 거부면 관리자 권한을 확인합니다. 설치 후 pgAdmin에서 <code>preflight.sql</code>을 다시 실행하고, 서버 파일 확인이 끝나면 <code>schema.sql</code>로 해당 DB의 확장을 활성화합니다.</p></details></section>
+<section id="postman"><h2>4. Postman — 지금은 가져오기, 구현 후 요청 실행</h2><ol><li>Postman 데스크톱 앱에서 <strong>Import</strong>를 엽니다. 버전에 따라 <strong>Use resources or import → Import</strong>에 있습니다.</li><li><code>common/postman/</code>의 Collection JSON과 Environment JSON을 <strong>둘 다</strong> 가져옵니다.</li><li>Environment로 <strong>Report Agent | Windows Local</strong>을 선택합니다.</li><li>폴더 01~08, 요청 39개가 보이는지와 아래 초기값을 확인합니다. 서버가 아직 없으므로 사전 준비에서 Send·전체 Run을 수행하지 않습니다.</li></ol><p><a href="#ref-postman">[Postman 공식 Import 안내]</a></p><div class="table"><table><thead><tr><th>변수</th><th>처음 값</th><th>역할</th></tr></thead><tbody><tr><td><code>base_url</code></td><td><code>http://127.0.0.1:8000</code></td><td>학생이 실행할 로컬 FastAPI 주소</td></tr><tr><td><code>seed_report_id</code></td><td><code>1</code></td><td>시드 조회 예시</td></tr><tr><td><code>seed_prompt_report_id</code></td><td><code>121</code></td><td>Prompt 버전 실습의 시드 예시</td></tr><tr><td><code>allow_paid_llm</code></td><td><code>false</code></td><td>유료 요청 5개의 기본 실행 차단</td></tr><tr><td>생성 ID·입력값·새 Prompt 버전 등 나머지 변수</td><td>빈 값</td><td>요청 성공 후 스크립트가 자동 저장</td></tr></tbody></table></div><h3>구현 후 사용할 폴더</h3><div class="table"><table><thead><tr><th>폴더</th><th>요청 수</th><th>용도</th></tr></thead><tbody><tr><td>01 Basic · 무료 경로 (Create/Read/Update/검색)</td><td>12</td><td>기본 CRUD·검색·무료 Agent</td></tr><tr><td>02 Intermediate · 무료 필터·Prompt 버전</td><td>3</td><td>Prompt 버전 생성·조회·추가 필터</td></tr><tr><td>03 Advanced · 무료 활성 버전·재색인·이력</td><td>3</td><td>활성 버전·재색인·실행 이력</td></tr><tr><td>04 오류 사례 · 404/422</td><td>4</td><td>잘못된 입력과 없는 ID</td></tr><tr><td>05 선택 실습 · 5개 추가 카테고리 JSON 예제</td><td>5</td><td>나머지 5개 카테고리 등록 예제</td></tr><tr><td>06 실제 LLM 유료 요청 · 명시적 선택 실행</td><td>5</td><td>실제 LLM을 호출하는 선택 요청</td></tr><tr><td>07 Basic · 테스트 생성 데이터 정리</td><td>2</td><td>Basic 생성 데이터 삭제·404 재조회</td></tr><tr><td>08 선택 실습 · 추가 생성 데이터 정리</td><td>5</td><td>선택 생성 데이터 삭제</td></tr></tbody></table></div><div class="table"><table><thead><tr><th>구현 단계</th><th>무료 검증 순서</th><th>선택 요청</th></tr></thead><tbody><tr><td>Basic</td><td>01 → 04 → 07</td><td>05 추가 입력, 06의 Basic 요청, 필요 시 08 정리</td></tr><tr><td>Intermediate</td><td>01 → 02 → 04 → 07</td><td>05, 06의 Basic·Intermediate 요청, 필요 시 08</td></tr><tr><td>Advanced</td><td>01 → 02 → 03 → 04 → 07</td><td>05, 06 중 필요한 요청, 필요 시 08</td></tr></tbody></table></div><p><strong>06 유료 요약을 확인할 때는 07 정리 전에 개별 실행합니다.</strong> 03 Advanced는 02에서 새 Prompt 버전 생성이 성공하여 <code>latest_prompt_version</code>이 채워진 뒤 실행합니다. Basic 서버에서 상위 단계 02·03을 실행하지 않습니다.</p>
+<p>05의 “선택”은 추가 입력 예제를 실행할지의 선택입니다. 명세의 <strong>6종 카테고리 지원 요구는 그대로</strong>입니다. 같은 등록 요청을 반복하기 전에는 앞서 생성한 데이터를 정리하세요. 환경변수에는 가장 최근 생성 ID가 저장됩니다.</p>
+<p>실제 LLM 확인 때만 본인의 키·모델을 준비하고 <code>allow_paid_llm</code>을 문자열 <code>true</code>로 바꾸어 필요한 요청 하나를 실행한 뒤 <code>false</code>로 되돌립니다. <code>skipRequest()</code>로 건너뛴 요청은 성공 검증이 아닙니다. 해당 pre-request 기능을 지원하는 Postman을 사용합니다. <a href="#ref-skip">[Postman 실행 제어]</a></p>
+<p>생성 ID는 <code>created_report_id</code>에 자동 저장됩니다. 별도 <code>report_id</code> 환경변수를 만들지 않습니다. 정리 요청은 기록한 생성 ID만 삭제하며 시드 범위 1~180은 건너뜁니다. 생성·수정 후 GET에서는 ID뿐 아니라 제목·본문·상세값도 비교합니다.</p></section>
+<div class="part" id="part-3"><span class="part-n">PART 3</span><b class="part-t">프로젝트 연결·점검</b><span class="part-d">프로젝트 연결 · 오류 해결 · 완료 기록 · 공식 자료</span></div><section id="project"><h2>5. 사전 준비를 학생 프로젝트에 연결</h2><ol><li>별도 실습 ZIP의 <code>mentee/01_basic</code> 등 선택한 프로젝트를 VS Code로 엽니다.</li><li>이 묶음의 <code>common/sql/</code>, <code>requirements.txt</code>, <code>.env.example</code>, <code>.gitignore</code>를 프로젝트 루트로 복사합니다. 처음이라면 <code>.env.example</code>을 <code>.env</code>로 복사하고 값을 입력합니다. 기존 실제 설정은 덮어쓰지 않습니다.</li><li><code>PROJECT_LEVEL</code>을 선택한 단계에 맞춥니다. 수동 검색 확인에는 이 묶음의 보완된 <code>common/data/search_cases.json</code>을 사용합니다.</li><li>Advanced 평가를 구현하는 경우 제공한 <code>common/data/evaluation_cases.json</code>을 프로젝트의 <code>tests/evaluation_cases.json</code>으로 복사합니다. 파일은 관련 ID 참고 정답이며 평가 Python 코드는 학생이 작성합니다.</li></ol>
+<p><strong>구현 순서:</strong> 제공 ORM·Session 확인 → 조회 → E5 어댑터 → 등록·수정·삭제 → 일괄 색인·검색 → LLM·Agent. 전체 안내는 <code>common/README_START.md</code>, Basic의 함수별 체크포인트는 학생 프로젝트의 <code>README.md</code>를 봅니다.</p>
+<p>API 서버는 학생 프로젝트에서 <code>python -m app.main</code>으로 실행합니다. <code>scripts/index_overviews.py</code>도 해당 TODO를 완성한 뒤 프로젝트 루트에서 실행합니다. 이 사전 제공 폴더 자체에는 두 실행 대상이 없습니다.</p>
+<h3>검색 확인 자료 읽기</h3><p><code>seed_catalog.json</code>은 원문·출처 ID 참고 목록입니다. 그 안의 <code>details</code>는 배열이므로 항목을 그대로 POST Body로 보내지 않습니다. 요청의 <code>details</code>는 Postman 예시와 명세처럼 필드명이 있는 객체입니다.</p>
+<p><code>search_cases.json</code>은 5개 수동 확인 질문입니다. <strong>문서 유형과 검색 주제는 다릅니다.</strong> “회의 결정”과 “프롬프트 버전”을 다루는 연구계획도 관련 보고서입니다. 수정한 기대 범주에는 이를 반영했고, “가중치”를 다루는 업무보고서도 포함했습니다. 제목·개요·본문을 읽고 관련성을 판단합니다.</p>
+<p>Advanced의 <code>evaluation_cases.json</code>은 별도의 6개 평가 질문과 수동 관련 ID 집합입니다. 실제 예측 결과로 정답 ID를 바꾸지 않습니다. 마지막에는 검색 결과 ID를 조회·요약으로 이어서 <code>report_id</code>와 <code>source_revision</code>을 비교하고, <code>not_found</code>이면 요약을 호출하지 않습니다.</p></section>
+<section id="troubles"><h2>6. 막히면 이 항목부터 확인</h2><div class="table"><table><thead><tr><th>증상</th><th>확인할 곳</th><th>다음 행동</th></tr></thead><tbody><tr><td><code>database already exists</code></td><td>기존 <code>report_agent_lab</code></td><td>DB 생성만 건너뛰고 실습 DB에 연결</td></tr><tr><td><code>CREATE DATABASE cannot run inside a transaction block</code></td><td>Query Tool 연결·Auto-commit</td><td>새 postgres Query Tool에서 Auto-commit을 켜고 DB 생성 파일만 실행</td></tr><tr><td><code>extension "vector" is not available</code></td><td>서버의 vector 파일</td><td>Python pip 설치와 구분하여 Windows 서버 확장을 준비</td></tr><tr><td><code>current transaction is aborted</code></td><td>앞서 실패한 SQL의 첫 오류</td><td><code>ROLLBACK;</code>으로 해당 미확정 작업을 취소한 뒤 원인을 고치고 실패 파일 전체 재실행</td></tr><tr><td><code>relation "reports" does not exist</code></td><td>연결 DB·schema 실행 여부</td><td>report_agent_lab 연결 확인 후 schema → seed 순서 확인</td></tr><tr><td>보고서 수가 180보다 큼</td><td>앞선 CREATE·반복 실행</td><td>추가 생성분을 구분. seed 재실행을 초기화 수단으로 사용하지 않음</td></tr><tr><td>Postman의 생성 ID가 빈 값</td><td>앞선 POST 응답</td><td>생성 성공 후 자동 저장되었는지 확인. 임의로 시드 ID를 입력하지 않음</td></tr><tr><td>Postman 연결 거부</td><td>현재 단계·서버 주소</td><td>사전 Import 단계에는 정상. 구현 후 학생 프로젝트에서 서버를 실행한 뒤 base_url 확인</td></tr><tr><td>LLM 요청이 건너뛰어짐</td><td><code>allow_paid_llm</code></td><td>기본 false의 의도된 동작. 실제 확인할 요청만 선택하여 true로 변경</td></tr></tbody></table></div></section><section><h2>7. 준비 완료 기록</h2><p>다음 항목을 확인하면 사전 준비를 마칩니다. API 기능 완료 평가는 오후 구현 후 진행합니다.</p><ul><li>선택한 Python 실행 경로와 패키지 의존성 확인</li><li>report_agent_lab 연결·vector 사용 가능·schema·seed 완료</li><li>처음 준비한 DB: 6 / 180 / 상세 각각 30 / Prompt 버전 60 / 벡터 0 / pending 180</li><li>verify의 무결성 error_count 0</li><li>E5 모델 로드와 차원 384 확인</li><li>Postman 두 JSON Import·환경 선택·allow_paid_llm=false 확인</li></ul><p>본 묶음의 파일 정합성 검사 범위와 한계는 <code>01_제공자료_검증기록.txt</code>에 기록합니다. 실제 Windows PostgreSQL·pgvector·E5·LLM·Postman 통합 실행은 강사 PC에서 확인합니다.</p></section>
+<section class="sources"><h2>공식 확인 자료</h2><p>2026-11-19 확인. 파일별 계약은 함께 제공한 요구사항명세서 v1.4를 따릅니다.</p><ul>
+<li id="ref-createdb"><a href="https://www.postgresql.org/docs/18/sql-createdatabase.html">PostgreSQL 18 — CREATE DATABASE</a></li>
+<li id="ref-pgadmin"><a href="https://www.pgadmin.org/docs/pgadmin4/latest/query_tool_toolbar.html">pgAdmin — Query Tool 실행·Auto-commit</a></li>
+<li id="ref-pgvector"><a href="https://github.com/pgvector/pgvector#windows">pgvector — Windows 설치</a></li>
+<li id="ref-postman"><a href="https://learning.postman.com/docs/getting-started/importing-and-exporting/importing-data/">Postman — Collection·Environment Import</a></li>
+<li id="ref-skip"><a href="https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-reference/pm-execution/">Postman — skipRequest 실행 제어</a></li>
+<li id="ref-e5"><a href="https://huggingface.co/intfloat/multilingual-e5-small">intfloat — multilingual-e5-small 모델 자료</a></li>
+</ul></section></main><footer>Day25 Report Agent · 사전 제공 자료 v1.4 · 2026-11-19 준비</footer><style>
+/* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
+</style>
+<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+<script>/* =====================================================================
+ * 맨 위로 버튼(.to-top) — 강의 요약·치트시트·설치 가이드 페이지
+ *
+ * - 한 화면의 60%쯤 내려가면 나타나고, 위로 돌아오면 사라진다.
+ * - 테두리 원(.tt-bar)이 페이지를 읽은 만큼 찬다.
+ * - 누르면 맨 위로 부드럽게 올라간다 (동작 줄이기 설정이면 바로 이동).
+ * ===================================================================== */
+(function () {
+  var btn = document.querySelector('.to-top');
+  if (!btn) return;
+  var bar = btn.querySelector('.tt-bar');
+  var LENGTH = 2 * Math.PI * 21;          // 원 둘레 (반지름 21)
+  bar.style.strokeDasharray = LENGTH;
+  var waiting = false;
+
+  function update() {
+    waiting = false;
+    var root = document.documentElement;
+    var y = window.scrollY || root.scrollTop;
+    var max = root.scrollHeight - window.innerHeight;
+    var read = max > 0 ? Math.min(1, y / max) : 0;
+    bar.style.strokeDashoffset = LENGTH * (1 - read);
+    btn.classList.toggle('show', y > window.innerHeight * 0.6);
+  }
+
+  function schedule() {
+    if (!waiting) { waiting = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('load', update);
+  update();
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+})();</script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
+</body></html>

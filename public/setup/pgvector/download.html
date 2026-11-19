@@ -59,7 +59,50 @@ p.where code{background:#ffffff1f;color:#fff}
 .next-page b{font-size:19px;color:var(--navy)}
 .next-page small{font-size:14px;color:#52667e}
 @media print{.tabs,.next-page{display:none}}
-</style></head><body><header>DAY 23 · PostgreSQL 18.6 + pgvector 0.8.7 설치 안내 <button class="print-button" onclick="window.print()">인쇄 / PDF 저장</button></header><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --ink:#D8E3F0; --navy:#1E3A5F; --blue:#7FAEE0; --bg:#0B1220; --line:#293C57; --white:#132033; }
+  h2 { border-bottom: 2px solid #30445A; }
+  p code,li code,td code { background: #142434; }
+  th { background: #142134; color: #B1C3DD; }
+  th,td { border: 1px solid #30435A; }
+  blockquote { background: #142434; }
+  hr { border-top: 1px solid #30435A; }
+  .print-button { background: #132033; color: #B0C1DE; }
+  figure.shot img { background: #132033; }
+  figure.shot figcaption { color: #BBC6D3; }
+  .intro,.step { background: #132033; }
+  .step-head { border-bottom: 2px solid #30445A; }
+  .step-head .tool { background: #142434; border: 1px solid #30435A; }
+  .phase { border-color: #93C5FD; }
+  .phase b { color: #93C5FD; }
+  .phase span { color: #BBC6D3; }
+  .steps-nav { background: #132033; }
+  .steps-nav .grp>b { color: #BBC6D3; }
+  .steps-nav a { color: #93C5FD; }
+  .steps-nav a { background: #132033; }
+  .steps-nav a:hover { border-color: #93C5FD; }
+  .steps-nav .n { color: #93C5FD; }
+  .steps-nav .n { background: #142434; }
+  .step.refs { background: #142034; }
+  .out { border: 1px solid #30435A; background: #142434; }
+  .out-h { background: #142434; border-bottom: 1px solid #30435A; }
+  .out-note { color: #BBC6D3; }
+  .copy-btn.done { border-color: #305A3E; }
+  .tabs a { background: #132033; }
+  .tabs a:hover { border-color: #93C5FD; }
+  .tabs .n { color: #93C5FD; }
+  .tabs .n { background: #142434; }
+  .tabs a[aria-current="page"] { border-color: #93C5FD; }
+  .tabs a[aria-current="page"] .n { color: #93C5FD; }
+  .tabs a[aria-current="page"] .n { background: #132033; }
+  .next-page { background: #132033; }
+  .next-page:hover { border-color: #93C5FD; }
+  .next-page span { color: #BBC6D3; }
+  .next-page b { color: #93C5FD; }
+  .next-page small { color: #BBC6D3; }
+}
+</style></head><body><main><section class="intro"><h1>Day 23 | Windows 11 · PostgreSQL 18.6 · pgvector 설치 가이드</h1>
 <p><strong>강의일:</strong> 2026년 11월 18일(수)<br />
 <strong>목표:</strong> 기존 PostgreSQL을 유지하면서 pgvector 0.8.7을 설치하고, pgAdmin SQL과 Python에서 정상 동작을 확인한다.</p>
 <blockquote>
@@ -124,7 +167,7 @@ p.where code{background:#ffffff1f;color:#fff}
 <li>사용 중인 강의용 DB(예: <code>knowledge_lab</code>)를 마우스 오른쪽 클릭하고 <strong>Query Tool</strong>을 선택합니다.</li>
 <li>아래 SQL을 붙여넣고 <strong>F5</strong>로 실행합니다.</li>
 </ol>
-<pre><code class="language-sql">-- 서버 버전, 현재 연결한 데이터베이스 및 계정 확인
+<pre data-copy><code class="language-sql">-- 서버 버전, 현재 연결한 데이터베이스 및 계정 확인
 SELECT version();
 SELECT current_database(), current_user, inet_server_port();
 
@@ -169,7 +212,7 @@ WHERE name = 'vector';
 </section>
 <section class="step" id="s2"><div class="step-head"><span class="badge">2</span><h2>PostgreSQL 18.6 프로그램 경로 확인</h2><span class="tool">일반 CMD</span></div>
 <p class="where"><strong>실행 위치: 일반 CMD</strong> (Windows 키 → <code>cmd</code> 검색 → 명령 프롬프트 실행)</p>
-<pre><code class="language-cmd">&quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --version
+<pre data-copy><code class="language-cmd">&quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --version
 &quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --includedir-server
 &quot;C:\Program Files\PostgreSQL\18\bin\pg_config.exe&quot; --pkglibdir
 </code></pre>
@@ -215,7 +258,7 @@ C:/PROGRA~1/POSTGR~1/18/lib</pre><p class="out-note"><code>PROGRA~1</code>은 <c
 <li><strong>이 창은 CMD 기반 개발자 명령 프롬프트입니다.</strong> Python 실습용 Git Bash가 아닙니다.</li>
 </ol>
 <p>다음 명령을 <strong>한 줄씩</strong> 실행합니다.</p>
-<pre><code class="language-cmd">where cl
+<pre data-copy><code class="language-cmd">where cl
 where nmake
 where git
 echo %VSCMD_ARG_TGT_ARCH%
@@ -233,7 +276,7 @@ echo %VSCMD_ARG_TGT_ARCH%
 </section>
 <section class="step" id="s5"><div class="step-head"><span class="badge">5</span><h2><code>PGROOT</code> 환경변수와 개발용 파일 확인</h2><span class="tool">x64 Native Tools · 관리자</span></div>
 <p class="where"><strong>실행 위치: 방금 연 관리자 권한 x64 Native Tools Command Prompt</strong></p>
-<pre><code class="language-cmd">set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
+<pre data-copy><code class="language-cmd">set &quot;PGROOT=C:\Program Files\PostgreSQL\18&quot;
 echo %PGROOT%
 &quot;%PGROOT%\bin\pg_config.exe&quot; --version
 dir &quot;%PGROOT%\include\server\postgres.h&quot;
@@ -260,7 +303,7 @@ dir &quot;%PGROOT%\lib\postgres.lib&quot;
 </section>
 <section class="step" id="s6"><div class="step-head"><span class="badge">6</span><h2>pgvector 0.8.7 공식 소스 다운로드</h2><span class="tool">x64 Native Tools · 관리자</span></div>
 <p class="where"><strong>실행 위치: 동일한 관리자 권한 x64 Native Tools Command Prompt</strong></p>
-<pre><code class="language-cmd">if not exist C:\pgvector-build mkdir C:\pgvector-build
+<pre data-copy><code class="language-cmd">if not exist C:\pgvector-build mkdir C:\pgvector-build
 cd /d C:\pgvector-build
 git clone --branch v0.8.7 --depth 1 https://github.com/pgvector/pgvector.git
 cd pgvector
@@ -279,13 +322,13 @@ You are in &#x27;detached HEAD&#x27; state. (영어 안내 몇 줄)
 </section>
 <section class="step" id="s7"><div class="step-head"><span class="badge">7</span><h2><code>nmake</code>로 DLL 컴파일 및 서버 확장 파일 설치</h2><span class="tool">x64 Native Tools · 관리자</span></div>
 <p>여전히 <strong><code>C:\pgvector-build\pgvector</code> 폴더</strong>에 있어야 합니다. 먼저 DLL을 만듭니다.</p>
-<pre><code class="language-cmd">nmake /F Makefile.win
+<pre data-copy><code class="language-cmd">nmake /F Makefile.win
 echo %ERRORLEVEL%
 dir vector.dll
 </code></pre>
 <p><strong>정상 확인:</strong> <code>nmake</code> 실행이 오류 없이 완료되고, 그 직후 <code>echo %ERRORLEVEL%</code>이 <code>0</code>을 표시하며 <code>vector.dll</code> 파일이 생성됩니다. 컴파일러가 표시하는 단순 warning과 실제 오류(<code>fatal error</code>, <code>NMAKE : fatal error</code>)는 구분하세요.</p>
 <p><strong>컴파일 성공 후에만</strong> 다음 명령으로 PostgreSQL 설치 폴더에 확장 파일을 복사합니다.</p>
-<pre><code class="language-cmd">nmake /F Makefile.win install
+<pre data-copy><code class="language-cmd">nmake /F Makefile.win install
 dir &quot;%PGROOT%\lib\vector.dll&quot;
 dir &quot;%PGROOT%\share\extension\vector.control&quot;
 dir &quot;%PGROOT%\share\extension\vector--*.sql&quot;
@@ -326,7 +369,7 @@ dir &quot;%PGROOT%\share\extension\vector--*.sql&quot;
 <li><strong>pgAdmin → 강의용 DB(예: <code>knowledge_lab</code>) → Query Tool</strong>을 엽니다.</li>
 <li>SQL을 실행하기 전에 DB 이름을 다시 확인합니다.</li>
 </ol>
-<pre><code class="language-sql">SELECT current_database();
+<pre data-copy><code class="language-sql">SELECT current_database();
 
 -- 설치 파일 발견 여부 확인
 SELECT name, default_version, installed_version
@@ -345,7 +388,7 @@ WHERE extname = 'vector';
 <p><code>pg_available_extensions</code>가 0행이면 DLL·control 파일이 <strong>현재 서버 설치 폴더에</strong> 들어갔는지 확인하세요. <code>postgres</code> DB에 활성화했다고 <code>knowledge_lab</code>에서도 자동 활성화되지는 않습니다.</p>
 <h3>실패한 트랜잭션을 복구해야 한다면</h3>
 <p>이전에 오류가 발생해 <code>current transaction is aborted</code>가 나오면, 오류가 난 Query Tool에서 아래 명령을 실행하고 실패 원인을 해결한 다음 다시 시도합니다.</p>
-<pre><code class="language-sql">ROLLBACK;
+<pre data-copy><code class="language-sql">ROLLBACK;
 </code></pre>
 <p>정상 실행 중인 트랜잭션에 무작정 <code>ROLLBACK</code>을 하지 말고, <strong>오류로 중단된 트랜잭션일 때만</strong> 실행합니다.</p>
 </section>
@@ -358,26 +401,6 @@ WHERE extname = 'vector';
     img.addEventListener('click', function () { big.src = img.src; big.alt = img.alt; dlg.showModal(); });
   });
   dlg.addEventListener('click', function () { dlg.close(); });
-})();
-(function () {
-  function copyText(text, done) {
-    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); }); }
-    else fallback(text, done);
-  }
-  function fallback(text, done) {
-    var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
-    document.body.appendChild(t); t.select(); try { if (document.execCommand('copy')) done(); } catch (e) {} t.remove();
-  }
-  document.querySelectorAll('main pre').forEach(function (pre) {
-    if (pre.closest('.out')) return;
-    var box = document.createElement('div'); box.className = 'codebox';
-    pre.parentNode.insertBefore(box, pre); box.appendChild(pre);
-    var b = document.createElement('button'); b.type = 'button'; b.className = 'copy-btn'; b.textContent = '복사';
-    b.addEventListener('click', function () {
-      copyText(pre.innerText.replace(/\n$/, ''), function () { b.textContent = '복사됨'; b.classList.add('done'); setTimeout(function () { b.textContent = '복사'; b.classList.remove('done'); }, 1500); });
-    });
-    box.appendChild(b);
-  });
 })();
 </script>
 </body></html>

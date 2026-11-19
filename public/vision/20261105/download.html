@@ -313,6 +313,34 @@ html.pdf { scroll-behavior: auto; }
   .cams { flex-wrap: wrap; }
 }
 @media print { body { background: #fff; } }
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --color-primary:#93C5FD; --color-heading:#E7F0FA; --color-text:#D8E3F0; --color-muted:#98AEC5; --color-canvas:#0B1220; --color-surface:#132033; --color-soft:#1C3554; --color-border:#293C57; --color-accent:#7FAEE0; --color-code-bg:#0D1828; --zone-frame:#101B2C; --zone-prep:#16311D; --zone-learn:#342914; --zone-explain:#1E1434; --ink-prep:#B1DDC1; --ink-learn:#E9CEA5; --ink-explain:#BCB4DA; --problem:#F0A37A; --problem-line:#C98A5E; --problem-bg:#342414; }
+  .lv.l2 { background: #142234; border: 1px solid #30435A; }
+  .stairs .s2 { background: #142234; border: 1px solid #30435A; }
+  .stairs .s3 { background: #142234; border: 1px solid #30425A; }
+  .krow pre mark { background: #F2D27A; color: #1C2B40; }
+  .krow.key { border-color: #30425A; background: #142434; }
+  .demand-top .c2 { background: #142234; border: 1px solid #30435A; }
+  .demand-top .c3 .q, .demand-top .c3 b { color: #1C3554; }
+  .demand-top .c3 .eye { color: #1C3554; }
+  .demand .cell.deep { background: #142234; border-color: #30435A; }
+  .switch .tg::after { background: #132033; }
+  .period, .lede .ask, .sec-head .num, .pred, .lv.l3, .keytag, .demand-top .c3 { color: #0B1220; }
+  [style*="background:#FBE6A0"] { background: #F2D27A !important; color: #0B1220 !important; }
+  [style*="background:#C9D9EE"] { background: #142234 !important; }
+  svg [fill="#142849"] { fill: #CFD8E8; }
+  svg [fill="#1C2B40"] { fill: #CFD9E8; }
+  svg [fill="#222F44"] { fill: #CFD8E7; }
+  svg [fill="#52667E"] { fill: #98AEC5; }
+  svg [fill="#C9D9EE"] { fill: #142234; }
+  svg [fill="#F0F6FD"] { fill: #142234; }
+  svg [fill="#fff"] { fill: #132033; }
+  svg [stroke="#142849"] { stroke: #CFD8E8; }
+  svg [stroke="#C9D9EE"] { stroke: #30425A; }
+  svg [stroke="#D8E4F2"] { stroke: #30435A; }
+  svg [stroke="#E6EEF8"] { stroke: #30435A; }
+}
 </style>
 </head>
 <body>

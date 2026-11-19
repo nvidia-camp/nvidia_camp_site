@@ -391,14 +391,14 @@ figure img { display: block; max-width: 100%; height: auto; }
       <h3>진행 순서</h3>
       <ol class="steps">
         <li><div><span>VS Code로 <code>01_FastAPI</code> 폴더를 열고 설치합니다.</span>
-<pre class="code"><code>python -m pip install -r requirements-check.txt</code></pre></div></li>
+<pre data-copy class="code"><code>python -m pip install -r requirements-check.txt</code></pre></div></li>
         <li><div><span>서버를 켜고 <code>http://127.0.0.1:8000/docs</code>를 엽니다. <code>main.py</code>를 저장할 때마다 서버가 다시 켜집니다.</span>
-<pre class="code"><code>python -m uvicorn main:app --reload</code></pre></div></li>
+<pre data-copy class="code"><code>python -m uvicorn main:app --reload</code></pre></div></li>
         <li><div><span>/docs에서 API를 펼치고 Try it out → Execute. 아직 안 푼 문제면 500이 나오고, 서버 터미널에 문제 번호가 나옵니다.</span>
 <pre class="out">NotImplementedError: B-API-01: 주석 요구사항을 완성하세요.</pre></div></li>
         <li><div><span>그 문제의 <code>raise NotImplementedError(…)</code> 줄을 지우고 TODO 주석대로 코드를 씁니다. 저장 후 다시 Execute.</span></div></li>
         <li><div><span>6개를 다 풀면 다른 터미널에서 채점합니다.</span>
-<pre class="code"><code>python check_api.py</code></pre>
+<pre data-copy class="code"><code>python check_api.py</code></pre>
 <pre class="out">검사 통과: 40개 확인 / B / 임시 데이터만 사용</pre>
 <span class="sub">덜 풀었으면 <code>검사 실패: NotImplementedError: B-API-02</code>처럼 다음 문제를 알려 줍니다.</span></div></li>
       </ol>

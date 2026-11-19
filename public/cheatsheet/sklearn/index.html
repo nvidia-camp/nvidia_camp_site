@@ -17,9 +17,170 @@
 @media(max-width:520px){:root{--hero:30px}.wrap{padding-top:var(--s4)}.mast{flex-direction:column;gap:var(--s1)}.hero{padding-top:var(--s5)}.route{grid-template-columns:repeat(2,minmax(0,1fr))}.route a{padding:var(--s3)}.route-number{font-size:var(--body)}.scope{padding:var(--s4)}.sectionhead{margin-top:var(--s6)}summary{padding:var(--s4);gap:var(--s3)}.num{min-width:32px;min-height:32px;font-size:var(--body)}.en{display:block;margin-left:0}.stepbody{padding:var(--s4)}.rule{font-size:var(--small)}.functions thead{display:none}.functions,.functions tbody,.functions tr,.functions th,.functions td{display:block;width:100%!important;max-width:none!important}.functions tr{padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}.functions tr:last-child{border:0}.functions th,.functions td{border:0;padding:var(--s1) 0}.codehead{padding:var(--s2) var(--s3)}pre{padding:var(--s4)}footer{flex-direction:column;gap:var(--s2)}.actions{gap:var(--s2)}.actions a,.actions button{padding:var(--s2) var(--s3)}}
 @media(prefers-reduced-motion:no-preference){button,.actions a,.plus{transition:transform 140ms ease}}
 @media print{body{background:var(--surface);font-size:11pt}.wrap{max-width:none;padding:0}.actions,.route,.copy,.plus,.skip,.scroll-hint{display:none}.hero{padding:var(--s4) 0}h1{font-size:26pt}.scope{margin-bottom:var(--s4)}summary{padding:var(--s3);background:var(--tint)}.stepbody{padding:var(--s3)}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}.codebox{background:var(--tint);color:var(--ink);border:1px solid var(--line)}.codehead{color:var(--ink);border-color:var(--line)}.codebox,.tablewrap,.step{break-inside:auto}.sectionhead{break-after:avoid}.sources{margin-top:var(--s5)}a{color:var(--ink)}.num{min-width:auto;min-height:auto}.terms{grid-template-columns:repeat(3,1fr)}}
+/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --color-primary:#93C5FD; --color-heading:#E7F0FA; --color-text:#D8E3F0; --color-muted:#98AEC5; --color-canvas:#0B1220; --color-surface:#132033; --color-soft:#1C3554; --color-border:#293C57; --color-code-bg:#0D1828; }
+}
 </style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
+</style>
 </head><body><style>
-.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;width:100%;max-width:none;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
   padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 .cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
 .cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
@@ -36,7 +197,7 @@
 html{scroll-padding-top:3rem}
 @media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">scikit-learn 치트시트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="머신러닝_7단계_Day7_핵심_치트시트.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">scikit-learn 치트시트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="머신러닝_7단계_Day7_핵심_치트시트.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>/* =====================================================================
  * Google Analytics 4 — 사이트 방문·행동 기록
@@ -276,12 +437,12 @@ html{scroll-padding-top:3rem}
 <div class="terms"><p><b>fit → 배우기</b>전처리는 통계·범주를, 모델은 예측 규칙을 학습</p><p><b>transform → 바꾸기</b>이미 배운 전처리 규칙으로 입력을 변환</p><p><b>predict → 예측하기</b>Pipeline에서는 변환을 거쳐 모델의 예측값 반환</p></div></section>
 <section id="functions" aria-labelledby="functions-title"><div class="sectionhead"><h2 id="functions-title">필요한 단계만 펼쳐 보기</h2><button type="button" id="expand" aria-expanded="false">단계 모두 펼치기</button></div>
 <p class="mini">아래 코드는 역할을 보여 주는 조각입니다. 단계별 변수는 앞 단계에서 이어지며, 실제로 연결해 실행할 코드는 마지막 예제에 모았습니다.</p>
-<div class="steps"><details class="step" id="step-1"><summary><span class="num">01</span><span><span class="step-title">데이터 불러오기</span><span class="en">Load</span><span class="rule">먼저 표의 모양을 확인하고 X와 y를 나누기</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>pd.read_csv()</code></th><td>CSV 파일을 표로 읽기</td><td>pandas · 직접 사용</td></tr><tr><th scope="row"><code>df.head() / df.info()</code></th><td>앞부분 / 자료형·결측 개수 확인</td><td>pandas · 직접 사용</td></tr><tr><th scope="row"><code>df[["입력열"]] / df["정답열"]</code></th><td>X는 2차원 표, y는 정답 한 열</td><td>열 선택 문법 · 함수 아님</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-1" aria-label="code-1 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-1">import pandas as pd
+<div class="steps"><details class="step" id="step-1"><summary><span class="num">01</span><span><span class="step-title">데이터 불러오기</span><span class="en">Load</span><span class="rule">먼저 표의 모양을 확인하고 X와 y를 나누기</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>pd.read_csv()</code></th><td>CSV 파일을 표로 읽기</td><td>pandas · 직접 사용</td></tr><tr><th scope="row"><code>df.head() / df.info()</code></th><td>앞부분 / 자료형·결측 개수 확인</td><td>pandas · 직접 사용</td></tr><tr><th scope="row"><code>df[["입력열"]] / df["정답열"]</code></th><td>X는 2차원 표, y는 정답 한 열</td><td>열 선택 문법 · 함수 아님</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="1" class="copy" type="button" data-copy="code-1" aria-label="code-1 코드 복사">코드 복사</button></div><pre data-cp="1" tabindex="0" aria-label="파이썬 코드"><code id="code-1">import pandas as pd
 raw = pd.read_csv("../01_basic/requests.csv")
 print(raw.head())
 raw.info()
 X = raw[["input_chars"]]
-y = raw["failed"]</code></pre></div><p class="note">request_id는 식별용. 분류 정답 failed와 실행 후 알게 되는 elapsed_ms는 분류 입력에서 제외.</p><p class="source">근거: PDF p.7 · 기본필수 README·07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-2"><summary><span class="num">02</span><span><span class="step-title">전처리</span><span class="en">Preprocess</span><span class="rule">분할 먼저, 전처리는 train에서만 배우고 같은 규칙을 적용</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>train_test_split()</code></th><td>학습·검증·보관 데이터를 나누기</td><td>sklearn.model_selection · 직접 사용</td></tr><tr><th scope="row"><code>df.isna().sum()</code></th><td>열별 결측 개수 확인</td><td>pandas · 점검</td></tr><tr><th scope="row"><code>SimpleImputer()</code></th><td>결측을 채우는 도구. median은 중앙값</td><td>sklearn.impute · 대표 도구</td></tr><tr><th scope="row"><code>.fit_transform() / .transform()</code></th><td>학습하며 변환 / 배운 규칙으로만 변환</td><td>전처리 공통 동작 · 구분 필수</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-2" aria-label="code-2 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-2">from sklearn.model_selection import train_test_split
+y = raw["failed"]</code></pre></div><p class="note">request_id는 식별용. 분류 정답 failed와 실행 후 알게 되는 elapsed_ms는 분류 입력에서 제외.</p><p class="source">근거: PDF p.7 · 기본필수 README·07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-2"><summary><span class="num">02</span><span><span class="step-title">전처리</span><span class="en">Preprocess</span><span class="rule">분할 먼저, 전처리는 train에서만 배우고 같은 규칙을 적용</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>train_test_split()</code></th><td>학습·검증·보관 데이터를 나누기</td><td>sklearn.model_selection · 직접 사용</td></tr><tr><th scope="row"><code>df.isna().sum()</code></th><td>열별 결측 개수 확인</td><td>pandas · 점검</td></tr><tr><th scope="row"><code>SimpleImputer()</code></th><td>결측을 채우는 도구. median은 중앙값</td><td>sklearn.impute · 대표 도구</td></tr><tr><th scope="row"><code>.fit_transform() / .transform()</code></th><td>학습하며 변환 / 배운 규칙으로만 변환</td><td>전처리 공통 동작 · 구분 필수</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="2" class="copy" type="button" data-copy="code-2" aria-label="code-2 코드 복사">코드 복사</button></div><pre data-cp="2" tabindex="0" aria-label="파이썬 코드"><code id="code-2">from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 
 train, valid = train_test_split(
@@ -292,30 +453,30 @@ X_valid, y_valid = valid[["input_chars"]], valid["failed"]
 print(X_train.isna().sum())
 fill = SimpleImputer(strategy="median")
 train_values = fill.fit_transform(X_train)
-valid_values = fill.transform(X_valid)  # 여기서 다시 fit하지 않음</code></pre></div><p class="note">이 조각은 분할·변환의 역할 설명용. 아래 전체 예제는 수업처럼 test도 따로 보관하고, CV 때마다 전처리를 새로 학습하도록 묶음. 정상 20건에는 결측이 없어 대체해도 값은 바뀌지 않음. 범주 인코딩·표준화는 입력·모델에 따라 필요하지만, 이번 핵심 코드의 암기 범위에서는 제외.</p><p class="source">근거: PDF p.17, 54–55 · 기본필수 07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-3"><summary><span class="num">03</span><span><span class="step-title">모델</span><span class="en">Model</span><span class="rule">모델 이름보다 fit은 학습, predict는 예측이라는 공통 흐름 기억</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>DecisionTreeClassifier()</code></th><td>조건 분기로 분류하는 대표 모델</td><td>sklearn.tree · 우선 실습</td></tr><tr><th scope="row"><code>RandomForestClassifier()</code></th><td>여러 트리를 결합하는 비교 후보</td><td>sklearn.ensemble · 이름·역할 이해</td></tr><tr><th scope="row"><code>.fit(X_train, y_train)</code></th><td>입력과 정답으로 예측 규칙 학습</td><td>모델 공통 메서드 · 직접 사용</td></tr><tr><th scope="row"><code>.predict(X_valid)</code></th><td>새 입력의 예측값 반환</td><td>모델 공통 메서드 · 직접 사용</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-3" aria-label="code-3 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-3">from sklearn.tree import DecisionTreeClassifier
+valid_values = fill.transform(X_valid)  # 여기서 다시 fit하지 않음</code></pre></div><p class="note">이 조각은 분할·변환의 역할 설명용. 아래 전체 예제는 수업처럼 test도 따로 보관하고, CV 때마다 전처리를 새로 학습하도록 묶음. 정상 20건에는 결측이 없어 대체해도 값은 바뀌지 않음. 범주 인코딩·표준화는 입력·모델에 따라 필요하지만, 이번 핵심 코드의 암기 범위에서는 제외.</p><p class="source">근거: PDF p.17, 54–55 · 기본필수 07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-3"><summary><span class="num">03</span><span><span class="step-title">모델</span><span class="en">Model</span><span class="rule">모델 이름보다 fit은 학습, predict는 예측이라는 공통 흐름 기억</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>DecisionTreeClassifier()</code></th><td>조건 분기로 분류하는 대표 모델</td><td>sklearn.tree · 우선 실습</td></tr><tr><th scope="row"><code>RandomForestClassifier()</code></th><td>여러 트리를 결합하는 비교 후보</td><td>sklearn.ensemble · 이름·역할 이해</td></tr><tr><th scope="row"><code>.fit(X_train, y_train)</code></th><td>입력과 정답으로 예측 규칙 학습</td><td>모델 공통 메서드 · 직접 사용</td></tr><tr><th scope="row"><code>.predict(X_valid)</code></th><td>새 입력의 예측값 반환</td><td>모델 공통 메서드 · 직접 사용</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="3" class="copy" type="button" data-copy="code-3" aria-label="code-3 코드 복사">코드 복사</button></div><pre data-cp="3" tabindex="0" aria-label="파이썬 코드"><code id="code-3">from sklearn.tree import DecisionTreeClassifier
 
 model = DecisionTreeClassifier(max_depth=3, random_state=42)
 model.fit(train_values, y_train)
-prediction = model.predict(valid_values)</code></pre></div><p class="note">모델을 생성한 것만으로 학습된 것은 아님. 다른 모델로 바꾸어도 fit·predict의 큰 흐름은 동일. XGBoost는 예측을 순차 보정하는 모델이라는 역할까지만 기억. 개별 규제 설정이나 모델 내부 속성은 이 기초 치트시트에서 제외.</p><p class="source">근거: PDF p.12, 24–27 · 기본필수 01_tree.py·03_forest.py · <span>실습 원문</span></p></div></details><details class="step" id="step-4"><summary><span class="num">04</span><span><span class="step-title">하이퍼파라미터 조정</span><span class="en">Tune</span><span class="rule">설정을 하나씩 바꾸되, 비교하는 데이터와 지표는 동일하게</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>max_depth</code></th><td>트리의 최대 깊이</td><td>Tree·Forest · 설정값</td></tr><tr><th scope="row"><code>n_estimators</code></th><td>Forest에 포함하는 트리 수</td><td>RandomForest · 설정값</td></tr><tr><th scope="row"><code>random_state</code></th><td>난수를 사용하는 과정의 재현성 설정</td><td>비교 실험에서 고정</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-4" aria-label="code-4 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-4"># 함수 암기보다, 어떤 설정을 바꿨는지 이해하기
+prediction = model.predict(valid_values)</code></pre></div><p class="note">모델을 생성한 것만으로 학습된 것은 아님. 다른 모델로 바꾸어도 fit·predict의 큰 흐름은 동일. XGBoost는 예측을 순차 보정하는 모델이라는 역할까지만 기억. 개별 규제 설정이나 모델 내부 속성은 이 기초 치트시트에서 제외.</p><p class="source">근거: PDF p.12, 24–27 · 기본필수 01_tree.py·03_forest.py · <span>실습 원문</span></p></div></details><details class="step" id="step-4"><summary><span class="num">04</span><span><span class="step-title">하이퍼파라미터 조정</span><span class="en">Tune</span><span class="rule">설정을 하나씩 바꾸되, 비교하는 데이터와 지표는 동일하게</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>max_depth</code></th><td>트리의 최대 깊이</td><td>Tree·Forest · 설정값</td></tr><tr><th scope="row"><code>n_estimators</code></th><td>Forest에 포함하는 트리 수</td><td>RandomForest · 설정값</td></tr><tr><th scope="row"><code>random_state</code></th><td>난수를 사용하는 과정의 재현성 설정</td><td>비교 실험에서 고정</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="4" class="copy" type="button" data-copy="code-4" aria-label="code-4 코드 복사">코드 복사</button></div><pre data-cp="4" tabindex="0" aria-label="파이썬 코드"><code id="code-4"># 함수 암기보다, 어떤 설정을 바꿨는지 이해하기
 shallow = DecisionTreeClassifier(max_depth=1, random_state=42)
 deeper = DecisionTreeClassifier(max_depth=3, random_state=42)
-# 두 모델을 같은 데이터 분할·같은 지표로 비교</code></pre></div><p class="note">하이퍼파라미터는 모델이 학습하는 값이 아니라 사람이 정하는 설정. 깊거나 트리가 많다고 항상 좋은 것은 아님. 우선 깊이 1·3 비교부터 시작. 자동 탐색과 복잡한 파라미터 조합은 제외.</p><p class="source">근거: PDF p.19, 26 · 기본필수 02_depth.py · <span>실습 원문</span></p></div></details><details class="step" id="step-5"><summary><span class="num">05</span><span><span class="step-title">최종 모델 선택</span><span class="en">Select</span><span class="rule">미리 정한 기준으로 비교하고, 선택한 모델을 전체 train에 다시 학습</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>cross_val_score()</code></th><td>train 내부에서 반복 평가한 점수 반환</td><td>sklearn.model_selection · 호출 형태 이해</td></tr><tr><th scope="row"><code>scores.mean()</code></th><td>여러 평가 점수의 평균 비교</td><td>반환된 점수 배열의 메서드</td></tr><tr><th scope="row"><code>scores.std()</code></th><td>반복 평가 점수가 얼마나 달라지는지 확인</td><td>평균 옆에 참고 · 세부 통계 암기 제외</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-5" aria-label="code-5 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-5">from sklearn.model_selection import cross_val_score
+# 두 모델을 같은 데이터 분할·같은 지표로 비교</code></pre></div><p class="note">하이퍼파라미터는 모델이 학습하는 값이 아니라 사람이 정하는 설정. 깊거나 트리가 많다고 항상 좋은 것은 아님. 우선 깊이 1·3 비교부터 시작. 자동 탐색과 복잡한 파라미터 조합은 제외.</p><p class="source">근거: PDF p.19, 26 · 기본필수 02_depth.py · <span>실습 원문</span></p></div></details><details class="step" id="step-5"><summary><span class="num">05</span><span><span class="step-title">최종 모델 선택</span><span class="en">Select</span><span class="rule">미리 정한 기준으로 비교하고, 선택한 모델을 전체 train에 다시 학습</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>cross_val_score()</code></th><td>train 내부에서 반복 평가한 점수 반환</td><td>sklearn.model_selection · 호출 형태 이해</td></tr><tr><th scope="row"><code>scores.mean()</code></th><td>여러 평가 점수의 평균 비교</td><td>반환된 점수 배열의 메서드</td></tr><tr><th scope="row"><code>scores.std()</code></th><td>반복 평가 점수가 얼마나 달라지는지 확인</td><td>평균 옆에 참고 · 세부 통계 암기 제외</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="5" class="copy" type="button" data-copy="code-5" aria-label="code-5 코드 복사">코드 복사</button></div><pre data-cp="5" tabindex="0" aria-label="파이썬 코드"><code id="code-5">from sklearn.model_selection import cross_val_score
 
 scores = cross_val_score(
     model, X_train, y_train, cv=3, scoring="f1"
 )
 print("평균:", scores.mean(), "편차:", scores.std())
 # 같은 조건의 후보와 비교한 뒤
-# 선택한 모델은 전체 train으로 다시 fit</code></pre></div><p class="note">선택 전용 함수를 외우기보다 같은 기준으로 점수를 비교하는 과정이 핵심. 이 조각의 model은 전처리가 필요 없는 깨끗한 숫자 입력용. 전처리가 필요하면 전체 예제처럼 전처리와 모델을 묶어 CV에 전달. CV 점수는 선택에 사용한 점수이며 최종 성능 보증이 아님.</p><p class="source">근거: PDF p.53–56, 62–67 · 기본필수 06_cv.py·07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-6"><summary><span class="num">06</span><span><span class="step-title">평가</span><span class="en">Evaluate</span><span class="rule">점수와 오답을 함께 확인. Day7에서는 test를 보관</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>f1_score(y_true, y_pred)</code></th><td>실패 발견의 정밀도·재현율을 함께 보는 점수</td><td>sklearn.metrics · 분류 주 지표</td></tr><tr><th scope="row"><code>confusion_matrix()</code></th><td>맞힌 경우와 틀린 경우의 개수 확인</td><td>sklearn.metrics · 오류 읽기</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-6" aria-label="code-6 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-6">from sklearn.metrics import f1_score, confusion_matrix
+# 선택한 모델은 전체 train으로 다시 fit</code></pre></div><p class="note">선택 전용 함수를 외우기보다 같은 기준으로 점수를 비교하는 과정이 핵심. 이 조각의 model은 전처리가 필요 없는 깨끗한 숫자 입력용. 전처리가 필요하면 전체 예제처럼 전처리와 모델을 묶어 CV에 전달. CV 점수는 선택에 사용한 점수이며 최종 성능 보증이 아님.</p><p class="source">근거: PDF p.53–56, 62–67 · 기본필수 06_cv.py·07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-6"><summary><span class="num">06</span><span><span class="step-title">평가</span><span class="en">Evaluate</span><span class="rule">점수와 오답을 함께 확인. Day7에서는 test를 보관</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>f1_score(y_true, y_pred)</code></th><td>실패 발견의 정밀도·재현율을 함께 보는 점수</td><td>sklearn.metrics · 분류 주 지표</td></tr><tr><th scope="row"><code>confusion_matrix()</code></th><td>맞힌 경우와 틀린 경우의 개수 확인</td><td>sklearn.metrics · 오류 읽기</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="6" class="copy" type="button" data-copy="code-6" aria-label="code-6 코드 복사">코드 복사</button></div><pre data-cp="6" tabindex="0" aria-label="파이썬 코드"><code id="code-6">from sklearn.metrics import f1_score, confusion_matrix
 
 print(f1_score(y_valid, prediction, zero_division=0))
-print(confusion_matrix(y_valid, prediction, labels=[0, 1]))</code></pre></div><p class="note">labels=[0,1]일 때 행은 실제값, 열은 예측값. 오른쪽 위는 잘못된 실패 경보, 왼쪽 아래는 놓친 실패. F1=0도 올바른 계산 결과일 수 있음. 회귀를 할 때는 F1 대신 RMSE 같은 회귀 지표를 사용. Day7의 valid는 진단용, 독립 test는 선택 정책 확정 후 최종 평가용.</p><p class="source">근거: PDF p.8, 63–67, 79 · 기본필수 07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-7"><summary><span class="num">07</span><span><span class="step-title">저장</span><span class="en">Save</span><span class="rule">모델 파일과 결과표는 다름. 전처리가 있으면 모델과 함께 저장</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>joblib.dump() / joblib.load()</code></th><td>학습 결과 저장 / 다시 불러오기</td><td>joblib · 저장할 때 찾아 쓰기</td></tr><tr><th scope="row"><code>df.to_csv()</code></th><td>예측값·비교표를 CSV로 저장</td><td>pandas · 직접 사용</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="code-7" aria-label="code-7 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="code-7">import joblib
+print(confusion_matrix(y_valid, prediction, labels=[0, 1]))</code></pre></div><p class="note">labels=[0,1]일 때 행은 실제값, 열은 예측값. 오른쪽 위는 잘못된 실패 경보, 왼쪽 아래는 놓친 실패. F1=0도 올바른 계산 결과일 수 있음. 회귀를 할 때는 F1 대신 RMSE 같은 회귀 지표를 사용. Day7의 valid는 진단용, 독립 test는 선택 정책 확정 후 최종 평가용.</p><p class="source">근거: PDF p.8, 63–67, 79 · 기본필수 07_project.py · <span>실습 원문</span></p></div></details><details class="step" id="step-7"><summary><span class="num">07</span><span><span class="step-title">저장</span><span class="en">Save</span><span class="rule">모델 파일과 결과표는 다름. 전처리가 있으면 모델과 함께 저장</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><div class="tablewrap"><table class="functions"><caption class="sr">기본 함수와 역할</caption><thead><tr><th scope="col">함수·설정</th><th scope="col">역할</th><th scope="col">학습 범위</th></tr></thead><tbody><tr><th scope="row"><code>joblib.dump() / joblib.load()</code></th><td>학습 결과 저장 / 다시 불러오기</td><td>joblib · 저장할 때 찾아 쓰기</td></tr><tr><th scope="row"><code>df.to_csv()</code></th><td>예측값·비교표를 CSV로 저장</td><td>pandas · 직접 사용</td></tr></tbody></table></div><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="7" class="copy" type="button" data-copy="code-7" aria-label="code-7 코드 복사">코드 복사</button></div><pre data-cp="7" tabindex="0" aria-label="파이썬 코드"><code id="code-7">import joblib
 joblib.dump(model, "model.joblib")
 restored = joblib.load("model.joblib")
 pd.DataFrame({"actual": y_valid, "prediction": prediction}).to_csv(
     "predictions.csv", index=False, encoding="utf-8-sig"
 )</code></pre></div><p class="note">위 조각의 model은 변환된 숫자를 받으므로 같은 전처리도 함께 보관해야 함. 전체 예제는 전처리와 모델을 묶어 한 파일로 저장. 본인이 만든 신뢰하는 파일을 같은 환경에서 복원하고 예측이 같은지 확인.</p><p class="source">근거: PDF p.70, 73 · 기본필수 결과 CSV·심화 저장 실습 · <span>실습 원문</span></p></div></details></div></section>
-<details class="full" id="full-code"><summary><span class="num">↳</span><span><span class="step-title">기본 함수로 연결하는 전체 흐름</span><span class="rule">읽기 → 분할 → 간단한 후보 비교 → valid 진단 → 저장</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><p class="note"><strong>기본 흐름을 위한 축소 예제.</strong> 기본필수 정상 20건에서 글자 수 한 열만 사용합니다. 원본 통합 실습의 작업 종류 인코딩은 생략했으므로 원본 결과와 직접 비교하지 않습니다. test는 보관합니다. 작은 자료에서는 후보가 모두 동점이거나 F1=0일 수 있으며, 이때 성능 우위를 단정하지 않고 정해 둔 순서로 잠정 선택합니다.</p><p class="mini">직접 익힐 부분은 데이터 선택·fit·predict·점수 비교. <code>Pipeline</code>은 “전처리와 모델을 묶어 누수를 막는 틀”로 이해하고 제공 코드를 사용하면 됩니다. 복잡한 조합 문법은 암기 대상이 아닙니다.</p><p class="mini">실행 위치: 이 HTML이 있는 폴더. 기존 수업 가상환경 사용. 생성물은 <code>outputs/basic_flow_*</code>에 저장.</p><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button class="copy" type="button" data-copy="connected-code" aria-label="connected-code 코드 복사">코드 복사</button></div><pre tabindex="0" aria-label="파이썬 코드"><code id="connected-code"># 이 HTML이 있는 폴더에서 실행. 기본필수 정상 20건 사용.
+<details class="full" id="full-code"><summary><span class="num">↳</span><span><span class="step-title">기본 함수로 연결하는 전체 흐름</span><span class="rule">읽기 → 분할 → 간단한 후보 비교 → valid 진단 → 저장</span></span><span class="plus" aria-hidden="true">+</span></summary><div class="stepbody"><p class="note"><strong>기본 흐름을 위한 축소 예제.</strong> 기본필수 정상 20건에서 글자 수 한 열만 사용합니다. 원본 통합 실습의 작업 종류 인코딩은 생략했으므로 원본 결과와 직접 비교하지 않습니다. test는 보관합니다. 작은 자료에서는 후보가 모두 동점이거나 F1=0일 수 있으며, 이때 성능 우위를 단정하지 않고 정해 둔 순서로 잠정 선택합니다.</p><p class="mini">직접 익힐 부분은 데이터 선택·fit·predict·점수 비교. <code>Pipeline</code>은 “전처리와 모델을 묶어 누수를 막는 틀”로 이해하고 제공 코드를 사용하면 됩니다. 복잡한 조합 문법은 암기 대상이 아닙니다.</p><p class="mini">실행 위치: 이 HTML이 있는 폴더. 기존 수업 가상환경 사용. 생성물은 <code>outputs/basic_flow_*</code>에 저장.</p><div class="codebox"><div class="codehead"><span class="code-language">Python<span class="scroll-hint">긴 코드는 가로로 스크롤</span></span><button data-cp-src="8" class="copy" type="button" data-copy="connected-code" aria-label="connected-code 코드 복사">코드 복사</button></div><pre data-cp="8" tabindex="0" aria-label="파이썬 코드"><code id="connected-code"># 이 HTML이 있는 폴더에서 실행. 기본필수 정상 20건 사용.
 from pathlib import Path
 import pandas as pd
 import joblib
@@ -404,6 +565,188 @@ document.getElementById("print").addEventListener("click",()=>window.print());
 function syncRoute(){document.querySelectorAll('.route a').forEach(a=>{if(a.hash===location.hash)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current')})}
 window.addEventListener('hashchange',syncRoute);syncRoute();
 if(location.hash){const target=document.getElementById(location.hash.slice(1));if(target?.tagName==="DETAILS")target.open=true}
-</script></body></html>
+</script><style>
+/* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
+</style>
+<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+<script>/* =====================================================================
+ * 맨 위로 버튼(.to-top) — 강의 요약·치트시트·설치 가이드 페이지
+ *
+ * - 한 화면의 60%쯤 내려가면 나타나고, 위로 돌아오면 사라진다.
+ * - 테두리 원(.tt-bar)이 페이지를 읽은 만큼 찬다.
+ * - 누르면 맨 위로 부드럽게 올라간다 (동작 줄이기 설정이면 바로 이동).
+ * ===================================================================== */
+(function () {
+  var btn = document.querySelector('.to-top');
+  if (!btn) return;
+  var bar = btn.querySelector('.tt-bar');
+  var LENGTH = 2 * Math.PI * 21;          // 원 둘레 (반지름 21)
+  bar.style.strokeDasharray = LENGTH;
+  var waiting = false;
+
+  function update() {
+    waiting = false;
+    var root = document.documentElement;
+    var y = window.scrollY || root.scrollTop;
+    var max = root.scrollHeight - window.innerHeight;
+    var read = max > 0 ? Math.min(1, y / max) : 0;
+    bar.style.strokeDashoffset = LENGTH * (1 - read);
+    btn.classList.toggle('show', y > window.innerHeight * 0.6);
+  }
+
+  function schedule() {
+    if (!waiting) { waiting = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('load', update);
+  update();
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+})();</script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
+</body></html>
 
 

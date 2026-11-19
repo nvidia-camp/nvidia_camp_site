@@ -5,9 +5,184 @@
 @media print{html,body{background:white}body{padding:0}.page{margin:0;min-height:0}.screen-only{display:none!important}.print-only{display:block}a{text-decoration:none}pre{overflow:visible}section{break-inside:avoid}.foot a{text-decoration:underline}}
 @media screen and (min-width:1400px){.page{zoom:1.2}}@media screen and (min-width:1700px){.page{zoom:1.45}}
 @media screen and (max-width:1160px){body{padding:12px}.page{width:100%;padding:16px;--body:12pt;--code-size:10pt}.grid{grid-template-columns:1fr;gap:14px}.col{gap:14px}header{flex-wrap:wrap}h1{font-size:22pt}header .meta{margin-left:0;text-align:left;font-size:9pt}.route{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.step:not(:last-child):after{display:none}.step strong{font-size:11pt}.step small{font-size:9pt}.route-note{font-size:10pt}.card,.shape,.warning{padding:12px}h2{font-size:14pt}h2 small{font-size:9pt}.card .hint,.tiny{font-size:10pt}.shape dl{font-size:11pt;grid-template-columns:100px 1fr}.foot{display:block;font-size:9pt}.foot .source-code{max-width:none;margin-top:5px}.tools button{min-height:44px}.status{font-size:10pt}.branch-label{font-size:10pt}.badge{font-size:9pt}.n{min-width:25px;height:25px}.route{gap:6px}}
-header{align-items:center}header .meta{line-height:1.25}.card p+p{margin-top:3px}.card .key{padding:3px 5px;margin-top:4px}.card .hint{margin-top:3px}.card{line-height:1.32}.shape dl{line-height:1.3}.card h2{font-size:10pt}a.step{text-decoration:none}.foot{font-size:6.8pt}.route{gap:10px}.route-note{font-size:7.6pt}header{padding-bottom:3px;margin-bottom:5px}h1{font-size:16pt}.page{padding-top:4mm;padding-bottom:4mm}.step{padding:3px 6px}.route-note{margin:2px 0 5px;font-size:7.1pt}.card{padding:5px 7px;line-height:1.2}.card p+p{margin-top:3px}.card .key{padding:3px 5px;margin-top:3px}.card .hint{line-height:1.2;font-size:7.8pt}pre{line-height:1.15;padding:5px 7px}.ln{min-height:1.15em}.shape{padding:5px 7px}.shape dl{font-size:8pt;line-height:1.2}.foot{margin-top:5px;font-size:6.7pt}.col{gap:6px}.branch-label{font-size:7.1pt;margin-bottom:2px}.card h2{margin-bottom:3px}.card{padding:4px 7px}.n{min-width:18px;height:18px}.page{padding-top:3mm;padding-bottom:3mm}@media screen and (max-width:1160px){.card h2{font-size:14pt}.card{line-height:1.5;padding:12px}.ln{min-height:1.35em}pre{line-height:1.35}.shape dl{font-size:11pt;line-height:1.5}.card .hint{font-size:10pt;line-height:1.5}.branch-label{font-size:10pt}.route-note{font-size:10pt}.foot{font-size:9pt}}@media screen and (max-width:1160px){#flow-code .badge{display:none}#flow-code .ln{padding-right:0}}@media screen and (max-width:480px){.route{grid-template-columns:repeat(2,minmax(0,1fr))}}</style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+header{align-items:center}header .meta{line-height:1.25}.card p+p{margin-top:3px}.card .key{padding:3px 5px;margin-top:4px}.card .hint{margin-top:3px}.card{line-height:1.32}.shape dl{line-height:1.3}.card h2{font-size:10pt}a.step{text-decoration:none}.foot{font-size:6.8pt}.route{gap:10px}.route-note{font-size:7.6pt}header{padding-bottom:3px;margin-bottom:5px}h1{font-size:16pt}.page{padding-top:4mm;padding-bottom:4mm}.step{padding:3px 6px}.route-note{margin:2px 0 5px;font-size:7.1pt}.card{padding:5px 7px;line-height:1.2}.card p+p{margin-top:3px}.card .key{padding:3px 5px;margin-top:3px}.card .hint{line-height:1.2;font-size:7.8pt}pre{line-height:1.15;padding:5px 7px}.ln{min-height:1.15em}.shape{padding:5px 7px}.shape dl{font-size:8pt;line-height:1.2}.foot{margin-top:5px;font-size:6.7pt}.col{gap:6px}.branch-label{font-size:7.1pt;margin-bottom:2px}.card h2{margin-bottom:3px}.card{padding:4px 7px}.n{min-width:18px;height:18px}.page{padding-top:3mm;padding-bottom:3mm}@media screen and (max-width:1160px){.card h2{font-size:14pt}.card{line-height:1.5;padding:12px}.ln{min-height:1.35em}pre{line-height:1.35}.shape dl{font-size:11pt;line-height:1.5}.card .hint{font-size:10pt;line-height:1.5}.branch-label{font-size:10pt}.route-note{font-size:10pt}.foot{font-size:9pt}}@media screen and (max-width:1160px){#flow-code .badge{display:none}#flow-code .ln{padding-right:0}}@media screen and (max-width:480px){.route{grid-template-columns:repeat(2,minmax(0,1fr))}}/* auto-dark: 어두운 화면 (색만 바꾼다, 본문·그림 데이터는 그대로) */
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --navy:#1E3A5F; --heading:#E7F0FA; --text:#D8E3F0; --muted:#98AEC5; --canvas:#0B1220; --white:#132033; --soft:#1C3554; --line:#293C57; --param:#A5C3E9; }
+  h1 { color: #93C5FD; }
+  header { border-color: #93C5FD; }
+  a { color: #93C5FD; }
+  .n { color: #E6EFFA; }
+  .step strong { color: #93C5FD; }
+  .route-note b { color: #93C5FD; }
+  .key { color: #93C5FD; }
+  pre { color: #E6EFFA; }
+  .badge { color: #93C5FD; }
+  .tools button { color: #93C5FD; }
+  .shape dt { color: #93C5FD; }
+  .branch { border-color: #93C5FD; }
+  .warning { border-color: #93C5FD; }
+  .warning li::marker { color: #93C5FD; }
+}
+</style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
+</style>
 </head><body><style>
-.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;width:100%;max-width:none;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
   padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 .cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
 .cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
@@ -24,7 +199,7 @@ header{align-items:center}header .meta{line-height:1.25}.card p+p{margin-top:3px
 html{scroll-padding-top:3rem}
 @media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">OpenCV 치트시트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="OpenCV_핵심_치트시트_이미지_한_장에서_영상_처리까지.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">OpenCV 치트시트</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="OpenCV_핵심_치트시트_이미지_한_장에서_영상_처리까지.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>/* =====================================================================
  * Google Analytics 4 — 사이트 방문·행동 기록
@@ -250,7 +425,189 @@ html{scroll-padding-top:3rem}
 
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
-})();</script><main class="page"><header><h1>OpenCV 핵심 치트시트</h1><p>이미지 한 장에서 영상 처리까지</p><div class="meta">코드 줄 끝 번호 = 함수 설명 번호<br>Day13 · OpenCV 4.13 공식 문서 기준 · 2026-11-04</div></header><nav class="route" aria-label="이미지 처리 흐름"><a class="step" href="#f1"><strong>1 읽기·확인</strong><small>imread · shape</small></a><a class="step" href="#f2"><strong>2 밝기로 변환</strong><small>cvtColor</small></a><a class="step" href="#f3"><strong>3 크기 맞추기</strong><small>resize</small></a><a class="step" href="#f4"><strong>4 잡음 줄이기</strong><small>GaussianBlur</small></a><a class="step" href="#f5"><strong>5 경계 찾기</strong><small>Canny</small></a><a class="step" href="#f6"><strong>6 저장·재확인</strong><small>imwrite · imread</small></a></nav><p class="route-note"><b>7 영상</b>은 Frame마다 위 처리를 반복 → Writer용 3채널로 변환 → 저장 → 자원 해제 · <b>A 영역 만들기 / B 학습용 변형</b>은 목적에 따라 선택하는 갈래</p><div class="grid"><div class="col"><section><h2 id="f0"><span class="n">0</span>전체 흐름 코드<small>응용 07 기반</small></h2><p class="tiny">응용/07_project.py가 있는 폴더에서 실행 · 정상 수업 입력용</p><div class="tools screen-only"><span class="status" role="status" aria-live="polite"></span><button type="button" id="copy">전체 코드 복사</button></div><pre id="flow-code"><code><span class="ln"><span class="k">import</span> cv2</span><span class="ln"><span class="k">from</span> pathlib <span class="k">import</span> Path</span><span class="ln">Path(<span class="s">&quot;outputs&quot;</span>).mkdir(exist_ok=<span class="k">True</span>)</span><span class="ln">size = (<span class="num">160</span>, <span class="num">120</span>)  <span class="c"># (W, H)</span><a class="badge" href="#f3" aria-label="3번 설명으로 이동">3</a></span><span class="ln"><span class="k">def</span> process_image(image):</span><span class="ln">    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)<a class="badge" href="#f2" aria-label="2번 설명으로 이동">2</a></span><span class="ln">    small = cv2.resize(gray, size,<a class="badge" href="#f3" aria-label="3번 설명으로 이동">3</a></span><span class="ln">                       interpolation=cv2.INTER_AREA)</span><span class="ln">    blur = cv2.GaussianBlur(small, (<span class="num">3</span>, <span class="num">3</span>), <span class="num">0</span>)<a class="badge" href="#f4" aria-label="4번 설명으로 이동">4</a></span><span class="ln">    edge = cv2.Canny(blur, <span class="num">80</span>, <span class="num">160</span>)<a class="badge" href="#f5" aria-label="5번 설명으로 이동">5</a></span><span class="ln">    <span class="k">return</span> gray, small, edge</span><span class="ln">image = cv2.imread(<span class="s">&quot;data/scene.png&quot;</span>)<a class="badge" href="#f1" aria-label="1번 설명으로 이동">1</a></span><span class="ln"><span class="k">assert</span> image <span class="k">is</span> <span class="k">not</span> <span class="k">None</span></span><span class="ln">print(image.shape, image.dtype)<a class="badge" href="#f1" aria-label="1번 설명으로 이동">1</a></span><span class="ln">_, _, edge = process_image(image)</span><span class="ln">saved = cv2.imwrite(<span class="s">&quot;outputs/edge.png&quot;</span>, edge)<a class="badge" href="#f6" aria-label="6번 설명으로 이동">6</a></span><span class="ln"><span class="k">assert</span> saved</span><span class="ln">print(cv2.imread(<span class="s">&quot;outputs/edge.png&quot;</span>, <span class="num">0</span>).shape)<a class="badge" href="#f6" aria-label="6번 설명으로 이동">6</a></span><span class="ln">cap = cv2.VideoCapture(<span class="s">&quot;data/sample.avi&quot;</span>)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">writer = <span class="k">None</span></span><span class="ln"><span class="k">try</span>:</span><span class="ln">    <span class="k">assert</span> cap.isOpened()</span><span class="ln">    fps = cap.get(cv2.CAP_PROP_FPS)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">    <span class="k">assert</span> <span class="num">0</span> &lt; fps &lt; float(<span class="s">&quot;inf&quot;</span>)</span><span class="ln">    fourcc = cv2.VideoWriter_fourcc(*<span class="s">&quot;MJPG&quot;</span>)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">    writer = cv2.VideoWriter(<span class="s">&quot;outputs/edge.avi&quot;</span>,<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">                             fourcc, fps, size)</span><span class="ln">    <span class="k">assert</span> writer.isOpened()</span><span class="ln">    <span class="k">while</span> <span class="k">True</span>:</span><span class="ln">        ok, frame = cap.read()<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">        <span class="k">if</span> <span class="k">not</span> ok:</span><span class="ln">            <span class="k">break</span></span><span class="ln">        _, _, edge = process_image(frame)<a class="badge" href="#f0" aria-label="0번 설명으로 이동">0</a></span><span class="ln">        color = cv2.cvtColor(edge, cv2.COLOR_GRAY2BGR)<a class="badge" href="#f2" aria-label="2번 설명으로 이동">2</a></span><span class="ln">        writer.write(color)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln"><span class="k">finally</span>:</span><span class="ln">    cap.release()<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">    <span class="k">if</span> writer <span class="k">is</span> <span class="k">not</span> <span class="k">None</span>:</span><span class="ln">        writer.release()<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span></code></pre></section><section class="shape"><h2>배열은 이렇게 바뀐다</h2><dl><dt>image → gray</dt><dd>(240,320,3) → (240,320)</dd><dt>small → edge</dt><dd>(120, 160) · edge 값은 0 / 255</dd><dt>color</dt><dd>(120, 160, 3) · 같은 값 3채널 복제</dd></dl><p class="tiny">모두 uint8 · Gray→BGR은 원래 색 복원이 아님</p></section></div><div class="col"><section class="card"><h2 id="f1"><span class="n">1</span>읽기와 배열 확인<small>cv2 · NumPy</small></h2><p><code>imread(path)</code> 파일 → BGR 배열 · 실패: None</p><p><code>shape</code> 높이·너비·채널 · <code>dtype</code> 자료형<br><code>min()</code> / <code>max()</code> 값 범위 · uint8: 0~255</p><p class="key">읽기 성공 확인 후 처리 · shape/dtype은 속성</p></section><section class="card"><h2 id="f2"><span class="n">2</span>색 표현 바꾸기<small>cv2.cvtColor</small></h2><p><code>cvtColor(<b class="param">src, code</b>)</code> 입력 → 변환된 배열</p><p><code>COLOR_BGR2GRAY</code> 밝기 1채널<br><code>COLOR_BGR2RGB</code> Matplotlib 표시용<br><code>COLOR_GRAY2BGR</code> 같은 값 3채널 복제</p><p class="key">RGB 표시용 배열은 BGR로 되돌려 저장</p></section><section class="card"><h2 id="f3"><span class="n">3</span>크기와 보간법<small>cv2.resize</small></h2><p><code>resize(<b class="param">src, dsize, interpolation=...</b>)</code><br>dsize=<b>(W,H)</b> · (160,120) → shape (120,160)</p><p><code>INTER_AREA</code> 축소에 자주 사용<br><code>INTER_LINEAR</code> 기본값 · 부드러운 보간<br><code>INTER_NEAREST</code> 최근접 · Mask에 적합</p><p class="key">320×240 → 160×120은 가로세로 비율 유지</p></section><section class="card"><h2 id="f4"><span class="n">4</span>이웃으로 잡음 줄이기<small>cv2.GaussianBlur</small></h2><p><code>GaussianBlur(<b class="param">src, ksize, sigmaX</b>)</code><br>가중 평균 · 입력과 같은 크기의 배열 반환</p><p><code>(3,3)</code> 이웃 크기 · 여기서는 양수 홀수<br><code>0</code> sigmaX를 Kernel 크기로부터 계산</p><p class="key">큰 Kernel → 강한 Blur·세부 손실 증가</p></section><section class="card"><h2 id="f5"><span class="n">5</span>경계 찾기<small>cv2.Canny</small></h2><p><code>Canny(<b class="param">image, threshold1, threshold2</b>)</code><br>강한 경계와 연결된 약한 경계를 남김<br>임계값↓: 잡음 증가 · ↑: 약한 경계 손실</p><p class="key">80/160은 밝기 이진화 기준이 아님<br>출력 0/255 · 흰색은 경계, 검은색은 배경</p></section></div><div class="col"><section class="card"><h2 id="f6"><span class="n">6</span>저장·재읽기<small>cv2.imwrite</small></h2><p><code>imwrite(<b class="param">filename, img</b>)</code> → 저장 성공 bool<br>출력 폴더 먼저 준비 · 확장자가 형식 결정<br><code>imread(path, 0)</code> Gray로 재읽고 shape 확인</p></section><section class="card"><h2 id="f7"><span class="n">7</span>같은 처리를 Frame마다<small>cv2</small></h2><p><code>VideoCapture(path)</code> 영상 열기<br><code>isOpened()</code> 열림(bool) · <code>read()</code> (ok, frame)<br>ok=False면 종료 또는 읽기 실패<br><code>get(cv2.CAP_PROP_FPS)</code> 재생 FPS</p><p><code>VideoWriter(path, fourcc, fps, size)</code><br>fourcc: 코덱 · fps: 재생 빈도 · size: (W,H)<br><code>VideoWriter_fourcc(*"MJPG")</code> 코덱 코드<br><code>write(frame)</code> Frame 추가 · <code>release()</code> 해제</p><p class="key">컬러 Writer: 같은 크기의 3채널 전달<br>48Frame ÷ 12FPS = 4초 · 처리속도와 구분</p><p class="hint">저장 후 Frame 수·FPS·크기 확인<br>MJPG 손실 압축: 픽셀 완전 일치 요구 X</p></section><section class="card branch"><div class="branch-label">선택 A · blur → 영역 Mask → 모양 정리</div><h2 id="fA"><span class="n">A</span>Threshold·Morphology<small>cv2</small></h2><pre id="branch-mask"><code><span class="ln">_, binary = cv2.threshold(</span><span class="ln">    blur, <span class="num">127</span>, <span class="num">255</span>, cv2.THRESH_BINARY)</span><span class="ln">kernel = cv2.getStructuringElement(</span><span class="ln">    cv2.MORPH_RECT, (<span class="num">3</span>, <span class="num">3</span>))</span><span class="ln">opened = cv2.morphologyEx(</span><span class="ln">    binary, cv2.MORPH_OPEN, kernel)</span></code></pre><p><code>threshold</code> 밝기 &gt;127이면 255, 그 외 0<br>반환: (사용 임계값, 결과 배열)<br><code>getStructuringElement</code> Kernel 모양·크기<br><code>morphologyEx</code> op로 모양 연산 선택</p><p class="key">OPEN: 침식→팽창 · 작은 흰 전경 제거<br>CLOSE: 팽창→침식 · 작은 검은 구멍 보완</p></section><section class="card branch"><h2 id="fB"><span class="n">B</span>학습용 변형 · 반전·회전<small>cv2</small></h2><p><code>flip(image, 1)</code> 좌우 · 0은 상하 반전<br><code>getRotationMatrix2D</code> 중심·각도(도)·배율 → 2×3 행렬 M<br><code>warpAffine(src, M, size)</code> 행렬로 실제 변환</p><p class="key">무작위 증강은 train만 · 라벨·모서리 손실 확인</p></section></div></div><footer class="foot"><div class="sources">공식 근거: <a href="https://docs.opencv.org/4.13.0/d6/d00/tutorial_py_root.html">OpenCV-Python 4.13</a> · <a href="https://docs.opencv.org/4.13.0/d4/d13/tutorial_py_filtering.html">Filter</a> · <a href="https://docs.opencv.org/4.13.0/da/d22/tutorial_py_canny.html">Canny</a> · <a href="https://docs.opencv.org/4.13.0/d7/d4d/tutorial_py_thresholding.html">Threshold</a> · <a href="https://docs.opencv.org/4.13.0/d9/d61/tutorial_py_morphological_ops.html">Morphology</a> · <a href="https://docs.opencv.org/4.13.0/dd/d43/tutorial_py_video_display.html">Video</a><br>자주 하는 실수: shape=(H,W) ↔ size=(W,H) · BGR ↔ RGB · Gray Frame ↔ 컬러 Writer · Edge 수가 많다고 좋은 결과는 아님</div><div class="source-code">코드: mentor/02_intermediate/07_project.py 및 심화 image_ops.py<br>정상 수업 입력용으로 축약 · CSV·시간 측정 생략</div></footer></main><script>
+})();</script><main class="page"><header><h1>OpenCV 핵심 치트시트</h1><p>이미지 한 장에서 영상 처리까지</p><div class="meta">코드 줄 끝 번호 = 함수 설명 번호<br>Day13 · OpenCV 4.13 공식 문서 기준 · 2026-11-04</div></header><nav class="route" aria-label="이미지 처리 흐름"><a class="step" href="#f1"><strong>1 읽기·확인</strong><small>imread · shape</small></a><a class="step" href="#f2"><strong>2 밝기로 변환</strong><small>cvtColor</small></a><a class="step" href="#f3"><strong>3 크기 맞추기</strong><small>resize</small></a><a class="step" href="#f4"><strong>4 잡음 줄이기</strong><small>GaussianBlur</small></a><a class="step" href="#f5"><strong>5 경계 찾기</strong><small>Canny</small></a><a class="step" href="#f6"><strong>6 저장·재확인</strong><small>imwrite · imread</small></a></nav><p class="route-note"><b>7 영상</b>은 Frame마다 위 처리를 반복 → Writer용 3채널로 변환 → 저장 → 자원 해제 · <b>A 영역 만들기 / B 학습용 변형</b>은 목적에 따라 선택하는 갈래</p><div class="grid"><div class="col"><section><h2 id="f0"><span class="n">0</span>전체 흐름 코드<small>응용 07 기반</small></h2><p class="tiny">응용/07_project.py가 있는 폴더에서 실행 · 정상 수업 입력용</p><div class="tools screen-only"><span class="status" role="status" aria-live="polite"></span><button data-cp-src="1" type="button" id="copy">전체 코드 복사</button></div><pre data-cp="1" id="flow-code"><code><span class="ln"><span class="k">import</span> cv2</span><span class="ln"><span class="k">from</span> pathlib <span class="k">import</span> Path</span><span class="ln">Path(<span class="s">&quot;outputs&quot;</span>).mkdir(exist_ok=<span class="k">True</span>)</span><span class="ln">size = (<span class="num">160</span>, <span class="num">120</span>)  <span class="c"># (W, H)</span><a class="badge" href="#f3" aria-label="3번 설명으로 이동">3</a></span><span class="ln"><span class="k">def</span> process_image(image):</span><span class="ln">    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)<a class="badge" href="#f2" aria-label="2번 설명으로 이동">2</a></span><span class="ln">    small = cv2.resize(gray, size,<a class="badge" href="#f3" aria-label="3번 설명으로 이동">3</a></span><span class="ln">                       interpolation=cv2.INTER_AREA)</span><span class="ln">    blur = cv2.GaussianBlur(small, (<span class="num">3</span>, <span class="num">3</span>), <span class="num">0</span>)<a class="badge" href="#f4" aria-label="4번 설명으로 이동">4</a></span><span class="ln">    edge = cv2.Canny(blur, <span class="num">80</span>, <span class="num">160</span>)<a class="badge" href="#f5" aria-label="5번 설명으로 이동">5</a></span><span class="ln">    <span class="k">return</span> gray, small, edge</span><span class="ln">image = cv2.imread(<span class="s">&quot;data/scene.png&quot;</span>)<a class="badge" href="#f1" aria-label="1번 설명으로 이동">1</a></span><span class="ln"><span class="k">assert</span> image <span class="k">is</span> <span class="k">not</span> <span class="k">None</span></span><span class="ln">print(image.shape, image.dtype)<a class="badge" href="#f1" aria-label="1번 설명으로 이동">1</a></span><span class="ln">_, _, edge = process_image(image)</span><span class="ln">saved = cv2.imwrite(<span class="s">&quot;outputs/edge.png&quot;</span>, edge)<a class="badge" href="#f6" aria-label="6번 설명으로 이동">6</a></span><span class="ln"><span class="k">assert</span> saved</span><span class="ln">print(cv2.imread(<span class="s">&quot;outputs/edge.png&quot;</span>, <span class="num">0</span>).shape)<a class="badge" href="#f6" aria-label="6번 설명으로 이동">6</a></span><span class="ln">cap = cv2.VideoCapture(<span class="s">&quot;data/sample.avi&quot;</span>)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">writer = <span class="k">None</span></span><span class="ln"><span class="k">try</span>:</span><span class="ln">    <span class="k">assert</span> cap.isOpened()</span><span class="ln">    fps = cap.get(cv2.CAP_PROP_FPS)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">    <span class="k">assert</span> <span class="num">0</span> &lt; fps &lt; float(<span class="s">&quot;inf&quot;</span>)</span><span class="ln">    fourcc = cv2.VideoWriter_fourcc(*<span class="s">&quot;MJPG&quot;</span>)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">    writer = cv2.VideoWriter(<span class="s">&quot;outputs/edge.avi&quot;</span>,<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">                             fourcc, fps, size)</span><span class="ln">    <span class="k">assert</span> writer.isOpened()</span><span class="ln">    <span class="k">while</span> <span class="k">True</span>:</span><span class="ln">        ok, frame = cap.read()<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">        <span class="k">if</span> <span class="k">not</span> ok:</span><span class="ln">            <span class="k">break</span></span><span class="ln">        _, _, edge = process_image(frame)<a class="badge" href="#f0" aria-label="0번 설명으로 이동">0</a></span><span class="ln">        color = cv2.cvtColor(edge, cv2.COLOR_GRAY2BGR)<a class="badge" href="#f2" aria-label="2번 설명으로 이동">2</a></span><span class="ln">        writer.write(color)<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln"><span class="k">finally</span>:</span><span class="ln">    cap.release()<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span><span class="ln">    <span class="k">if</span> writer <span class="k">is</span> <span class="k">not</span> <span class="k">None</span>:</span><span class="ln">        writer.release()<a class="badge" href="#f7" aria-label="7번 설명으로 이동">7</a></span></code></pre></section><section class="shape"><h2>배열은 이렇게 바뀐다</h2><dl><dt>image → gray</dt><dd>(240,320,3) → (240,320)</dd><dt>small → edge</dt><dd>(120, 160) · edge 값은 0 / 255</dd><dt>color</dt><dd>(120, 160, 3) · 같은 값 3채널 복제</dd></dl><p class="tiny">모두 uint8 · Gray→BGR은 원래 색 복원이 아님</p></section></div><div class="col"><section class="card"><h2 id="f1"><span class="n">1</span>읽기와 배열 확인<small>cv2 · NumPy</small></h2><p><code>imread(path)</code> 파일 → BGR 배열 · 실패: None</p><p><code>shape</code> 높이·너비·채널 · <code>dtype</code> 자료형<br><code>min()</code> / <code>max()</code> 값 범위 · uint8: 0~255</p><p class="key">읽기 성공 확인 후 처리 · shape/dtype은 속성</p></section><section class="card"><h2 id="f2"><span class="n">2</span>색 표현 바꾸기<small>cv2.cvtColor</small></h2><p><code>cvtColor(<b class="param">src, code</b>)</code> 입력 → 변환된 배열</p><p><code>COLOR_BGR2GRAY</code> 밝기 1채널<br><code>COLOR_BGR2RGB</code> Matplotlib 표시용<br><code>COLOR_GRAY2BGR</code> 같은 값 3채널 복제</p><p class="key">RGB 표시용 배열은 BGR로 되돌려 저장</p></section><section class="card"><h2 id="f3"><span class="n">3</span>크기와 보간법<small>cv2.resize</small></h2><p><code>resize(<b class="param">src, dsize, interpolation=...</b>)</code><br>dsize=<b>(W,H)</b> · (160,120) → shape (120,160)</p><p><code>INTER_AREA</code> 축소에 자주 사용<br><code>INTER_LINEAR</code> 기본값 · 부드러운 보간<br><code>INTER_NEAREST</code> 최근접 · Mask에 적합</p><p class="key">320×240 → 160×120은 가로세로 비율 유지</p></section><section class="card"><h2 id="f4"><span class="n">4</span>이웃으로 잡음 줄이기<small>cv2.GaussianBlur</small></h2><p><code>GaussianBlur(<b class="param">src, ksize, sigmaX</b>)</code><br>가중 평균 · 입력과 같은 크기의 배열 반환</p><p><code>(3,3)</code> 이웃 크기 · 여기서는 양수 홀수<br><code>0</code> sigmaX를 Kernel 크기로부터 계산</p><p class="key">큰 Kernel → 강한 Blur·세부 손실 증가</p></section><section class="card"><h2 id="f5"><span class="n">5</span>경계 찾기<small>cv2.Canny</small></h2><p><code>Canny(<b class="param">image, threshold1, threshold2</b>)</code><br>강한 경계와 연결된 약한 경계를 남김<br>임계값↓: 잡음 증가 · ↑: 약한 경계 손실</p><p class="key">80/160은 밝기 이진화 기준이 아님<br>출력 0/255 · 흰색은 경계, 검은색은 배경</p></section></div><div class="col"><section class="card"><h2 id="f6"><span class="n">6</span>저장·재읽기<small>cv2.imwrite</small></h2><p><code>imwrite(<b class="param">filename, img</b>)</code> → 저장 성공 bool<br>출력 폴더 먼저 준비 · 확장자가 형식 결정<br><code>imread(path, 0)</code> Gray로 재읽고 shape 확인</p></section><section class="card"><h2 id="f7"><span class="n">7</span>같은 처리를 Frame마다<small>cv2</small></h2><p><code>VideoCapture(path)</code> 영상 열기<br><code>isOpened()</code> 열림(bool) · <code>read()</code> (ok, frame)<br>ok=False면 종료 또는 읽기 실패<br><code>get(cv2.CAP_PROP_FPS)</code> 재생 FPS</p><p><code>VideoWriter(path, fourcc, fps, size)</code><br>fourcc: 코덱 · fps: 재생 빈도 · size: (W,H)<br><code>VideoWriter_fourcc(*"MJPG")</code> 코덱 코드<br><code>write(frame)</code> Frame 추가 · <code>release()</code> 해제</p><p class="key">컬러 Writer: 같은 크기의 3채널 전달<br>48Frame ÷ 12FPS = 4초 · 처리속도와 구분</p><p class="hint">저장 후 Frame 수·FPS·크기 확인<br>MJPG 손실 압축: 픽셀 완전 일치 요구 X</p></section><section class="card branch"><div class="branch-label">선택 A · blur → 영역 Mask → 모양 정리</div><h2 id="fA"><span class="n">A</span>Threshold·Morphology<small>cv2</small></h2><pre id="branch-mask"><code><span class="ln">_, binary = cv2.threshold(</span><span class="ln">    blur, <span class="num">127</span>, <span class="num">255</span>, cv2.THRESH_BINARY)</span><span class="ln">kernel = cv2.getStructuringElement(</span><span class="ln">    cv2.MORPH_RECT, (<span class="num">3</span>, <span class="num">3</span>))</span><span class="ln">opened = cv2.morphologyEx(</span><span class="ln">    binary, cv2.MORPH_OPEN, kernel)</span></code></pre><p><code>threshold</code> 밝기 &gt;127이면 255, 그 외 0<br>반환: (사용 임계값, 결과 배열)<br><code>getStructuringElement</code> Kernel 모양·크기<br><code>morphologyEx</code> op로 모양 연산 선택</p><p class="key">OPEN: 침식→팽창 · 작은 흰 전경 제거<br>CLOSE: 팽창→침식 · 작은 검은 구멍 보완</p></section><section class="card branch"><h2 id="fB"><span class="n">B</span>학습용 변형 · 반전·회전<small>cv2</small></h2><p><code>flip(image, 1)</code> 좌우 · 0은 상하 반전<br><code>getRotationMatrix2D</code> 중심·각도(도)·배율 → 2×3 행렬 M<br><code>warpAffine(src, M, size)</code> 행렬로 실제 변환</p><p class="key">무작위 증강은 train만 · 라벨·모서리 손실 확인</p></section></div></div><footer class="foot"><div class="sources">공식 근거: <a href="https://docs.opencv.org/4.13.0/d6/d00/tutorial_py_root.html">OpenCV-Python 4.13</a> · <a href="https://docs.opencv.org/4.13.0/d4/d13/tutorial_py_filtering.html">Filter</a> · <a href="https://docs.opencv.org/4.13.0/da/d22/tutorial_py_canny.html">Canny</a> · <a href="https://docs.opencv.org/4.13.0/d7/d4d/tutorial_py_thresholding.html">Threshold</a> · <a href="https://docs.opencv.org/4.13.0/d9/d61/tutorial_py_morphological_ops.html">Morphology</a> · <a href="https://docs.opencv.org/4.13.0/dd/d43/tutorial_py_video_display.html">Video</a><br>자주 하는 실수: shape=(H,W) ↔ size=(W,H) · BGR ↔ RGB · Gray Frame ↔ 컬러 Writer · Edge 수가 많다고 좋은 결과는 아님</div><div class="source-code">코드: mentor/02_intermediate/07_project.py 및 심화 image_ops.py<br>정상 수업 입력용으로 축약 · CSV·시간 측정 생략</div></footer></main><script>
 const copy=document.getElementById('copy');
 copy.addEventListener('click',async()=>{const status=document.querySelector('.status');const node=document.getElementById('flow-code').cloneNode(true);node.querySelectorAll('.badge').forEach(x=>x.remove());const code=[...node.querySelectorAll('.ln')].map(x=>x.textContent).join('\n')+'\n';try{await navigator.clipboard.writeText(code);status.textContent='전체 코드를 복사했어요';}catch(e){status.textContent='코드를 선택해 직접 복사해 주세요';const range=document.createRange();range.selectNodeContents(document.getElementById('flow-code'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}});
-</script></body></html>
+</script><style>
+/* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
+</style>
+<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+<script>/* =====================================================================
+ * 맨 위로 버튼(.to-top) — 강의 요약·치트시트·설치 가이드 페이지
+ *
+ * - 한 화면의 60%쯤 내려가면 나타나고, 위로 돌아오면 사라진다.
+ * - 테두리 원(.tt-bar)이 페이지를 읽은 만큼 찬다.
+ * - 누르면 맨 위로 부드럽게 올라간다 (동작 줄이기 설정이면 바로 이동).
+ * ===================================================================== */
+(function () {
+  var btn = document.querySelector('.to-top');
+  if (!btn) return;
+  var bar = btn.querySelector('.tt-bar');
+  var LENGTH = 2 * Math.PI * 21;          // 원 둘레 (반지름 21)
+  bar.style.strokeDasharray = LENGTH;
+  var waiting = false;
+
+  function update() {
+    waiting = false;
+    var root = document.documentElement;
+    var y = window.scrollY || root.scrollTop;
+    var max = root.scrollHeight - window.innerHeight;
+    var read = max > 0 ? Math.min(1, y / max) : 0;
+    bar.style.strokeDashoffset = LENGTH * (1 - read);
+    btn.classList.toggle('show', y > window.innerHeight * 0.6);
+  }
+
+  function schedule() {
+    if (!waiting) { waiting = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('load', update);
+  update();
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+})();</script>
+<style>
+/* 코드 복사 아이콘 — 코드 칸(<pre data-copy> · <pre data-cp>) 오른쪽 위 (web/copy.js).
+   색은 칸의 글자색(currentColor)을 따라 어두운 칸·밝은 칸 모두에 맞는다. */
+.cp-wrap{position:relative}
+.cp-wrap>pre{padding-right:56px}
+.cp-btn{
+  position:absolute;top:8px;right:8px;z-index:1;
+  width:32px;height:32px;margin:0;padding:0;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid color-mix(in srgb,currentColor 26%,transparent);border-radius:8px;
+  background:color-mix(in srgb,currentColor 7%,transparent);
+  opacity:.8;transition:opacity .15s,background .15s,border-color .15s;
+}
+.cp-btn:hover{opacity:1;background:color-mix(in srgb,currentColor 16%,transparent)}
+.cp-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px;opacity:1}
+.cp-btn svg{width:16px;height:16px;display:block}
+.cp-btn .cp-done{display:none}
+.cp-btn.done{opacity:1;border-color:currentColor}
+.cp-btn.done .cp-icon{display:none}
+.cp-btn.done .cp-done{display:block}
+/* 원래 있던 글자 복사 버튼은 숨긴다 (아이콘이 대신 누른다) */
+[data-cp-src]{display:none!important}
+@media print{.cp-btn{display:none}.cp-wrap>pre{padding-right:revert}}
+</style>
+<script>/* =====================================================================
+ * 코드 복사 아이콘 — 모든 페이지의 코드 칸에 같은 모양으로
+ *
+ * 두 가지 칸에 단다 (빌드가 표시를 붙인다, sitebuild/nav.py):
+ *   <pre data-copy>  이 사이트가 단 칸. 누르면 칸의 글자를 그대로 복사한다.
+ *   <pre data-cp=N>  페이지에 원래 '코드 복사' 글자 버튼이 있던 칸. 원래 버튼(data-cp-src=N)은 숨기고,
+ *                    아이콘을 누르면 그 버튼을 대신 눌러 페이지의 원래 복사 방식을 그대로 쓴다
+ *                    (줄 번호 빼기, PowerShell·Bash 전환 등).
+ * - 누르면 1.5초 동안 체크 표시.
+ * - 아이콘 색은 그 칸의 글자색을 따른다 (어두운 칸·밝은 칸, 화면 밝기 전환 모두).
+ * ===================================================================== */
+(function () {
+  var COPY = '<svg class="cp-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/>' +
+    '<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var DONE = '<svg class="cp-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+  var pairs = [];   // [칸, 아이콘 버튼]
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {      // 옛 브라우저·http 주소용
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(area);
+      if (ok) resolve(); else reject();
+    });
+  }
+
+  function paint(pre, btn) { btn.style.color = getComputedStyle(pre).color; }
+
+  function attach(pre) {
+    // 칸을 감싸 오른쪽 위에 아이콘을 둔다. 칸의 바깥 여백은 감싸개로 옮겨 아이콘이 칸 안에 오게 한다.
+    var cs = getComputedStyle(pre);
+    var wrap = document.createElement('div');
+    wrap.className = 'cp-wrap';
+    wrap.style.margin = cs.marginTop + ' ' + cs.marginRight + ' ' + cs.marginBottom + ' ' + cs.marginLeft;
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    pre.style.margin = '0';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cp-btn';
+    btn.setAttribute('aria-label', '코드 복사');
+    btn.title = '복사';
+    btn.innerHTML = COPY + DONE;
+    wrap.appendChild(btn);
+    paint(pre, btn);
+    pairs.push([pre, btn]);
+
+    var id = pre.getAttribute('data-cp');
+    var original = id && document.querySelector('[data-cp-src="' + id + '"]');
+    var timer;
+    function done() {
+      btn.classList.add('done');
+      btn.setAttribute('aria-label', '복사됨');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        btn.classList.remove('done');
+        btn.setAttribute('aria-label', '코드 복사');
+      }, 1500);
+    }
+    btn.addEventListener('click', function () {
+      if (original) { original.click(); done(); return; }      // 페이지 원래 복사 방식
+      copyText(pre.innerText.replace(/\n+$/, '')).then(done);   // 누를 때의 글자 (전환된 명령도 그대로)
+    });
+  }
+
+  var pres = document.querySelectorAll('pre[data-copy], pre[data-cp]');
+  for (var i = 0; i < pres.length; i++) attach(pres[i]);
+
+  // 화면 밝기를 바꾸면 칸 글자색이 바뀌므로 아이콘 색도 다시 맞춘다
+  function repaint() { for (var j = 0; j < pairs.length; j++) paint(pairs[j][0], pairs[j][1]); }
+  if (window.MutationObserver) new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
+  var os = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+  if (os && os.addEventListener) os.addEventListener('change', function () { setTimeout(repaint, 0); });
+})();</script>
+</body></html>
