@@ -2,48 +2,288 @@
 <!DOCTYPE html>
 
 <html id="top" lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>11월 20일 보고서 처리 Agent · 상세 요구사항 v1.4 · 단일 ERD·통합 API 명세</title><style>
-:root{color-scheme:dark}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#0b1220;color:#e5eaf2;font-family: "Pretendard Variable", Pretendard, "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.75}a{color:#93c5fd}header{background:linear-gradient(110deg,#0f2139,#132c45);padding:44px max(24px,calc((100vw - 1180px)/2));border-bottom:1px solid #2d4863}header .k{color:#95b9d5;font-size:13px;letter-spacing:.12em}header h1{margin:.4rem 0;font-size:33px}header p{max-width:1000px;color:#bcd1e0}main{max-width:1180px;margin:0 auto;padding:38px 30px 140px}h1{font-size:29px}h2{font-size:25px;margin-top:52px;padding-bottom:12px;border-bottom:1px solid #29384e}h3{font-size:19px;color:#d2e9ff;margin-top:30px}p,li{font-size:15px}strong{color:#f3f7fc}blockquote{border-left:4px solid #5e9ac2;background:#112438;margin:22px 0;padding:12px 20px}pre{background:#091321;padding:18px;overflow:auto;border:1px solid #2c4560;border-radius:10px;font-size:13px;line-height:1.6;color:#ccdfef}code{color:#9fe4d1}pre code{color:inherit}table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow-x:auto;margin:14px 0 24px}th,td{border:1px solid #324258;padding:9px 11px;vertical-align:top;text-align:left;min-width:85px}th{background:#17304a;color:#e3f4ff}tr:nth-child(even){background:#0f1e31}hr{border:0;border-top:1px solid #304358}aside{position:fixed;right:20px;bottom:20px;background:#1c4262;border:1px solid #397399;border-radius:12px;padding:8px 15px;font-size:13px} @media print{:root{color-scheme:light}body{background:white;color:#111}header{color:white}main{max-width:none}table{display:table}td,th{border:1px solid #999}h2{page-break-after:avoid}pre,table{page-break-inside:avoid}aside{display:none}}
-.erd-board{background:#0d2031;border:1px solid #344f6a;border-radius:12px;padding:12px;margin:12px 0 22px;max-width:100%;overflow:auto;} .erd-board svg{height:auto;display:block;min-width:900px;max-width:none;margin:auto;} .erd-board.overview svg{min-width:1200px;} .erd-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#e3f2ff;margin-top:16px;} .erd-heading span{font-size:12px;color:#9ab6d4;} .diagram-panel{border:1px solid #36506d;border-radius:12px;margin:16px 0;padding:8px 14px;background:#0d1d2c;} .diagram-panel summary{cursor:pointer;color:#d4eaff;font-weight:700;padding:6px 0;} .diagram-panel summary:hover{color:#fff;} .jump-links{position:sticky;top:0;background:#13253acc;padding:8px 12px;border-radius:8px;backdrop-filter:blur(8px);} @media print {.erd-board{overflow:visible}.erd-board svg{width:100%;min-width:0}.diagram-panel{break-inside:avoid}}
-.erd-board svg{width:auto} .erd-board{scrollbar-color:#527ca0 #142940} @media(max-width:720px){main{padding:18px 14px 100px} header{padding:30px 18px}h1{font-size:25px} .erd-board{padding:8px}}
-
-/* v1.4: one self-contained ERD. Other diagram panels removed. */
-.erd-tools{position:relative;z-index:3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#162b42ee;border:1px solid #355776;border-radius:12px;padding:12px;margin:16px 0 10px;backdrop-filter:blur(6px)}
-.erd-tools span{margin-right:auto;color:#c5ddec;font-size:13px}
-.erd-tools button{border:1px solid #5d84a2;background:#203c57;color:#e5f3ff;border-radius:7px;padding:8px 12px;cursor:pointer;font-size:13px}
-.erd-tools button:hover,.erd-tools button[aria-pressed="true"]{background:#2f6588;color:#fff;border-color:#8ec7ed}
-.erd-board-single{background:#071523;border:1px solid #33546e;border-radius:12px;padding:10px;max-width:100%;overflow:auto;max-height:82vh;scrollbar-width:thin}
+:root{
+  color-scheme:light;
+  --bg:#eef2f6;--surface:#ffffff;--text:#162237;--heading:#142c49;--subhead:#163c64;--muted:#40546a;
+  --strong:#0e1b2e;--link:#124d8a;--border:#d8e1eb;--tbl-border:#ccd7e3;--th-bg:#e7eef6;--th-fg:#142c49;
+  --tr-even:#f8fafc;--quote-bg:#eef6ff;--quote-border:#426fa3;--pre-bg:#142032;--pre-fg:#e6effa;--pre-border:#2c425d;
+  --code-bg:#edf1f5;--code-fg:#124d8a;--hr:#d8e1eb;
+  --hdr-bg:linear-gradient(110deg,#172d49,#1d3a5f);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-k:#c9ddf3;--hdr-p:#dce8f5;
+  --aside-bg:#172d49;--aside-border:#2d4863;--aside-fg:#ffffff;
+  --jump-bg:#ffffffeb;--jump-border:#cbd7e3;
+  --erd-bg:#f4f7fb;--erd-border:#cbd7e3;--erd-head:#142c49;--erd-sub:#40546a;--erd-tools-bg:#eef4fb;--erd-tools-fg:#162237;
+  --erd-btn-bg:#ffffff;--erd-btn-border:#b7cce3;--erd-btn-fg:#124d8a;--erd-btn-act:#172d49;--erd-btn-act-fg:#ffffff;
+  --card-bg:#ffffff;--card-border:#cbd7e3;--card-accent:#426fa3;--card-accent-int:#2e857a;--card-accent-adv:#b07d2b;
+  --card-head-bg:linear-gradient(110deg,#f3f7fc,#edf3fb);--card-head-border:#d8e1eb;--card-h4:#142c49;
+  --card-tag-code:#124d8a;--card-level-fg:#40546a;--card-level-border:#b8c7d8;--card-toc:#124d8a;--card-toc-line:#9ab6d4;
+  --m-get-bg:#e5f1fc;--m-get-fg:#1b4d89;--m-post-bg:#e2f4ea;--m-post-fg:#175c3c;
+  --m-put-bg:#fff2d6;--m-put-fg:#7a4f0e;--m-del-bg:#fce8ea;--m-del-fg:#982532;
+  --tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
+  --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0b1220;--surface:#102137;--text:#e5eaf2;--heading:#e5eaf2;--subhead:#d2e9ff;--muted:#9ab6d4;
+  --strong:#f3f7fc;--link:#93c5fd;--border:#29384e;--tbl-border:#324258;--th-bg:#17304a;--th-fg:#e3f4ff;
+  --tr-even:#0f1e31;--quote-bg:#112438;--quote-border:#5e9ac2;--pre-bg:#091321;--pre-fg:#ccdfef;--pre-border:#2c4560;
+  --code-bg:#172940;--code-fg:#9fe4d1;--hr:#304358;
+  --hdr-bg:linear-gradient(110deg,#0f2139,#132c45);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-k:#95b9d5;--hdr-p:#bcd1e0;
+  --aside-bg:#1c4262;--aside-border:#397399;--aside-fg:#ffffff;
+  --jump-bg:#13253acc;--jump-border:#2d4863;
+  --erd-bg:#0d2031;--erd-border:#344f6a;--erd-head:#e3f2ff;--erd-sub:#9ab6d4;--erd-tools-bg:#162b42ee;--erd-tools-fg:#c5ddec;
+  --erd-btn-bg:#203c57;--erd-btn-border:#5d84a2;--erd-btn-fg:#e5f3ff;--erd-btn-act:#2f6588;--erd-btn-act-fg:#ffffff;
+  --card-bg:#102137;--card-border:#35536d;--card-accent:#477ea5;--card-accent-int:#7ab3b4;--card-accent-adv:#c4a269;
+  --card-head-bg:linear-gradient(110deg,#183651,#152b40);--card-head-border:#35516c;--card-h4:#f2f7fd;
+  --card-tag-code:#d8edf8;--card-level-fg:#c4d8e7;--card-level-border:#536c81;--card-toc:#b4d9f5;--card-toc-line:#456784;
+  --m-get-bg:#22455c;--m-get-fg:#bee9ff;--m-post-bg:#164936;--m-post-fg:#b8edce;
+  --m-put-bg:#604a22;--m-put-fg:#ffe6ae;--m-del-bg:#582d35;--m-del-fg:#ffd0d4;
+  --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
+  --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5;
+}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard Variable", Pretendard, "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.75;overflow-x:hidden}
+a{color:var(--link)}
+header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(24px,calc((100vw - 1180px)/2));border-bottom:1px solid var(--hdr-border)}
+header .k{color:var(--hdr-k);font-size:13px;letter-spacing:.12em;font-weight:700}
+header h1{margin:.4rem 0;font-size:33px;color:var(--hdr-fg)}
+header p{max-width:1000px;color:var(--hdr-p);margin:0}
+.tabs-wrap{max-width:1180px;margin:18px auto 0;padding:0 30px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650}
+.tabs a:hover{border-color:var(--link)}
+.tabs .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--tab-n-bg);color:var(--tab-n-fg);font-size:13px;font-weight:700}
+.tabs a[aria-current='page']{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
+.tabs a[aria-current='page'] .n{background:var(--tab-act-fg);color:var(--tab-act-bg)}
+.tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
+.tabs a.lec:hover{border-color:var(--link)}
+main{max-width:1180px;margin:20px auto 48px;background:var(--surface);padding:34px 36px 96px;border:1px solid var(--border);border-radius:12px;min-width:0}
+h1{font-size:28px;color:var(--heading)}
+h2{font-size:24px;color:var(--heading);margin-top:48px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+h3{font-size:19px;color:var(--subhead);margin-top:28px}
+p,li{font-size:15px;overflow-wrap:break-word}
+strong{color:var(--strong)}
+blockquote{border-left:4px solid var(--quote-border);background:var(--quote-bg);margin:22px 0;padding:12px 20px;border-radius:0 8px 8px 0}
+pre{background:var(--pre-bg);color:var(--pre-fg);padding:16px 18px;max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;border:1px solid var(--pre-border);border-radius:10px;font-size:13px;line-height:1.6}
+code{background:var(--code-bg);color:var(--code-fg);padding:1px 5px;border-radius:4px;font-family:Consolas,"SFMono-Regular",Menlo,monospace;font-size:.9em;overflow-wrap:anywhere}
+pre code{background:none;color:inherit;padding:0;font-size:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+table{border-collapse:collapse;width:100%;max-width:100%;font-size:14px;display:block;overflow-x:auto;margin:14px 0 24px}
+th,td{border:1px solid var(--tbl-border);padding:9px 12px;vertical-align:top;text-align:left}
+th{background:var(--th-bg);color:var(--th-fg)}
+tr:nth-child(even){background:var(--tr-even)}
+hr{border:0;border-top:1px solid var(--hr)}
+aside{position:fixed;right:20px;bottom:20px;background:var(--aside-bg);border:1px solid var(--aside-border);border-radius:12px;padding:8px 15px;font-size:13px;z-index:30}
+aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
+.erd-board{background:var(--erd-bg);border:1px solid var(--erd-border);border-radius:12px;padding:12px;margin:12px 0 22px;max-width:100%;overflow:auto}
+.erd-board svg{height:auto;display:block;min-width:900px;max-width:none;margin:auto}
+.erd-board.overview svg{min-width:1200px}
+.erd-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--erd-head);margin-top:16px}
+.erd-heading span{font-size:12px;color:var(--erd-sub)}
+.diagram-panel{border:1px solid var(--erd-border);border-radius:12px;margin:16px 0;padding:8px 14px;background:var(--erd-bg)}
+.diagram-panel summary{cursor:pointer;color:var(--subhead);font-weight:700;padding:6px 0}
+.jump-links{position:sticky;top:0;background:var(--jump-bg);border:1px solid var(--jump-border);padding:8px 12px;border-radius:8px;backdrop-filter:blur(8px);z-index:10;overflow-wrap:anywhere}
+.erd-tools{position:relative;z-index:3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--erd-tools-bg);border:1px solid var(--erd-border);border-radius:12px;padding:12px;margin:16px 0 10px;backdrop-filter:blur(6px)}
+.erd-tools span{margin-right:auto;color:var(--erd-tools-fg);font-size:13px}
+.erd-tools button{border:1px solid var(--erd-btn-border);background:var(--erd-btn-bg);color:var(--erd-btn-fg);border-radius:7px;padding:8px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.erd-tools button:hover,.erd-tools button[aria-pressed="true"]{background:var(--erd-btn-act);color:var(--erd-btn-act-fg);border-color:var(--erd-btn-act)}
+.erd-board-single{background:#071523;border:1px solid var(--erd-border);border-radius:12px;padding:10px;max-width:100%;overflow:auto;max-height:82vh;scrollbar-width:thin}
 .erd-board-single svg{display:block;width:100%;height:auto;max-width:none;min-width:0;margin:0 auto}
 .erd-board-single svg text{user-select:text}
-@media print{.erd-tools{display:none}.erd-board-single{max-height:none;overflow:visible}.erd-board-single svg{width:100%;height:auto;page-break-inside:avoid}}
-
-/* v1.4: each API is a self-contained, always-expanded contract card. */
-.api-card{background:#102137;border:1px solid #35536d;border-left:4px solid #477ea5;border-radius:14px;padding:0;margin:20px 0 24px;overflow:hidden;break-inside:avoid;box-shadow:0 5px 15px #030b1830;scroll-margin-top:26px}
-.api-card.api-level-intermediate{border-left-color:#7ab3b4}
-.api-card.api-level-advanced{border-left-color:#c4a269}
-.api-card-header{background:linear-gradient(110deg,#183651,#152b40);padding:16px 20px 13px;border-bottom:1px solid #35516c}
-.api-card-header h4{color:#f2f7fd;font-size:18px;font-weight:750;line-height:1.5;margin:0 0 10px}
+.api-card{background:var(--card-bg);border:1px solid var(--card-border);border-left:4px solid var(--card-accent);border-radius:14px;padding:0;margin:20px 0 24px;overflow:hidden;break-inside:avoid;box-shadow:0 4px 14px rgba(15,33,57,.06);scroll-margin-top:26px;max-width:100%}
+.api-card.api-level-intermediate{border-left-color:var(--card-accent-int)}
+.api-card.api-level-advanced{border-left-color:var(--card-accent-adv)}
+.api-card-header{background:var(--card-head-bg);padding:16px 20px 13px;border-bottom:1px solid var(--card-head-border)}
+.api-card-header h4{color:var(--card-h4);font-size:18px;font-weight:750;line-height:1.5;margin:0 0 10px}
 .api-card-tags{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.api-card-tags code{font-size:12px;color:#d8edf8;overflow-wrap:anywhere}
-.api-card .api-method{padding:3px 9px;border-radius:6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.035em;background:#22455c;color:#bee9ff;white-space:nowrap}
-.api-card .api-method-post{background:#164936;color:#b8edce}
-.api-card .api-method-put{background:#604a22;color:#ffe6ae}
-.api-card .api-method-delete{background:#582d35;color:#ffd0d4}
-.api-card .api-level{font-size:11px;color:#c4d8e7;border:1px solid #536c81;border-radius:999px;padding:2px 10px;white-space:nowrap;margin-left:auto}
-.api-card-body{padding:16px 20px 18px}
+.api-card-tags code{font-size:12px;color:var(--card-tag-code);overflow-wrap:anywhere}
+.api-card .api-method{padding:3px 9px;border-radius:6px;font-family:ui-monospace,Consolas,monospace;font-size:11px;font-weight:800;letter-spacing:.035em;background:var(--m-get-bg);color:var(--m-get-fg);white-space:nowrap}
+.api-card .api-method-post{background:var(--m-post-bg);color:var(--m-post-fg)}
+.api-card .api-method-put{background:var(--m-put-bg);color:var(--m-put-fg)}
+.api-card .api-method-delete{background:var(--m-del-bg);color:var(--m-del-fg)}
+.api-card .api-level{font-size:11px;color:var(--card-level-fg);border:1px solid var(--card-level-border);border-radius:999px;padding:2px 10px;white-space:nowrap;margin-left:auto}
+.api-card-body{padding:16px 20px 18px;min-width:0}
 .api-card-body>ul:first-child,.api-card-body>p:first-child{margin-top:0}
 .api-card-body>ul:last-child,.api-card-body>p:last-child{margin-bottom:0}
 .api-card-body ul{padding-left:23px}
-.api-card-body pre{margin:12px 0 16px;background:#091521}
+.api-card-body pre{margin:12px 0 16px}
 .api-card-body table{max-width:100%}
-.api-toc-link{color:#b4d9f5;text-decoration:underline;text-decoration-color:#456784;text-underline-offset:3px}
-.api-card:target{outline:2px solid #7db5d5;outline-offset:2px}
-@media(max-width:720px){.api-card-header,.api-card-body{padding:13px 12px}.api-card-header h4{font-size:16px}.api-card-tags{gap:6px}.api-card .api-level{margin-left:0}}
-@media print{.api-card{background:#fff;border:1px solid #aaa;border-left:3px solid #666;box-shadow:none;page-break-inside:avoid}.api-card-header{background:#ecf1f6;border-bottom:1px solid #ccc}.api-card-header h4,.api-card-tags code{color:#111}.api-card .api-level{color:#222}.api-card-body{color:#111}}
-
-.tabs-wrap{max-width:1180px;margin:18px auto 0;padding:0 30px}.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid #35536d;border-radius:999px;background:#102137;color:#e5eaf2;text-decoration:none;font-size:15px;font-weight:650}.tabs a:hover{border-color:#93c5fd}.tabs .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:#1c3554;color:#93c5fd;font-size:13px;font-weight:700}.tabs a[aria-current='page']{background:#93c5fd;border-color:#93c5fd;color:#0b1220}.tabs a[aria-current='page'] .n{background:#0b1220;color:#93c5fd}.tabs a.lec{margin-left:auto;padding:6px 14px;background:#132c45;border-color:#3b6182;color:#b4d9f5}.tabs a.lec:hover{border-color:#93c5fd;color:#fff}@media(max-width:680px){.tabs-wrap{padding:0 20px}.tabs a.lec{margin-left:0}}
-.cn-nav ~ main .jump-links{top:3.1rem;z-index:20}
-.cn-nav ~ main .api-card{scroll-margin-top:4rem}
+.api-toc-link{color:var(--card-toc);text-decoration:underline;text-decoration-color:var(--card-toc-line);text-underline-offset:3px}
+.api-card:target{outline:2px solid var(--link);outline-offset:2px}
+.cn-nav ~ .tabs-wrap ~ main .jump-links,.cn-nav ~ main .jump-links{top:3.1rem;z-index:20}
+.cn-nav ~ .tabs-wrap ~ main .api-card,.cn-nav ~ main .api-card{scroll-margin-top:4rem}
+@media(max-width:720px){
+  header{padding:25px 20px}header h1{font-size:26px}
+  .tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}
+  main{margin:0;padding:20px 16px 88px;border:0;border-radius:0}
+  h1{font-size:23px}h2{font-size:20px}
+  .erd-board{padding:8px}
+  .api-card-header,.api-card-body{padding:13px 12px}.api-card-header h4{font-size:16px}
+  .api-card-tags{gap:6px}.api-card .api-level{margin-left:0}
+}
+@media print{
+  :root{color-scheme:light}body{background:white;color:#111}header{background:white;color:#111;border:0}header h1,header .k,header p{color:#111}
+  .tabs-wrap,aside,.erd-tools{display:none}main{max-width:none;border:0;padding:0;margin:0}
+  table{display:table}td,th{border:1px solid #999}h2{page-break-after:avoid}pre,table,.api-card{page-break-inside:avoid}
+  .erd-board,.erd-board-single{overflow:visible;max-height:none}.erd-board svg,.erd-board-single svg{width:100%;height:auto;min-width:0}
+  .api-card{background:#fff;border:1px solid #aaa;border-left:3px solid #666;box-shadow:none}.api-card-header{background:#ecf1f6;border-bottom:1px solid #ccc}.api-card-header h4,.api-card-tags code{color:#111}.api-card .api-level{color:#222}.api-card-body{color:#111}
+}
 </style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+@media (max-width:600px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
+</style>
 </head><body><style>
 .cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
   padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
@@ -62,7 +302,7 @@
 html{scroll-padding-top:3rem}
 @media (max-width:600px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
 @media print{.cn-nav{display:none}}
-</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../../">← 학습 아카이브</a><a href="../../../llm/">LLM·RAG</a><a href="../../../llm/20261120/">Day25</a><span class="cn-here">요구사항 명세서</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="11월_20일_보고서_처리_Agent_상세_요구사항_v1.4_단일_ERD_통합_API_명세.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a class="cn-ico" href="../lecture/" data-tip="강의 자료 보기" aria-label="강의 자료 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a><a href="../../../llm/20261120/">‹ 사전 준비</a></span></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../../">← 학습 아카이브</a><a href="../../../llm/">LLM·RAG</a><a href="../../../llm/20261120/">Day25</a><span class="cn-here">요구사항 명세서</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="11월_20일_보고서_처리_Agent_상세_요구사항_v1.4_단일_ERD_통합_API_명세.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a class="cn-ico" href="../lecture/" data-tip="강의 자료 보기" aria-label="강의 자료 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a><a href="../../../llm/20261120/">‹ 사전 준비</a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>/* =====================================================================
  * Google Analytics 4 — 사이트 방문·행동 기록
