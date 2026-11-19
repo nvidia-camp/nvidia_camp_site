@@ -55,6 +55,8 @@ FILES = CONFIG["files"]
 SETUP_PAGES = {k: [tuple(x) for x in v] for k, v in CONFIG["setup_pages"].items()}
 # Day 페이지 아래에 두는 하위 페이지: "과목/날짜" → [(하위 폴더, 이름)]. 홈 카드와 상단 경로에 붙는다.
 DAY_SUBPAGES = {k: [tuple(x) for x in v] for k, v in CONFIG["day_subpages"].items()}
+# Day 안 여러 페이지(탭): "과목/날짜" → [(하위 폴더, 이름)]. 첫 줄("")이 Day 첫 화면. 홈 Day 줄에는 버튼을 붙이지 않는다.
+DAY_PAGES = {k: [tuple(x) for x in v] for k, v in CONFIG.get("day_pages", {}).items()}
 # Colab 실습 폴더: "과목/날짜" → Google Drive 폴더 주소 (공유: 링크가 있는 모든 사용자 · 뷰어). Day 줄·그날 페이지에 Colab 로고로 나온다.
 COLAB = CONFIG["colab"]
 RELEASE = "--release" in sys.argv   # deploy용: 공개 전 페이지를 뺀다

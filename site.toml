@@ -182,13 +182,16 @@ public = true
 # Day 페이지 아래 하위 페이지: "과목/날짜" = [[하위 폴더, 이름]]
 [day_subpages]
 "llm/20261112" = [["practice", "오전 실습 가이드"]]
-"llm/20261120" = [["prep", "사전 준비"], ["spec", "요구사항 명세서"]]
+
+# Day 안 여러 페이지(탭): "과목/날짜" = [[하위 폴더, 이름]]. 홈 Day 줄에는 버튼을 붙이지 않는다
+[day_pages]
+"llm/20261120" = [["", "사전 준비"], ["spec", "요구사항 명세서"]]
 
 # 페이지와 함께 내려받게 둘 파일: 사이트 경로 = [파일 이름]. 페이지에서는 data-site를 붙여 링크한다
 [files]
 "setup/local-ai" = ["SETUP_FOR_AI.md"]
 "setup/python-venv" = ["requirements-gpu.txt", "requirements-backend.txt", "requirements-all.txt"]
-"llm/20261120/prep" = [
+"llm/20261120" = [
   "Day25_사전준비자료_common.zip",
   "00_create_database.sql",
   "preflight.sql",

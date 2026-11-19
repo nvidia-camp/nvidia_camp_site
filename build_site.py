@@ -44,7 +44,7 @@
   (전날 18:20 공개, auto_release.sh). 특정 날짜 기준으로 만들려면 `--as-of YYYY-MM-DD`.
 """
 import shutil
-from sitebuild.config import CHEATSHEETS, DAY_SUBPAGES, HERE, LECTURES, PAGES, PUBLIC, RELEASE, SETUP, SETUP_PAGES, SUBJECTS, TODAY, setup_items
+from sitebuild.config import CHEATSHEETS, DAY_PAGES, DAY_SUBPAGES, HERE, LECTURES, PAGES, PUBLIC, RELEASE, SETUP, SETUP_PAGES, SUBJECTS, TODAY, setup_items
 from sitebuild.tree import day_top
 from sitebuild.data import read_days
 from sitebuild.fonts import FONT_WARNINGS, write_lecture_font_css
@@ -81,9 +81,25 @@ def main():
     for i, d in enumerate(made):
         prev = (f'Day{made[i-1]["n"]}', f'{made[i-1]["key"]}/{made[i-1]["ymd"]}/') if i > 0 else None
         nxt = (f'Day{made[i+1]["n"]}', f'{made[i+1]["key"]}/{made[i+1]["ymd"]}/') if i + 1 < len(made) else None
-        nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
-                       prev=prev, next_=nxt, lecture=d["link"], colab=d["colab"], view="lecture/" if d["lecture"] else None)
-        copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav, top=day_top(d) if d["tree"] else "")
+        tabs = DAY_PAGES.get(f'{d["key"]}/{d["ymd"]}')
+        if not tabs:
+            nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]}',
+                           prev=prev, next_=nxt, lecture=d["link"], colab=d["colab"], view="lecture/" if d["lecture"] else None)
+            copy_page(d["src"], f'{d["key"]}/{d["ymd"]}', nav, top=day_top(d) if d["tree"] else "")
+        else:
+            paths = [f'{d["key"]}/{d["ymd"]}/' + (f"{sub}/" if sub else "") for sub, _ in tabs]
+            for j, (sub, label) in enumerate(tabs):
+                t_prev = (tabs[j - 1][1], paths[j - 1]) if j else prev
+                t_next = (tabs[j + 1][1], paths[j + 1]) if j + 1 < len(tabs) else nxt
+                view = ("../lecture/" if sub else "lecture/") if d["lecture"] else None
+                if sub:
+                    nav = nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', paths[0])],
+                                   here=label, prev=t_prev, next_=t_next, lecture=d["link"], colab=d["colab"], view=view)
+                else:
+                    nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]} · {label}',
+                                   prev=t_prev, next_=t_next, lecture=d["link"], colab=d["colab"], view=view)
+                copy_page(d["src"] / sub if sub else d["src"], paths[j].rstrip("/"), nav,
+                          top=day_top(d) if not sub and d["tree"] else "")
         for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
             copy_page(d["src"] / sub, f'{d["key"]}/{d["ymd"]}/{sub}',
                       nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', f'{d["key"]}/{d["ymd"]}/')], here=label))

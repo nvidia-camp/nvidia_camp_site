@@ -188,4 +188,4 @@
 | 2026-11-19 | 전체 | `강의 목차 한눈에 보기` 실습 띠(`sitebuild/tree.py` `lab_row`)에서 앞 번호(`01 · ` 등)를 제거해 설명만 표시하도록 일괄 수정(23개 페이지 재빌드) | 배포 |
 | 2026-11-19 | 배포 | release e2160f8: Day24 강의 목차 실습 이름·전체 실습 띠 앞 번호 제거 배포 (Docker 제외) | 배포 |
 
-| 2026-11-19 | llm/20261120 | Day25 진행 허브(index.html) + 오전 강의 HTML(lecture/) + 사전 준비 실행 안내·다운로드 9개(prep/, ZIP·SQL 5·Postman 2·requirements.txt) + 요구사항 명세서 v1.4(spec/, .cn-nav 아래 sticky 여백 보정)를 [day_subpages]로 배치 | main만 |
+| 2026-11-19 | llm/20261120 | Day25를 Git·Docker 가이드처럼 탭 구조([day_pages])로 재구성: 홈 Day 줄은 기존처럼 [강의 자료]만 두고, /llm/20261120/ 첫 탭은 사전 준비·파일 내려받기 9종(ZIP·SQL 5·Postman 2·requirements.txt), 둘째 탭(/spec/)은 요구사항 명세서 v1.4 | main만 |
