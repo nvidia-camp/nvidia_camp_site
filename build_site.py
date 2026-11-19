@@ -92,12 +92,9 @@ def main():
                 t_prev = (tabs[j - 1][1], paths[j - 1]) if j else prev
                 t_next = (tabs[j + 1][1], paths[j + 1]) if j + 1 < len(tabs) else nxt
                 view = ("../lecture/" if sub else "lecture/") if d["lecture"] else None
-                if sub:
-                    nav = nav_html(3, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', paths[0])],
-                                   here=label, prev=t_prev, next_=t_next, lecture=d["link"], colab=d["colab"], view=view)
-                else:
-                    nav = nav_html(2, [(d["short"], f'{d["key"]}/')], here=f'Day{d["n"]} · {label}',
-                                   prev=t_prev, next_=t_next, lecture=d["link"], colab=d["colab"], view=view)
+                # 탭을 오가도 위쪽 메뉴 모양이 같도록 모든 탭이 '과목 › DayNN › 탭 이름'을 쓴다
+                nav = nav_html(3 if sub else 2, [(d["short"], f'{d["key"]}/'), (f'Day{d["n"]}', paths[0])],
+                               here=label, prev=t_prev, next_=t_next, lecture=d["link"], colab=d["colab"], view=view)
                 copy_page(d["src"] / sub if sub else d["src"], paths[j].rstrip("/"), nav,
                           top=day_top(d) if not sub and d["tree"] else "")
         for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):

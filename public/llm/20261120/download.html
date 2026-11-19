@@ -4,27 +4,27 @@
   --border:#d8e1eb;--tbl-border:#ccd7e3;--th-bg:#e7eef6;--tr-even:#f8fafc;
   --soft:#f8fafc;--code-bg:#edf1f5;--code-fg:#14253c;--pre-bg:#eff3f7;--pre-border:#cbd7e3;
   --notice-bg:#eef6ff;--notice-border:#b8d0e9;--link:#124d8a;
-  --hdr-bg:#172d49;--hdr-fg:#ffffff;--hdr-eye:#c9ddf3;
+  --hdr-bg:linear-gradient(110deg,#172d49,#1d3a5f);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#c9ddf3;--hdr-p:#dce8f5;
   --tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
   --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a;
   --dl-bg:#f7fbff;--dl-btn-bg:#ffffff;--dl-btn-border:#b7cce3;--dl-btn-hover:#eaf3fd;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0b1220;--surface:#132033;--text:#d8e3f0;--heading:#e7f0fa;--subhead:#a8cdf2;--muted:#98aec5;
-  --border:#293c57;--tbl-border:#2d425d;--th-bg:#182d47;--tr-even:#16263b;
+  --bg:#0b1220;--surface:#102137;--text:#e5eaf2;--heading:#e5eaf2;--subhead:#a8cdf2;--muted:#98aec5;
+  --border:#29384e;--tbl-border:#2d425d;--th-bg:#182d47;--tr-even:#16263b;
   --soft:#16263b;--code-bg:#1c2e47;--code-fg:#a5e3d0;--pre-bg:#0d1828;--pre-border:#2d425d;
   --notice-bg:#132840;--notice-border:#315478;--link:#93c5fd;
-  --hdr-bg:#0f2139;--hdr-fg:#ffffff;--hdr-eye:#a9c7e8;
-  --tab-bg:#132033;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
+  --hdr-bg:linear-gradient(110deg,#0f2139,#132c45);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#95b9d5;--hdr-p:#bcd1e0;
+  --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
   --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5;
   --dl-bg:#132840;--dl-btn-bg:#182d47;--dl-btn-border:#35536d;--dl-btn-hover:#203a5a;
 }}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.8 system-ui,"Malgun Gothic",sans-serif}
-header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(24px,calc((100% - 1120px)/2))}
-header h1{color:var(--hdr-fg);margin:6px 0 12px;font-size:34px;line-height:1.4}
-header p{margin:0}.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;letter-spacing:.08em}
-.tabs-wrap{max-width:1168px;margin:18px auto 0;padding:0 24px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;font-size:16px;line-height:1.75}
+header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(30px,calc((100% - 1180px)/2));border-bottom:1px solid var(--hdr-border)}
+header h1{color:var(--hdr-fg);margin:.4rem 0;font-size:33px}
+header p{max-width:1000px;color:var(--hdr-p);margin:0;font-size:15px}header p.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;letter-spacing:.12em}
+.tabs-wrap{max-width:1240px;margin:18px auto 0;padding:0 30px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650}
 .tabs a:hover{border-color:var(--link)}
@@ -33,13 +33,13 @@ header p{margin:0}.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;l
 .tabs a[aria-current='page'] .n{background:var(--tab-act-fg);color:var(--tab-act-bg)}
 .tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
 .tabs a.lec:hover{border-color:var(--link)}
-nav.sec-nav{display:flex;flex-wrap:wrap;gap:8px 20px;max-width:1168px;margin:auto;padding:16px 24px}
+nav.sec-nav{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 0 20px}
 a{color:var(--link);text-underline-offset:3px}nav.sec-nav a{font-weight:650}
-main{max-width:1120px;margin:0 auto 40px;background:var(--surface);padding:30px 34px;border:1px solid var(--border);border-radius:12px}
+main{max-width:1180px;margin:20px auto 48px;background:var(--surface);padding:34px 36px;min-width:0;border:1px solid var(--border);border-radius:12px}
 h2{font-size:24px;line-height:1.45;margin:0 0 18px;color:var(--heading)}
 h3{font-size:19px;color:var(--subhead);margin:28px 0 10px}
 section{padding-top:30px;margin-top:30px;border-top:1px solid var(--border);scroll-margin-top:20px}
-section:first-child{margin:0;padding:20px;border:1px solid var(--notice-border);background:var(--notice-bg);border-radius:8px}
+section:first-of-type{margin:0;padding:20px;border:1px solid var(--notice-border);background:var(--notice-bg);border-radius:8px}
 .notice h2{font-size:21px}
 p,li,td,th{overflow-wrap:break-word}
 p{margin:12px 0}li{margin:8px 0}
@@ -56,7 +56,7 @@ tbody tr:nth-child(even){background:var(--tr-even)}
 details{border:1px solid var(--pre-border);border-radius:7px;padding:16px 18px;margin:18px 0;background:var(--soft)}
 summary{font-weight:700;color:var(--subhead);cursor:pointer}
 .sources{font-size:14px}
-footer{max-width:1120px;margin:0 auto;padding:0 24px 30px;color:var(--muted);font-size:13px}
+footer{max-width:1240px;margin:0 auto;padding:0 30px 30px;color:var(--muted);font-size:13px}
 .dl-box{margin:24px 0 0;padding:20px 22px;border:1px solid var(--notice-border);border-radius:10px;background:var(--dl-bg)}
 .dl-box h2{margin:0 0 8px;font-size:20px;color:var(--heading)}
 .dl-box p{margin:0 0 14px;font-size:15px;color:var(--muted)}
@@ -66,12 +66,12 @@ footer{max-width:1120px;margin:0 auto;padding:0 24px 30px;color:var(--muted);fon
 .dl-btn:hover{background:var(--dl-btn-hover);border-color:var(--link)}
 .dl-btn.primary{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
 .dl-btn.primary:hover{opacity:.92}
-@media(max-width:680px){header{padding:25px 20px}header h1{font-size:27px}.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}main{padding:20px;border:0;border-radius:0}h2{font-size:22px}table{font-size:14px}th,td{padding:10px}#files td:first-child{min-width:180px}body{font-size:15px}}
-@media print{body{background:white;color:#111}nav.sec-nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header .eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
-</style></head><body><header><p class="eyebrow">2026.11.20 · DAY25 · REQUIREMENTS v1.4</p><h1>보고서 처리 Agent</h1><p>SQL·초기 데이터·Postman·환경 파일을 준비하고, 오후에는 Python 구현에 집중합니다.</p></header>
+@media(max-width:720px){header{padding:25px 20px}header h1{font-size:26px}.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}main{margin:12px 0 0;padding:20px 16px;border:0;border-radius:0}footer{padding:16px}h2{font-size:22px}table{font-size:14px}th,td{padding:10px}#files td:first-child{min-width:180px}body{font-size:15px}}
+@media print{body{background:white;color:#111}nav.sec-nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header p,header p.eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
+</style></head><body><header><p class="eyebrow">2026.11.20 · DAY25 · REQUIREMENTS V1.4</p><h1>보고서 처리 Agent</h1><p>SQL·초기 데이터·Postman·환경 파일을 준비하고, 오후에는 Python 구현에 집중합니다.</p></header>
 <div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="./" aria-current="page"><span class="n">1</span>사전 준비</a><a data-site href="spec/"><span class="n">2</span>요구사항 명세서</a><a class="lec" data-site href="lecture/">오전 강의 자료 →</a></nav></div>
-<nav class="sec-nav"><a href="#files">제공 파일</a><a href="#setup">사전 준비</a><a href="#database">DB 실행 순서</a><a href="#postman">Postman</a><a href="#project">프로젝트 연결</a><a href="#troubles">오류 해결</a></nav>
-<main><section class="notice"><h2>지금의 완료 기준</h2><p><strong>사전 준비는 DB 시드·모델 캐시·Postman Import까지입니다.</strong> 처음 준비한 DB의 벡터 0개·pending 180개는 정상입니다. 실제 색인과 API 요청은 학생 프로젝트에서 해당 기능을 구현한 뒤 확인합니다.</p><p>이 묶음은 <code>Day25_실습자료_v1.4_필수보완.zip</code>과 함께 사용합니다. 기존 Basic 30개 TODO와 10·12·15개 API 범위를 유지합니다.</p></section>
+<main><nav class="sec-nav"><a href="#files">제공 파일</a><a href="#setup">사전 준비</a><a href="#database">DB 실행 순서</a><a href="#postman">Postman</a><a href="#project">프로젝트 연결</a><a href="#troubles">오류 해결</a></nav>
+<section class="notice"><h2>지금의 완료 기준</h2><p><strong>사전 준비는 DB 시드·모델 캐시·Postman Import까지입니다.</strong> 처음 준비한 DB의 벡터 0개·pending 180개는 정상입니다. 실제 색인과 API 요청은 학생 프로젝트에서 해당 기능을 구현한 뒤 확인합니다.</p><p>이 묶음은 <code>Day25_실습자료_v1.4_필수보완.zip</code>과 함께 사용합니다. 기존 Basic 30개 TODO와 10·12·15개 API 범위를 유지합니다.</p></section>
 <section id="downloads" class="dl-box" aria-label="사전 준비 파일 내려받기">
 <h2>사전 준비 파일 내려받기</h2>
 <p>전체 폴더 구조(<code>common/sql/</code>, <code>common/postman/</code>, <code>common/data/</code>, <code>common/docs/</code>, <code>.env.example</code>, <code>requirements.txt</code>)가 한 번에 필요하면 ZIP을 받고, 필요한 파일만 골라 받으려면 아래 개별 버튼을 누르세요.</p>
