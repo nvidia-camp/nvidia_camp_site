@@ -39,7 +39,7 @@ make serve                 # http://localhost:8000 에서 직접 보기
 배포 순서 (항상 이 순서):
 1. main에 커밋하고 push합니다.
 2. **그 main 커밋**으로 임시 worktree에서 `uv run build_site.py --release`를 실행합니다.
-3. `origin/deploy`의 worktree에 `public/`과 `vercel.json`을 rsync로 덮어씁니다.
+3. `origin/deploy`의 worktree에 `public/`과 `vercel.json`을 `rsync -a --delete --checksum`으로 덮어씁니다. `--checksum`을 빼면 크기·수정 시각이 같은 파일(예: `600px`→`760px`처럼 길이가 같은 수정)이 건너뛰어집니다.
 4. `LOG.md`에 한 줄 쓰고, `release: <무엇> (공개 전 … 제외)`로 커밋해 deploy에 push합니다.
 5. 실제 사이트에서 바뀐 페이지를 확인합니다. 확인 전에는 "배포했다"고 말하지 않습니다.
 

@@ -78,7 +78,8 @@ for k in "${HIDDEN[@]}"; do
 done
 
 # deploy에 반영: 실제로 쓰이는 public/과 vercel.json만 바꾼다
-rsync -a --delete "$WORK/main/public/" "$WORK/deploy/public/"
+# --checksum: 크기·수정 시각이 같아도 내용으로 비교한다 (600→760처럼 길이가 같은 수정이 건너뛰어지던 문제, 2026-11-20)
+rsync -a --delete --checksum "$WORK/main/public/" "$WORK/deploy/public/"
 cp "$WORK/main/vercel.json" "$WORK/deploy/vercel.json"
 cd "$WORK/deploy"
 git add -A public vercel.json
