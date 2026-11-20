@@ -9,6 +9,7 @@
   2. 머리말 아래에 Day25 탭 줄(1 사전 준비 · 2 요구사항 명세서 · 3 Basic 완주 안내)을 넣는다
   3. 다크 모드 CSS와 접힌 코드(<details>)를 눈에 띄게 하는 CSS를 덧붙인다
   4. 작성자 개인 ChatGPT 라이브러리 링크 3개는 <a>만 벗겨 글자로 남긴다 (학생은 열 수 없는 주소)
+  6. 머리말을 1·2번 탭과 같은 크기로 맞추고, 부제 두 줄(<br>)을 ' · '로 이어 한 줄로 만든다 (사용자 승인)
   5. 위쪽 고정 목차에 지금 보는 절 표시(scrollspy) CSS·JS를 덧붙인다. 휴대폰에서는 한 줄 가로 띠로 고정
 
 실행: python3 make_page.py
@@ -31,14 +32,16 @@ def replace_once(text: str, old: str, new: str) -> str:
 TABS_CSS = """
 :root{--tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
   --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a}
-.tabs-wrap{max-width:1220px;margin:18px auto 14px;padding:0 20px}
+.tabs-wrap{max-width:1220px;margin:18px auto 20px;padding:0 20px}
+main{margin-top:20px}
+@media(max-width:720px){.tabs-wrap{margin-bottom:12px}main{margin-top:16px}}
 nav.toc{padding-left:max(20px,calc((100% - 1180px)/2));padding-right:max(20px,calc((100% - 1180px)/2))}
 .code-tools{display:none}
 @media(max-width:500px){.file-card{padding:14px 12px}.file-card details{padding:0 10px}
   pre,pre code{white-space:pre;overflow-wrap:normal;word-break:normal}pre{overflow-x:auto}
   .cp-wrap>pre{padding-right:14px;padding-top:46px}}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650;line-height:1.5}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650;line-height:1.75}
 .tabs a:hover{border-color:#205a9c;color:var(--tab-fg)}
 .tabs .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--tab-n-bg);color:var(--tab-n-fg);font-size:13px;font-weight:700}
 .tabs a[aria-current='page']{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
@@ -46,6 +49,18 @@ nav.toc{padding-left:max(20px,calc((100% - 1180px)/2));padding-right:max(20px,ca
 .tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
 @media(max-width:720px){.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}}
 @media print{.tabs-wrap{display:none}}
+"""
+
+# 머리말: 1·2번 탭과 같은 크기·색 (탭을 바꿔도 배너·탭 줄이 움직이지 않고 글자만 바뀌게)
+HEADER_CSS = """
+header{background:linear-gradient(110deg,#172d49,#1d3a5f);color:#fff;padding:34px max(30px,calc((100% - 1180px)/2));border-bottom:1px solid #2d4863;line-height:1.75}
+header .eyebrow{color:#c9ddf3;font-size:13px;font-weight:700;letter-spacing:.12em;line-height:1.75}
+header h1{color:#fff;margin:.4rem 0;font-size:33px;line-height:1.75;letter-spacing:normal}
+header p,header p.lead{max-width:1000px;color:#dce8f5;margin:0;font-size:15px;line-height:1.75}
+@media(max-width:720px){header{padding:25px 20px}header h1{font-size:26px}}
+/* 탭을 바꿔도 머리말 높이가 같게: 부제 자리를 가장 긴 탭(3번) 기준 줄 수만큼 잡아 둔다 */
+@media(max-width:960px){header p:not(.eyebrow){min-height:calc(2 * 1.75em)}}
+@media(max-width:480px){header p:not(.eyebrow){min-height:calc(3 * 1.75em)}}
 """
 
 # 접힌 전체 코드: 눌러서 펼치는 칸이라는 것이 보이게 (글자는 원본 그대로)
@@ -64,7 +79,7 @@ DARK_CSS = """
   --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
   --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5}
 a{color:#93c5fd}a:hover{color:#bfdbfe}
-header{background:#0f2139;border-bottom:1px solid #2d4863}header .eyebrow{color:#95b9d5}header p{color:#bcd1e0}
+header{background:linear-gradient(110deg,#0f2139,#132c45);border-bottom:1px solid #2d4863}header .eyebrow{color:#95b9d5}header p,header p.lead{color:#bcd1e0}
 .meta span{background:#1c3554;border-color:#3b6182}
 nav.toc{background:#102137;border-bottom-color:#29384e;box-shadow:0 3px 12px #00000040}
 section{box-shadow:none}
@@ -92,7 +107,8 @@ details{background:#0f1e31;border-color:#2d4863}summary{color:#b4d9f5}details[op
 SPY_CSS = """
 nav.toc{top:var(--cn-h,48px);gap:2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
 nav.toc::-webkit-scrollbar{display:none}
-nav.toc a{flex:none;padding:4px 8px;border-radius:999px;line-height:1.5;white-space:nowrap;transition:background-color .25s,color .25s,box-shadow .25s}
+nav.toc{padding-top:8px;padding-bottom:8px;border-bottom:0;box-shadow:0 1px 0 #d6dfec}
+nav.toc a{flex:none;padding:4.75px 8px;border-radius:999px;line-height:1.5;white-space:nowrap;transition:background-color .25s,color .25s,box-shadow .25s}
 nav.toc a:hover{text-decoration:none;background:#eaf1fa}
 nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
 @media(max-width:1240px){
@@ -101,6 +117,7 @@ nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
 }
 @media(max-width:850px){nav.toc{position:sticky;-webkit-overflow-scrolling:touch;padding:8px 16px}}
 @media (prefers-color-scheme:dark){
+  nav.toc{box-shadow:0 1px 0 #29384e}
   nav.toc a:hover{background:#17304a}
   nav.toc a.on{background:#93c5fd;color:#0b1220;box-shadow:0 2px 10px #93c5fd33}
 }
@@ -174,7 +191,9 @@ def main() -> None:
     s = replace_once(s, "</header>", "</header>" + TABS_HTML)
 
     # 3. 덧붙이는 CSS
-    s = replace_once(s, "</style></head>", TABS_CSS + FOLD_CSS + DARK_CSS + SPY_CSS + "</style></head>")
+    s = replace_once(s, "</style></head>", TABS_CSS + HEADER_CSS + FOLD_CSS + DARK_CSS + SPY_CSS + "</style></head>")
+    # 머리말 부제 두 줄을 한 줄로 (사용자 승인 2026-11-20: 탭을 바꿀 때 배너 높이가 1·2번 탭과 같게)
+    s = replace_once(s, "검증까지<br>민준튜터개인용", "검증까지 · 민준튜터개인용")
     s = replace_once(s, "</body>", SPY_JS + "</body>")
 
     # 4. 개인 ChatGPT 라이브러리 링크 → 글자만

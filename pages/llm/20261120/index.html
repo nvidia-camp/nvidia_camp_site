@@ -94,6 +94,9 @@ main>section,main>section.pc,.part,html body .cn-nav ~ .tabs-wrap ~ main .api-ca
 }
 @media(max-width:850px){nav.sec-nav{margin:0 0 16px;padding:8px 16px;-webkit-overflow-scrolling:touch}}
 @media print{nav.sec-nav{display:none}}
+/* 탭을 바꿔도 머리말 높이가 같게: 부제 자리를 가장 긴 탭(3번) 기준 줄 수만큼 잡아 둔다 */
+@media(max-width:960px){header p:not(.eyebrow){min-height:calc(2 * 1.75em)}}
+@media(max-width:480px){header p:not(.eyebrow){min-height:calc(3 * 1.75em)}}
 </style></head><body><header><p class="eyebrow">2026.11.20 · DAY25 · REQUIREMENTS V1.4</p><h1>보고서 처리 Agent</h1><p>SQL·초기 데이터·Postman·환경 파일을 준비하고, 오후에는 Python 구현에 집중합니다.</p></header>
 <div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="./" aria-current="page"><span class="n">1</span>사전 준비</a><a data-site href="spec/"><span class="n">2</span>요구사항 명세서</a><a data-site href="basic/"><span class="n">3</span>Basic 완주 안내</a><a class="lec" data-site href="lecture/">오전 강의 자료 →</a></nav></div>
 <main><nav class="sec-nav"><a href="#files">제공 파일</a><a href="#setup">사전 준비</a><a href="#database">DB 실행 순서</a><a href="#postman">Postman</a><a href="#project">프로젝트 연결</a><a href="#troubles">오류 해결</a></nav>
