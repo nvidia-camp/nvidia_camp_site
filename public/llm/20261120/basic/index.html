@@ -19,14 +19,16 @@ details{border:1px solid #cfdced;border-radius:8px;background:#fbfcfe;margin:14p
 
 :root{--tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
   --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a}
-.tabs-wrap{max-width:1220px;margin:18px auto 14px;padding:0 20px}
+.tabs-wrap{max-width:1220px;margin:18px auto 20px;padding:0 20px}
+main{margin-top:20px}
+@media(max-width:720px){.tabs-wrap{margin-bottom:12px}main{margin-top:16px}}
 nav.toc{padding-left:max(20px,calc((100% - 1180px)/2));padding-right:max(20px,calc((100% - 1180px)/2))}
 .code-tools{display:none}
 @media(max-width:500px){.file-card{padding:14px 12px}.file-card details{padding:0 10px}
   pre,pre code{white-space:pre;overflow-wrap:normal;word-break:normal}pre{overflow-x:auto}
   .cp-wrap>pre{padding-right:14px;padding-top:46px}}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650;line-height:1.5}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650;line-height:1.75}
 .tabs a:hover{border-color:#205a9c;color:var(--tab-fg)}
 .tabs .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--tab-n-bg);color:var(--tab-n-fg);font-size:13px;font-weight:700}
 .tabs a[aria-current='page']{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
@@ -34,6 +36,15 @@ nav.toc{padding-left:max(20px,calc((100% - 1180px)/2));padding-right:max(20px,ca
 .tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
 @media(max-width:720px){.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}}
 @media print{.tabs-wrap{display:none}}
+
+header{background:linear-gradient(110deg,#172d49,#1d3a5f);color:#fff;padding:34px max(30px,calc((100% - 1180px)/2));border-bottom:1px solid #2d4863;line-height:1.75}
+header .eyebrow{color:#c9ddf3;font-size:13px;font-weight:700;letter-spacing:.12em;line-height:1.75}
+header h1{color:#fff;margin:.4rem 0;font-size:33px;line-height:1.75;letter-spacing:normal}
+header p,header p.lead{max-width:1000px;color:#dce8f5;margin:0;font-size:15px;line-height:1.75}
+@media(max-width:720px){header{padding:25px 20px}header h1{font-size:26px}}
+/* 탭을 바꿔도 머리말 높이가 같게: 부제 자리를 가장 긴 탭(3번) 기준 줄 수만큼 잡아 둔다 */
+@media(max-width:960px){header p:not(.eyebrow){min-height:calc(2 * 1.75em)}}
+@media(max-width:480px){header p:not(.eyebrow){min-height:calc(3 * 1.75em)}}
 
 .file-card details{border-color:#b8cbe2;border-left:4px solid #214e84;background:#f5f8fc}
 .file-card details>summary{list-style:none;display:flex;align-items:center;gap:10px}
@@ -47,7 +58,7 @@ nav.toc{padding-left:max(20px,calc((100% - 1180px)/2));padding-right:max(20px,ca
   --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
   --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5}
 a{color:#93c5fd}a:hover{color:#bfdbfe}
-header{background:#0f2139;border-bottom:1px solid #2d4863}header .eyebrow{color:#95b9d5}header p{color:#bcd1e0}
+header{background:linear-gradient(110deg,#0f2139,#132c45);border-bottom:1px solid #2d4863}header .eyebrow{color:#95b9d5}header p,header p.lead{color:#bcd1e0}
 .meta span{background:#1c3554;border-color:#3b6182}
 nav.toc{background:#102137;border-bottom-color:#29384e;box-shadow:0 3px 12px #00000040}
 section{box-shadow:none}
@@ -72,7 +83,8 @@ details{background:#0f1e31;border-color:#2d4863}summary{color:#b4d9f5}details[op
 
 nav.toc{top:var(--cn-h,48px);gap:2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
 nav.toc::-webkit-scrollbar{display:none}
-nav.toc a{flex:none;padding:4px 8px;border-radius:999px;line-height:1.5;white-space:nowrap;transition:background-color .25s,color .25s,box-shadow .25s}
+nav.toc{padding-top:8px;padding-bottom:8px;border-bottom:0;box-shadow:0 1px 0 #d6dfec}
+nav.toc a{flex:none;padding:4.75px 8px;border-radius:999px;line-height:1.5;white-space:nowrap;transition:background-color .25s,color .25s,box-shadow .25s}
 nav.toc a:hover{text-decoration:none;background:#eaf1fa}
 nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
 @media(max-width:1240px){
@@ -81,6 +93,7 @@ nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
 }
 @media(max-width:850px){nav.toc{position:sticky;-webkit-overflow-scrolling:touch;padding:8px 16px}}
 @media (prefers-color-scheme:dark){
+  nav.toc{box-shadow:0 1px 0 #29384e}
   nav.toc a:hover{background:#17304a}
   nav.toc a.on{background:#93c5fd;color:#0b1220;box-shadow:0 2px 10px #93c5fd33}
 }
@@ -486,7 +499,7 @@ html{scroll-padding-top:3rem}
 
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
   else init();
-})();</script><header><div class="eyebrow">Day25 · Report Agent · Basic 완주 안내서</div><h1>빈 폴더에서 Basic 완성까지</h1><p class="lead">사전준비파일 적용부터 실제 E5·LLM 구현과 Postman 전체 검증까지<br>민준튜터개인용 · 요구사항명세서 v1.4 기준 · 2026-11-20 수업</p></header><div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="../"><span class="n">1</span>사전 준비</a><a data-site href="../spec/"><span class="n">2</span>요구사항 명세서</a><a data-site href="./" aria-current="page"><span class="n">3</span>Basic 완주 안내</a><a class="lec" data-site href="../lecture/">오전 강의 자료 →</a></nav></div><nav class="toc" aria-label="목차"><a href="#start">시작</a><a href="#prepare">01 준비</a><a href="#database">02 DB</a><a href="#health">03 첫 서버</a><a href="#read">04 조회</a><a href="#create">05 등록</a><a href="#crud">06 수정·삭제</a><a href="#search">07 색인·검색</a><a href="#llm-agent">08 요약·Agent</a><a href="#tests">09 테스트</a><a href="#baseline">10 시작 상태</a><a href="#postman">11 Postman 전체</a><a href="#finish">12 완료 기준</a><a href="#troubleshoot">13 문제 해결</a><a href="#sources">14 기준 자료</a></nav><main><section id="start"><div class="eyebrow">완성 목표</div><h2>빈 폴더부터 Basic 전체를 완성합니다</h2><p><strong>빈 프로젝트 폴더에서 사전 제공파일을 적용하고, Basic 전체를 구현한 뒤, Postman의 모든 Basic 대상 요청을 검증하는 개인용 안내서입니다.</strong> 각 단계를 위에서 아래로 따라갑니다. 필요한 Python 파일의 전체 내용을 이 문서 안에 수록했습니다.</p><div class="table-wrap"><table><thead><tr><th scope="col">출발</th><th scope="col">진행</th><th scope="col">완료</th></tr></thead><tbody><tr><td>아무 파일도 없는 <code>report-agent/</code></td><td>공통 환경·SQL 적용 → 폴더·파일 생성 → 조회·등록·수정·삭제 → 실제 E5 색인·검색 → 실제 요약·Agent</td><td>Basic API-00~09, 6종 보고서, Agent 3개 action</td></tr><tr><td>수강생과 동일한 환경·명세·공통 자료</td><td>기존 민준튜터개인용 정답과 같은 동작으로 단계별 구현</td><td>최종 app/scripts 25개 Python 파일이 기존 mentor/01_basic과 일치</td></tr><tr><td>기존 Collection·Environment Import</td><td>Basic 대상 30개 요청을 지정 순서대로 실행</td><td>59개 자동 검사와 명세의 수동 확인·DB 검증</td></tr></tbody></table></div><aside class="note"><strong>이 문서의 사용법</strong><p>실제 코드는 새 <code>report-agent</code> 폴더에 작성합니다. 학생 프로젝트나 별도 시연 코드 묶음을 통째로 복사하지 않습니다. 각 파일 카드에는 <strong>새 파일</strong>인지 <strong>기존 파일 전체 교체</strong>인지 표시했습니다. 마지막 단계의 파일이 최종 코드입니다.</p></aside><ol><li>시작할 때 이 문서와 기존 요구사항명세서·사전 제공자료를 엽니다.</li><li>각 단계의 폴더·파일을 순서대로 만들고 전체 코드 블록을 입력합니다. 복사 버튼도 사용할 수 있습니다.</li><li>코드 파일은 UTF-8, 줄바꿈 LF로 저장합니다. 빈 __init__.py에는 설명 문장을 쓰지 않습니다.</li><li>한 단계의 파일을 모두 저장한 후 서버를 재시작하고 해당 확인 요청을 보냅니다.</li><li>코드 작성 중 확인을 마친 뒤, 별도의 최종 검증 절차에서 30개 요청을 처음부터 끝까지 실행합니다.</li></ol><p>체크박스는 실제 결과를 확인한 뒤 직접 표시하는 진행 메모입니다. 자동으로 서버나 API를 호출하지 않습니다. 브라우저에서 저장이 허용되면 체크 상태가 유지됩니다. LLM 호출 2개는 마지막 검증에서 실제로 실행해야 완료입니다.</p></section><section id="prepare"><div class="eyebrow">01 · 사전준비파일 적용</div><h2>같은 공통 파일로 실행 조건을 갖춥니다</h2><p>수강생에게 배포하는 <strong>Day25_사전제공자료_v1.4_SQL_Postman.zip</strong>을 압축 해제합니다. 생성되는 <code>Day25_사전제공자료_v1.4</code> 폴더와 새 프로젝트를 같은 상위 폴더에 둡니다. 강의자료·요구사항명세서는 기존 최종본을 읽습니다.</p><div class="table-wrap"><table><thead><tr><th scope="col">위치</th><th scope="col">현재 상태</th><th scope="col">용도</th></tr></thead><tbody><tr><td><code>Day25_사전제공자료_v1.4/common/</code></td><td>기존 사전 제공 ZIP의 내용</td><td>SQL·환경 템플릿·의존성·Postman·명세·ERD</td></tr><tr><td><code>report-agent/</code></td><td>지금 새로 만드는 빈 폴더</td><td>이 문서를 따라 코드 작성</td></tr><tr><td>기존 <code>mentor/01_basic</code></td><td>최종 코드의 대조 기준</td><td>이 안내서의 전체 코드로 도달할 결과</td></tr></tbody></table></div><h3>1-1. 새 프로젝트 만들기</h3><p>압축을 푼 폴더의 상위 위치에서 Git Bash를 열고 실행합니다. 같은 이름의 프로젝트가 이미 있으면 다른 새 작업 위치에서 시작합니다.</p><div class="code-tools"><button data-cp-src="1" type="button" class="copy-button" data-copy="code-1">전체 내용 복사</button><span class="copy-status" aria-live="polite"></span></div><pre data-cp="1" data-language="bash" ><code id="code-1">mkdir report-agent
+})();</script><header><div class="eyebrow">Day25 · Report Agent · Basic 완주 안내서</div><h1>빈 폴더에서 Basic 완성까지</h1><p class="lead">사전준비파일 적용부터 실제 E5·LLM 구현과 Postman 전체 검증까지 · 민준튜터개인용 · 요구사항명세서 v1.4 기준 · 2026-11-20 수업</p></header><div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="../"><span class="n">1</span>사전 준비</a><a data-site href="../spec/"><span class="n">2</span>요구사항 명세서</a><a data-site href="./" aria-current="page"><span class="n">3</span>Basic 완주 안내</a><a class="lec" data-site href="../lecture/">오전 강의 자료 →</a></nav></div><nav class="toc" aria-label="목차"><a href="#start">시작</a><a href="#prepare">01 준비</a><a href="#database">02 DB</a><a href="#health">03 첫 서버</a><a href="#read">04 조회</a><a href="#create">05 등록</a><a href="#crud">06 수정·삭제</a><a href="#search">07 색인·검색</a><a href="#llm-agent">08 요약·Agent</a><a href="#tests">09 테스트</a><a href="#baseline">10 시작 상태</a><a href="#postman">11 Postman 전체</a><a href="#finish">12 완료 기준</a><a href="#troubleshoot">13 문제 해결</a><a href="#sources">14 기준 자료</a></nav><main><section id="start"><div class="eyebrow">완성 목표</div><h2>빈 폴더부터 Basic 전체를 완성합니다</h2><p><strong>빈 프로젝트 폴더에서 사전 제공파일을 적용하고, Basic 전체를 구현한 뒤, Postman의 모든 Basic 대상 요청을 검증하는 개인용 안내서입니다.</strong> 각 단계를 위에서 아래로 따라갑니다. 필요한 Python 파일의 전체 내용을 이 문서 안에 수록했습니다.</p><div class="table-wrap"><table><thead><tr><th scope="col">출발</th><th scope="col">진행</th><th scope="col">완료</th></tr></thead><tbody><tr><td>아무 파일도 없는 <code>report-agent/</code></td><td>공통 환경·SQL 적용 → 폴더·파일 생성 → 조회·등록·수정·삭제 → 실제 E5 색인·검색 → 실제 요약·Agent</td><td>Basic API-00~09, 6종 보고서, Agent 3개 action</td></tr><tr><td>수강생과 동일한 환경·명세·공통 자료</td><td>기존 민준튜터개인용 정답과 같은 동작으로 단계별 구현</td><td>최종 app/scripts 25개 Python 파일이 기존 mentor/01_basic과 일치</td></tr><tr><td>기존 Collection·Environment Import</td><td>Basic 대상 30개 요청을 지정 순서대로 실행</td><td>59개 자동 검사와 명세의 수동 확인·DB 검증</td></tr></tbody></table></div><aside class="note"><strong>이 문서의 사용법</strong><p>실제 코드는 새 <code>report-agent</code> 폴더에 작성합니다. 학생 프로젝트나 별도 시연 코드 묶음을 통째로 복사하지 않습니다. 각 파일 카드에는 <strong>새 파일</strong>인지 <strong>기존 파일 전체 교체</strong>인지 표시했습니다. 마지막 단계의 파일이 최종 코드입니다.</p></aside><ol><li>시작할 때 이 문서와 기존 요구사항명세서·사전 제공자료를 엽니다.</li><li>각 단계의 폴더·파일을 순서대로 만들고 전체 코드 블록을 입력합니다. 복사 버튼도 사용할 수 있습니다.</li><li>코드 파일은 UTF-8, 줄바꿈 LF로 저장합니다. 빈 __init__.py에는 설명 문장을 쓰지 않습니다.</li><li>한 단계의 파일을 모두 저장한 후 서버를 재시작하고 해당 확인 요청을 보냅니다.</li><li>코드 작성 중 확인을 마친 뒤, 별도의 최종 검증 절차에서 30개 요청을 처음부터 끝까지 실행합니다.</li></ol><p>체크박스는 실제 결과를 확인한 뒤 직접 표시하는 진행 메모입니다. 자동으로 서버나 API를 호출하지 않습니다. 브라우저에서 저장이 허용되면 체크 상태가 유지됩니다. LLM 호출 2개는 마지막 검증에서 실제로 실행해야 완료입니다.</p></section><section id="prepare"><div class="eyebrow">01 · 사전준비파일 적용</div><h2>같은 공통 파일로 실행 조건을 갖춥니다</h2><p>수강생에게 배포하는 <strong>Day25_사전제공자료_v1.4_SQL_Postman.zip</strong>을 압축 해제합니다. 생성되는 <code>Day25_사전제공자료_v1.4</code> 폴더와 새 프로젝트를 같은 상위 폴더에 둡니다. 강의자료·요구사항명세서는 기존 최종본을 읽습니다.</p><div class="table-wrap"><table><thead><tr><th scope="col">위치</th><th scope="col">현재 상태</th><th scope="col">용도</th></tr></thead><tbody><tr><td><code>Day25_사전제공자료_v1.4/common/</code></td><td>기존 사전 제공 ZIP의 내용</td><td>SQL·환경 템플릿·의존성·Postman·명세·ERD</td></tr><tr><td><code>report-agent/</code></td><td>지금 새로 만드는 빈 폴더</td><td>이 문서를 따라 코드 작성</td></tr><tr><td>기존 <code>mentor/01_basic</code></td><td>최종 코드의 대조 기준</td><td>이 안내서의 전체 코드로 도달할 결과</td></tr></tbody></table></div><h3>1-1. 새 프로젝트 만들기</h3><p>압축을 푼 폴더의 상위 위치에서 Git Bash를 열고 실행합니다. 같은 이름의 프로젝트가 이미 있으면 다른 새 작업 위치에서 시작합니다.</p><div class="code-tools"><button data-cp-src="1" type="button" class="copy-button" data-copy="code-1">전체 내용 복사</button><span class="copy-status" aria-live="polite"></span></div><pre data-cp="1" data-language="bash" ><code id="code-1">mkdir report-agent
 cd report-agent
 code .
 pwd

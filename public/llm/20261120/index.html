@@ -94,6 +94,9 @@ main>section,main>section.pc,.part,html body .cn-nav ~ .tabs-wrap ~ main .api-ca
 }
 @media(max-width:850px){nav.sec-nav{margin:0 0 16px;padding:8px 16px;-webkit-overflow-scrolling:touch}}
 @media print{nav.sec-nav{display:none}}
+/* 탭을 바꿔도 머리말 높이가 같게: 부제 자리를 가장 긴 탭(3번) 기준 줄 수만큼 잡아 둔다 */
+@media(max-width:960px){header p:not(.eyebrow){min-height:calc(2 * 1.75em)}}
+@media(max-width:480px){header p:not(.eyebrow){min-height:calc(3 * 1.75em)}}
 </style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <script>/* =====================================================================
  * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
