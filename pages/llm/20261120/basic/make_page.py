@@ -169,11 +169,20 @@ SPY_JS = """<script>
 # 1100px 미만(화면 반 나누기·태블릿·휴대폰)은 오른쪽 아래 '17/48' 버튼을 눌러 펼친다.
 # 체크 값은 원본 스크립트가 쓰는 localStorage를 그대로 쓴다 (학생 브라우저에만 저장).
 PROGRESS_CSS = """
-.pg{position:fixed;z-index:850;width:204px;box-sizing:border-box;padding:14px 14px 12px;border:1px solid var(--border);border-radius:12px;
-  background:var(--paper);color:var(--ink);box-shadow:0 6px 22px #0f1e3114;font-size:13px;line-height:1.5}
-.pg-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.pg{position:fixed;z-index:850;width:204px;box-sizing:border-box;padding:0 14px 12px;border:1px solid #214e8433;border-radius:14px;overflow:hidden;
+  background:var(--paper);color:var(--ink);font-size:13px;line-height:1.5;
+  box-shadow:0 22px 48px -14px #0f1e3159,0 6px 16px -4px #0f1e3124,0 0 0 4px #214e840d;
+  animation:pgIn .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.pg.bump{animation:pgBump .7s ease}
+@keyframes pgBump{0%{box-shadow:0 22px 48px -14px #0f1e3159,0 6px 16px -4px #0f1e3124,0 0 0 4px #11665d55}
+  100%{box-shadow:0 22px 48px -14px #0f1e3159,0 6px 16px -4px #0f1e3124,0 0 0 4px #214e840d}}
+.pg-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 -14px 12px;padding:10px 14px 9px;
+  background:linear-gradient(110deg,#172d49,#1d3a5f);color:#fff}
 .pg-head b{font-size:13px}
-.pg-num{font-size:13px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums}
+.pg-num{font-size:14px;font-weight:800;color:#9fe0d4;font-variant-numeric:tabular-nums;display:inline-block}
+.pg.bump .pg-num{animation:pgNum .5s ease}
+@keyframes pgNum{0%{transform:scale(1)}35%{transform:scale(1.22)}100%{transform:scale(1)}}
 .pg-bar{height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-bottom:12px}
 .pg-bar span{display:block;height:100%;width:0;border-radius:99px;background:var(--teal);transition:width .3s}
 .pg-g{margin:0 0 10px}
@@ -207,7 +216,11 @@ PROGRESS_CSS = """
 @media(min-width:1652px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
 /* 노트북 폭: 본문 왼쪽 끝은 그대로 두고 오른쪽만 줄여 패널 자리를 만든다 (머리말·탭 줄·목차 띠는 그대로) */
 @media(min-width:1100px) and (max-width:1651px){main{margin-left:max(0px,calc((100% - 1220px)/2));margin-right:216px}.pg{right:16px}}
-@media (prefers-color-scheme:dark){.pg,.pg-chip{box-shadow:0 6px 22px #00000066}.pg-clear .pg-yes{color:#fda29b}}
+@media (prefers-color-scheme:dark){
+  .pg{border-color:#93c5fd40;box-shadow:0 22px 48px -12px #000000b3,0 6px 16px -4px #00000080,0 0 0 4px #93c5fd14}
+  .pg-head{background:linear-gradient(110deg,#1c3a5c,#24507a)}
+  .pg-chip{box-shadow:0 6px 22px #00000066}.pg-clear .pg-yes{color:#fda29b}}
+@media (prefers-reduced-motion:reduce){.pg,.pg.bump,.pg.bump .pg-num{animation:none}}
 @media print{.pg,.pg-chip{display:none!important}}
 """
 
@@ -323,7 +336,11 @@ PROGRESS_JS = """<script>
   addEventListener('resize', req);
   narrow.addEventListener('change', () => { toggle(false); place(); });
 
-  document.addEventListener('change', e => { if (e.target.matches && e.target.matches('input[data-check]')) update(); });
+  document.addEventListener('change', e => {
+    if (!(e.target.matches && e.target.matches('input[data-check]'))) return;
+    update();
+    panel.classList.remove('bump'); void panel.offsetWidth; panel.classList.add('bump');   // 체크가 반영됐다는 것을 보여 준다
+  });
   update(); place();
 })();
 </script>"""
