@@ -10,7 +10,7 @@
   3. 다크 모드 CSS와 접힌 코드(<details>)를 눈에 띄게 하는 CSS를 덧붙인다
   4. 작성자 개인 ChatGPT 라이브러리 링크 3개는 <a>만 벗겨 글자로 남긴다 (학생은 열 수 없는 주소)
   6. 머리말을 1·2번 탭과 같은 크기로 맞추고, 부제 두 줄(<br>)을 ' · '로 이어 한 줄로 만든다 (사용자 승인)
-  7. 체크 진행 패널(넓은 화면 오른쪽 고정, 좁은 화면은 오른쪽 아래 버튼) + 전체 지우기. 체크 값은 원본 localStorage 그대로
+  7. 체크 진행 패널(1100px 이상 오른쪽 고정 — 1652px 미만은 본문 오른쪽을 줄여 자리 확보, 더 좁으면 오른쪽 아래 버튼) + 전체 지우기. 체크 값은 원본 localStorage 그대로
   5. 위쪽 고정 목차에 지금 보는 절 표시(scrollspy) CSS·JS를 덧붙인다. 휴대폰에서는 한 줄 가로 띠로 고정
 
 실행: python3 make_page.py
@@ -165,7 +165,8 @@ SPY_JS = """<script>
 })();
 </script>"""
 
-# 체크 진행 패널: 넓은 화면(1640px 이상)은 오른쪽 빈 공간에 고정, 그보다 좁으면 오른쪽 아래 '17/48' 버튼을 눌러 펼친다.
+# 체크 진행 패널: 1652px 이상은 오른쪽 빈 여백에, 1100~1651px은 본문 오른쪽을 216px 줄여 만든 자리에 고정.
+# 1100px 미만(화면 반 나누기·태블릿·휴대폰)은 오른쪽 아래 '17/48' 버튼을 눌러 펼친다.
 # 체크 값은 원본 스크립트가 쓰는 localStorage를 그대로 쓴다 (학생 브라우저에만 저장).
 PROGRESS_CSS = """
 .pg{position:fixed;z-index:850;width:204px;box-sizing:border-box;padding:14px 14px 12px;border:1px solid var(--border);border-radius:12px;
@@ -198,12 +199,14 @@ PROGRESS_CSS = """
   background:var(--paper);color:var(--ink);font:700 13px/1 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
   box-shadow:0 4px 14px #0f1e3129;cursor:pointer;display:none;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
 .pg-chip i{display:block;width:8px;height:8px;border-radius:99px;background:var(--teal)}
-@media(max-width:1639px){
+@media(max-width:1099px){
   .pg-chip{display:inline-flex}
   .pg{right:16px;bottom:76px;width:min(300px,calc(100vw - 32px));display:none}
   .pg.open{display:block}
 }
-@media(min-width:1640px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+@media(min-width:1652px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+/* 노트북 폭: 본문 왼쪽 끝은 그대로 두고 오른쪽만 줄여 패널 자리를 만든다 (머리말·탭 줄·목차 띠는 그대로) */
+@media(min-width:1100px) and (max-width:1651px){main{margin-left:max(0px,calc((100% - 1220px)/2));margin-right:216px}.pg{right:16px}}
 @media (prefers-color-scheme:dark){.pg,.pg-chip{box-shadow:0 6px 22px #00000066}.pg-clear .pg-yes{color:#fda29b}}
 @media print{.pg,.pg-chip{display:none!important}}
 """
@@ -254,7 +257,7 @@ PROGRESS_JS = """<script>
       box.append(b);
     });
   });
-  const narrow = matchMedia('(max-width:1639px)');
+  const narrow = matchMedia('(max-width:1099px)');
 
   function go(item) {
     const line = item.input.closest('.checkline') || item.input;

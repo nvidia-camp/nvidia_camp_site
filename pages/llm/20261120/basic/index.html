@@ -128,12 +128,14 @@ nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
   background:var(--paper);color:var(--ink);font:700 13px/1 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
   box-shadow:0 4px 14px #0f1e3129;cursor:pointer;display:none;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
 .pg-chip i{display:block;width:8px;height:8px;border-radius:99px;background:var(--teal)}
-@media(max-width:1639px){
+@media(max-width:1099px){
   .pg-chip{display:inline-flex}
   .pg{right:16px;bottom:76px;width:min(300px,calc(100vw - 32px));display:none}
   .pg.open{display:block}
 }
-@media(min-width:1640px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+@media(min-width:1652px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+/* 노트북 폭: 본문 왼쪽 끝은 그대로 두고 오른쪽만 줄여 패널 자리를 만든다 (머리말·탭 줄·목차 띠는 그대로) */
+@media(min-width:1100px) and (max-width:1651px){main{margin-left:max(0px,calc((100% - 1220px)/2));margin-right:216px}.pg{right:16px}}
 @media (prefers-color-scheme:dark){.pg,.pg-chip{box-shadow:0 6px 22px #00000066}.pg-clear .pg-yes{color:#fda29b}}
 @media print{.pg,.pg-chip{display:none!important}}
 </style></head><body><header><div class="eyebrow">Day25 · Report Agent · Basic 완주 안내서</div><h1>빈 폴더에서 Basic 완성까지</h1><p class="lead">사전준비파일 적용부터 실제 E5·LLM 구현과 Postman 전체 검증까지 · 민준튜터개인용 · 요구사항명세서 v1.4 기준 · 2026-11-20 수업</p></header><div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="../"><span class="n">1</span>사전 준비</a><a data-site href="../spec/"><span class="n">2</span>요구사항 명세서</a><a data-site href="./" aria-current="page"><span class="n">3</span>Basic 완주 안내</a><a class="lec" data-site href="../lecture/">오전 강의 자료 →</a></nav></div><nav class="toc" aria-label="목차"><a href="#start">시작</a><a href="#prepare">01 준비</a><a href="#database">02 DB</a><a href="#health">03 첫 서버</a><a href="#read">04 조회</a><a href="#create">05 등록</a><a href="#crud">06 수정·삭제</a><a href="#search">07 색인·검색</a><a href="#llm-agent">08 요약·Agent</a><a href="#tests">09 테스트</a><a href="#baseline">10 시작 상태</a><a href="#postman">11 Postman 전체</a><a href="#finish">12 완료 기준</a><a href="#troubleshoot">13 문제 해결</a><a href="#sources">14 기준 자료</a></nav><main><section id="start"><div class="eyebrow">완성 목표</div><h2>빈 폴더부터 Basic 전체를 완성합니다</h2><p><strong>빈 프로젝트 폴더에서 사전 제공파일을 적용하고, Basic 전체를 구현한 뒤, Postman의 모든 Basic 대상 요청을 검증하는 개인용 안내서입니다.</strong> 각 단계를 위에서 아래로 따라갑니다. 필요한 Python 파일의 전체 내용을 이 문서 안에 수록했습니다.</p><div class="table-wrap"><table><thead><tr><th scope="col">출발</th><th scope="col">진행</th><th scope="col">완료</th></tr></thead><tbody><tr><td>아무 파일도 없는 <code>report-agent/</code></td><td>공통 환경·SQL 적용 → 폴더·파일 생성 → 조회·등록·수정·삭제 → 실제 E5 색인·검색 → 실제 요약·Agent</td><td>Basic API-00~09, 6종 보고서, Agent 3개 action</td></tr><tr><td>수강생과 동일한 환경·명세·공통 자료</td><td>기존 민준튜터개인용 정답과 같은 동작으로 단계별 구현</td><td>최종 app/scripts 25개 Python 파일이 기존 mentor/01_basic과 일치</td></tr><tr><td>기존 Collection·Environment Import</td><td>Basic 대상 30개 요청을 지정 순서대로 실행</td><td>59개 자동 검사와 명세의 수동 확인·DB 검증</td></tr></tbody></table></div><aside class="note"><strong>이 문서의 사용법</strong><p>실제 코드는 새 <code>report-agent</code> 폴더에 작성합니다. 학생 프로젝트나 별도 시연 코드 묶음을 통째로 복사하지 않습니다. 각 파일 카드에는 <strong>새 파일</strong>인지 <strong>기존 파일 전체 교체</strong>인지 표시했습니다. 마지막 단계의 파일이 최종 코드입니다.</p></aside><ol><li>시작할 때 이 문서와 기존 요구사항명세서·사전 제공자료를 엽니다.</li><li>각 단계의 폴더·파일을 순서대로 만들고 전체 코드 블록을 입력합니다. 복사 버튼도 사용할 수 있습니다.</li><li>코드 파일은 UTF-8, 줄바꿈 LF로 저장합니다. 빈 __init__.py에는 설명 문장을 쓰지 않습니다.</li><li>한 단계의 파일을 모두 저장한 후 서버를 재시작하고 해당 확인 요청을 보냅니다.</li><li>코드 작성 중 확인을 마친 뒤, 별도의 최종 검증 절차에서 30개 요청을 처음부터 끝까지 실행합니다.</li></ol><p>체크박스는 실제 결과를 확인한 뒤 직접 표시하는 진행 메모입니다. 자동으로 서버나 API를 호출하지 않습니다. 브라우저에서 저장이 허용되면 체크 상태가 유지됩니다. LLM 호출 2개는 마지막 검증에서 실제로 실행해야 완료입니다.</p></section><section id="prepare"><div class="eyebrow">01 · 사전준비파일 적용</div><h2>같은 공통 파일로 실행 조건을 갖춥니다</h2><p>수강생에게 배포하는 <strong>Day25_사전제공자료_v1.4_SQL_Postman.zip</strong>을 압축 해제합니다. 생성되는 <code>Day25_사전제공자료_v1.4</code> 폴더와 새 프로젝트를 같은 상위 폴더에 둡니다. 강의자료·요구사항명세서는 기존 최종본을 읽습니다.</p><div class="table-wrap"><table><thead><tr><th scope="col">위치</th><th scope="col">현재 상태</th><th scope="col">용도</th></tr></thead><tbody><tr><td><code>Day25_사전제공자료_v1.4/common/</code></td><td>기존 사전 제공 ZIP의 내용</td><td>SQL·환경 템플릿·의존성·Postman·명세·ERD</td></tr><tr><td><code>report-agent/</code></td><td>지금 새로 만드는 빈 폴더</td><td>이 문서를 따라 코드 작성</td></tr><tr><td>기존 <code>mentor/01_basic</code></td><td>최종 코드의 대조 기준</td><td>이 안내서의 전체 코드로 도달할 결과</td></tr></tbody></table></div><h3>1-1. 새 프로젝트 만들기</h3><p>압축을 푼 폴더의 상위 위치에서 Git Bash를 열고 실행합니다. 같은 이름의 프로젝트가 이미 있으면 다른 새 작업 위치에서 시작합니다.</p><div class="code-tools"><button type="button" class="copy-button" data-copy="code-1">전체 내용 복사</button><span class="copy-status" aria-live="polite"></span></div><pre data-language="bash" ><code id="code-1">mkdir report-agent
@@ -2219,7 +2221,7 @@ Content-Type: application/json
       box.append(b);
     });
   });
-  const narrow = matchMedia('(max-width:1639px)');
+  const narrow = matchMedia('(max-width:1099px)');
 
   function go(item) {
     const line = item.input.closest('.checkline') || item.input;
