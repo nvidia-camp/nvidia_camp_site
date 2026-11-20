@@ -128,12 +128,14 @@ nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
   background:var(--paper);color:var(--ink);font:700 13px/1 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
   box-shadow:0 4px 14px #0f1e3129;cursor:pointer;display:none;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
 .pg-chip i{display:block;width:8px;height:8px;border-radius:99px;background:var(--teal)}
-@media(max-width:1639px){
+@media(max-width:1099px){
   .pg-chip{display:inline-flex}
   .pg{right:16px;bottom:76px;width:min(300px,calc(100vw - 32px));display:none}
   .pg.open{display:block}
 }
-@media(min-width:1640px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+@media(min-width:1652px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+/* 노트북 폭: 본문 왼쪽 끝은 그대로 두고 오른쪽만 줄여 패널 자리를 만든다 (머리말·탭 줄·목차 띠는 그대로) */
+@media(min-width:1100px) and (max-width:1651px){main{margin-left:max(0px,calc((100% - 1220px)/2));margin-right:216px}.pg{right:16px}}
 @media (prefers-color-scheme:dark){.pg,.pg-chip{box-shadow:0 6px 22px #00000066}.pg-clear .pg-yes{color:#fda29b}}
 @media print{.pg,.pg-chip{display:none!important}}
 </style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
@@ -2621,7 +2623,7 @@ Content-Type: application/json
       box.append(b);
     });
   });
-  const narrow = matchMedia('(max-width:1639px)');
+  const narrow = matchMedia('(max-width:1099px)');
 
   function go(item) {
     const line = item.input.closest('.checkline') || item.input;
