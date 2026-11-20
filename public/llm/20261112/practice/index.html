@@ -349,7 +349,8 @@ figure img { display: block; max-width: 100%; height: auto; }
 :root[data-theme=dark] .theme-toggle .i-sun{display:block}
 .cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
 .cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
-@media (max-width:760px){.cn-nav .theme-toggle{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+/* [data-tip]까지 붙여야 nav.css의 .cn-nav [data-tip]{position:relative}보다 우선해서 sticky가 실제로 걸린다 */
+@media (max-width:760px){.cn-nav .theme-toggle[data-tip]{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
   background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
 @media print{.theme-toggle{display:none!important}}
 </style>
