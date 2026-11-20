@@ -9,6 +9,7 @@
   2. 머리말 아래에 Day25 탭 줄(1 사전 준비 · 2 요구사항 명세서 · 3 Basic 완주 안내)을 넣는다
   3. 다크 모드 CSS와 접힌 코드(<details>)를 눈에 띄게 하는 CSS를 덧붙인다
   4. 작성자 개인 ChatGPT 라이브러리 링크 3개는 <a>만 벗겨 글자로 남긴다 (학생은 열 수 없는 주소)
+  5. 위쪽 고정 목차에 지금 보는 절 표시(scrollspy) CSS·JS를 덧붙인다. 휴대폰에서는 한 줄 가로 띠로 고정
 
 실행: python3 make_page.py
 """
@@ -87,6 +88,65 @@ details{background:#0f1e31;border-color:#2d4863}summary{color:#b4d9f5}details[op
 }
 """
 
+# 위쪽 고정 목차에 '지금 보는 절' 표시 (scrollspy). 휴대폰에서는 한 줄 가로 스크롤 띠로 고정
+SPY_CSS = """
+nav.toc{top:var(--cn-h,48px);gap:2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{flex:none;padding:4px 8px;border-radius:999px;line-height:1.5;white-space:nowrap;transition:background-color .25s,color .25s,box-shadow .25s}
+nav.toc a:hover{text-decoration:none;background:#eaf1fa}
+nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
+@media(max-width:1240px){
+  nav.toc{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent);
+                  mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent)}
+}
+@media(max-width:850px){nav.toc{position:sticky;-webkit-overflow-scrolling:touch;padding:8px 16px}}
+@media (prefers-color-scheme:dark){
+  nav.toc a:hover{background:#17304a}
+  nav.toc a.on{background:#93c5fd;color:#0b1220;box-shadow:0 2px 10px #93c5fd33}
+}
+"""
+
+SPY_JS = """<script>
+(() => {
+  const toc = document.querySelector('nav.toc');
+  if (!toc) return;
+  const links = [...toc.querySelectorAll('a[href^="#"]')];
+  const items = links.map(a => [a, document.getElementById(a.getAttribute('href').slice(1))]).filter(x => x[1]);
+  const root = document.documentElement;
+  let cur = null, ticking = false;
+
+  // 사이트 위쪽 메뉴 높이에 맞춰 목차를 붙이고, 목차로 이동할 때 제목이 가리지 않게 한다
+  function measure() {
+    const bar = document.querySelector('.cn-nav');
+    const h = bar ? bar.getBoundingClientRect().height : 0;
+    root.style.setProperty('--cn-h', h + 'px');
+    root.style.scrollPaddingTop = (h + toc.getBoundingClientRect().height + 16) + 'px';
+  }
+
+  function update() {
+    ticking = false;
+    const line = toc.getBoundingClientRect().bottom + 40;
+    let on = items[0];
+    for (const it of items) { if (it[1].getBoundingClientRect().top <= line) on = it; else break; }
+    if (innerHeight + scrollY >= root.scrollHeight - 4) on = items[items.length - 1];
+    if (on[0] === cur) return;
+    if (cur) { cur.classList.remove('on'); cur.removeAttribute('aria-current'); }
+    cur = on[0];
+    cur.classList.add('on');
+    cur.setAttribute('aria-current', 'location');
+    if (toc.scrollWidth > toc.clientWidth + 2) {   // 한 줄 띠일 때 지금 절을 가운데로
+      toc.scrollTo({ left: cur.offsetLeft - (toc.clientWidth - cur.offsetWidth) / 2, behavior: 'smooth' });
+    }
+  }
+  const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+
+  measure(); update();
+  addEventListener('scroll', request, { passive: true });
+  addEventListener('resize', () => { measure(); request(); });
+  addEventListener('load', () => { measure(); request(); });
+})();
+</script>"""
+
 TABS_HTML = (
     '<div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭">'
     '<a data-site href="../"><span class="n">1</span>사전 준비</a>'
@@ -114,7 +174,8 @@ def main() -> None:
     s = replace_once(s, "</header>", "</header>" + TABS_HTML)
 
     # 3. 덧붙이는 CSS
-    s = replace_once(s, "</style></head>", TABS_CSS + FOLD_CSS + DARK_CSS + "</style></head>")
+    s = replace_once(s, "</style></head>", TABS_CSS + FOLD_CSS + DARK_CSS + SPY_CSS + "</style></head>")
+    s = replace_once(s, "</body>", SPY_JS + "</body>")
 
     # 4. 개인 ChatGPT 라이브러리 링크 → 글자만
     s, n = re.subn(r'<a href="https://chatgpt\.com/[^"]*">(.*?)</a>', r"\1", s, flags=re.S)

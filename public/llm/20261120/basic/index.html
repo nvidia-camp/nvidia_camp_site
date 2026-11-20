@@ -69,6 +69,21 @@ details{background:#0f1e31;border-color:#2d4863}summary{color:#b4d9f5}details[op
 .empty-file{background:#0f1e31;border-color:#3b6182}
 .file-card details{background:#0d1b2c;border-color:#3b6182;border-left-color:#93c5fd}.file-card details[open]{background:#0f1e31}
 }
+
+nav.toc{top:var(--cn-h,48px);gap:2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{flex:none;padding:4px 8px;border-radius:999px;line-height:1.5;white-space:nowrap;transition:background-color .25s,color .25s,box-shadow .25s}
+nav.toc a:hover{text-decoration:none;background:#eaf1fa}
+nav.toc a.on{background:#214e84;color:#fff;box-shadow:0 2px 8px #214e8433}
+@media(max-width:1240px){
+  nav.toc{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent);
+                  mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent)}
+}
+@media(max-width:850px){nav.toc{position:sticky;-webkit-overflow-scrolling:touch;padding:8px 16px}}
+@media (prefers-color-scheme:dark){
+  nav.toc a:hover{background:#17304a}
+  nav.toc a.on{background:#93c5fd;color:#0b1220;box-shadow:0 2px 10px #93c5fd33}
+}
 </style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <script>/* =====================================================================
  * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
@@ -2468,6 +2483,45 @@ Content-Type: application/json
       status.textContent = copied ? '전체 내용을 복사했습니다. 지정 파일에 붙여 넣고 저장하세요.' : '자동 복사를 사용할 수 없습니다. 아래 전체 내용을 선택해 복사하세요.';
     });
   });
+})();
+</script><script>
+(() => {
+  const toc = document.querySelector('nav.toc');
+  if (!toc) return;
+  const links = [...toc.querySelectorAll('a[href^="#"]')];
+  const items = links.map(a => [a, document.getElementById(a.getAttribute('href').slice(1))]).filter(x => x[1]);
+  const root = document.documentElement;
+  let cur = null, ticking = false;
+
+  // 사이트 위쪽 메뉴 높이에 맞춰 목차를 붙이고, 목차로 이동할 때 제목이 가리지 않게 한다
+  function measure() {
+    const bar = document.querySelector('.cn-nav');
+    const h = bar ? bar.getBoundingClientRect().height : 0;
+    root.style.setProperty('--cn-h', h + 'px');
+    root.style.scrollPaddingTop = (h + toc.getBoundingClientRect().height + 16) + 'px';
+  }
+
+  function update() {
+    ticking = false;
+    const line = toc.getBoundingClientRect().bottom + 40;
+    let on = items[0];
+    for (const it of items) { if (it[1].getBoundingClientRect().top <= line) on = it; else break; }
+    if (innerHeight + scrollY >= root.scrollHeight - 4) on = items[items.length - 1];
+    if (on[0] === cur) return;
+    if (cur) { cur.classList.remove('on'); cur.removeAttribute('aria-current'); }
+    cur = on[0];
+    cur.classList.add('on');
+    cur.setAttribute('aria-current', 'location');
+    if (toc.scrollWidth > toc.clientWidth + 2) {   // 한 줄 띠일 때 지금 절을 가운데로
+      toc.scrollTo({ left: cur.offsetLeft - (toc.clientWidth - cur.offsetWidth) / 2, behavior: 'smooth' });
+    }
+  }
+  const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+
+  measure(); update();
+  addEventListener('scroll', request, { passive: true });
+  addEventListener('resize', () => { measure(); request(); });
+  addEventListener('load', () => { measure(); request(); });
 })();
 </script><style>
 /* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
