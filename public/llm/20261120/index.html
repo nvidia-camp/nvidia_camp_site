@@ -77,6 +77,23 @@ main>section.dl-box{border-color:var(--notice-border);background:var(--dl-bg)}
 .dl-btn.primary:hover{opacity:.92}
 @media(max-width:720px){header{padding:25px 20px}header h1{font-size:26px}.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}main{margin:12px 0 0;padding:0}main>section{padding:20px 16px;border-left:0;border-right:0;border-radius:0;margin-bottom:12px}.part{margin:32px 16px 12px}nav.sec-nav{margin:0 16px 16px}footer{padding:16px}h2{font-size:22px}table{font-size:14px}th,td{padding:10px}#files td:first-child{min-width:180px}body{font-size:15px}}
 @media print{body{background:white;color:#111}nav.sec-nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header p,header p.eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
+</style><!-- spy: 고정 목차·지금 보는 절 표시 --><style>
+/* 위쪽 고정 목차 + 지금 보는 절 표시 (3번 탭 Basic 완주 안내와 같은 모양) */
+nav.sec-nav{position:sticky;top:var(--cn-h,48px);z-index:20;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  gap:2px;margin:0 0 20px;padding:8px 0;background:var(--surface);
+  box-shadow:0 0 0 100vmax var(--surface),0 1px 0 100vmax var(--border);clip-path:inset(0 -100vmax -1px)}
+nav.sec-nav::-webkit-scrollbar{display:none}
+nav.sec-nav a{flex:none;padding:4px 11px;border-radius:999px;font-size:14px;font-weight:700;line-height:1.5;white-space:nowrap;
+  color:var(--link);text-decoration:none;transition:background-color .25s,color .25s,box-shadow .25s}
+nav.sec-nav a:hover{background:var(--tab-n-bg)}
+nav.sec-nav a.on{background:var(--tab-act-bg);color:var(--tab-act-fg);box-shadow:0 2px 8px #0f1e3133}
+main>section,main>section.pc,.part,html body .cn-nav ~ .tabs-wrap ~ main .api-card{scroll-margin-top:0}
+@media(max-width:1240px){
+  nav.sec-nav{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent);
+                     mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent)}
+}
+@media(max-width:850px){nav.sec-nav{margin:0 0 16px;padding:8px 16px;-webkit-overflow-scrolling:touch}}
+@media print{nav.sec-nav{display:none}}
 </style><link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <script>/* =====================================================================
  * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
@@ -526,7 +543,47 @@ nmake /F Makefile.win install</code></pre><p>각 명령이 성공한 뒤 다음 
 <li id="ref-postman"><a href="https://learning.postman.com/docs/getting-started/importing-and-exporting/importing-data/">Postman — Collection·Environment Import</a></li>
 <li id="ref-skip"><a href="https://learning.postman.com/docs/tests-and-scripts/write-scripts/postman-sandbox-reference/pm-execution/">Postman — skipRequest 실행 제어</a></li>
 <li id="ref-e5"><a href="https://huggingface.co/intfloat/multilingual-e5-small">intfloat — multilingual-e5-small 모델 자료</a></li>
-</ul></section></main><footer>Day25 Report Agent · 사전 제공 자료 v1.4 · 2026-11-19 준비</footer><style>
+</ul></section></main><footer>Day25 Report Agent · 사전 제공 자료 v1.4 · 2026-11-19 준비</footer><script>
+(() => {
+  const toc = document.querySelector('nav.sec-nav');
+  if (!toc) return;
+  const items = [...toc.querySelectorAll('a[href^="#"]')]
+    .map(a => [a, document.getElementById(a.getAttribute('href').slice(1))]).filter(x => x[1]);
+  if (!items.length) return;
+  const root = document.documentElement;
+  let cur = null, ticking = false;
+
+  // 사이트 위쪽 메뉴 높이에 맞춰 목차를 붙이고, 목차로 이동할 때 제목이 가리지 않게 한다
+  function measure() {
+    const bar = document.querySelector('.cn-nav');
+    const h = bar ? bar.getBoundingClientRect().height : 0;
+    root.style.setProperty('--cn-h', h + 'px');
+    root.style.scrollPaddingTop = (h + toc.getBoundingClientRect().height + 16) + 'px';
+  }
+
+  function update() {
+    ticking = false;
+    const line = toc.getBoundingClientRect().bottom + 40;
+    let on = items[0];
+    for (const it of items) { if (it[1].getBoundingClientRect().top <= line) on = it; else break; }
+    if (innerHeight + scrollY >= root.scrollHeight - 4) on = items[items.length - 1];
+    if (on[0] === cur) return;
+    if (cur) { cur.classList.remove('on'); cur.removeAttribute('aria-current'); }
+    cur = on[0];
+    cur.classList.add('on');
+    cur.setAttribute('aria-current', 'location');
+    if (toc.scrollWidth > toc.clientWidth + 2) {   // 한 줄 띠일 때 지금 절을 가운데로
+      toc.scrollTo({ left: cur.offsetLeft - (toc.clientWidth - cur.offsetWidth) / 2, behavior: 'smooth' });
+    }
+  }
+  const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+
+  measure(); update();
+  addEventListener('scroll', request, { passive: true });
+  addEventListener('resize', () => { measure(); request(); });
+  addEventListener('load', () => { measure(); request(); });
+})();
+</script><style>
 /* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
    꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
    색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.

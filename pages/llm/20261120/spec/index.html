@@ -135,6 +135,23 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
   .erd-board,.erd-board-single{overflow:visible;max-height:none}.erd-board svg,.erd-board-single svg{width:100%;height:auto;min-width:0}
   .api-card{background:#fff;border:1px solid #aaa;border-left:3px solid #666;box-shadow:none}.api-card-header{background:#ecf1f6;border-bottom:1px solid #ccc}.api-card-header h4,.api-card-tags code{color:#111}.api-card .api-level{color:#222}.api-card-body{color:#111}
 }
+</style><!-- spy: 고정 목차·지금 보는 절 표시 --><style>
+/* 위쪽 고정 목차 + 지금 보는 절 표시 (3번 탭 Basic 완주 안내와 같은 모양) */
+nav.sec-nav{position:sticky;top:var(--cn-h,48px);z-index:20;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+  gap:2px;margin:0 0 20px;padding:8px 0;background:var(--surface);
+  box-shadow:0 0 0 100vmax var(--surface),0 1px 0 100vmax var(--border);clip-path:inset(0 -100vmax -1px)}
+nav.sec-nav::-webkit-scrollbar{display:none}
+nav.sec-nav a{flex:none;padding:4px 11px;border-radius:999px;font-size:14px;font-weight:700;line-height:1.5;white-space:nowrap;
+  color:var(--link);text-decoration:none;transition:background-color .25s,color .25s,box-shadow .25s}
+nav.sec-nav a:hover{background:var(--tab-n-bg)}
+nav.sec-nav a.on{background:var(--tab-act-bg);color:var(--tab-act-fg);box-shadow:0 2px 8px #0f1e3133}
+main>section,main>section.pc,.part,html body .cn-nav ~ .tabs-wrap ~ main .api-card{scroll-margin-top:0}
+@media(max-width:1240px){
+  nav.sec-nav{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent);
+                     mask-image:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 28px),transparent)}
+}
+@media(max-width:850px){nav.sec-nav{margin:0 0 16px;padding:8px 16px;-webkit-overflow-scrolling:touch}}
+@media print{nav.sec-nav{display:none}}
 </style></head><body><header><div class="k">2026.11.20 · DAY25 · REQUIREMENTS V1.4</div><h1>보고서 처리 Agent</h1><p>읽을 것은 줄이고, 구현 기준은 한곳에 · 전체 ERD 한 장 · 15개 API 입력 JSON · Postman 검증 계약</p></header><div class="tabs-wrap"><nav class="tabs" aria-label="Day25 문서 탭"><a data-site href="../"><span class="n">1</span>사전 준비</a><a data-site href="./" aria-current="page"><span class="n">2</span>요구사항 명세서</a><a data-site href="../basic/"><span class="n">3</span>Basic 완주 안내</a><a class="lec" data-site href="../lecture/">오전 강의 자료 →</a></nav></div><main><nav class="sec-nav" aria-label="PART 바로가기"><a href="#part-1">목표·환경</a><a href="#part-2">데이터 모델·API 계약</a><a href="#part-3">구현·검증</a></nav><div class="part" id="part-1"><span class="part-n">PART 1</span><b class="part-t">목표·환경</b><span class="part-d">개요 · 학습 목표 · 실행환경 · 폴더 구조</span></div><section class="pc"><h1 id="top">2026-11-20 개인 일일 프로젝트 · 보고서 처리 Agent</h1>
 <p><strong>상세 요구사항 명세서 v1.4 — 전체 ERD 한 장·API 입력 통합본</strong><br/>
 대상: Windows 11 / VS Code / Git Bash / PostgreSQL 18.6 + pgvector / FastAPI / Python / <code>intfloat/multilingual-e5-small</code> / LLM API<br/>
@@ -1881,4 +1898,44 @@ aside a{color:var(--aside-fg);text-decoration:none;font-weight:600}
   buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.zoom===v)));}
  buttons.forEach(b=>b.addEventListener('click',()=>change(b.dataset.zoom)));
  change('fit');
-})();</script></body></html>
+})();</script><script>
+(() => {
+  const toc = document.querySelector('nav.sec-nav');
+  if (!toc) return;
+  const items = [...toc.querySelectorAll('a[href^="#"]')]
+    .map(a => [a, document.getElementById(a.getAttribute('href').slice(1))]).filter(x => x[1]);
+  if (!items.length) return;
+  const root = document.documentElement;
+  let cur = null, ticking = false;
+
+  // 사이트 위쪽 메뉴 높이에 맞춰 목차를 붙이고, 목차로 이동할 때 제목이 가리지 않게 한다
+  function measure() {
+    const bar = document.querySelector('.cn-nav');
+    const h = bar ? bar.getBoundingClientRect().height : 0;
+    root.style.setProperty('--cn-h', h + 'px');
+    root.style.scrollPaddingTop = (h + toc.getBoundingClientRect().height + 16) + 'px';
+  }
+
+  function update() {
+    ticking = false;
+    const line = toc.getBoundingClientRect().bottom + 40;
+    let on = items[0];
+    for (const it of items) { if (it[1].getBoundingClientRect().top <= line) on = it; else break; }
+    if (innerHeight + scrollY >= root.scrollHeight - 4) on = items[items.length - 1];
+    if (on[0] === cur) return;
+    if (cur) { cur.classList.remove('on'); cur.removeAttribute('aria-current'); }
+    cur = on[0];
+    cur.classList.add('on');
+    cur.setAttribute('aria-current', 'location');
+    if (toc.scrollWidth > toc.clientWidth + 2) {   // 한 줄 띠일 때 지금 절을 가운데로
+      toc.scrollTo({ left: cur.offsetLeft - (toc.clientWidth - cur.offsetWidth) / 2, behavior: 'smooth' });
+    }
+  }
+  const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+
+  measure(); update();
+  addEventListener('scroll', request, { passive: true });
+  addEventListener('resize', () => { measure(); request(); });
+  addEventListener('load', () => { measure(); request(); });
+})();
+</script></body></html>
