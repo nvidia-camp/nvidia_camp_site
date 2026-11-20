@@ -19,7 +19,12 @@ details{border:1px solid #cfdced;border-radius:8px;background:#fbfcfe;margin:14p
 
 :root{--tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
   --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a}
-.tabs-wrap{max-width:1220px;margin:18px auto 0;padding:0 20px}
+.tabs-wrap{max-width:1220px;margin:18px auto 14px;padding:0 20px}
+nav.toc{padding-left:max(20px,calc((100% - 1180px)/2));padding-right:max(20px,calc((100% - 1180px)/2))}
+.file-card .code-tools{margin-top:0}
+@media(max-width:500px){.file-card{padding:14px 12px}.file-card details{padding:0 10px}
+  pre,pre code{white-space:pre;overflow-wrap:normal;word-break:normal}pre{overflow-x:auto}
+  .cp-wrap>pre{padding-right:14px;padding-top:46px}}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650;line-height:1.5}
 .tabs a:hover{border-color:#205a9c;color:var(--tab-fg)}
