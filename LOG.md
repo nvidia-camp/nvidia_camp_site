@@ -223,3 +223,4 @@
 | 2026-11-20 | 배포·auto_release.sh | release d25ea87 (main 7d3d759): 앞 release(341500c)에서 빠진 다크 버튼 760px 규칙 32쪽 반영 — rsync -a가 크기·수정 시각이 같은 파일을 건너뛴 탓(600→760 길이 같음). 배포본=빌드 diff 0 확인. auto_release.sh·AGENTS.md 배포 순서에 rsync --checksum 추가, DRY_RUN 정상(오늘은 11/23 자료 없어 건너뜀) | 배포 |
 | 2026-11-20 | 공통 web/theme.css | 좁은 화면 다크 모드 버튼이 메뉴 끝에 붙지 않던 원인 수정: nav.css의 .cn-nav [data-tip]{position:relative}가 sticky를 덮어써 처음부터 동작하지 않았음 → 선택자에 [data-tip] 추가. 7개 페이지 × 360~1280px 모두 버튼 보임, 메뉴 밀어도 끝에 고정 확인 | main만 |
 | 2026-11-20 | 배포 | release 5b1c83a (main 1caaae2, --release --as-of 2026-11-20, rsync --checksum, Docker 제외): 좁은 화면 다크 모드 버튼 메뉴 끝 고정(57쪽). 배포본=빌드 diff 0. 실제 사이트: 주요 6쪽 200 · /setup/docker/ 404 · 390·700px Day25 세 탭·Vision에서 버튼 보임 | 배포 |
+| 2026-11-21 | llm/20261123 | Day26(Basic RAG & LangChain) 준비: 강의 HTML(82화면)·강의 목차(도입 2 + 8교시 80화면 원문 제목)·강사님 핵심요약 6구역을 Day24 디자인으로 배치한 요약 페이지 추가. 1280·768·375px 라이트/다크·목차 펼침·강의 iframe·홈 반영 확인 | main만 |
