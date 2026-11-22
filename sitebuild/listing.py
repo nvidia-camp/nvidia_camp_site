@@ -51,7 +51,7 @@ def day_links(d, up):
     href = f'{up}{d["key"]}/{d["ymd"]}/'
     out = []
     if d["lecture"]:
-        out.append(f'<a class="mini view" href="{href}lecture/">{ICON_VIEW}강의 자료</a>')
+        out.append(f'<a class="mini view" href="{href}lecture/" data-tip="강의 자료 보기" aria-label="강의 자료 보기">{ICON_VIEW}<span class="v-lbl">강의 자료</span></a>')
     if d["link"]:
         out.append(slack_link(d["link"], "mini slack").replace('title="Slack"', 'data-tip="Slack 강의 자료 게시물 (새 탭)"'))
     for sub, label in DAY_SUBPAGES.get(f'{d["key"]}/{d["ymd"]}', []):
@@ -115,32 +115,34 @@ def chapter_block(key, ds, up, link_head=True):
     refs = "".join(f'<a href="{up}{p}" title="{html.escape(desc)}">{logo_span(lg)}<span>{html.escape(n)}</span></a>'
                    for p, n, lg, desc in refs_of(key))
     refs = f'<div class="ch-refs" aria-label="참고 문서">{refs}</div>' if refs else ""
-    status = (f'<span class="ch-meta">요약 {len(made)} / {len(ds)}일</span>' if has_page
-              else '<span class="soon">준비 중</span>')
+    status = '' if has_page else '<span class="soon">준비 중</span>'
     side = (f'<div class="ch-side"><span class="ch-no">{CHAPTER[key]:02d}</span><h2 title="{html.escape(ds[0]["subject"])}">{name}</h2>'
             f'<span class="ch-meta">{rng}</span>{status}{refs}</div>')
     pend = '<span class="pend">요약 준비 중</span>'
     rows = []
     # 과목 종합: 있으면 링크, 없으면 제목 + 요약 준비 중
     if has_all:
+        all_title = html.escape(page_h1(PAGES / key / "all"))
         rows.append(f'<li class="all"><a class="row" href="{up}{key}/"><span class="no">종합</span>'
-                    f'<span class="t">{html.escape(page_h1(PAGES / key / "all"))}</span><span class="d">{len(ds)}일</span></a><span class="lk"></span></li>')
+                    f'<span class="t" title="{all_title}">{all_title}</span><span class="d">{len(ds)}일</span></a><span class="lk"></span></li>')
     else:
+        all_title = html.escape(f'{ds[0]["short"]} {len(ds)}일 종합')
         rows.append(f'<li class="all"><span class="row off"><span class="no">종합</span>'
-                    f'<span class="t">{html.escape(ds[0]["short"])} {len(ds)}일 종합{pend}</span><span class="d">{len(ds)}일</span></span><span class="lk"></span></li>')
+                    f'<span class="t has-pend" title="{all_title}"><span class="tt">{all_title}</span>{pend}</span><span class="d">{len(ds)}일</span></span><span class="lk"></span></li>')
     for d in reversed(ds):
         if d["src"]:
+            title = html.escape(page_h1(d["src"]))
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-                        f'<span class="t">{html.escape(page_h1(d["src"]))}</span><span class="d">{md(d["date"])}</span></a>'
+                        f'<span class="t" title="{title}">{title}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
         elif d["tree"]:   # 요약은 없지만 강의 트리가 있으면 그날 페이지(강의 목차)로 간다
-            title = day_title(d)
+            title = html.escape(day_title(d))
             rows.append(f'<li><a class="row" href="{up}{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-                        f'<span class="t">{html.escape(title)}{pend}</span><span class="d">{md(d["date"])}</span></a>'
+                        f'<span class="t has-pend" title="{title}"><span class="tt">{title}</span>{pend}</span><span class="d">{md(d["date"])}</span></a>'
                         f'<span class="lk">{day_links(d, up)}</span></li>')
         elif d["date"] <= today or d["lecture"]:   # 요약이 아직 없으면 예정 제목 + '요약 준비 중' (강의 HTML이 있으면 미리 보임)
-            title = day_title(d) if d["lecture"] else PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', "")
-            rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t">{html.escape(title)}{pend}</span>'
+            title = html.escape(day_title(d) if d["lecture"] else PLANNED_TITLES.get(f'{d["key"]}/{d["ymd"]}', ""))
+            rows.append(f'<li><span class="row off"><span class="no">Day{d["n"]}</span><span class="t has-pend" title="{title}"><span class="tt">{title}</span>{pend}</span>'
                         f'<span class="d">{md(d["date"])}</span></span><span class="lk">{day_links(d, up)}</span></li>')
     return f'<section class="chapter" id="{key}">{side}<ol class="rows">{"".join(rows)}</ol></section>'
 
@@ -205,15 +207,18 @@ def tree_day_page(d):
 def home_page(days, subjects, today):
     dates = sorted({d["date"] for d in days})
     done = sum(x <= today for x in dates)
-    made = [d for d in days if d["src"]]                 # '요약 N일' 숫자: 실제로 요약을 쓴 날
     shown = [d for d in days if has_page(d) and d["date"] <= today]   # 최근 수업: 오늘까지, 요약 또는 강의 목차가 있는 날
     latest = shown[-1] if shown else None
     pend = '<span class="pend">요약 준비 중</span>'
-    recent = "".join(
-        f'<li class="{"on" if d is latest else ""}"><a href="{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
-        f'<span class="t">{html.escape(day_title(d))}{"" if d["src"] else pend}</span><span class="d">{md(d["date"])}</span>'
-        f'<span class="go">{ICON_ARROW}</span></a></li>'
-        for d in reversed(shown[-4:]))
+    recent_items = []
+    for d in reversed(shown[-4:]):
+        title = html.escape(day_title(d))
+        t_html = (f'<span class="t" title="{title}">{title}</span>' if d["src"]
+                  else f'<span class="t has-pend" title="{title}"><span class="tt">{title}</span>{pend}</span>')
+        recent_items.append(
+            f'<li class="{"on" if d is latest else ""}"><a href="{d["key"]}/{d["ymd"]}/"><span class="no">Day{d["n"]}</span>'
+            f'{t_html}<span class="d">{md(d["date"])}</span><span class="go">{ICON_ARROW}</span></a></li>')
+    recent = "".join(recent_items)
     practice = "".join(f'<a href="{html.escape(url)}" target="_blank" rel="noopener">'
                        f'<img src="{image_data(HERE / "assets" / "logos" / logo)}" alt="" width="20" height="20">{name}</a>'
                        for name, logo, url in PRACTICE)
@@ -226,7 +231,7 @@ def home_page(days, subjects, today):
 <div class="top-r"><nav class="links" aria-label="문제 풀이">{practice}</nav>{THEME_BTN}</div>
 </header>
 <section class="hero"><div class="hero-l"><h1 class="title">{SITE_NAME}</h1>
-<p class="count">수업 <b>{done}</b> / {len(dates)}일 · 요약 <b>{len(made)}</b>일</p>
+<p class="count">수업 <b>{done}</b> / {len(dates)}일</p>
 <div><p class="label">최근 수업</p><ol class="recent">{recent}</ol></div></div>
 {cover_card(days, subjects, today)}</section>
 <div class="timeline" aria-label="과정 전체 일정">{timeline(days, today)}</div>
