@@ -225,3 +225,4 @@
 | 2026-11-20 | 배포 | release 5b1c83a (main 1caaae2, --release --as-of 2026-11-20, rsync --checksum, Docker 제외): 좁은 화면 다크 모드 버튼 메뉴 끝 고정(57쪽). 배포본=빌드 diff 0. 실제 사이트: 주요 6쪽 200 · /setup/docker/ 404 · 390·700px Day25 세 탭·Vision에서 버튼 보임 | 배포 |
 | 2026-11-21 | llm/20261123 | Day26(Basic RAG & LangChain) 준비: 강의 HTML(82화면)·강의 목차(도입 2 + 8교시 80화면 원문 제목)·강사님 핵심요약 6구역을 Day24 디자인으로 배치한 요약 페이지 추가. 1280·768·375px 라이트/다크·목차 펼침·강의 iframe·홈 반영 확인 | main만 |
 | 2026-11-21 | llm/20261123 | Day26(11/23) Colab 실습 폴더 링크 등록 (`site.toml [colab]`: 기본필수 01~07 + RAG와 LangChain 기초 문제, 총 8개) | main만 |
+| 2026-11-22 | setup/ai-coding | 상단 도구 탭 로고(`.tabs .lg`)를 감싸는 동그란 테두리 선(`border`) 제거 (5개 페이지: 공통·OpenCode·Claude Code·Codex·agy). 흰색 원 배경은 유지해 선택 탭·다크 모드 가독성 보존 | main만 |
