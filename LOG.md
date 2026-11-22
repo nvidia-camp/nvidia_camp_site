@@ -235,3 +235,4 @@
 | 2026-11-22 | 배포 | release c7ddf42 (main aeea5fb, --release, rsync --checksum, Docker 제외): AI 코딩 도구 탭 코드 서비스 전용 SVG 로고 교체(5쪽). 실제 사이트 5쪽 200·SVG 5/5·PNG 0·`/setup/docker/` 404 확인 | 배포 |
 | 2026-11-22 | 공통 web/list.css | 100일 일정 `--cell-past`(OT·평가 등 페이지 없는 지난 일정) 색상 조정: 라이트 `#C5D3E7`→`#52667E`(`--muted` 슬레이트 네이비), 다크 `#33476B`→`#5E7699`. 미래 빈 칸과 구분되면서 튀지 않게 완료 의도 표현 | main만 |
 | 2026-11-22 | 배포 | release 1301a11 (main f188bff, --release, rsync --checksum, Docker 제외): 100일 일정 `--cell-past` 색상 조정(13쪽). 실제 사이트 `/` 200(`#52667E`·`#5E7699`)·`/setup/docker/` 404 확인 | 배포 |
+| 2026-11-22 | 공통 DESIGN·list·tree | 라운딩 4단계 기준(독립 카드 16px · 내부/버튼 12/8px · 직선 사이 행 0 · 배지/알약 999px)을 `DESIGN.md`에 명문화하고, 공통 CSS 튀는 수치 통일(`.sum-empty` 14→16px, `.lt-cd` 14→12px, `.lt-res a` 10→8px, `.lt-box[open]>summary` 하단 직각) | main만 |
