@@ -232,3 +232,4 @@
 | 2026-11-22 | 홈·과목 목록 | 목록 디테일 정리: 홈 '· 요약 N일' 및 과목 '요약 n / N일' 표기 제거, `.row` 모서리 곡률(10px) 제거해 가로 구분선과 직각 정렬, 긴 제목 1줄 말줄임(`…` + `title` 툴팁, `요약 준비 중` 배지 보호), 모바일(≤600px) `강의 자료` 버튼 눈 아이콘만 표시, 날짜 구간 통일(>600px 인라인 · ≤600px `DayNN 날짜`). `1280·820·640·375·360px` 라이트/다크 확인 | main만 |
 | 2026-11-22 | 배포 | release b157f39 (main 3735f89, --release, rsync --checksum, Docker 제외): 목록 디테일 정리(13쪽). 실제 사이트 `/`·`/llm/` 200·`v-lbl` 반영·`/setup/docker/` 404 확인 | 배포 |
 | 2026-11-22 | setup/ai-coding | 탭 로고를 코드 서비스 전용 SVG로 교체(5개 페이지 + `assets/logos/`): Claude Code(`claudecode-color.svg` 픽셀 마스코트), Codex(`codex-color.svg` `>_` 마크), agy(`antigravity-color.svg` 벡터), OpenCode 기존 공식 마크 유지 | main만 |
+| 2026-11-22 | 배포 | release c7ddf42 (main aeea5fb, --release, rsync --checksum, Docker 제외): AI 코딩 도구 탭 코드 서비스 전용 SVG 로고 교체(5쪽). 실제 사이트 5쪽 200·SVG 5/5·PNG 0·`/setup/docker/` 404 확인 | 배포 |
