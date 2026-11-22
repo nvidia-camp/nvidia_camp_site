@@ -226,3 +226,5 @@
 | 2026-11-21 | llm/20261123 | Day26(Basic RAG & LangChain) 준비: 강의 HTML(82화면)·강의 목차(도입 2 + 8교시 80화면 원문 제목)·강사님 핵심요약 6구역을 Day24 디자인으로 배치한 요약 페이지 추가. 1280·768·375px 라이트/다크·목차 펼침·강의 iframe·홈 반영 확인 | main만 |
 | 2026-11-21 | llm/20261123 | Day26(11/23) Colab 실습 폴더 링크 등록 (`site.toml [colab]`: 기본필수 01~07 + RAG와 LangChain 기초 문제, 총 8개) | main만 |
 | 2026-11-22 | setup/ai-coding | 상단 도구 탭 로고(`.tabs .lg`)를 감싸는 동그란 테두리 선(`border`) 제거 (5개 페이지: 공통·OpenCode·Claude Code·Codex·agy). 흰색 원 배경은 유지해 선택 탭·다크 모드 가독성 보존 | main만 |
+| 2026-11-22 | 배포 | release 1afe019 (main b29516e, --release, rsync --checksum, Docker 제외): AI 코딩 도구 탭 로고 테두리 선 제거. 실제 사이트 5쪽 200·테두리 제거·/setup/docker/ 404 확인 | 배포 |
+| 2026-11-22 | 공통 web/list.css | 홈·과목 Day 목록에서 창 폭을 줄여도 오른쪽 버튼(`.lk`)이 아래 줄로 떨어지지 않게 구간 분리: ≤880px는 과목 헤더만 위로 올리고 행 2열 유지, ≤680px 날짜 숨김, ≤600px은 `DayNN · 날짜`를 제목 위로 올려 오른쪽 버튼 한 줄 유지 (`1280·820·640·375·360px` 넘침 0px) | main만 |
