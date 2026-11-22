@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day26 · Basic RAG &amp; LangChain</title>
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<style>
+:root {
+  --color-primary: #142849; --color-heading: #1C2B40; --color-text: #222F44; --color-muted: #52667E;
+  --color-canvas: #F9FBFE; --color-surface: #FFFFFF; --color-soft: #F0F6FD; --color-border: #D8E4F2;
+  --on-primary: #FFFFFF;
+  --in-bg: #E9F3FC; --in-fg: #245C9C;      /* 입력·검색·구성 */
+  --gen-bg: #F1ECFA; --gen-fg: #5B3F8C;    /* 생성 */
+  --out-bg: #E9F5EE; --out-fg: #2E6B45;    /* 확인·승인 */
+  --hum-bg: #FFF3D8; --hum-fg: #7A4F0E;    /* 사람·검증·주의 */
+  --bad-bg: #FBEDE6; --bad-fg: #8A4B2A;    /* 오류·중단 */
+  --font-body: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  --font-code: Consolas, "SFMono-Regular", Menlo, "Malgun Gothic", monospace;
+  --radius-card: 1rem; --radius-control: .75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+    --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
+    --in-bg: #1C3352; --in-fg: #A9CDF5; --gen-bg: #2B2342; --gen-fg: #CDB8F2;
+    --out-bg: #183526; --out-fg: #9BD8B2; --hum-bg: #3A2E14; --hum-fg: #F2D28B;
+    --bad-bg: #3A2219; --bad-fg: #F0B79A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-primary: #A9C3EC; --color-heading: #E7EEF9; --color-text: #D4DDEB; --color-muted: #9DADC4;
+  --color-canvas: #0E1626; --color-surface: #152038; --color-soft: #1A2844; --color-border: #2A3B5C; --on-primary: #0E1626;
+  --in-bg: #1C3352; --in-fg: #A9CDF5; --gen-bg: #2B2342; --gen-fg: #CDB8F2;
+  --out-bg: #183526; --out-fg: #9BD8B2; --hum-bg: #3A2E14; --hum-fg: #F2D28B;
+  --bad-bg: #3A2219; --bad-fg: #F0B79A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: 400 1rem/1.7 var(--font-body); word-break: keep-all; overflow-wrap: break-word; }
+main { max-width: 64rem; margin-inline: auto; padding: 2.5rem 1.5rem 4.5rem; display: grid; gap: 2.2rem; }
+h1, h2, h3 { color: var(--color-heading); margin: 0; line-height: 1.35; text-wrap: balance; }
+h1 { font-size: clamp(1.75rem, 4vw, 2.3rem); letter-spacing: -.02em; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: var(--color-primary); }
+a:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+code { font-family: var(--font-code); font-size: .88em; background: var(--color-soft); color: var(--color-heading); padding: .05rem .35rem; border-radius: .35rem; }
+section { display: grid; gap: 1.1rem; min-width: 0; scroll-margin-top: 1rem; }
+
+/* 머리말 */
+.eyebrow { font-size: .875rem; font-weight: 700; color: var(--color-muted); }
+.head { display: grid; gap: .7rem; }
+.lead { font-size: 1.05rem; max-width: 50rem; }
+.jump { display: flex; flex-wrap: wrap; gap: .4rem .6rem; }
+.jump a { font-size: .88rem; font-weight: 700; text-decoration: none; color: var(--color-heading); border: 1px solid var(--color-border); background: var(--color-surface); border-radius: 999px; padding: .2rem .8rem; }
+.jump a:hover { border-color: var(--color-primary); }
+
+/* 구역: 하나의 덩어리로 구분 */
+.blk { background: var(--color-soft); border: 1px solid var(--color-border); border-radius: 1.25rem; padding: 1.5rem 1.5rem 1.7rem; gap: 1.2rem; }
+.blk-h { display: grid; gap: .55rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-border); }
+.blk-t { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .8rem; }
+.no { font: 800 .85rem var(--font-code); color: var(--on-primary); background: var(--color-primary); border-radius: .45rem; padding: .12rem .6rem; }
+.tag { display: inline-block; font-size: .78rem; font-weight: 800; color: var(--color-muted); border: 1px solid var(--color-border); border-radius: 999px; padding: .05rem .6rem; margin-left: .2rem; vertical-align: middle; white-space: nowrap; }
+.def { max-width: 50rem; }
+.def b { color: var(--color-heading); }
+.lesson { border-left: 4px solid var(--color-primary); background: var(--color-surface); border-radius: 0 var(--radius-control) var(--radius-control) 0; padding: .7rem 1rem; font-weight: 700; color: var(--color-heading); }
+.fig { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 1.2rem; display: grid; gap: 1rem; min-width: 0; }
+
+/* 흐름도 */
+.flow { display: grid; gap: 1rem; align-items: stretch; }
+.flow.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.flow.n4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.node { position: relative; display: grid; gap: .15rem; align-content: start; text-align: center; color: var(--color-text); border: 2px solid var(--color-border); border-radius: .8rem; padding: .7rem .5rem; background: var(--color-surface); min-width: 0; }
+.node strong { color: var(--color-heading); font-size: .98rem; }
+.node span { font-size: .82rem; color: var(--color-muted); line-height: 1.45; }
+.node code { background: transparent; color: inherit; padding: 0; font-weight: 800; }
+.node:not(:last-child)::after { content: "→"; position: absolute; right: -.9rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-weight: 800; z-index: 1; line-height: 1; }
+.node.in { background: var(--in-bg); border-color: var(--in-fg); }
+.node.in strong { color: var(--in-fg); }
+.node.gen { background: var(--gen-bg); border-color: var(--gen-fg); }
+.node.gen strong { color: var(--gen-fg); }
+.node.out { background: var(--out-bg); border-color: var(--out-fg); }
+.node.out strong { color: var(--out-fg); }
+.node.hum { background: var(--hum-bg); border-color: var(--hum-fg); }
+.node.hum strong { color: var(--hum-fg); }
+.node.pri { background: var(--color-primary); border-color: var(--color-primary); }
+.node.pri strong { color: var(--on-primary); }
+.node.pri span { color: var(--on-primary); opacity: .88; }
+
+/* 카드 묶음 */
+.box2, .box3 { display: grid; gap: .6rem; }
+.box2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.box3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bx { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: .8rem; padding: .75rem .95rem; display: grid; gap: .25rem; align-content: start; min-width: 0; }
+.bx p { font-size: .92rem; }
+.bx b { color: var(--color-heading); }
+.bx.keep { border-left: 4px solid var(--in-fg); }
+.bx.add { border-left: 4px solid var(--out-fg); }
+.bx.warn { border-left: 4px solid var(--hum-fg); }
+.bx.stop { border-left: 4px solid var(--bad-fg); }
+.bx code, .lesson code, .def code { overflow-wrap: anywhere; }
+
+.foot { display: grid; gap: .3rem; font-size: .85rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 1rem; }
+
+@media (max-width: 760px) {
+  .flow { gap: 1.15rem; }
+  .flow.n3, .flow.n4, .box2, .box3 { grid-template-columns: 1fr; }
+  .node:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -1.1rem; transform: translateX(50%); }
+  .blk { padding: 1.1rem 1rem 1.3rem; }
+}
+</style>
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+/* [data-tip]까지 붙여야 nav.css의 .cn-nav [data-tip]{position:relative}보다 우선해서 sticky가 실제로 걸린다 */
+@media (max-width:760px){.cn-nav .theme-toggle[data-tip]{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
+</style>
+</head>
+<body><style>
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;width:100%;max-width:none;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-ico{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}
+.cn-nav .cn-ico svg{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-slack img{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-colab{width:auto;padding:0 .3rem}.cn-nav .cn-colab img{display:block;width:1.7rem;height:1rem}
+.cn-nav .cn-right{align-items:center}
+.cn-nav [data-tip]{position:relative}
+.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
+  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}
+html{scroll-padding-top:3rem}
+@media (max-width:760px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><a href="../../llm/">LLM·RAG</a><span class="cn-here">Day26</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="Day26_Basic_RAG_&amp;_LangChain.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a><a class="cn-ico" href="lecture/" data-tip="강의 자료 보기" aria-label="강의 자료 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></a><a class="cn-ico cn-colab" href="https://drive.google.com/drive/folders/1AXF5zSjwm0-rgvEGSvqWttzloADUZQFX" target="_blank" rel="noopener" data-tip="Colab 실습 폴더 · Google Drive (새 탭)" aria-label="Colab 실습 폴더 (Google Drive, 새 탭)"><img src="data:image/png;base64,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" alt="" width="27" height="16"></a><a href="../../llm/20261120/">‹ Day25</a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>/* =====================================================================
+ * Google Analytics 4 — 사이트 방문·행동 기록
+ *
+ * build_site.py가 이 파일을 모든 사이트 화면에 <script>로 끼워 넣는다.
+ * (내려받기용 download.html 원본과 강의 view.html에는 넣지 않는다)
+ *
+ * 확인 방법: 주소 끝에 ?ga_debug=1 → GA 관리 > DebugView 에서 바로 보인다.
+ *
+ * 보내는 이벤트
+ *   page_view         페이지 열림 (GA 기본)
+ *   section_view      요약의 단락 제목(h2)까지 내려옴 — 단락마다 1번
+ *   toc_open          강의 목차 상자를 펼침 (details_open: 그 밖의 접힌 상자)
+ *   site_click        링크 클릭 — link_type으로 종류 구분 (colab, html_download, …)
+ *   theme_toggle      다크/라이트 전환
+ *   slide_view        강의 자료에서 슬라이드를 넘김
+ *   lecture_progress  강의 자료를 떠날 때 본 슬라이드 수
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var GA_ID = 'G-9743VJ73E0';                 // GA 측정 ID
+  var LIVE_HOST = 'nvidiasesac.vercel.app';   // 이 주소에서만 기록을 보낸다
+  var PENDING_KEY = 'ga-pending-click';       // 페이지 이동 클릭을 잠시 맡겨 두는 이름
+
+  // 미리보기·내 컴퓨터에서 열면 아무것도 하지 않는다 (통계에 섞이지 않게)
+  if (location.hostname !== LIVE_HOST) return;
+
+  var doc = document;
+  var debug = /[?&]ga_debug=1/.test(location.search);
+
+
+  /* ── 2. GA 기본 설치 (GA 공식 코드와 같다) ─────────────────────────── */
+  var tag = doc.createElement('script');
+  tag.async = true;
+  tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  doc.head.appendChild(tag);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+
+
+  /* ── 3. 공통 도구 ─────────────────────────────────────────────────── */
+
+  // 이벤트 보내기: 모든 이벤트는 여기를 지난다
+  function send(name, params) {
+    params = params || {};
+    if (debug) params.debug_mode = true;
+    gtag('event', name, params);
+  }
+
+  // 글자 정리: 공백을 하나로 줄이고 100자까지만 (GA 값 길이 제한)
+  function shorten(text) {
+    return (text || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+  }
+
+
+  /* ── 4. 페이지 정보: 과목·페이지 종류·Day ───────────────────────────
+   *   주소 예: /llm/20261118/lecture/  →  과목 llm · 종류 lecture
+   *   Day는 위쪽 메뉴 글자(Day24)에서 읽는다.                            */
+  function pageType(parts) {
+    var top = parts[0];
+    if (!parts.length) return 'home';
+    if (top === 'setup') return 'guide';
+    if (top === 'cheatsheet') return 'cheatsheet';
+    if (parts.length === 1) return 'subject';                // /llm/
+    if (/^\d{8}/.test(parts[1])) {                           // /llm/20261118/…
+      if (parts[2] === 'lecture') return 'lecture';
+      return parts[2] ? 'day_sub' : 'day';
+    }
+    return 'other';
+  }
+
+  function startPage() {
+    var parts = location.pathname.split('/').filter(Boolean);
+    var nav = doc.querySelector('.cn-nav');
+    var day = nav && nav.textContent.match(/Day\d+(?:-\d+)?/);
+
+    // 이 페이지에서 보내는 모든 이벤트에 붙는 값
+    gtag('set', {
+      content_group: parts[0] || 'home',
+      page_type: pageType(parts),
+      day_label: day ? day[0] : '(none)'
+    });
+    gtag('config', GA_ID, debug ? { debug_mode: true } : {});   // ← 여기서 page_view가 나간다
+
+    // 앞 페이지에서 맡겨 둔 클릭이 있으면 지금 보낸다 (8번 참고)
+    try {
+      var pending = sessionStorage.getItem(PENDING_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_KEY);
+        send('site_click', JSON.parse(pending));
+      }
+    } catch (e) {}
+  }
+
+
+  /* ── 5. 단락 도달: section_view ────────────────────────────────────
+   *   h2 제목이 화면 위쪽 60%까지 올라오면 한 번 보낸다.
+   *   위쪽 경계를 크게 열어 두어, 빠르게 스크롤해 지나친 단락도 센다.     */
+  function watchSections() {
+    if (!('IntersectionObserver' in window)) return;
+    var headings = [].slice.call(doc.querySelectorAll('h2')).filter(function (h) {
+      return !h.closest('.cn-nav');
+    });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);                     // 단락마다 한 번만
+        send('section_view', {
+          section_id: entry.target.id || '(none)',
+          section_title: shorten(entry.target.textContent),
+          section_index: headings.indexOf(entry.target) + 1
+        });
+      });
+    }, { rootMargin: '100000px 0px -40% 0px' });
+    headings.forEach(function (h) { observer.observe(h); });
+  }
+
+
+  /* ── 6. 접힌 상자 펼침: toc_open / details_open ────────────────── */
+  function watchDetails() {
+    doc.addEventListener('toggle', function (e) {
+      var box = e.target;
+      if (box.tagName !== 'DETAILS' || !box.open) return;
+      var summary = box.querySelector('summary');
+      send(box.classList.contains('lt-box') ? 'toc_open' : 'details_open', {
+        details_label: shorten(summary && (summary.innerText || summary.textContent))
+      });
+    }, true);
+  }
+
+
+  /* ── 7. 링크 종류 나누기 (site_click의 link_type) ──────────────── */
+  function linkType(a) {
+    var url = a.href, href = a.getAttribute('href');
+    var external = a.host && a.host !== location.host;
+    if (a.classList.contains('cn-colab') || /colab\.research|drive\.google/.test(url)) return 'colab';
+    if (a.classList.contains('cn-dl') || a.hasAttribute('download')) return 'html_download';
+    if (a.classList.contains('cn-slack') || /slack\.com/.test(url)) return 'slack';
+    if (/swexpertacademy/.test(url)) return 'swea';
+    if (/programmers\.co\.kr/.test(url)) return 'programmers';
+    if (/\.pdf(\?|#|$)/i.test(url)) return 'pdf';
+    if (/(^|\/)lecture\/?$/.test(href)) return 'lecture_view';
+    if (href.charAt(0) === '#') return 'anchor';
+    return external ? 'outbound' : 'internal';
+  }
+
+
+  /* ── 8. 클릭: site_click · theme_toggle ────────────────────────────
+   *   같은 탭에서 사이트 안 다른 페이지로 가면, 떠나는 순간 기록이 사라질
+   *   수 있다. 그런 클릭은 sessionStorage에 맡겨 두고 다음 페이지가 보낸다. */
+  function watchClicks() {
+    doc.addEventListener('click', function (e) {
+      // 다크 모드 버튼: 테마가 바뀐 뒤의 값을 보낸다
+      var themeBtn = e.target.closest && e.target.closest('.theme-toggle');
+      if (themeBtn) {
+        setTimeout(function () {
+          send('theme_toggle', { theme: doc.documentElement.getAttribute('data-theme') || '' });
+        }, 0);
+        return;
+      }
+
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var type = linkType(a);
+      var external = a.host && a.host !== location.host;
+      var params = {
+        link_type: type,
+        link_text: shorten(a.getAttribute('aria-label') || a.textContent),
+        link_url: a.href,
+        link_area: a.closest('.cn-nav') ? 'nav' : 'body',
+        link_from: location.pathname
+      };
+
+      var leavesThisTab = !external && type !== 'anchor' && type !== 'html_download' &&
+        a.target !== '_blank' && !e.defaultPrevented && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+      if (leavesThisTab) {
+        try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(params)); return; } catch (x) {}
+      }
+      send('site_click', params);
+    }, true);
+  }
+
+
+  /* ── 9. 강의 자료: slide_view · lecture_progress ───────────────────
+   *   강의는 iframe 안에서 열리고, 슬라이드를 넘기면 주소의 #id만 바뀐다.
+   *   (replaceState라 알림 이벤트가 없어서 1초마다 주소를 읽는다)          */
+  function watchLecture() {
+    var frame = doc.querySelector('iframe.lecture-frame');
+    if (!frame) return;
+    var last = '', seen = {}, count = 0, reported = false;
+
+    setInterval(function () {
+      var id = '';
+      try { id = frame.contentWindow.location.hash.slice(1); } catch (x) { return; }
+      if (!id || id === last) return;
+      last = id;
+      if (!seen[id]) { seen[id] = 1; count++; }
+      send('slide_view', { slide_id: id, slides_seen: count });
+    }, 1000);
+
+    // 탭을 닫거나 다른 곳으로 갈 때 한 번: 몇 장까지 봤나
+    doc.addEventListener('visibilitychange', function () {
+      if (doc.visibilityState === 'hidden' && count && !reported) {
+        reported = true;
+        send('lecture_progress', { slides_seen: count, last_slide: last });
+      }
+    });
+  }
+
+
+  /* ── 10. 시작 ──────────────────────────────────────────────────── */
+  function init() {
+    startPage();
+    watchSections();
+    watchDetails();
+    watchClicks();
+    watchLecture();
+  }
+
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
+  else init();
+})();</script>
+<main>
+
+<header class="head">
+  <p class="eyebrow">Day26 · 2026.11.23 · 생성형 AI·LLM 및 RAG 엔지니어링</p>
+  <h1>Basic RAG &amp; LangChain</h1>
+  <p class="lead">검색에서 답변까지, 꼭 기억할 개념과 주의점입니다.</p>
+  <nav class="jump" aria-label="구역 이동">
+    <a href="#rag">RAG 흐름</a><a href="#document">Document·Retriever</a><a href="#context">Context·Prompt</a><a href="#chain">LangChain·Chain</a><a href="#citation">Citation·Grounding</a><a href="#validation">Validation·실패 처리</a>
+  </nav>
+
+<div class="lt-top"><style>
+.lt{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-text:#2B3A52;--lt-muted:#5B6E86;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);
+  margin:0 0 8px;color:var(--lt-text);font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+@media (prefers-color-scheme:dark){.lt-top:not(.lt-light) .lt,.lt-top:not(.lt-light) .lt-res,body>main>.lt{--lt-bg:#152038;--lt-soft:#1A2844;--lt-line:rgba(169,195,236,.18);--lt-head:#E7EEF9;--lt-text:#D4DDEB;--lt-muted:#9DADC4;--lt-acc:#7FA6FF;--lt-acc-soft:rgba(127,166,255,.16)}}
+.lt-top{display:grid;gap:12px}
+.lt-res{--lt-bg:#FFFFFF;--lt-soft:#F0F6FD;--lt-line:#D8E4F2;--lt-head:#142849;--lt-acc:#2F66DE;--lt-acc-soft:rgba(47,102,222,.10);display:flex;flex-wrap:wrap;gap:8px}
+.lt-res a{box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--lt-line);border-radius:10px;
+  background:var(--lt-bg);font-size:14px;font-weight:600;line-height:1;color:var(--lt-head);text-decoration:none;transition:border-color .15s,background .15s}
+.lt-res a:hover{border-color:var(--lt-acc);background:var(--lt-soft)}
+.lt-res svg{display:block;width:16px;height:16px}.lt-res img{display:block;width:27px;height:16px}
+.lt-res a.view{background:var(--lt-acc-soft);border-color:transparent;color:var(--lt-acc)}
+.lt-res a.slack img{width:16px;height:16px}
+.lt-res a.slack:not(:has(span)){padding:0 11px}
+.lt-res a.colab img{display:block}
+.lt *{box-sizing:border-box}.lt ol,.lt ul{margin:0;padding:0;list-style:none}.lt h3,.lt p{margin:0}
+.lt{display:block}.lt details.lt-box{padding:0;margin:0}.lt summary{font-weight:inherit;color:inherit}
+.lt summary::before,.lt summary::after{content:none;display:none}.lt-top{margin-top:16px;text-align:left}
+.lt-box{border:1px solid var(--lt-line);border-radius:16px;background:var(--lt-bg)}
+.lt-box>summary{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;list-style:none;border-radius:16px}
+.lt-box>summary::-webkit-details-marker{display:none}
+.lt-box>summary:hover{background:var(--lt-soft)}
+.lt-box>summary:focus-visible{outline:2px solid var(--lt-acc);outline-offset:2px}
+.lt-t{flex:1;min-width:0;display:grid;gap:2px}
+.lt-t b{font-size:18px;font-weight:800;color:var(--lt-head);letter-spacing:-.02em}
+.lt-t small{font-size:13px;color:var(--lt-muted)}
+.lt-btn{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--lt-acc);background:var(--lt-acc-soft);border-radius:999px;padding:6px 12px}
+.lt-btn::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.lt-box[open] .lt-btn::after{transform:rotate(-135deg) translateX(-2px)}
+.lt-box .lt-btn .c{display:none}.lt-box[open] .lt-btn .o{display:none}.lt-box[open] .lt-btn .c{display:inline}
+.lt-body{display:grid;gap:12px;padding:4px 20px 20px}
+.lt-intro{display:flex;gap:10px;align-items:baseline;font-size:13px;color:var(--lt-muted)}
+.lt-intro b{flex:none;font-size:12px;color:var(--lt-head)}
+.lt-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.lt-cd{display:flex;flex-direction:column;border:1px solid var(--lt-line);border-radius:14px;background:var(--lt-bg);overflow:hidden}
+.lt-cd header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 8px;padding:12px 14px 10px;border-bottom:1px solid var(--lt-line);background:var(--lt-soft)}
+.lt-n{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:12px;font-weight:700;color:var(--lt-acc)}
+.lt-c{font-size:11px;color:var(--lt-muted);font-variant-numeric:tabular-nums}
+.lt-cd h3{grid-column:1/-1;font-size:15px;font-weight:700;line-height:1.3;color:var(--lt-head)}
+.lt-cd>ol{flex:1;display:grid;align-content:start;gap:1px;padding:10px 14px 12px}
+.lt-cd li{display:grid;grid-template-columns:4px minmax(0,1fr) auto;column-gap:8px;font-size:13px;line-height:1.45;padding:2px 0}
+.lt-cd li::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--lt-line);margin-top:.6em}
+.lt-cd li em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;color:var(--lt-muted)}
+.lt-cd li.lt-sg{display:block;margin-top:4px}.lt-cd li.lt-sg::before{display:none}.lt-cd li.lt-sg>span{font-size:12px;font-weight:700;color:var(--lt-muted)}
+.lt-cd li.lt-sg ul{padding:0 0 4px 10px}
+.lt-cd li.lt-lab>span{font-weight:700;color:var(--lt-acc)}
+.lt-lab-row{display:flex;gap:8px;align-items:baseline;padding:10px 14px;border-top:1px solid var(--lt-line);background:var(--lt-acc-soft);font-size:13px;font-weight:700;color:var(--lt-acc)}
+.lt-lab-row span{flex:1;min-width:0}.lt-lab-row em{flex:none;font-style:normal;font-family:ui-monospace,"SFMono-Regular",Consolas,monospace;font-size:11px;font-weight:500;opacity:.8}
+.lt-lab-row b{flex:none;font-size:11px;color:#fff;background:var(--lt-acc);border-radius:6px;padding:1px 6px}
+.lt-note{font-size:12px;color:var(--lt-muted)}
+@media (max-width:1000px){.lt-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.lt-board{grid-template-columns:1fr}.lt-body{padding:4px 12px 14px}.lt-box>summary{padding:14px}.lt-t b{font-size:16px}}
+@media print{.lt-box>summary .lt-btn{display:none}}
+</style><section class="lt" id="lecture-tree" aria-label="강의 목차">
+<details class="lt-box">
+<summary><span class="lt-t"><b>강의 목차 한눈에 보기</b><small>강사님 강의 자료 기준 · 8개 묶음 · 화면 82개</small></span>
+<span class="lt-btn"><span class="o">펼치기</span><span class="c">접기</span></span></summary>
+<div class="lt-body"><p class="lt-intro"><b>도입</b><span>Basic RAG &amp; LangChain · 목차</span></p><div class="lt-board"><article class="lt-cd"><header><span class="lt-n">1교시</span><span class="lt-c">화면 8</span><h3>RAG Architecture</h3></header><ol><li><span>전체그림에서 RAG의 위치와 흐름을 확인합니다</span></li><li><span>RAG는 필요한 자료를 찾아 답변의 근거로 제공합니다</span></li><li><span>국내외 5개 기업은 문서·<wbr>Web 근거를 업무 답변에 활용합니다</span></li><li><span>세 문서의 내용을 같은 기준으로 읽습니다</span></li><li><span>Summary·<wbr>RAG·<wbr>Fine-tuning의 코드 비교</span></li><li><span>질문에서 답변까지 중간값을 따라갑니다</span></li><li><span>이해 확인 ·<wbr> 검색과 답변의 역할을 설명합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>RAG 단계와 근거 대조</span></p></article><article class="lt-cd"><header><span class="lt-n">2교시</span><span class="lt-c">화면 9</span><h3>Small RAG Flow</h3></header><ol><li><span>함수를 연결하기 전에 중간값의 형태를 확인합니다</span></li><li><span>첫 검색 결과에 본문과 출처를 함께 담습니다</span></li><li><span>한 Hit를 출처가 붙은 Context 블록으로 바꿉니다</span></li><li><span>선택한 본문과 허용 출처 목록을 함께 만듭니다</span></li><li><span>근거의 개수·<wbr>길이·<wbr>충분성을 나누어 판단합니다</span></li><li><span>Question과 Context를 별도 값으로 전달합니다</span></li><li><span>Context에 남은 자료와 출처 ID를 함께 봅니다</span></li><li><span>이해 확인 ·<wbr> 다음 함수로 넘길 값을 고릅니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>Hit에서 Context 만들기</span></p></article><article class="lt-cd"><header><span class="lt-n">3교시</span><span class="lt-c">화면 12</span><h3>LangChain Basics</h3></header><ol><li><span>LangChain은 LLM을 사용하는 프로그램을 만드는 개발 도구입니다</span></li><li><span>LangChain 프로젝트의 파일과 실행 구조</span></li><li><span>LangChain은 업무 입력을 모델 작업으로 연결하는 곳에 사용합니다</span></li><li><span>공통 실행 방식은 입력을 넣고 결과를 받는 방법을 맞춥니다</span></li><li><span>먼저 Python 함수 사이에서 값이 이동하는 과정을 봅니다</span></li><li><span>같은 두 함수를 Runnable로 연결하고 invoke로 실행합니다</span></li><li><span>필요한 기능을 Package에서 가져와 사용합니다</span></li><li><span>자료를 담는 객체와 작업을 실행하는 객체를 구분합니다</span></li><li><span>익힌 연결 원리를 실제 RAG 구성요소에 적용합니다</span></li><li><span>시연 ·<wbr> 구성요소의 입력과 출력을 맞춥니다</span></li><li><span>핵심 확인 ·<wbr> LangChain의 역할과 실행 원리를 설명합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>객체의 입력·<wbr>출력과 invoke 읽기</span></p></article><article class="lt-cd"><header><span class="lt-n">4교시</span><span class="lt-c">화면 10</span><h3>Document &amp; Retriever</h3></header><ol><li><span>Document는 본문과 Metadata를 함께 보관합니다</span></li><li><span>기존 E5 검색의 입력과 필터 조건을 그대로 사용합니다</span></li><li><span>검색마다 새 DB 연결을 열고 E5 모델은 준비해 둡니다</span></li><li><span>기존 검색의 일곱 값을 이름 있는 Hit로 바꿉니다</span></li><li><span>어댑터가 보존할 필드를 명시합니다</span></li><li><span>본문과 여섯 Metadata 필드를 Document로 옮깁니다</span></li><li><span>검색 함수를 Runnable로 감싸 invoke로 실행합니다</span></li><li><span>검색 레코드가 Document로 바뀌는 위치를 봅니다</span></li><li><span>이해 확인 ·<wbr> 연결 뒤에도 검색 조건을 지킵니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>검색 Hit를 Document로 변환하기</span></p></article><article class="lt-cd"><header><span class="lt-n">5교시</span><span class="lt-c">화면 9</span><h3>Prompt &amp; Chat Model</h3></header><ol><li><span>Prompt에는 답변 규칙·<wbr>질문·<wbr>근거가 함께 필요합니다</span></li><li><span>고정 규칙과 두 입력 변수를 정의합니다</span></li><li><span>모델에 보내기 전에 완성된 메시지를 확인합니다</span></li><li><span>Chat Model의 invoke에서 실제 답변을 요청합니다</span></li><li><span>AIMessage에서 생성 텍스트와 실행 정보를 나누어 봅니다</span></li><li><span>호출 문제와 근거 부족은 서로 다른 결과입니다</span></li><li><span>시연 ·<wbr> 질문과 Context가 들어간 메시지를 읽습니다</span></li><li><span>핵심 확인 ·<wbr> 메시지 작성과 모델 응답</span></li></ol><p class="lt-lab-row"><b>실습</b><span>Prompt와 Chat Model</span></p></article><article class="lt-cd"><header><span class="lt-n">6교시</span><span class="lt-c">화면 10</span><h3>Runnable &amp; RAG Chain</h3></header><ol><li><span>Runnable은 실행 약속이고 Sequence는 순서 연결입니다</span></li><li><span>직접 호출한 두 단계를 한 Chain으로 연결합니다</span></li><li><span>모델에 줄 Context와 보관할 출처를 함께 만듭니다</span></li><li><span>청크 전체를 선택하는 Context 함수를 만듭니다</span></li><li><span>실제 포함한 문서에서만 허용 출처 ID를 꺼냅니다</span></li><li><span>생성할 네 필드의 Schema를 먼저 정의합니다</span></li><li><span>Structured Model을 연결하고 검증 전 묶음을 받습니다</span></li><li><span>시연 ·<wbr> Chain의 중간값과 보관한 출처를 추적합니다</span></li><li><span>핵심 확인 ·<wbr> 순차 연결과 출처 보존</span></li></ol><p class="lt-lab-row"><b>실습</b><span>Context와 Runnable 연결</span></p></article><article class="lt-cd"><header><span class="lt-n">7교시</span><span class="lt-c">화면 11</span><h3>Citation &amp; Validation</h3></header><ol><li><span>Citation과 Grounding은 서로 다른 확인입니다</span></li><li><span>Generation 결과는 raw·<wbr>parsed·<wbr>parsing_error 묶음입니다</span></li><li><span>로컬 KnowledgeAnswer에 자료형과 길이 조건을 둡니다</span></li><li><span>자료형을 통과한 뒤 출처와 상태 조합을 검사합니다</span></li><li><span>AIMessage에서 거절과 완료 상태를 먼저 확인합니다</span></li><li><span>receive_bundle은 승인된 KnowledgeAnswer만 반환합니다</span></li><li><span>근거 부족·<wbr>검색 실패·<wbr>생성 실패는 다른 결과입니다</span></li><li><span>허용 출처는 실제 included_docs에서만 만듭니다</span></li><li><span>Validation Lab: 같은 Context에서 다른 출력을 검사합니다</span></li><li><span>확인 ·<wbr> 검증이 보장하는 범위를 설명합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>Validation과 출처 확인</span></p></article><article class="lt-cd"><header><span class="lt-n">8교시</span><span class="lt-c">화면 11</span><h3>FastAPI &amp; Verification</h3></header><ol><li><span>서비스 조립 1/3 ·<wbr> 포함 문서의 출처 인덱스를 만듭니다</span></li><li><span>서비스 조립 2/3 ·<wbr> 근거가 있을 때 생성·<wbr>검증합니다</span></li><li><span>서비스 조립 3/3 ·<wbr> 검색부터 sources까지 연결합니다</span></li><li><span>요청에는 category와 서로 다른 두 개의 k가 필요합니다</span></li><li><span>FastAPI는 요청 검사와 서비스 오류의 HTTP 표현을 맡습니다</span></li><li><span>Embedding·<wbr>Retriever·<wbr>Generation·<wbr>서비스를 실제로 연결합니다</span></li><li><span>다섯 질문으로 답변·<wbr>출처·<wbr>정보 부족을 함께 확인합니다</span></li><li><span>End-to-end Lab: 요청에서 result와 sources까지 따라갑니다</span></li><li><span>다음 검색 개선과 Agent는 오늘의 계약 위에 연결합니다</span></li><li><span>전체 확인 ·<wbr> 공통 흐름을 실제 API로 설명합니다</span></li></ol><p class="lt-lab-row"><b>실습</b><span>FastAPI로 RAG 흐름 연결</span></p></article></div>
+<p class="lt-note">강의 자료의 화면 제목을 원문 그대로 옮겼습니다. 실습은 각 교시 카드 맨 아래에 모았습니다.</p></div>
+</details></section></div>
+</header>
+
+<section id="rag" class="blk" aria-labelledby="rag-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">01</span><h2 id="rag-h">RAG: 검색한 근거로 답변한다</h2><span class="tag">1교시</span></div></div>
+  <p class="def"><b>RAG · Retrieval-Augmented Generation</b>은 질문과 관련된 외부 자료를 검색하고, 선택한 근거를 LLM 입력에 넣어 답변을 생성하는 구성입니다.</p>
+  <div class="fig">
+    <div class="flow n4" role="group" aria-label="RAG의 검색, Context 구성, 생성, 검증 흐름">
+      <div class="node in"><strong>Retrieve</strong><span>질문에 맞는 문서</span></div>
+      <div class="node in"><strong>Context</strong><span>실제로 제공할 근거</span></div>
+      <div class="node pri"><strong>Generate</strong><span>근거를 이용한 답변</span></div>
+      <div class="node hum"><strong>Validate</strong><span>형식·출처·내용 확인</span></div>
+    </div>
+  </div>
+  <div class="box2">
+    <div class="bx keep"><h3>Indexing</h3><p>문서를 나누고 검색에 필요한 정보와 함께 저장하는 준비 단계입니다.</p></div>
+    <div class="bx add"><h3>Query 처리</h3><p>질문마다 검색·Context 구성·생성·검증을 수행합니다.</p></div>
+  </div>
+  <p class="lesson">검색한 문서는 이번 답변의 입력 근거로 사용합니다. 관련 문서가 있어도 질문의 답이 그 안에 있는지 확인해야 합니다.</p>
+</section>
+
+<section id="document" class="blk" aria-labelledby="document-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">02</span><h2 id="document-h">Document · Retriever</h2><span class="tag">4교시</span></div></div>
+  <p class="def"><b>Document</b>는 본문과 Metadata를 담는 자료형입니다. <b>Retriever</b>는 질문에 필요한 문서를 찾아 반환하는 역할입니다.</p>
+  <div class="box2" role="group" aria-label="Document의 본문과 출처 Metadata">
+    <div class="bx keep"><h3><code>page_content</code></h3><p>모델의 근거로 사용할 문서 본문</p></div>
+    <div class="bx add"><h3><code>metadata</code></h3><p>인용 ID·청크 ID·문서·버전·원문 위치</p></div>
+  </div>
+  <div class="bx"><p>기존 E5 입력 규칙과 SQL의 현재 버전·Category·준비 상태 조건을 적용한 검색 결과를 <code>Document</code>로 연결합니다.</p></div>
+  <p class="lesson">본문과 출처를 처음부터 함께 전달합니다. Document로 표현하는 것만으로 검색 조건과 근거 검증이 자동 적용되지는 않습니다.</p>
+</section>
+
+<section id="context" class="blk" aria-labelledby="context-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">03</span><h2 id="context-h">Context · Prompt</h2><span class="tag">2·5교시</span></div></div>
+  <p class="def"><b>Context</b>는 이번 답변을 위해 실제로 제공한 근거입니다. <b>ChatPromptTemplate</b>은 질문과 Context 같은 변수를 채워 모델 입력을 구성합니다.</p>
+  <div class="fig">
+    <div class="flow n3" role="group" aria-label="검색 후보와 Context, 모델 입력의 구분">
+      <div class="node"><strong>검색 후보</strong><span>Retriever가 반환</span></div>
+      <div class="node in"><strong>선택한 Context</strong><span>본문·실제 포함 ID</span></div>
+      <div class="node pri"><strong>Prompt</strong><span>규칙·질문·근거</span></div>
+    </div>
+  </div>
+  <p class="lesson">실제 포함한 근거의 ID를 따로 보관합니다. 길이 제한의 글자 수와 모델의 Token 수를 구분하고, 규칙과 참고 자료를 나누어 구성합니다.</p>
+</section>
+
+<section id="chain" class="blk" aria-labelledby="chain-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">04</span><h2 id="chain-h">LangChain · Runnable · Chain</h2><span class="tag">3·6교시</span></div></div>
+  <p class="def"><b>LangChain</b>은 LLM 애플리케이션의 구성요소를 연결하는 개발 Framework입니다. <b>Runnable</b>은 입력을 받아 작업을 실행하는 단위이며, 순차 <b>Chain</b>은 앞 단계의 출력을 다음 단계에 전달합니다.</p>
+  <div class="fig">
+    <div class="flow n3" role="group" aria-label="Prompt와 모델을 연결하는 순차 실행">
+      <div class="node in"><strong>입력 dict</strong><span><code>question</code> · <code>context</code></span></div>
+      <div class="node in"><strong>Prompt</strong><span>모델에 전달할 메시지</span></div>
+      <div class="node pri"><strong>Model</strong><span>응답 또는 구조화 결과</span></div>
+    </div>
+  </div>
+  <div class="bx"><p><b><code>|</code></b>는 연결을 준비하고 <b><code>invoke()</code></b>가 실행합니다. 이번 Prompt는 로컬에서 메시지를 만들고 <code>ChatOpenAI</code>는 모델 API를 호출합니다. 공통 호출 방식과 각 단계의 입력 자료형을 구분합니다.</p></div>
+  <p class="lesson">검색 조건·실제 근거·출처 검증은 계속 관리합니다. 반복되는 연결에 공통 기능을 활용하되, 작은 단발성 호출은 직접 코드가 더 단순할 수 있습니다.</p>
+</section>
+
+<section id="citation" class="blk" aria-labelledby="citation-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">05</span><h2 id="citation-h">Citation · Grounding</h2><span class="tag">7교시</span></div></div>
+  <p class="def"><b>Citation</b>은 답변이 가리키는 출처입니다. <b>Grounding</b>은 그 원문이 답변의 주장을 실제로 뒷받침하는 관계입니다.</p>
+  <div class="box2" role="group" aria-label="출처 범위 확인과 원문 내용 대조">
+    <div class="bx keep"><h3>출처 범위</h3><p>답변의 ID가 <b>실제 Context에 포함된 ID</b>인지 검사합니다.</p></div>
+    <div class="bx add"><h3>근거 내용</h3><p>답변의 숫자·조건·예외가 <b>원문과 맞는지</b> 대조합니다.</p></div>
+  </div>
+  <p class="lesson">올바른 출처 ID가 정확한 답변을 보장하지는 않습니다. 원문 위치는 검증된 ID를 이용해 서버의 문서 정보에서 연결합니다.</p>
+</section>
+
+<section id="validation" class="blk" aria-labelledby="validation-h">
+  <div class="blk-h"><div class="blk-t"><span class="no">06</span><h2 id="validation-h">Validation · 실패 처리</h2><span class="tag">7·8교시</span></div></div>
+  <p class="def"><b>Structured Output</b>으로 응답 형태를 정하고, 애플리케이션에서 필드·출처·상태 규칙을 검사합니다. 모델 호출의 성공과 검증된 답변의 성공을 구분합니다.</p>
+  <div class="box3" role="group" aria-label="정상 답변, 정보 부족, 실행 오류 구분">
+    <div class="bx add"><h3><code>answered</code></h3><p>실제 근거에서 답을 찾아 출처와 함께 반환합니다.</p></div>
+    <div class="bx warn"><h3><code>insufficient_context</code></h3><p>답할 사실이 부족하여 필요한 정보를 안내합니다.</p></div>
+    <div class="bx stop"><h3>실행 오류</h3><p>검색·모델 호출·수신·검증 실패를 오류로 처리합니다.</p></div>
+  </div>
+  <p class="lesson">실행 오류를 정보 부족으로 바꾸지 않습니다. 검색 결과·Context·응답·검증 결과를 나누어 확인하면 실패 위치를 찾을 수 있습니다.</p>
+</section>
+
+<footer class="foot">
+  <p>출처: 강사님 강의 자료 핵심요약 (2026.11.23)</p>
+</footer>
+
+</main>
+<style>
+/* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
+</style>
+<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+<script>/* =====================================================================
+ * 맨 위로 버튼(.to-top) — 강의 요약·치트시트·설치 가이드 페이지
+ *
+ * - 한 화면의 60%쯤 내려가면 나타나고, 위로 돌아오면 사라진다.
+ * - 테두리 원(.tt-bar)이 페이지를 읽은 만큼 찬다.
+ * - 누르면 맨 위로 부드럽게 올라간다 (동작 줄이기 설정이면 바로 이동).
+ * ===================================================================== */
+(function () {
+  var btn = document.querySelector('.to-top');
+  if (!btn) return;
+  var bar = btn.querySelector('.tt-bar');
+  var LENGTH = 2 * Math.PI * 21;          // 원 둘레 (반지름 21)
+  bar.style.strokeDasharray = LENGTH;
+  var waiting = false;
+
+  function update() {
+    waiting = false;
+    var root = document.documentElement;
+    var y = window.scrollY || root.scrollTop;
+    var max = root.scrollHeight - window.innerHeight;
+    var read = max > 0 ? Math.min(1, y / max) : 0;
+    bar.style.strokeDashoffset = LENGTH * (1 - read);
+    btn.classList.toggle('show', y > window.innerHeight * 0.6);
+  }
+
+  function schedule() {
+    if (!waiting) { waiting = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('load', update);
+  update();
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+})();</script>
+</body>
+</html>
