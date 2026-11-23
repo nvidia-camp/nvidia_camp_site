@@ -237,3 +237,4 @@
 | 2026-11-22 | 배포 | release 1301a11 (main f188bff, --release, rsync --checksum, Docker 제외): 100일 일정 `--cell-past` 색상 조정(13쪽). 실제 사이트 `/` 200(`#52667E`·`#5E7699`)·`/setup/docker/` 404 확인 | 배포 |
 | 2026-11-22 | 공통 DESIGN·list·tree | 라운딩 4단계 기준(독립 카드 16px · 내부/버튼 12/8px · 직선 사이 행 0 · 배지/알약 999px)을 `DESIGN.md`에 명문화하고, 공통 CSS 튀는 수치 통일(`.sum-empty` 14→16px, `.lt-cd` 14→12px, `.lt-res a` 10→8px, `.lt-box[open]>summary` 하단 직각) | main만 |
 | 2026-11-23 | llm/20261124 | Day27 Query Optimization & Reranking 요약(핵심요약 6구역)·강의 목차(83화면)·강의 HTML 준비 | main만 |
+| 2026-11-24 | llm/20261124 | Day27 Colab 실습 폴더 링크 등록(`site.toml [colab]`): 데이터 흐름 노트북 00·02~07 + 문제 노트북 | main만 |
