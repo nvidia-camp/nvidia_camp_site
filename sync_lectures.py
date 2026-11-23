@@ -9,7 +9,6 @@
 - 시트 ID와 탭 이름은 nvidia-lecture-sheet 스킬의 로컬 설정(config.json)에서 읽는다.
   공개 저장소에 시트 ID를 남기지 않기 위해서다.
 - 읽는 열: Day, 일자, 교과목, PDF 링크(헤더 이름으로 찾음). 교시별 학습 내용은 저장하지 않는다.
-- PDF 링크는 Slack URL일 때만 link로 저장한다. 사이트 강의 페이지 URL은 무시한다.
 - gws-work(업무 계정) 인증이 필요하다. 그래서 Vercel이 아니라 내 컴퓨터에서 실행하고 결과를 커밋한다.
 """
 import json
@@ -49,9 +48,7 @@ for row in values[1:]:
         "day": day,
         "date": cell(row, "일자")[:10],          # '2026-11-02 (월)' → '2026-11-02'
         "subject": cell(row, "교과목"),
-        # 사이트에서 link는 Slack 버튼으로만 쓴다. 시트에 사이트 강의 페이지 URL이
-        # 들어간 날은 사이트가 lecture/ 폴더로 '강의 자료' 버튼을 따로 만들므로 넣지 않는다.
-        "link": link if link.startswith("https://") and "slack.com/" in link else None,
+        "link": link if link.startswith("http") else None,
     })
 
 OUT.write_text(json.dumps(lectures, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
