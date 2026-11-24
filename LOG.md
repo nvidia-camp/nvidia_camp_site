@@ -240,3 +240,4 @@
 | 2026-11-24 | llm/20261124 | Day27 Colab 실습 폴더 링크 등록(`site.toml [colab]`): 데이터 흐름 노트북 00·02~07 + 문제 노트북 | main만 |
 | 2026-11-23 | llm/20261125 | Day28 RAG Evaluation & Debugging 요약 6구역·강의 목차 8교시 68화면·강의 HTML 추가. 오프라인 예시, make check와 1280·768·375px 라이트·다크, 목차·강의 이동 확인 | main만 |
 | 2026-11-24 | llm/20261124 | Day27 Colab 실습 폴더 링크 공개 (release f81b8fd, main 03629b8 · Day23~26 Slack 링크 포함, Day28·docker 제외) | 배포 |
+| 2026-11-24 | llm/20261124 | Day27 강의 자료 Slack 링크 공개(시트 동기화, release 3e2fcfb · main 8986052, Day28·docker 제외) | 배포 |
