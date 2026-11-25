@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LangChain 생태계 한눈에 보기</title>
+<style>
+:root {
+  color-scheme: light;
+  --navy: #142849;
+  --heading: #1c2b40;
+  --text: #222f44;
+  --muted: #52667e;
+  --canvas: #f9fbfe;
+  --surface: #fff;
+  --soft: #f0f6fd;
+  --line: #d8e4f2;
+  --accent: #315c8d;
+  --sans: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --navy: #c4daf6;
+    --heading: #e7f0fa;
+    --text: #d8e3f0;
+    --muted: #a9bcd2;
+    --canvas: #0b1220;
+    --surface: #132033;
+    --soft: #17283e;
+    --line: #35465f;
+    --accent: #a3c7f0;
+  }
+}
+.ecosystem, .ecosystem * { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--text); font-family: var(--sans); }
+.ecosystem { max-width: 1120px; margin: auto; padding: clamp(20px, 4vw, 48px); line-height: 1.55; }
+.ecosystem h1, .ecosystem h2, .ecosystem h3, .ecosystem p { margin: 0; }
+.ecosystem h1, .ecosystem p, .node small { word-break: keep-all; overflow-wrap: anywhere; }
+
+.ecosystem h1 { color: var(--navy); font-size: clamp(1.75rem, 4vw, 2.65rem); line-height: 1.18; }
+.ecosystem h2 { color: var(--heading); font-size: 1.1rem; }
+.ecosystem h3 { font-size: 1rem; }
+.ecosystem header p { margin-top: 12px; color: var(--muted); }
+.canvas {
+  margin-top: 24px;
+  padding: clamp(12px, 2.4vw, 24px);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background-color: var(--soft);
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.map {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1.65fr);
+  align-items: center;
+}
+.group { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
+.group h2 { margin-bottom: 12px; }
+.node {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  align-content: center;
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--heading);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.node strong { font-size: .95rem; }
+.node small { grid-column: 1 / -1; color: var(--muted); font-size: .84rem; }
+.node:hover { border-color: var(--accent); }
+.node:hover strong { text-decoration: underline; }
+.node:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.external { color: var(--accent); }
+.with-icon { grid-template-columns: 36px 1fr auto; }
+.with-icon small { grid-column: 2 / -1; }
+.with-icon img {
+  grid-row: 1 / span 2;
+  align-self: center;
+  width: 34px;
+  height: 34px;
+  padding: 4px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+}
+.edge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 37px;
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 650;
+}
+.edge .arrow { font-size: 1.2rem; }
+.bridge { flex-direction: column; gap: 4px; padding: 0 6px; text-align: center; }
+.bridge .arrow { display: flex; align-items: center; width: 100%; line-height: 1; }
+.bridge .arrow::before { content: ""; flex: 1; border-top: 2px dashed; }
+.feature-grid, .related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.feature-grid { margin-top: 10px; }
+.related { margin-top: 16px; }
+.related-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ecosystem footer { margin-top: 16px; color: var(--muted); font-size: .85rem; }
+.ecosystem footer a { color: var(--accent); }
+@media (max-width: 760px) {
+  .map { grid-template-columns: minmax(0, 1fr); }
+  .bridge { flex-direction: row; min-height: 46px; }
+  .bridge .arrow { width: auto; transform: rotate(90deg); }
+  .bridge .arrow::before { flex: none; width: 14px; }
+}
+@media (max-width: 480px) {
+  .related-grid { grid-template-columns: 1fr; }
+  .group { padding: 12px; }
+}
+@media print {
+  .group, .node { break-inside: avoid; }
+  .ecosystem { padding: 0; }
+}
+</style>
+<link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
+<script>/* =====================================================================
+ * 라이트/다크 전환 — 화면 밝기 버튼(.theme-toggle)
+ *
+ * build_site.py가 다크 CSS가 있는 페이지의 <head>에 이 파일을 끼워 넣는다.
+ * (홈·과목 목록은 항상, 요약·가이드는 원본에 prefers-color-scheme가 있을 때만)
+ *
+ * 원리
+ *   페이지마다 어두운 화면용 CSS가 @media (prefers-color-scheme: dark) { … } 안에 있다.
+ *   원래는 컴퓨터(OS) 설정을 따라 켜지고 꺼진다. 버튼을 누르면 그 media 조건 글자를
+ *     다크 고정 → (min-width:0px)                     항상 참
+ *     라이트 고정 → (max-width:0px) and (min-width:1px)  항상 거짓
+ *   으로 바꿔 끼워, OS 설정과 관계없이 고른 쪽을 보여 준다.
+ *
+ * 저장
+ *   고른 값은 localStorage 'site-theme'에 둔다 (다른 페이지·새로고침에도 유지).
+ *   OS 설정과 같은 쪽을 고르면 저장값을 지워 다시 OS 설정을 따른다.
+ *
+ * 번쩍임 막기
+ *   페이지를 읽는 도중에 추가되는 <style>(강의 목차 블록 등)도 화면에 그려지기 전에
+ *   바꿔 끼우도록, 읽기가 끝날 때(DOMContentLoaded)까지 새 style·link를 지켜본다.
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var STORAGE_KEY = 'site-theme';
+  var DARK_QUERY = /\(\s*prefers-color-scheme\s*:\s*dark\s*\)/i;   // 바꿔 끼울 media 조건
+  var ALWAYS = '(min-width:0px)';                                  // 항상 참
+  var NEVER = '(max-width:0px) and (min-width:1px)';               // 항상 거짓
+
+  var doc = document;
+  var root = doc.documentElement;
+  var osDark = matchMedia('(prefers-color-scheme: dark)');         // OS 설정
+
+  var seenSheets = [];   // 이미 훑어본 스타일시트
+  var darkRules = [];    // [규칙, 원래 media 글자] — 바꿔 끼울 대상
+  var memory = '';       // localStorage를 못 쓰는 브라우저(사생활 보호 모드 등)용 임시 저장
+
+
+  /* ── 2. 고른 값 읽기·저장: 'dark' · 'light' · ''(OS 설정 따름) ────── */
+  function getChoice() {
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return v === 'dark' || v === 'light' ? v : '';
+    } catch (e) {
+      return memory;
+    }
+  }
+
+  function saveChoice(v) {
+    memory = v;
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function osMode() {
+    return osDark.matches ? 'dark' : 'light';
+  }
+
+
+  /* ── 3. 다크 CSS 규칙 찾기 ──────────────────────────────────────────
+   *   스타일시트 안에서 media 조건에 prefers-color-scheme: dark가 있는 규칙을
+   *   모두 모은다. @media 안의 @media처럼 겹친 규칙도 따라 들어간다.        */
+  function collectDarkRules(rules) {
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.media && DARK_QUERY.test(rule.media.mediaText)) {
+        darkRules.push([rule, rule.media.mediaText]);
+      }
+      if (rule.cssRules) collectDarkRules(rule.cssRules);
+    }
+  }
+
+  function scanNewSheets() {
+    var sheets = doc.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      if (seenSheets.indexOf(sheet) >= 0) continue;
+      seenSheets.push(sheet);
+      try { collectDarkRules(sheet.cssRules); } catch (e) {}   // 다른 도메인 CSS는 읽을 수 없다
+    }
+  }
+
+
+  /* ── 4. 화면에 적용 ─────────────────────────────────────────────── */
+  function apply() {
+    scanNewSheets();
+    var choice = getChoice();
+    var mode = choice || osMode();   // 지금 보여 줄 쪽
+
+    // 다크 CSS 규칙의 media 조건 바꿔 끼우기 (고른 값이 없으면 원래대로)
+    for (var j = 0; j < darkRules.length; j++) {
+      var rule = darkRules[j][0], original = darkRules[j][1];
+      rule.media.mediaText = choice
+        ? original.replace(DARK_QUERY, choice === 'dark' ? ALWAYS : NEVER)
+        : original;
+    }
+
+    // 버튼 아이콘(해·달)과 브라우저 기본 색(스크롤바·입력창)
+    root.setAttribute('data-theme', mode);
+    root.style.colorScheme = choice;
+
+    // 버튼 설명: 누르면 무엇이 되는지
+    var label = mode === 'dark' ? '밝은 화면으로 보기' : '어두운 화면으로 보기';
+    var buttons = doc.querySelectorAll('.theme-toggle');
+    for (var k = 0; k < buttons.length; k++) {
+      buttons[k].setAttribute('aria-label', label);
+      buttons[k].setAttribute('data-tip', label);
+    }
+  }
+
+
+  /* ── 5. 버튼 누름: 지금과 반대쪽으로 ──────────────────────────────── */
+  doc.addEventListener('click', function (e) {
+    var button = e.target.closest && e.target.closest('.theme-toggle');
+    if (!button) return;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    saveChoice(next === osMode() ? '' : next);   // OS 설정과 같으면 저장값을 지운다
+    apply();
+  });
+
+
+  /* ── 6. OS 설정이 바뀌면 다시 적용 ────────────────────────────────── */
+  if (osDark.addEventListener) osDark.addEventListener('change', apply);
+  else osDark.addListener(apply);   // 옛 Safari
+
+
+  /* ── 7. 시작: 지금 한 번, 읽는 도중 새 CSS가 생길 때마다, 다 읽은 뒤 한 번 ── */
+  apply();
+
+  var watcher = window.MutationObserver && new MutationObserver(function (changes) {
+    for (var i = 0; i < changes.length; i++) {
+      for (var j = 0; j < changes[i].addedNodes.length; j++) {
+        var name = changes[i].addedNodes[j].nodeName;
+        if (name === 'STYLE' || name === 'LINK') { apply(); return; }
+      }
+    }
+  });
+  if (watcher) watcher.observe(root, { childList: true, subtree: true });
+
+  doc.addEventListener('DOMContentLoaded', function () {
+    if (watcher) watcher.disconnect();
+    apply();
+  });
+})();</script>
+<style>
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font:inherit;line-height:1}
+.theme-toggle svg{display:block;width:1.05rem;height:1.05rem}
+.theme-toggle .i-sun,:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}
+.cn-nav .theme-toggle{margin:0;width:2rem;height:2rem;padding:0;border:0;border-radius:.5rem;background:none;color:#fff}
+.cn-nav .theme-toggle:hover,.cn-nav .theme-toggle:focus-visible{background:rgba(255,255,255,.16);outline:none}
+/* [data-tip]까지 붙여야 nav.css의 .cn-nav [data-tip]{position:relative}보다 우선해서 sticky가 실제로 걸린다 */
+@media (max-width:760px){.cn-nav .theme-toggle[data-tip]{width:auto;height:auto;position:sticky;right:-.75rem;flex:none;margin-right:-.75rem;padding:.35rem .75rem;border-radius:0;
+  background:#142849;box-shadow:-10px 0 10px -4px #142849}.cn-nav .theme-toggle:hover{background:#142849}}
+@media print{.theme-toggle{display:none!important}}
+</style>
+</head>
+<body><style>
+.cn-nav{position:sticky;top:0;z-index:100;box-sizing:border-box;width:100%;max-width:none;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;
+  padding:.5rem 1rem;background:#142849;color:#fff;font:500 .875rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.cn-nav a{color:#fff;text-decoration:none;padding:.125rem .375rem;border-radius:.375rem}
+.cn-nav a:hover,.cn-nav a:focus-visible{background:rgba(255,255,255,.16);outline:none}
+.cn-nav .cn-here{opacity:.7}
+.cn-nav .cn-right{margin-left:auto;display:flex;gap:.25rem .75rem;flex-wrap:wrap}
+.cn-nav .cn-ico{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:2rem;height:2rem;padding:0;border-radius:.5rem}
+.cn-nav .cn-ico svg{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-slack img{display:block;width:1.15rem;height:1.15rem}
+.cn-nav .cn-colab{width:auto;padding:0 .3rem}.cn-nav .cn-colab img{display:block;width:1.7rem;height:1rem}
+.cn-nav .cn-right{align-items:center}
+.cn-nav [data-tip]{position:relative}
+.cn-nav [data-tip]:hover::after,.cn-nav [data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + .5rem);right:0;z-index:200;
+  white-space:nowrap;padding:.35rem .6rem;border-radius:.4rem;background:#0B1730;color:#fff;font:500 .8125rem/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none}
+html{scroll-padding-top:3rem}
+@media (max-width:760px){.cn-nav{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:.25rem .5rem;padding:.4rem .75rem}.cn-nav .cn-right{flex-wrap:nowrap}html{scroll-padding-top:2.5rem}}
+@media print{.cn-nav{display:none}}
+</style><nav class="cn-nav" aria-label="사이트 메뉴"><a href="../../">← 학습 아카이브</a><span class="cn-here">LangChain 생태계 한눈에 보기</span><span class="cn-right"><a class="cn-ico cn-dl" href="download.html" download="LangChain_생태계_한눈에_보기.html" data-tip="HTML 파일 하나로 받기 (인터넷 없이 열림)" aria-label="HTML 파일 하나로 받기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a></span><button class="theme-toggle" type="button" aria-label="화면 밝기 바꾸기" data-tip="화면 밝기 바꾸기"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></nav><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>/* =====================================================================
+ * Google Analytics 4 — 사이트 방문·행동 기록
+ *
+ * build_site.py가 이 파일을 모든 사이트 화면에 <script>로 끼워 넣는다.
+ * (내려받기용 download.html 원본과 강의 view.html에는 넣지 않는다)
+ *
+ * 확인 방법: 주소 끝에 ?ga_debug=1 → GA 관리 > DebugView 에서 바로 보인다.
+ *
+ * 보내는 이벤트
+ *   page_view         페이지 열림 (GA 기본)
+ *   section_view      요약의 단락 제목(h2)까지 내려옴 — 단락마다 1번
+ *   toc_open          강의 목차 상자를 펼침 (details_open: 그 밖의 접힌 상자)
+ *   site_click        링크 클릭 — link_type으로 종류 구분 (colab, html_download, …)
+ *   theme_toggle      다크/라이트 전환
+ *   slide_view        강의 자료에서 슬라이드를 넘김
+ *   lecture_progress  강의 자료를 떠날 때 본 슬라이드 수
+ * ===================================================================== */
+(function () {
+
+  /* ── 1. 설정 ──────────────────────────────────────────────────────── */
+  var GA_ID = 'G-9743VJ73E0';                 // GA 측정 ID
+  var LIVE_HOST = 'nvidiasesac.vercel.app';   // 이 주소에서만 기록을 보낸다
+  var PENDING_KEY = 'ga-pending-click';       // 페이지 이동 클릭을 잠시 맡겨 두는 이름
+
+  // 미리보기·내 컴퓨터에서 열면 아무것도 하지 않는다 (통계에 섞이지 않게)
+  if (location.hostname !== LIVE_HOST) return;
+
+  var doc = document;
+  var debug = /[?&]ga_debug=1/.test(location.search);
+
+
+  /* ── 2. GA 기본 설치 (GA 공식 코드와 같다) ─────────────────────────── */
+  var tag = doc.createElement('script');
+  tag.async = true;
+  tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  doc.head.appendChild(tag);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag('js', new Date());
+
+
+  /* ── 3. 공통 도구 ─────────────────────────────────────────────────── */
+
+  // 이벤트 보내기: 모든 이벤트는 여기를 지난다
+  function send(name, params) {
+    params = params || {};
+    if (debug) params.debug_mode = true;
+    gtag('event', name, params);
+  }
+
+  // 글자 정리: 공백을 하나로 줄이고 100자까지만 (GA 값 길이 제한)
+  function shorten(text) {
+    return (text || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+  }
+
+
+  /* ── 4. 페이지 정보: 과목·페이지 종류·Day ───────────────────────────
+   *   주소 예: /llm/20261118/lecture/  →  과목 llm · 종류 lecture
+   *   Day는 위쪽 메뉴 글자(Day24)에서 읽는다.                            */
+  function pageType(parts) {
+    var top = parts[0];
+    if (!parts.length) return 'home';
+    if (top === 'setup') return 'guide';
+    if (top === 'cheatsheet') return 'cheatsheet';
+    if (parts.length === 1) return 'subject';                // /llm/
+    if (/^\d{8}/.test(parts[1])) {                           // /llm/20261118/…
+      if (parts[2] === 'lecture') return 'lecture';
+      return parts[2] ? 'day_sub' : 'day';
+    }
+    return 'other';
+  }
+
+  function startPage() {
+    var parts = location.pathname.split('/').filter(Boolean);
+    var nav = doc.querySelector('.cn-nav');
+    var day = nav && nav.textContent.match(/Day\d+(?:-\d+)?/);
+
+    // 이 페이지에서 보내는 모든 이벤트에 붙는 값
+    gtag('set', {
+      content_group: parts[0] || 'home',
+      page_type: pageType(parts),
+      day_label: day ? day[0] : '(none)'
+    });
+    gtag('config', GA_ID, debug ? { debug_mode: true } : {});   // ← 여기서 page_view가 나간다
+
+    // 앞 페이지에서 맡겨 둔 클릭이 있으면 지금 보낸다 (8번 참고)
+    try {
+      var pending = sessionStorage.getItem(PENDING_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_KEY);
+        send('site_click', JSON.parse(pending));
+      }
+    } catch (e) {}
+  }
+
+
+  /* ── 5. 단락 도달: section_view ────────────────────────────────────
+   *   h2 제목이 화면 위쪽 60%까지 올라오면 한 번 보낸다.
+   *   위쪽 경계를 크게 열어 두어, 빠르게 스크롤해 지나친 단락도 센다.     */
+  function watchSections() {
+    if (!('IntersectionObserver' in window)) return;
+    var headings = [].slice.call(doc.querySelectorAll('h2')).filter(function (h) {
+      return !h.closest('.cn-nav');
+    });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);                     // 단락마다 한 번만
+        send('section_view', {
+          section_id: entry.target.id || '(none)',
+          section_title: shorten(entry.target.textContent),
+          section_index: headings.indexOf(entry.target) + 1
+        });
+      });
+    }, { rootMargin: '100000px 0px -40% 0px' });
+    headings.forEach(function (h) { observer.observe(h); });
+  }
+
+
+  /* ── 6. 접힌 상자 펼침: toc_open / details_open ────────────────── */
+  function watchDetails() {
+    doc.addEventListener('toggle', function (e) {
+      var box = e.target;
+      if (box.tagName !== 'DETAILS' || !box.open) return;
+      var summary = box.querySelector('summary');
+      send(box.classList.contains('lt-box') ? 'toc_open' : 'details_open', {
+        details_label: shorten(summary && (summary.innerText || summary.textContent))
+      });
+    }, true);
+  }
+
+
+  /* ── 7. 링크 종류 나누기 (site_click의 link_type) ──────────────── */
+  function linkType(a) {
+    var url = a.href, href = a.getAttribute('href');
+    var external = a.host && a.host !== location.host;
+    if (a.classList.contains('cn-colab') || /colab\.research|drive\.google/.test(url)) return 'colab';
+    if (a.classList.contains('cn-dl') || a.hasAttribute('download')) return 'html_download';
+    if (a.classList.contains('cn-slack') || /slack\.com/.test(url)) return 'slack';
+    if (/swexpertacademy/.test(url)) return 'swea';
+    if (/programmers\.co\.kr/.test(url)) return 'programmers';
+    if (/\.pdf(\?|#|$)/i.test(url)) return 'pdf';
+    if (/(^|\/)lecture\/?$/.test(href)) return 'lecture_view';
+    if (href.charAt(0) === '#') return 'anchor';
+    return external ? 'outbound' : 'internal';
+  }
+
+
+  /* ── 8. 클릭: site_click · theme_toggle ────────────────────────────
+   *   같은 탭에서 사이트 안 다른 페이지로 가면, 떠나는 순간 기록이 사라질
+   *   수 있다. 그런 클릭은 sessionStorage에 맡겨 두고 다음 페이지가 보낸다. */
+  function watchClicks() {
+    doc.addEventListener('click', function (e) {
+      // 다크 모드 버튼: 테마가 바뀐 뒤의 값을 보낸다
+      var themeBtn = e.target.closest && e.target.closest('.theme-toggle');
+      if (themeBtn) {
+        setTimeout(function () {
+          send('theme_toggle', { theme: doc.documentElement.getAttribute('data-theme') || '' });
+        }, 0);
+        return;
+      }
+
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      var type = linkType(a);
+      var external = a.host && a.host !== location.host;
+      var params = {
+        link_type: type,
+        link_text: shorten(a.getAttribute('aria-label') || a.textContent),
+        link_url: a.href,
+        link_area: a.closest('.cn-nav') ? 'nav' : 'body',
+        link_from: location.pathname
+      };
+
+      var leavesThisTab = !external && type !== 'anchor' && type !== 'html_download' &&
+        a.target !== '_blank' && !e.defaultPrevented && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+      if (leavesThisTab) {
+        try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(params)); return; } catch (x) {}
+      }
+      send('site_click', params);
+    }, true);
+  }
+
+
+  /* ── 9. 강의 자료: slide_view · lecture_progress ───────────────────
+   *   강의는 iframe 안에서 열리고, 슬라이드를 넘기면 주소의 #id만 바뀐다.
+   *   (replaceState라 알림 이벤트가 없어서 1초마다 주소를 읽는다)          */
+  function watchLecture() {
+    var frame = doc.querySelector('iframe.lecture-frame');
+    if (!frame) return;
+    var last = '', seen = {}, count = 0, reported = false;
+
+    setInterval(function () {
+      var id = '';
+      try { id = frame.contentWindow.location.hash.slice(1); } catch (x) { return; }
+      if (!id || id === last) return;
+      last = id;
+      if (!seen[id]) { seen[id] = 1; count++; }
+      send('slide_view', { slide_id: id, slides_seen: count });
+    }, 1000);
+
+    // 탭을 닫거나 다른 곳으로 갈 때 한 번: 몇 장까지 봤나
+    doc.addEventListener('visibilitychange', function () {
+      if (doc.visibilityState === 'hidden' && count && !reported) {
+        reported = true;
+        send('lecture_progress', { slides_seen: count, last_slide: last });
+      }
+    });
+  }
+
+
+  /* ── 10. 시작 ──────────────────────────────────────────────────── */
+  function init() {
+    startPage();
+    watchSections();
+    watchDetails();
+    watchClicks();
+    watchLecture();
+  }
+
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init);
+  else init();
+})();</script>
+<main class="ecosystem">
+  <header>
+    <h1>LangChain 생태계 한눈에 보기</h1>
+    <p>RAG와 에이전트 개발부터 평가·배포까지. 카드를 선택하면 공식 문서나 프로젝트 저장소가 새 탭에 열립니다.</p>
+  </header>
+  <div class="canvas">
+    <div class="map">
+      <section class="group" aria-labelledby="build-heading">
+        <h2 id="build-heading">오픈소스 개발 도구</h2>
+        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/oss/python/deepagents/overview">
+          <img src="data:image/svg+xml;base64,PCEtLSBAbGljZW5zZSBsdWNpZGUtc3RhdGljIHYxLjc5LjAgLSBJU0MgLS0+CjxzdmcKICBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1sYXllcnMiCiAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzNkNDY2MCIKICBzdHJva2Utd2lkdGg9IjEuNyIKICBzdHJva2UtbGluZWNhcD0icm91bmQiCiAgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKPgogIDxwYXRoIGQ9Ik0xMi44MyAyLjE4YTIgMiAwIDAgMC0xLjY2IDBMMi42IDYuMDhhMSAxIDAgMCAwIDAgMS44M2w4LjU4IDMuOTFhMiAyIDAgMCAwIDEuNjYgMGw4LjU4LTMuOWExIDEgMCAwIDAgMC0xLjgzeiIgLz4KICA8cGF0aCBkPSJNMiAxMmExIDEgMCAwIDAgLjU4LjkxbDguNiAzLjkxYTIgMiAwIDAgMCAxLjY1IDBsOC41OC0zLjlBMSAxIDAgMCAwIDIyIDEyIiAvPgogIDxwYXRoIGQ9Ik0yIDE3YTEgMSAwIDAgMCAuNTguOTFsOC42IDMuOTFhMiAyIDAgMCAwIDEuNjUgMGw4LjU4LTMuOUExIDEgMCAwIDAgMjIgMTciIC8+Cjwvc3ZnPgo=" alt=""><strong>Deep Agents</strong><span class="external" aria-hidden="true">↗</span><small>계획·파일 작업·서브에이전트</small>
+        </a>
+        <div class="edge"><span class="arrow" aria-hidden="true">↓</span><span>LangChain 에이전트 사용</span></div>
+        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/oss/python/langchain/overview">
+          <img src="data:image/png;base64,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" alt=""><strong>LangChain</strong><span class="external" aria-hidden="true">↗</span><small>모델·검색기·도구로 RAG와 에이전트 구성</small>
+        </a>
+        <div class="edge"><span class="arrow" aria-hidden="true">↓</span><span>에이전트 실행 기반</span></div>
+        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/oss/python/langgraph/overview">
+          <img src="data:image/png;base64,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" alt=""><strong>LangGraph</strong><span class="external" aria-hidden="true">↗</span><small>상태·분기·워크플로 실행 제어</small>
+        </a>
+      </section>
+      <div class="edge bridge"><span>추적·평가 연동</span><span class="arrow" aria-hidden="true">›</span></div>
+      <section class="group" aria-labelledby="operate-heading">
+        <h2 id="operate-heading">평가·배포·운영 플랫폼</h2>
+        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://www.langchain.com/resources/what-is-langsmith">
+          <img src="data:image/svg+xml;base64,PCEtLSBAbGljZW5zZSBsdWNpZGUtc3RhdGljIHYxLjc5LjAgLSBJU0MgLS0+CjxzdmcKICBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hY3Rpdml0eSIKICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgd2lkdGg9IjI0IgogIGhlaWdodD0iMjQiCiAgdmlld0JveD0iMCAwIDI0IDI0IgogIGZpbGw9Im5vbmUiCiAgc3Ryb2tlPSIjM2Q0NjYwIgogIHN0cm9rZS13aWR0aD0iMS43IgogIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIKICBzdHJva2UtbGluZWpvaW49InJvdW5kIgo+CiAgPHBhdGggZD0iTTIyIDEyaC0yLjQ4YTIgMiAwIDAgMC0xLjkzIDEuNDZsLTIuMzUgOC4zNmEuMjUuMjUgMCAwIDEtLjQ4IDBMOS4yNCAyLjE4YS4yNS4yNSAwIDAgMC0uNDggMGwtMi4zNSA4LjM2QTIgMiAwIDAgMSA0LjQ5IDEySDIiIC8+Cjwvc3ZnPgo=" alt=""><strong>LangSmith</strong><span class="external" aria-hidden="true">↗</span><small>에이전트의 개발·평가·운영을 지원하는 플랫폼</small>
+        </a>
+        <div class="feature-grid">
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/observability"><strong>Observability</strong><span class="external" aria-hidden="true">↗</span><small>실행 추적·모니터링</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/evaluation"><strong>Evaluation</strong><span class="external" aria-hidden="true">↗</span><small>데이터셋·평가·실험</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/deploy-overview"><strong>Deployment</strong><span class="external" aria-hidden="true">↗</span><small>에이전트 배포·실행</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/python/managed-deep-agents-overview"><strong>Managed Deep Agents</strong><span class="external" aria-hidden="true">↗</span><small>Deep Agents 호스팅</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/fleet"><strong>Fleet</strong><span class="external" aria-hidden="true">↗</span><small>노코드 에이전트 구성</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/prompt-context-hub"><strong>Prompt &amp; Context Hub</strong><span class="external" aria-hidden="true">↗</span><small>프롬프트·컨텍스트 버전 관리</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/sandboxes"><strong>Sandboxes</strong><span class="external" aria-hidden="true">↗</span><small>격리된 코드 실행</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/llm-gateway"><strong>LLM Gateway</strong><span class="external" aria-hidden="true">↗</span><small>모델 접근·사용량 관리</small></a>
+          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/engine"><strong>Engine</strong><span class="external" aria-hidden="true">↗</span><small>실행 실패 진단·개선</small></a>
+        </div>
+      </section>
+    </div>
+    <section class="group related" aria-labelledby="related-heading">
+      <h2 id="related-heading">관련 프로젝트</h2>
+      <div class="related-grid">
+        <a class="node" target="_blank" rel="noopener noreferrer" href="https://github.com/langchain-ai/langmem"><strong>LangMem</strong><span class="external" aria-hidden="true">↗</span><small>에이전트 장기 메모리</small></a>
+        <a class="node" target="_blank" rel="noopener noreferrer" href="https://github.com/langchain-ai/langserve"><strong>LangServe</strong><span class="external" aria-hidden="true">↗</span><small>체인을 REST API로 제공 · 아카이브</small></a>
+        <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langflow.org/"><strong>Langflow</strong><span class="external" aria-hidden="true">↗</span><small>시각적 AI 워크플로 빌더 · 별도 프로젝트</small></a>
+      </div>
+    </section>
+  </div>
+  <footer>아이콘 출처 <a href="https://docs.langchain.com/oss/python/langchain/overview">LangChain Docs</a> · <a href="https://lucide.dev/">Lucide</a> · <a href="https://github.com/caru-ini/stack-diagram">made with stack-diagram</a></footer>
+</main>
+<style>
+/* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.
+   꺾쇠 아이콘 + 테두리 원이 읽은 만큼 찬다. 한 화면쯤 내려가면 나타난다 (web/totop.js).
+   색은 버튼 안에서만 쓰는 변수(--tt-*)로 둬서 페이지 변수와 섞이지 않게 한다.
+   어두운 화면 색은 totop-dark.css (다크 모드가 있는 페이지에만 붙인다). */
+.to-top{
+  --tt-bg:rgba(255,255,255,.86);--tt-fg:#172d49;--tt-track:#d8e1eb;--tt-accent:#124d8a;--tt-shadow:rgba(15,30,55,.16);
+  position:fixed;right:24px;bottom:24px;z-index:900;
+  width:44px;height:44px;margin:0;padding:0;border:0;border-radius:999px;
+  display:grid;place-items:center;cursor:pointer;
+  background:var(--tt-bg);color:var(--tt-fg);
+  box-shadow:0 4px 14px var(--tt-shadow);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .2s ease,transform .2s ease,visibility .2s,color .15s,box-shadow .15s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top.show:hover{transform:translateY(-2px);color:var(--tt-accent);box-shadow:0 8px 22px var(--tt-shadow)}
+.to-top:focus-visible{outline:3px solid var(--tt-accent);outline-offset:3px}
+.to-top .tt-ring{position:absolute;inset:0;width:44px;height:44px;transform:rotate(-90deg);pointer-events:none}
+.to-top .tt-track{fill:none;stroke:var(--tt-track);stroke-width:2}
+.to-top .tt-bar{fill:none;stroke:var(--tt-accent);stroke-width:2;stroke-linecap:round}
+.to-top .tt-icon{width:20px;height:20px;display:block}
+@media (max-width:720px){.to-top{right:16px;bottom:16px}}
+@media (prefers-reduced-motion:reduce){.to-top{transition:none}}
+@media print{.to-top{display:none}}
+/* 맨 위로 버튼의 어두운 화면 색. 다크 모드가 있는 페이지에만 붙인다
+   (다크 모드가 없는 페이지에 붙이면 OS가 어두울 때 밝은 페이지 위에 어두운 버튼이 뜬다).
+   화면 밝기 버튼(theme.js)이 이 media 조건도 함께 바꿔 끼운다. */
+@media (prefers-color-scheme: dark){
+  .to-top{--tt-bg:rgba(19,32,51,.86);--tt-fg:#e5eaf2;--tt-track:#2d425d;--tt-accent:#93c5fd;--tt-shadow:rgba(0,0,0,.45)}
+}
+</style>
+<button class="to-top" type="button" aria-label="맨 위로" title="맨 위로"><svg class="tt-ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="tt-track" cx="22" cy="22" r="21"/><circle class="tt-bar" cx="22" cy="22" r="21"/></svg><svg class="tt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+<script>/* =====================================================================
+ * 맨 위로 버튼(.to-top) — 강의 요약·치트시트·설치 가이드 페이지
+ *
+ * - 한 화면의 60%쯤 내려가면 나타나고, 위로 돌아오면 사라진다.
+ * - 테두리 원(.tt-bar)이 페이지를 읽은 만큼 찬다.
+ * - 누르면 맨 위로 부드럽게 올라간다 (동작 줄이기 설정이면 바로 이동).
+ * ===================================================================== */
+(function () {
+  var btn = document.querySelector('.to-top');
+  if (!btn) return;
+  var bar = btn.querySelector('.tt-bar');
+  var LENGTH = 2 * Math.PI * 21;          // 원 둘레 (반지름 21)
+  bar.style.strokeDasharray = LENGTH;
+  var waiting = false;
+
+  function update() {
+    waiting = false;
+    var root = document.documentElement;
+    var y = window.scrollY || root.scrollTop;
+    var max = root.scrollHeight - window.innerHeight;
+    var read = max > 0 ? Math.min(1, y / max) : 0;
+    bar.style.strokeDashoffset = LENGTH * (1 - read);
+    btn.classList.toggle('show', y > window.innerHeight * 0.6);
+  }
+
+  function schedule() {
+    if (!waiting) { waiting = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  window.addEventListener('load', update);
+  update();
+
+  btn.addEventListener('click', function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+})();</script>
+</body>
+</html>

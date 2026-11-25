@@ -99,6 +99,13 @@ logo = "opencv.png"
 desc = "이미지 · 영상 처리"
 subject = "vision"
 
+[cheatsheets.lang-ecosystem]
+name = "LangChain 생태계 한눈에 보기"
+logo = "langchain.png"
+desc = "LangChain · LangGraph · Deep Agents · LangSmith"
+subject = "llm"
+
+
 # 설치 가이드: pages/setup/<키>/ · group은 과목 키 또는 공통 묶음 이름 · public = false면 --release에서 빠진다
 
 [setup.postgresql]
