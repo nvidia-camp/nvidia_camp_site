@@ -245,3 +245,4 @@
 | 2026-11-25 | cheatsheet/lang-ecosystem | 클릭 가능한 LangChain 생태계 도식을 LLM·RAG 과목 참고 문서에 추가 | main |
 | 2026-11-25 | cheatsheet/lang-ecosystem | 화살표를 제거하고 카드 설명에 실행·추적 관계를 명시 | main |
 | 2026-11-25 | cheatsheet/lang-ecosystem | 카드 제목의 밑줄 제거 | main |
+| 2026-11-25 | cheatsheet/lang-ecosystem | LangSmith를 그룹 제목으로 올려 플랫폼 기능의 소속을 표시 | main |

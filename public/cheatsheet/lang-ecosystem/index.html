@@ -57,7 +57,9 @@ body { margin: 0; background: var(--canvas); color: var(--text); font-family: va
   gap: 16px;
 }
 .group { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
-.group h2 { margin-bottom: 12px; }
+.group > h2 { margin-bottom: 12px; }
+.platform { padding-inline: 0; border: 0; background: transparent; }
+.platform:hover h2 { color: var(--accent); }
 #build-heading ~ .node + .node { margin-top: 8px; }
 .node {
   display: grid;
@@ -532,9 +534,8 @@ html{scroll-padding-top:3rem}
         </a>
       </section>
       <section class="group" aria-labelledby="operate-heading">
-        <h2 id="operate-heading">평가·배포·운영 플랫폼</h2>
-        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://www.langchain.com/resources/what-is-langsmith">
-          <img src="data:image/svg+xml;base64,PCEtLSBAbGljZW5zZSBsdWNpZGUtc3RhdGljIHYxLjc5LjAgLSBJU0MgLS0+CjxzdmcKICBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hY3Rpdml0eSIKICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgd2lkdGg9IjI0IgogIGhlaWdodD0iMjQiCiAgdmlld0JveD0iMCAwIDI0IDI0IgogIGZpbGw9Im5vbmUiCiAgc3Ryb2tlPSIjM2Q0NjYwIgogIHN0cm9rZS13aWR0aD0iMS43IgogIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIKICBzdHJva2UtbGluZWpvaW49InJvdW5kIgo+CiAgPHBhdGggZD0iTTIyIDEyaC0yLjQ4YTIgMiAwIDAgMC0xLjkzIDEuNDZsLTIuMzUgOC4zNmEuMjUuMjUgMCAwIDEtLjQ4IDBMOS4yNCAyLjE4YS4yNS4yNSAwIDAgMC0uNDggMGwtMi4zNSA4LjM2QTIgMiAwIDAgMSA0LjQ5IDEySDIiIC8+Cjwvc3ZnPgo=" alt=""><strong>LangSmith</strong><small>LangChain·LangGraph·Deep Agents로 만든 에이전트의 실행을 추적하고 평가합니다.</small>
+        <a class="node with-icon platform" target="_blank" rel="noopener noreferrer" href="https://www.langchain.com/resources/what-is-langsmith">
+          <img src="data:image/svg+xml;base64,PCEtLSBAbGljZW5zZSBsdWNpZGUtc3RhdGljIHYxLjc5LjAgLSBJU0MgLS0+CjxzdmcKICBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hY3Rpdml0eSIKICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgd2lkdGg9IjI0IgogIGhlaWdodD0iMjQiCiAgdmlld0JveD0iMCAwIDI0IDI0IgogIGZpbGw9Im5vbmUiCiAgc3Ryb2tlPSIjM2Q0NjYwIgogIHN0cm9rZS13aWR0aD0iMS43IgogIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIKICBzdHJva2UtbGluZWpvaW49InJvdW5kIgo+CiAgPHBhdGggZD0iTTIyIDEyaC0yLjQ4YTIgMiAwIDAgMC0xLjkzIDEuNDZsLTIuMzUgOC4zNmEuMjUuMjUgMCAwIDEtLjQ4IDBMOS4yNCAyLjE4YS4yNS4yNSAwIDAgMC0uNDggMGwtMi4zNSA4LjM2QTIgMiAwIDAgMSA0LjQ5IDEySDIiIC8+Cjwvc3ZnPgo=" alt=""><h2 id="operate-heading">LangSmith</h2><small>에이전트 추적·평가·배포·운영 플랫폼</small>
         </a>
         <div class="feature-grid">
           <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/observability"><strong>Observability</strong><small>실행 추적·모니터링</small></a>
