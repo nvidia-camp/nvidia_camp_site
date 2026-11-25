@@ -129,6 +129,28 @@ body { margin: 0; background: var(--canvas); color: var(--text); font-family: va
   .extras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media print { .cluster, .node { break-inside: avoid; } }
+/* 역할 색: 파랑 = 에이전트를 만드는 부분, 초록 = 운영(LangSmith), 노랑 = 사람·입력 */
+:root { --base: #f6f8fb; --in-bg: #e9f3fc; --in-fg: #245c9c; --out-bg: #e9f5ee; --out-fg: #2e6b45; --hum-bg: #fff3d8; --hum-fg: #7a4f0e; --wire: #8a9ab0; }
+@media (prefers-color-scheme: dark) {
+  :root { --base: #0e1626; --in-bg: #1c3352; --in-fg: #a9cdf5; --out-bg: #183526; --out-fg: #9bd8b2; --hum-bg: #3a2e14; --hum-fg: #f2d28b; --wire: #6f819b; }
+}
+.canvas { background: var(--base); background-image: none; }
+.cluster.side { background: var(--surface); }
+.cluster.runtime { background: var(--in-bg); border: 2px solid var(--in-fg); }
+.cluster.runtime h2 { color: var(--in-fg); }
+.runtime .node, .runtime > .node { border-color: var(--in-fg); }
+.runtime .parts span { background: var(--surface); border-color: var(--in-fg); color: var(--in-fg); }
+.cluster.monitor, .cluster.test { background: var(--out-bg); border: 2px solid var(--out-fg); }
+.monitor h2, .test h2, .platform { color: var(--out-fg); }
+.monitor .node, .test .node, .access .node { border-color: var(--out-fg); }
+.test .sample { background: var(--surface); border-color: var(--out-fg); color: var(--out-fg); }
+.access .sample { background: var(--hum-bg); border-color: var(--hum-fg); color: var(--hum-fg); font-weight: 700; }
+.stem { background: var(--wire); }
+.runtime > .stem { margin: 0 auto; }
+.connector { color: var(--muted); }
+.connector::after { border-top-color: var(--wire); }
+.node:hover { border-color: var(--heading); }
+@media (max-width: 720px) { .connector::after { border-left-color: var(--wire); } }
 </style>
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <script>/* =====================================================================
