@@ -171,3 +171,4 @@
 | 2026-11-18 | setup/pgvector | pgvector 설치 안내를 LLM·RAG 과목 참고 문서로 공개 (main 8411906) | 배포 |
 | 2026-11-18 | setup/pgvector | pgvector 가이드 세 쪽(설치 · 실행 · 문제 해결 · 체크리스트)·단계 카드·사진 3장·정상 출력·복사 버튼 공개 (main 88d9198) | 배포 |
 | 2026-11-18 | setup/python-venv | 가상환경 이름을 .gpuenv · .backendenv로 통일해 공개 (main 7131ee6, Day24·Docker 제외) | 배포 |
+| 2026-11-25 | cheatsheet/lang-ecosystem | LLM·RAG 과목 참고 문서에 LangChain 생태계 도식 공개 | 배포 |
