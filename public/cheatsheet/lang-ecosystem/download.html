@@ -36,7 +36,7 @@
 body { margin: 0; background: var(--canvas); color: var(--text); font-family: var(--sans); }
 .ecosystem { max-width: 1120px; margin: auto; padding: clamp(20px, 4vw, 48px); line-height: 1.55; }
 .ecosystem h1, .ecosystem h2, .ecosystem h3, .ecosystem p { margin: 0; }
-.ecosystem h1, .ecosystem p, .node small { word-break: keep-all; overflow-wrap: anywhere; }
+.ecosystem h1, .ecosystem p { word-break: keep-all; overflow-wrap: anywhere; }
 
 .ecosystem h1 { color: var(--navy); font-size: clamp(1.75rem, 4vw, 2.65rem); line-height: 1.18; }
 .ecosystem h2 { color: var(--heading); font-size: 1.1rem; }
@@ -53,130 +53,147 @@ body { margin: 0; background: var(--canvas); color: var(--text); font-family: va
 }
 .map {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1.65fr);
+  grid-template-columns: minmax(0, 1.35fr) 100px minmax(0, 1fr);
+  grid-template-areas: "access . ." "runtime trace monitor" "runtime answer test";
+  gap: 12px 0;
   align-items: center;
 }
-.group { padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
-.group h2 { margin-bottom: 12px; }
+.access { grid-area: access; text-align: center; justify-self: center; width: min(100%, 300px); }
+.runtime { grid-area: runtime; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+.monitor { grid-area: monitor; }
+.test { grid-area: test; }
+.trace { grid-area: trace; }
+.answer { grid-area: answer; }
+.cluster {
+  min-width: 0;
+  padding: clamp(12px, 2vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--soft);
+}
+.runtime { border: 2px solid var(--accent); }
+.runtime h2 { color: var(--navy); font-size: clamp(1.05rem, 2.1vw, 1.35rem); }
+.cluster h2 { margin-bottom: 10px; }
+.parts, .pair, .extras {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.parts span, .sample {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  color: var(--muted);
+  font-size: .84rem;
+  text-align: center;
+}
+.stem { width: 2px; height: 14px; margin: auto; background: var(--accent); }
+.access .stem:last-child { height: 26px; }
+.access { margin-bottom: -12px; }
 .node {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2px 8px;
   align-content: center;
-  min-height: 66px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  min-height: 56px;
+  gap: 3px;
+  padding: 8px 10px;
+  color: var(--navy);
   background: var(--surface);
-  color: var(--heading);
+  border: 1px solid var(--line);
+  border-radius: 10px;
   text-decoration: none;
   overflow-wrap: anywhere;
 }
-.node strong { font-size: .95rem; }
-.node small { grid-column: 1 / -1; color: var(--muted); font-size: .84rem; }
+.node strong { font-size: .94rem; }
+.node small { color: var(--muted); font-size: .79rem; word-break: keep-all; }
 .node:hover { border-color: var(--accent); }
-.node:hover strong { text-decoration: underline; }
 .node:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.external { color: var(--accent); }
-.with-icon { grid-template-columns: 36px 1fr auto; }
-.with-icon small { grid-column: 2 / -1; }
-.with-icon img {
-  grid-row: 1 / span 2;
-  align-self: center;
-  width: 34px;
-  height: 34px;
-  padding: 4px;
-  object-fit: contain;
-  border-radius: 8px;
-  background: #fff;
+.runtime > .node { border-color: var(--accent); }
+.add-ons { margin-top: 14px; }
+.add-ons h3 { margin-bottom: 6px; color: var(--muted); font-size: .82rem; }
+.connector { display: grid; text-align: center; color: var(--accent); font-size: .74rem; font-weight: 700; }
+.connector::after { content: ""; border-top: 2px dashed var(--accent); margin-top: 4px; }
+.platform { display: inline-block; margin-bottom: 8px; color: var(--navy); font-size: .8rem; font-weight: 700; text-decoration: none; }
+.platform:hover { color: var(--accent); }
+.test .sample { margin-bottom: 6px; }
+.monitor .node + .node { margin-top: 6px; }
+.side { margin-top: 16px; }
+.extras { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 720px) {
+  .map { grid-template-columns: minmax(0, 1fr); grid-template-areas: "access" "runtime" "trace" "monitor" "answer" "test"; gap: 0; }
+  .access { margin: 0; }
+  .access .stem:last-child { height: 14px; }
+  .connector { min-height: 36px; grid-auto-flow: column; justify-content: center; align-items: center; gap: 6px; }
+  .connector::after { grid-column: 1; border: 0; border-left: 2px dashed var(--accent); height: 30px; margin: 0; }
+  .answer::after { display: none; }
+
+  .extras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.edge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 37px;
-  color: var(--accent);
-  font-size: .78rem;
-  font-weight: 650;
-}
-.edge .arrow { font-size: 1.2rem; }
-.bridge { flex-direction: column; gap: 4px; padding: 0 6px; text-align: center; }
-.bridge .arrow { display: flex; align-items: center; width: 100%; line-height: 1; }
-.bridge .arrow::before { content: ""; flex: 1; border-top: 2px dashed; }
-.feature-grid, .related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.feature-grid { margin-top: 10px; }
-.related { margin-top: 16px; }
-.related-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.ecosystem footer { margin-top: 16px; color: var(--muted); font-size: .85rem; }
-.ecosystem footer a { color: var(--accent); }
-@media (max-width: 760px) {
-  .map { grid-template-columns: minmax(0, 1fr); }
-  .bridge { flex-direction: row; min-height: 46px; }
-  .bridge .arrow { width: auto; transform: rotate(90deg); }
-  .bridge .arrow::before { flex: none; width: 14px; }
-}
-@media (max-width: 480px) {
-  .related-grid { grid-template-columns: 1fr; }
-  .group { padding: 12px; }
-}
-@media print {
-  .group, .node { break-inside: avoid; }
-  .ecosystem { padding: 0; }
-}
+@media print { .cluster, .node { break-inside: avoid; } }
 </style>
 </head>
 <body>
 <main class="ecosystem">
   <header>
     <h1>LangChain 생태계 한눈에 보기</h1>
-    <p>RAG와 에이전트 개발부터 평가·배포까지. 카드를 선택하면 공식 문서나 프로젝트 저장소가 새 탭에 열립니다.</p>
+    <p>사내 문서에 답하는 에이전트를 예로, 각 도구가 시스템의 어디에 붙는지 살펴봅니다. 도구를 선택하면 공식 문서가 열립니다.</p>
   </header>
   <div class="canvas">
-    <div class="map">
-      <section class="group" aria-labelledby="build-heading">
-        <h2 id="build-heading">오픈소스 개발 도구</h2>
-        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/oss/python/deepagents/overview">
-          <img src="data:image/svg+xml;base64,PCEtLSBAbGljZW5zZSBsdWNpZGUtc3RhdGljIHYxLjc5LjAgLSBJU0MgLS0+CjxzdmcKICBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1sYXllcnMiCiAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzNkNDY2MCIKICBzdHJva2Utd2lkdGg9IjEuNyIKICBzdHJva2UtbGluZWNhcD0icm91bmQiCiAgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKPgogIDxwYXRoIGQ9Ik0xMi44MyAyLjE4YTIgMiAwIDAgMC0xLjY2IDBMMi42IDYuMDhhMSAxIDAgMCAwIDAgMS44M2w4LjU4IDMuOTFhMiAyIDAgMCAwIDEuNjYgMGw4LjU4LTMuOWExIDEgMCAwIDAgMC0xLjgzeiIgLz4KICA8cGF0aCBkPSJNMiAxMmExIDEgMCAwIDAgLjU4LjkxbDguNiAzLjkxYTIgMiAwIDAgMCAxLjY1IDBsOC41OC0zLjlBMSAxIDAgMCAwIDIyIDEyIiAvPgogIDxwYXRoIGQ9Ik0yIDE3YTEgMSAwIDAgMCAuNTguOTFsOC42IDMuOTFhMiAyIDAgMCAwIDEuNjUgMGw4LjU4LTMuOUExIDEgMCAwIDAgMjIgMTciIC8+Cjwvc3ZnPgo=" alt=""><strong>Deep Agents</strong><span class="external" aria-hidden="true">↗</span><small>계획·파일 작업·서브에이전트</small>
-        </a>
-        <div class="edge"><span class="arrow" aria-hidden="true">↓</span><span>LangChain 에이전트 사용</span></div>
-        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/oss/python/langchain/overview">
-          <img src="data:image/png;base64,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" alt=""><strong>LangChain</strong><span class="external" aria-hidden="true">↗</span><small>모델·검색기·도구로 RAG와 에이전트 구성</small>
-        </a>
-        <div class="edge"><span class="arrow" aria-hidden="true">↓</span><span>에이전트 실행 기반</span></div>
-        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/oss/python/langgraph/overview">
-          <img src="data:image/png;base64,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" alt=""><strong>LangGraph</strong><span class="external" aria-hidden="true">↗</span><small>상태·분기·워크플로 실행 제어</small>
-        </a>
-      </section>
-      <div class="edge bridge"><span>추적·평가 연동</span><span class="arrow" aria-hidden="true">›</span></div>
-      <section class="group" aria-labelledby="operate-heading">
-        <h2 id="operate-heading">평가·배포·운영 플랫폼</h2>
-        <a class="node with-icon" target="_blank" rel="noopener noreferrer" href="https://www.langchain.com/resources/what-is-langsmith">
-          <img src="data:image/svg+xml;base64,PCEtLSBAbGljZW5zZSBsdWNpZGUtc3RhdGljIHYxLjc5LjAgLSBJU0MgLS0+CjxzdmcKICBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hY3Rpdml0eSIKICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgd2lkdGg9IjI0IgogIGhlaWdodD0iMjQiCiAgdmlld0JveD0iMCAwIDI0IDI0IgogIGZpbGw9Im5vbmUiCiAgc3Ryb2tlPSIjM2Q0NjYwIgogIHN0cm9rZS13aWR0aD0iMS43IgogIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIKICBzdHJva2UtbGluZWpvaW49InJvdW5kIgo+CiAgPHBhdGggZD0iTTIyIDEyaC0yLjQ4YTIgMiAwIDAgMC0xLjkzIDEuNDZsLTIuMzUgOC4zNmEuMjUuMjUgMCAwIDEtLjQ4IDBMOS4yNCAyLjE4YS4yNS4yNSAwIDAgMC0uNDggMGwtMi4zNSA4LjM2QTIgMiAwIDAgMSA0LjQ5IDEySDIiIC8+Cjwvc3ZnPgo=" alt=""><strong>LangSmith</strong><span class="external" aria-hidden="true">↗</span><small>에이전트의 개발·평가·운영을 지원하는 플랫폼</small>
-        </a>
-        <div class="feature-grid">
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/observability"><strong>Observability</strong><span class="external" aria-hidden="true">↗</span><small>실행 추적·모니터링</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/evaluation"><strong>Evaluation</strong><span class="external" aria-hidden="true">↗</span><small>데이터셋·평가·실험</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/deploy-overview"><strong>Deployment</strong><span class="external" aria-hidden="true">↗</span><small>에이전트 배포·실행</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/python/managed-deep-agents-overview"><strong>Managed Deep Agents</strong><span class="external" aria-hidden="true">↗</span><small>Deep Agents 호스팅</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/fleet"><strong>Fleet</strong><span class="external" aria-hidden="true">↗</span><small>노코드 에이전트 구성</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/prompt-context-hub"><strong>Prompt &amp; Context Hub</strong><span class="external" aria-hidden="true">↗</span><small>프롬프트·컨텍스트 버전 관리</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/sandboxes"><strong>Sandboxes</strong><span class="external" aria-hidden="true">↗</span><small>격리된 코드 실행</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/llm-gateway"><strong>LLM Gateway</strong><span class="external" aria-hidden="true">↗</span><small>모델 접근·사용량 관리</small></a>
-          <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langchain.com/langsmith/engine"><strong>Engine</strong><span class="external" aria-hidden="true">↗</span><small>실행 실패 진단·개선</small></a>
+    <div class="map" aria-label="문서 검색 에이전트 구성도">
+      <div class="access">
+        <p class="sample">직원 · 질문과 답변</p>
+        <div class="stem" aria-hidden="true"></div>
+        <a class="node" href="https://docs.langchain.com/langsmith/deploy-overview" target="_blank" rel="noopener noreferrer"><strong>Deployment</strong><small>에이전트 코드에 접속할 API 제공</small></a>
+        <div class="stem" aria-hidden="true"></div>
+      </div>
+      <section class="cluster runtime">
+        <h2>사내 문서 검색 에이전트</h2>
+        <div class="parts">
+          <span>모델 · 답변 생성</span>
+          <span>문서 검색기 · 근거 찾기</span>
+        </div>
+        <div class="stem" aria-hidden="true"></div>
+        <a class="node" href="https://docs.langchain.com/oss/python/langchain/overview" target="_blank" rel="noopener noreferrer"><strong>LangChain</strong><small>모델과 검색 도구를 연결해 근거가 있는 답변 구성</small></a>
+        <div class="add-ons">
+          <h3>더 복잡한 작업을 맡길 때</h3>
+          <div class="pair">
+            <a class="node" href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank" rel="noopener noreferrer"><strong>LangGraph</strong><small>공유 상태와 분기를 설계해 실행 흐름 제어</small></a>
+            <a class="node" href="https://docs.langchain.com/oss/python/deepagents/overview" target="_blank" rel="noopener noreferrer"><strong>Deep Agents</strong><small>업무 도구에 계획·파일 작업·하위 에이전트 추가</small></a>
+          </div>
         </div>
       </section>
+      <span class="connector trace">실행 기록</span>
+      <section class="cluster monitor">
+        <a class="platform" href="https://www.langchain.com/resources/what-is-langsmith" target="_blank" rel="noopener noreferrer">LangSmith</a>
+        <h2>실행 들여다보기</h2>
+        <a class="node" href="https://docs.langchain.com/langsmith/observability" target="_blank" rel="noopener noreferrer"><strong>Observability</strong><small>모델 호출·검색 결과·오류 추적</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/engine" target="_blank" rel="noopener noreferrer"><strong>Engine</strong><small>누적 실행 기록에서 반복 실패 진단</small></a>
+      </section>
+      <span class="connector answer">에이전트 답변</span>
+      <section class="cluster test">
+        <h2>답변 품질 확인하기</h2>
+        <p class="sample">테스트 질문 · 평가 기준</p>
+        <a class="node" href="https://docs.langchain.com/langsmith/evaluation" target="_blank" rel="noopener noreferrer"><strong>Evaluation</strong><small>테스트 결과를 채점하고 변경 전후 비교</small></a>
+      </section>
     </div>
-    <section class="group related" aria-labelledby="related-heading">
-      <h2 id="related-heading">관련 프로젝트</h2>
-      <div class="related-grid">
-        <a class="node" target="_blank" rel="noopener noreferrer" href="https://github.com/langchain-ai/langmem"><strong>LangMem</strong><span class="external" aria-hidden="true">↗</span><small>에이전트 장기 메모리</small></a>
-        <a class="node" target="_blank" rel="noopener noreferrer" href="https://github.com/langchain-ai/langserve"><strong>LangServe</strong><span class="external" aria-hidden="true">↗</span><small>체인을 REST API로 제공 · 아카이브</small></a>
-        <a class="node" target="_blank" rel="noopener noreferrer" href="https://docs.langflow.org/"><strong>Langflow</strong><span class="external" aria-hidden="true">↗</span><small>시각적 AI 워크플로 빌더 · 별도 프로젝트</small></a>
+    <section class="cluster side">
+      <h2>개발·운영을 돕는 도구</h2>
+      <div class="extras">
+        <a class="node" href="https://docs.langchain.com/langsmith/fleet" target="_blank" rel="noopener noreferrer"><strong>Fleet</strong><small>업무 지시와 앱 권한으로 노코드 에이전트 구성</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/python/managed-deep-agents-overview" target="_blank" rel="noopener noreferrer"><strong>Managed Deep Agents</strong><small>모델과 도구를 설정해 Deep Agents를 호스팅</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/sandboxes" target="_blank" rel="noopener noreferrer"><strong>Sandboxes</strong><small>코드와 파일을 격리된 환경에서 실행</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/llm-gateway" target="_blank" rel="noopener noreferrer"><strong>LLM Gateway</strong><small>모델 제공자 연결·접근과 사용량 관리</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/prompt-context-hub" target="_blank" rel="noopener noreferrer"><strong>Prompt &amp; Context Hub</strong><small>프롬프트와 지시문의 버전 관리</small></a>
+      </div>
+    </section>
+    <section class="cluster side">
+      <h2>관련 프로젝트</h2>
+      <div class="extras">
+        <a class="node" href="https://github.com/langchain-ai/langmem" target="_blank" rel="noopener noreferrer"><strong>LangMem</strong><small>작업 기록을 장기 메모리로 저장</small></a>
+        <a class="node" href="https://docs.langflow.org/" target="_blank" rel="noopener noreferrer"><strong>Langflow</strong><small>컴포넌트를 화면에서 연결해 워크플로 구성</small></a>
+        <a class="node" href="https://github.com/langchain-ai/langserve" target="_blank" rel="noopener noreferrer"><strong>LangServe</strong><small>Runnable을 REST API로 제공 · 아카이브</small></a>
       </div>
     </section>
   </div>
-  <footer>아이콘 출처 <a href="https://docs.langchain.com/oss/python/langchain/overview">LangChain Docs</a> · <a href="https://lucide.dev/">Lucide</a> · <a href="https://github.com/caru-ini/stack-diagram">made with stack-diagram</a></footer>
 </main>
 </body>
 </html>
