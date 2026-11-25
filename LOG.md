@@ -243,3 +243,4 @@
 | 2026-11-24 | llm/20261124 | Day27 강의 자료 Slack 링크 공개(시트 동기화, release 3e2fcfb · main 8986052, Day28·docker 제외) | 배포 |
 | 2026-11-24 | llm/20261125 | Day28 Colab 실습 폴더 링크 등록(노트북 02~07·문제 1개, Drive 03. 실습/05. LLM RAG/20261125, Colab T4에서 06·07 live 확인) | main만 |
 | 2026-11-25 | cheatsheet/lang-ecosystem | 클릭 가능한 LangChain 생태계 도식을 LLM·RAG 과목 참고 문서에 추가 | main |
+| 2026-11-25 | cheatsheet/lang-ecosystem | 화살표를 제거하고 카드 설명에 실행·추적 관계를 명시 | main |
