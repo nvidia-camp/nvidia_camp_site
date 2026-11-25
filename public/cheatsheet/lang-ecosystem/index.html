@@ -51,48 +51,84 @@ body { margin: 0; background: var(--canvas); color: var(--text); font-family: va
   background-image: radial-gradient(var(--line) 1px, transparent 1px);
   background-size: 16px 16px;
 }
-.group { padding: clamp(12px, 2vw, 20px); border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
-.group + .group { margin-top: 12px; }
-.flow-list { margin: 0; padding: 0; list-style: none; }
-.flow-row, .flow-key {
+.map {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, .82fr) minmax(0, 1.15fr);
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1.35fr) 100px minmax(0, 1fr);
+  grid-template-areas: "access . ." "runtime trace monitor" "runtime answer test";
+  gap: 12px 0;
+  align-items: center;
+}
+.access { grid-area: access; text-align: center; justify-self: center; width: min(100%, 300px); }
+.runtime { grid-area: runtime; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+.monitor { grid-area: monitor; }
+.test { grid-area: test; }
+.trace { grid-area: trace; }
+.answer { grid-area: answer; }
+.cluster {
+  min-width: 0;
+  padding: clamp(12px, 2vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--soft);
+}
+.runtime { border: 2px solid var(--accent); }
+.runtime h2 { color: var(--navy); font-size: clamp(1.05rem, 2.1vw, 1.35rem); }
+.cluster h2 { margin-bottom: 10px; }
+.parts, .pair, .extras {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-.flow-key { margin: 12px 0 6px; color: var(--muted); font-size: .8rem; font-weight: 650; }
-.flow-key span { padding-inline: 12px; }
-.flow-row + .flow-row { margin-top: 6px; }
-.flow-input, .flow-tool, .flow-result {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  padding: 9px 12px;
+.parts span, .sample {
+  border: 1px solid var(--line);
   border-radius: 8px;
-  font-size: .9rem;
+  padding: 8px;
+  color: var(--muted);
+  font-size: .84rem;
+  text-align: center;
+}
+.stem { width: 2px; height: 14px; margin: auto; background: var(--accent); }
+.access .stem:last-child { height: 26px; }
+.access { margin-bottom: -12px; }
+.node {
+  display: grid;
+  align-content: center;
+  min-height: 56px;
+  gap: 3px;
+  padding: 8px 10px;
+  color: var(--navy);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-decoration: none;
   overflow-wrap: anywhere;
-  word-break: keep-all;
 }
-.flow-input { border: 1px solid var(--line); color: var(--muted); }
-.flow-tool { border: 1px solid var(--line); background: var(--surface); color: var(--navy); font-weight: 750; text-decoration: none; }
-.flow-tool:hover { border-color: var(--accent); color: var(--accent); }
-.flow-tool:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.flow-result { background: var(--surface); border-inline-start: 3px solid var(--accent); }
-.mobile-label { display: none; }
-.ecosystem footer { margin-top: 16px; color: var(--muted); font-size: .85rem; }
-.ecosystem footer a { color: var(--accent); }
-@media (max-width: 620px) {
-  .flow-key { display: none; }
-  .flow-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-  .flow-row + .flow-row { margin-top: 12px; }
-  .flow-tool { grid-column: 1 / -1; grid-row: 1; min-height: 44px; }
-  .flow-input, .flow-result { display: block; padding: 7px 8px; font-size: .8rem; }
-  .mobile-label { display: block; font-size: .73rem; color: var(--muted); font-weight: 700; }
+.node strong { font-size: .94rem; }
+.node small { color: var(--muted); font-size: .79rem; word-break: keep-all; }
+.node:hover { border-color: var(--accent); }
+.node:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.runtime > .node { border-color: var(--accent); }
+.add-ons { margin-top: 14px; }
+.add-ons h3 { margin-bottom: 6px; color: var(--muted); font-size: .82rem; }
+.connector { display: grid; text-align: center; color: var(--accent); font-size: .74rem; font-weight: 700; }
+.connector::after { content: ""; border-top: 2px dashed var(--accent); margin-top: 4px; }
+.platform { display: inline-block; margin-bottom: 8px; color: var(--navy); font-size: .8rem; font-weight: 700; text-decoration: none; }
+.platform:hover { color: var(--accent); }
+.test .sample { margin-bottom: 6px; }
+.monitor .node + .node { margin-top: 6px; }
+.side { margin-top: 16px; }
+.extras { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 720px) {
+  .map { grid-template-columns: minmax(0, 1fr); grid-template-areas: "access" "runtime" "trace" "monitor" "answer" "test"; gap: 0; }
+  .access { margin: 0; }
+  .access .stem:last-child { height: 14px; }
+  .connector { min-height: 36px; grid-auto-flow: column; justify-content: center; align-items: center; gap: 6px; }
+  .connector::after { grid-column: 1; border: 0; border-left: 2px dashed var(--accent); height: 30px; margin: 0; }
+  .answer::after { display: none; }
+
+  .extras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media print {
-  .flow-row { break-inside: avoid; }
-  .ecosystem { padding: 0; }
-}
+@media print { .cluster, .node { break-inside: avoid; } }
 </style>
 <link rel="stylesheet" href="/fonts/pretendard/pretendardvariable-dynamic-subset.css">
 <script>/* =====================================================================
@@ -502,110 +538,65 @@ html{scroll-padding-top:3rem}
 <main class="ecosystem">
   <header>
     <h1>LangChain 생태계 한눈에 보기</h1>
-    <p>지금 준비된 것과 원하는 결과를 비교해 도구를 고르세요. 도구 이름을 선택하면 공식 문서가 새 탭에 열립니다.</p>
+    <p>사내 문서에 답하는 에이전트를 예로, 각 도구가 시스템의 어디에 붙는지 살펴봅니다. 도구를 선택하면 공식 문서가 열립니다.</p>
   </header>
   <div class="canvas">
-    <section class="group">
-      <h2>에이전트 만들기</h2>
-      <div class="flow-key" aria-hidden="true"><span>준비할 것</span><span>도구</span><span>해결하는 것</span></div>
-      <ul class="flow-list">
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>모델 · 프롬프트 · 검색기나 도구</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/oss/python/langchain/overview" target="_blank" rel="noopener noreferrer">LangChain</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>RAG 구성 · 도구 호출 에이전트</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>단계 · 분기 조건 · 공유 상태</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank" rel="noopener noreferrer">LangGraph</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>상태를 기억하는 워크플로</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>모델 · 지시문 · 업무 도구</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/oss/python/deepagents/overview" target="_blank" rel="noopener noreferrer">Deep Agents</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>계획 · 파일 작업 · 하위 에이전트</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>업무 지시 · 연결할 앱과 권한</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/fleet" target="_blank" rel="noopener noreferrer">Fleet</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>코드 없이 구성한 팀 에이전트</span>
-        </li>
-      </ul>
+    <div class="map" aria-label="문서 검색 에이전트 구성도">
+      <div class="access">
+        <p class="sample">직원 · 질문과 답변</p>
+        <div class="stem" aria-hidden="true"></div>
+        <a class="node" href="https://docs.langchain.com/langsmith/deploy-overview" target="_blank" rel="noopener noreferrer"><strong>Deployment</strong><small>에이전트 코드에 접속할 API 제공</small></a>
+        <div class="stem" aria-hidden="true"></div>
+      </div>
+      <section class="cluster runtime">
+        <h2>사내 문서 검색 에이전트</h2>
+        <div class="parts">
+          <span>모델 · 답변 생성</span>
+          <span>문서 검색기 · 근거 찾기</span>
+        </div>
+        <div class="stem" aria-hidden="true"></div>
+        <a class="node" href="https://docs.langchain.com/oss/python/langchain/overview" target="_blank" rel="noopener noreferrer"><strong>LangChain</strong><small>모델과 검색 도구를 연결해 근거가 있는 답변 구성</small></a>
+        <div class="add-ons">
+          <h3>더 복잡한 작업을 맡길 때</h3>
+          <div class="pair">
+            <a class="node" href="https://docs.langchain.com/oss/python/langgraph/overview" target="_blank" rel="noopener noreferrer"><strong>LangGraph</strong><small>공유 상태와 분기를 설계해 실행 흐름 제어</small></a>
+            <a class="node" href="https://docs.langchain.com/oss/python/deepagents/overview" target="_blank" rel="noopener noreferrer"><strong>Deep Agents</strong><small>업무 도구에 계획·파일 작업·하위 에이전트 추가</small></a>
+          </div>
+        </div>
+      </section>
+      <span class="connector trace">실행 기록</span>
+      <section class="cluster monitor">
+        <a class="platform" href="https://www.langchain.com/resources/what-is-langsmith" target="_blank" rel="noopener noreferrer">LangSmith</a>
+        <h2>실행 들여다보기</h2>
+        <a class="node" href="https://docs.langchain.com/langsmith/observability" target="_blank" rel="noopener noreferrer"><strong>Observability</strong><small>모델 호출·검색 결과·오류 추적</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/engine" target="_blank" rel="noopener noreferrer"><strong>Engine</strong><small>누적 실행 기록에서 반복 실패 진단</small></a>
+      </section>
+      <span class="connector answer">에이전트 답변</span>
+      <section class="cluster test">
+        <h2>답변 품질 확인하기</h2>
+        <p class="sample">테스트 질문 · 평가 기준</p>
+        <a class="node" href="https://docs.langchain.com/langsmith/evaluation" target="_blank" rel="noopener noreferrer"><strong>Evaluation</strong><small>테스트 결과를 채점하고 변경 전후 비교</small></a>
+      </section>
+    </div>
+    <section class="cluster side">
+      <h2>개발·운영을 돕는 도구</h2>
+      <div class="extras">
+        <a class="node" href="https://docs.langchain.com/langsmith/fleet" target="_blank" rel="noopener noreferrer"><strong>Fleet</strong><small>업무 지시와 앱 권한으로 노코드 에이전트 구성</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/python/managed-deep-agents-overview" target="_blank" rel="noopener noreferrer"><strong>Managed Deep Agents</strong><small>모델과 도구를 설정해 Deep Agents를 호스팅</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/sandboxes" target="_blank" rel="noopener noreferrer"><strong>Sandboxes</strong><small>코드와 파일을 격리된 환경에서 실행</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/llm-gateway" target="_blank" rel="noopener noreferrer"><strong>LLM Gateway</strong><small>모델 제공자 연결·접근과 사용량 관리</small></a>
+        <a class="node" href="https://docs.langchain.com/langsmith/prompt-context-hub" target="_blank" rel="noopener noreferrer"><strong>Prompt &amp; Context Hub</strong><small>프롬프트와 지시문의 버전 관리</small></a>
+      </div>
     </section>
-    <section class="group">
-      <h2>실행 확인하고 품질 개선하기</h2>
-      <div class="flow-key" aria-hidden="true"><span>준비할 것</span><span>도구</span><span>해결하는 것</span></div>
-      <ul class="flow-list">
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>트레이싱을 연결한 앱 · 실제 실행</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/observability" target="_blank" rel="noopener noreferrer">Observability</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>모델 호출 · 도구 실행 · 오류 기록</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>테스트 입력 · 평가 기준</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/evaluation" target="_blank" rel="noopener noreferrer">Evaluation</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>품질 점수 · 변경 전후 비교</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>LangSmith에 기록된 실제 실행</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/engine" target="_blank" rel="noopener noreferrer">Engine</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>반복되는 실패 패턴 · 개선 후보</span>
-        </li>
-      </ul>
-    </section>
-    <section class="group">
-      <h2>배포하고 운영하기</h2>
-      <div class="flow-key" aria-hidden="true"><span>준비할 것</span><span>도구</span><span>해결하는 것</span></div>
-      <ul class="flow-list">
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>에이전트 코드 · 의존성 · 실행 설정</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/deploy-overview" target="_blank" rel="noopener noreferrer">Deployment</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>서비스에서 호출할 수 있는 에이전트</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>모델 · 지시문 · 사용할 도구</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/python/managed-deep-agents-overview" target="_blank" rel="noopener noreferrer">Managed Deep Agents</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>호스팅된 Deep Agents 실행 환경</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>실행할 코드 · 파일 · 런타임 설정</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/sandboxes" target="_blank" rel="noopener noreferrer">Sandboxes</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>격리된 코드 실행 환경</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>모델 공급자 설정 · 접근 정책</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/llm-gateway" target="_blank" rel="noopener noreferrer">LLM Gateway</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>공통 모델 API · 사용량 관제</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>프롬프트 · 지시문 · 배포 환경</span>
-          <a class="flow-tool node" href="https://docs.langchain.com/langsmith/prompt-context-hub" target="_blank" rel="noopener noreferrer">Prompt &amp; Context Hub</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>버전 관리 · 환경별 변경 반영</span>
-        </li>
-      </ul>
-    </section>
-    <section class="group">
+    <section class="cluster side">
       <h2>관련 프로젝트</h2>
-      <div class="flow-key" aria-hidden="true"><span>준비할 것</span><span>도구</span><span>해결하는 것</span></div>
-      <ul class="flow-list">
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>대화 또는 작업 기록</span>
-          <a class="flow-tool node" href="https://github.com/langchain-ai/langmem" target="_blank" rel="noopener noreferrer">LangMem</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>다음 실행에 활용할 장기 메모리</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>모델 · 연결할 컴포넌트</span>
-          <a class="flow-tool node" href="https://docs.langflow.org/" target="_blank" rel="noopener noreferrer">Langflow</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>시각적으로 구성한 AI 워크플로</span>
-        </li>
-        <li class="flow-row">
-          <span class="flow-input"><span class="mobile-label">준비할 것</span>LangChain Runnable</span>
-          <a class="flow-tool node" href="https://github.com/langchain-ai/langserve" target="_blank" rel="noopener noreferrer">LangServe</a>
-          <span class="flow-result"><span class="mobile-label">해결하는 것</span>REST API 제공 · 아카이브</span>
-        </li>
-      </ul>
+      <div class="extras">
+        <a class="node" href="https://github.com/langchain-ai/langmem" target="_blank" rel="noopener noreferrer"><strong>LangMem</strong><small>작업 기록을 장기 메모리로 저장</small></a>
+        <a class="node" href="https://docs.langflow.org/" target="_blank" rel="noopener noreferrer"><strong>Langflow</strong><small>컴포넌트를 화면에서 연결해 워크플로 구성</small></a>
+        <a class="node" href="https://github.com/langchain-ai/langserve" target="_blank" rel="noopener noreferrer"><strong>LangServe</strong><small>Runnable을 REST API로 제공 · 아카이브</small></a>
+      </div>
     </section>
   </div>
-  <footer>플랫폼 개요 <a href="https://www.langchain.com/resources/what-is-langsmith" target="_blank" rel="noopener noreferrer">LangSmith</a></footer>
 </main>
 <style>
 /* 맨 위로 버튼 — 강의 요약·치트시트·설치 가이드 페이지 오른쪽 아래.

@@ -247,3 +247,4 @@
 | 2026-11-25 | cheatsheet/lang-ecosystem | 카드 제목의 밑줄 제거 | main |
 | 2026-11-25 | cheatsheet/lang-ecosystem | LangSmith를 그룹 제목으로 올려 플랫폼 기능의 소속을 표시 | main |
 | 2026-11-25 | cheatsheet/lang-ecosystem | 준비물·도구·결과를 비교하는 작업별 도식으로 재구성 | main |
+| 2026-11-25 | cheatsheet/lang-ecosystem | 문서 검색 에이전트의 구성과 배포·추적·평가 연결을 중심으로 도식 재구성 | main |
