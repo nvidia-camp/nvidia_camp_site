@@ -1,0 +1,26 @@
+{
+ "langchain_core": "1.8.4",
+ "python": "3.12.14",
+ "schema_name": "lookup_status",
+ "schema_args": {
+  "report_id": {
+   "description": "조회할 보고서 번호",
+   "exclusiveMinimum": 0,
+   "title": "Report Id",
+   "type": "integer"
+  }
+ },
+ "neg_error": "Input should be greater than 0",
+ "tool_call": {
+  "name": "lookup_status",
+  "args": {
+   "report_id": 63
+  },
+  "id": "call_1"
+ },
+ "tool_message": {
+  "type": "ToolMessage",
+  "tool_call_id": "call_1",
+  "content": "{\"report_id\": 63, \"index_status\": \"fixture\"}"
+ }
+}
