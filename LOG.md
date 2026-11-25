@@ -250,3 +250,4 @@
 | 2026-11-25 | cheatsheet/lang-ecosystem | 문서 검색 에이전트의 구성과 배포·추적·평가 연결을 중심으로 도식 재구성 | main |
 | 2026-11-25 | llm/20261126 | Day29 AI Agent Fundamentals & Tool Calling 요약·강의 목차·강의 HTML 추가 | main |
 | 2026-11-25 | llm/20261126 | 강의 목차에서 화면 번호 표시 제거 | main |
+| 2026-11-25 | cheatsheet/lang-ecosystem | 역할 색(만드는 부분 파랑·LangSmith 초록·사람 노랑)과 무늬 없는 바탕으로 배색 정리, 에이전트 상자 빈 공간 제거 | main |
