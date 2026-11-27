@@ -42,6 +42,8 @@
   color:var(--day30-ink);font-size:15px;font-weight:700;text-decoration:none;
 }
 .day30-tabs a:hover,.day30-tabs a:focus-visible{border-color:var(--day30-link)}
+.day30-tabs .day30-lecture-link{margin-left:auto;background:var(--day30-hover);color:var(--day30-link)}
+@media(max-width:500px){.day30-tabs .day30-lecture-link{margin-left:0}}
 .day30-tabs a[aria-current="page"]{background:var(--day30-current);border-color:var(--day30-current);color:var(--day30-current-ink)}
 .day30-page nav.toc{
   position:sticky;top:var(--day30-nav-height);z-index:20;

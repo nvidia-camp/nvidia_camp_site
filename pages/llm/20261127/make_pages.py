@@ -23,7 +23,9 @@ def tabs(spec):
     for index, (url, label) in enumerate(links):
         active = ' aria-current="page"' if index == (0 if spec else 1) else ""
         anchors.append(f'<a data-site href="{url}"{active}>{label}</a>')
-    return '<div class="day30-tabs" role="navigation" aria-label="Day30 프로젝트 자료">' + "".join(anchors) + "</div>"
+    lecture_url = "lecture/" if spec else "../lecture/"
+    anchors.append(f'<a class="day30-lecture-link" data-site href="{lecture_url}">오전 강의 자료 보기</a>')
+    return '<div class="day30-tabs" role="navigation" aria-label="Day30 자료">' + "".join(anchors) + "</div>"
 
 
 def heading_and_extras(match):
