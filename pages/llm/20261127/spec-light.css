@@ -1,0 +1,46 @@
+:root:not([data-theme="dark"]){
+  color-scheme:light;
+  --bg:#eef2f6;--sheet:#fff;--card:#f3f7fc;--line:#cbd7e3;--line2:#d8e1eb;
+  --fg:#162237;--fg2:#334d66;--muted:#435e78;--blue:#124d8a;--teal:#16665d;--gold:#805112;--danger:#a0352c;
+}
+:root:not([data-theme="dark"]) .spec-page{
+  a{color:#124d8a}
+  a:hover{color:#163c64}
+  strong{color:#142c49}
+  .cn-nav a{color:#fff}
+  .day30-heading strong{color:inherit}
+  .day30-tabs a[aria-current="page"],nav.toc a[aria-current="location"]{color:#fff}
+  .hero-details span,.hero-cta a.secondary,.top-links a{
+    background:#e8f0fa;border-color:#b8cbe2;color:#124d8a;
+  }
+  .hero-cta a,.print-trigger{background:#215181;color:#fff}
+  .doc-section{box-shadow:0 4px 14px #1533510d}
+  .doc-section :is(h3,h4),.section-meta,.section-meta span,.req-count,.doc-footer{color:#365470}
+  :is(.lead-card,.metric,.mini-card,.details,.requirement-toolbar,.progress-rail>div,.term){
+    background:#f0f6fd;border-color:#c4d7e8;color:#162237;
+  }
+  :is(.lead-card b,.metric b,.mini-card h4,.details>summary,.progress-rail strong,.term b,.step-line b){color:#163c64}
+  :is(.lead-card p,.metric span,.mini-card p,.progress-rail small,.term p,.step-line p){color:#365470}
+  .step-line .steptxt,.doc-footer{border-color:#cbd7e3}
+  .note{background:#e9f6f3;border-color:#9acdc4;border-left-color:#398578;color:#173c39}
+  .note :is(strong,div){color:#214c46}
+  .note.warning{background:#fff6e7;border-color:#dcb77b;border-left-color:#a86b18}
+  .note.warning :is(strong,div){color:#694815}
+  .note.danger{background:#fceeed;border-color:#dda29b;border-left-color:#a94036}
+  .note.danger :is(strong,div){color:#772f28}
+  .tag{border-color:#c6d5e2;background:#edf3f8;color:#2c4b67}
+  .tag-basic{border-color:#a9cfc5;background:#e2f2ee;color:#22594e}
+  .tag-inter{border-color:#aabfe2;background:#e8f0ff;color:#254c82}
+  .tag-advanced{border-color:#d7bd93;background:#fcf1dd;color:#6c4816}
+  .tag-danger{border-color:#dca9a4;background:#fceeed;color:#80332b}
+  .table-scroll,th,td{border-color:#ccd7e3}
+  thead{background:#e7eef6}
+  th{color:#163c64}
+  tbody tr:nth-child(2n){background:#f4f8fc}
+  td small,.test-cases td:first-child{color:#365470}
+  :is(p,td,li) code{background:#e8f1fa;color:#174c75}
+  .toc-tools input,.level-filters button{background:#fff;border-color:#b8cbe2;color:#214e84}
+  .level-filters button.active{background:#214e84;border-color:#214e84;color:#fff}
+  .figure strong{color:#d5ebfc}
+  .figure a{color:#9bd4ff}
+}
