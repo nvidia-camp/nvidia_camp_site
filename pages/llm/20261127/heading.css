@@ -1,0 +1,42 @@
+/* 강사 원본 머리말 요소(상단 줄·칩·바로가기)를 원래 순서대로 남색 머리말 안에 두고, 원본의 어두운 머리말 색을 그대로 쓴다 */
+body.day30-page .day30-heading .topbar{
+  position:static;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;
+  height:auto;min-height:0;margin:0 0 20px;padding:0 0 14px;
+  background:none;border:0;border-bottom:1px solid #ffffff1f;backdrop-filter:none;
+}
+body.day30-page .day30-heading .brand{font-size:13px;letter-spacing:.1em;font-weight:900;color:#afd9ff;text-decoration:none;white-space:nowrap}
+body.day30-page .day30-heading .top-links{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+body.day30-page .day30-heading .top-links span{font-size:12px;color:#a9c6e1}
+body.day30-page .day30-heading .top-links a{font-size:12px;text-decoration:none;background:#192f46;border:1px solid #34536d;border-radius:8px;padding:5px 9px;color:#9bd4ff}
+body.day30-page .day30-heading .top-links a:hover{color:#c4e8ff;border-color:#5988aa}
+body.day30-page .day30-heading .print-trigger{background:#0f4466;border:1px solid #5988aa;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer}
+body.day30-page .day30-heading h1 em{color:#95dcdb}
+body.day30-page .day30-heading .hero-details{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 0}
+body.day30-page .day30-heading .hero-details span{border:1px solid #41627e;background:#1b3b54;border-radius:18px;padding:4px 12px;color:#d6ebf6;font-size:12px}
+body.day30-page .day30-heading .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+body.day30-page .day30-heading .hero-cta a{background:#237bb4;color:#fff;padding:9px 16px;border:1px solid #237bb4;border-radius:8px;text-decoration:none;font-weight:800;font-size:13px}
+body.day30-page .day30-heading .hero-cta a.secondary{background:#18344c;border-color:#4b708f;color:#b9dffe}
+body.day30-page .day30-heading .meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+body.day30-page .day30-heading .meta span{background:#2d4967;border:1px solid #59738e;padding:4px 12px;border-radius:20px;font-size:13px;color:#fff}
+/* 휴대폰: 칩·상단 줄은 한 줄 가로 스크롤로 두어 머리말이 길어지지 않게 */
+@media (max-width:720px){
+  body.day30-page .day30-heading :is(.hero-details,.meta,.top-links){flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+  body.day30-page .day30-heading :is(.hero-details,.meta,.top-links)::-webkit-scrollbar{display:none}
+  body.day30-page .day30-heading :is(.hero-details span,.meta span,.top-links>*){flex:none;white-space:nowrap}
+  /* 상단 줄(브랜드·날짜·바로가기·인쇄)은 한 줄 가로 스크롤 */
+  body.day30-page .day30-heading .topbar{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;margin:0 -16px 14px;padding:0 16px 12px}
+  body.day30-page .day30-heading .topbar::-webkit-scrollbar{display:none}
+  body.day30-page .day30-heading .top-links{flex-wrap:nowrap;overflow:visible;margin:0;padding:0}
+  body.day30-page .day30-heading .hero-cta{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+  body.day30-page .day30-heading .hero-cta a{flex:none;white-space:nowrap}
+  body.day30-page .day30-heading .hero-details,body.day30-page .day30-heading .meta{margin-top:16px}
+}
+@media print{
+  body.day30-page .day30-heading .brand{color:#172b40}
+  body.day30-page .day30-heading .topbar{border-bottom-color:#cbd7e3}
+  body.day30-page .day30-heading .hero-details span,body.day30-page .day30-heading .meta span{background:#edf5fa;border-color:#cedce5;color:#37506a}
+}
+/* 넓은 화면: 두 탭의 머리말 높이를 같게 해 탭을 바꿔도 탭 줄·목차 띠가 제자리에 있게 한다(Day25 기준).
+   명세서 머리말 높이에 맞추고, 짧은 완주 안내 머리말은 세로 가운데 정렬. 휴대폰(720px 이하)은 화면이 좁아 맞추지 않는다 */
+@media screen and (min-width:1219px){body.day30-page .day30-heading{box-sizing:border-box;min-height:358px}}
+@media screen and (min-width:721px) and (max-width:1218px){body.day30-page .day30-heading{box-sizing:border-box;min-height:396px}}

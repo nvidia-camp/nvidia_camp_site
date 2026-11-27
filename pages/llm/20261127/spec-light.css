@@ -10,10 +10,6 @@
   .cn-nav a{color:#fff}
   .day30-heading strong{color:inherit}
   .day30-tabs a[aria-current="page"],nav.toc a[aria-current="location"]{color:#fff}
-  .hero-details span,.hero-cta a.secondary,.top-links a{
-    background:#e8f0fa;border-color:#b8cbe2;color:#124d8a;
-  }
-  .hero-cta a,.print-trigger{background:#215181;color:#fff}
   .doc-section{box-shadow:0 4px 14px #1533510d}
   .doc-section :is(h3,h4),.section-meta,.section-meta span,.req-count,.doc-footer{color:#365470}
   :is(.lead-card,.metric,.mini-card,.details,.requirement-toolbar,.progress-rail>div,.term){

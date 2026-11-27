@@ -1,12 +1,5 @@
 .spec-page .shell{display:block;width:100%;max-width:1220px;margin:auto;padding:18px 20px 80px}
 .spec-page .content{max-width:none}
-.spec-page .spec-intro{margin:0 0 16px}
-.spec-page .spec-intro .hero-details{margin:0 0 12px}
-.spec-page .topbar{
-  position:static;height:auto;min-height:0;margin-bottom:12px;padding:8px 0;
-  background:none;border:0;backdrop-filter:none;flex-wrap:wrap;
-}
-.spec-page .topbar .brand{display:none}
 .spec-page .toc-tools{margin:0 0 14px;padding:10px 0;border-top:0}
 .spec-page .toc-tools input{max-width:360px}
 .spec-page .doc-section,.spec-page .svg-scroll,.spec-page .erd-viewport{min-width:0;max-width:100%}

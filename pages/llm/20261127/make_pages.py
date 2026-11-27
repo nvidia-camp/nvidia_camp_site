@@ -22,21 +22,17 @@ def tabs(spec):
     anchors = []
     for index, (url, label) in enumerate(links):
         active = ' aria-current="page"' if index == (0 if spec else 1) else ""
-        anchors.append(f'<a data-site href="{url}"{active}>{label}</a>')
+        anchors.append(f'<a data-site href="{url}"{active}><span class="n">{index + 1}</span>{label}</a>')
     lecture_url = "lecture/" if spec else "../lecture/"
-    anchors.append(f'<a class="day30-lecture-link" data-site href="{lecture_url}">오전 강의 자료 보기</a>')
+    anchors.append(f'<a class="day30-lecture-link" data-site href="{lecture_url}">오전 강의 자료 →</a>')
     return '<div class="day30-tabs" role="navigation" aria-label="Day30 자료">' + "".join(anchors) + "</div>"
 
 
-def heading_and_extras(match):
+def heading(match, top=""):
+    """Site heading with every original header element kept in its original order."""
     eyebrow, title, subtitle, extras = match.groups()
     title = re.sub(r"<br\s*/?>", " ", title)
-    subtitle = re.sub(r"<br\s*/?>", " ", subtitle)
-    return (
-        '<header class="day30-heading">'
-        f'{eyebrow}{title}{subtitle}</header>',
-        extras.strip(),
-    )
+    return f'<header class="day30-heading">{top}{eyebrow}{title}{subtitle}{extras}</header>'
 
 
 def build_spec(text):
@@ -45,7 +41,7 @@ def build_spec(text):
     toc = re.search(r'<nav class="toc"[^>]*>(.*?)</nav>', text, re.S)
     if not header or not topbar or not toc:
         raise ValueError("Missing SRS header, controls, or table of contents")
-    banner, extras = heading_and_extras(header)
+    banner = heading(header, topbar[0])
     links, _, requirement_search = toc[1].partition('<div class="toc-tools">')
     if not requirement_search:
         raise ValueError("Missing SRS requirement search")
@@ -54,8 +50,6 @@ def build_spec(text):
     text = replace_once(text, header[0], banner + tabs(spec=True) +
                         '<nav class="toc" aria-label="요구사항명세서 목차">' + links + '</nav>')
     text = replace_once(text, toc[0], "")
-    text = replace_once(text, '<main class="content">', '<main class="content">' +
-                        '<div class="spec-intro">' + topbar[0] + extras + '</div>')
     search_point = '<div class="requirement-toolbar">'
     text = replace_once(text, search_point, '<div class="toc-tools">' + requirement_search + search_point)
     for section, label in (
@@ -77,9 +71,7 @@ def build_guide(text):
     header = re.search(r'<header>(\s*<div class="eyebrow">.*?</div>)(\s*<h1>.*?</h1>)(\s*<p class="lead">.*?</p>)(.*?)</header>', text, re.S)
     if not header:
         raise ValueError("Missing Basic guide header")
-    banner, extras = heading_and_extras(header)
-    text = replace_once(text, header[0], banner + tabs(spec=False))
-    text = replace_once(text, "<main>", "<main>" + extras)
+    text = replace_once(text, header[0], heading(header) + tabs(spec=False))
     text = replace_once(text, '<nav aria-label="목차">', '<nav class="toc" aria-label="목차">')
     return re.sub(r"<style>.*?</style>",
                   lambda m: re.sub(r"\bnav\b", "nav.toc", m[0]), text, flags=re.S)
@@ -92,6 +84,7 @@ def render(spec, pattern, target):
     styles = [read("document.css"), read("spec.css")] if spec else [read("guide.css"), read("document.css"), read("progress.css")]
     if spec:
         styles.append("@media screen {\n" + read("spec-light.css") + "\n}")
+    styles.append(read("heading.css"))
     scripts = [read("document.js")]
     if not spec:
         scripts.append(read("progress.js"))
