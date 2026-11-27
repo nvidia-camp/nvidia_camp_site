@@ -4,33 +4,227 @@
 :root{--ink:#19273c;--sub:#40536c;--blue:#214e84;--teal:#11665d;--border:#d6dfec;--paper:#fff;--wash:#f3f6fa;--soft:#eaf1fa;--warn:#6d4311;--warn-bg:#fff5e7}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:92px}body{margin:0;background:var(--wash);color:var(--ink);font:16px/1.85 "Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR",system-ui,sans-serif;word-break:keep-all;overflow-wrap:anywhere}
 a{color:#205a9c;text-underline-offset:3px}a:hover{color:#143f70}header{background:#18324f;color:#fff;padding:54px max(24px,calc((100% - 1180px)/2)) 40px}header .eyebrow{color:#a9d7ed}header h1{font-size:clamp(28px,4vw,42px);line-height:1.4;margin:12px 0 16px;letter-spacing:-1px}header p{max-width:900px;color:#e0eaf6;margin:0}.meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}.meta span{background:#2d4967;border:1px solid #59738e;padding:4px 12px;border-radius:20px;font-size:13px;color:#fff}
-nav[aria-label="목차"]{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;justify-content:center;gap:8px 16px;flex-wrap:wrap;box-shadow:0 3px 12px #142b4510}nav[aria-label="목차"] a{font-size:13px;text-decoration:none;color:var(--blue);font-weight:700;padding:3px 1px}nav[aria-label="목차"] a:hover{text-decoration:underline}
+nav.toc{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;justify-content:center;gap:8px 16px;flex-wrap:wrap;box-shadow:0 3px 12px #142b4510}nav.toc a{font-size:13px;text-decoration:none;color:var(--blue);font-weight:700;padding:3px 1px}nav.toc a:hover{text-decoration:underline}
 main{max-width:1220px;margin:28px auto 64px;padding:0 20px}section{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:34px 38px;margin:0 0 24px;box-shadow:0 3px 16px #19273c05}.eyebrow{font-size:12px;line-height:1.5;letter-spacing:1.4px;font-weight:800;color:var(--teal)}h2{font-size:26px;line-height:1.5;margin:9px 0 20px;letter-spacing:-.6px}h3{font-size:19px;color:var(--blue);margin:28px 0 10px;line-height:1.6}p{margin:12px 0}strong{font-weight:750}.lead{font-size:19px;line-height:1.9}ul,ol{padding-left:24px;margin:14px 0}li{padding-left:3px;margin:7px 0}
 .loop{list-style:none;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:26px 0;counter-reset:loop}.loop li{background:var(--soft);border-top:3px solid var(--blue);border-radius:7px;margin:0;padding:17px;font-size:14px;counter-increment:loop}.loop strong{display:inline-block;color:var(--blue);font-size:16px;margin-bottom:5px}.loop strong:before{content:counter(loop)". ";font-size:13px}.legend{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.legend span{font-size:13px;background:#edf5f3;color:#1f514c;border:1px solid #b9d4cd;border-radius:7px;padding:8px 12px}.legend b{display:block;font-size:14px}
 blockquote{margin:22px 0;padding:18px 23px;border-left:4px solid var(--teal);background:#f0f7f5;border-radius:0 8px 8px 0;font-size:17px;color:#214b46}blockquote span{display:block;color:#31675e;font-size:11px;font-weight:800;letter-spacing:.7px;margin-bottom:8px}.note,.attention{border-radius:9px;margin:23px 0;padding:17px 21px;border:1px solid #c9d9ed;background:#f1f6fc}.note strong{color:#204b7d}.attention{border-color:#e8cfaa;background:var(--warn-bg)}.attention strong{color:var(--warn)}aside p{margin:7px 0 0;font-size:14px}.gate{border-top:1px solid #b9d4cd;color:#175c52;background:#f2f8f6;margin:26px 0 0;padding:15px 16px;border-radius:0 0 6px 6px;font-size:14px}
 .table-wrap{overflow-x:auto;margin:20px 0;border:1px solid var(--border);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:650px;font-size:14px;line-height:1.75}th,td{text-align:left;padding:13px 15px;border-right:1px solid #e2e8f1;border-bottom:1px solid #e2e8f1;vertical-align:top}th{background:#eaf0f8;color:#244366;font-weight:800}tr:last-child td{border-bottom:0}th:last-child,td:last-child{border-right:0}tbody tr:nth-child(even){background:#fafbfd}td:first-child{font-weight:650}td code{font-size:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px}.two-col>div{min-width:0}
 code{font-family:Consolas,"Cascadia Code","Noto Sans Mono CJK KR",monospace;font-size:.89em;background:#edf1f6;color:#233e65;border-radius:4px;padding:2px 5px;word-break:break-word}pre{position:relative;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;margin:18px 0;padding:35px 21px 20px;border-radius:9px;background:#18263a;color:#eef3fa;border:1px solid #34465e;font:13px/1.75 Consolas,"Cascadia Code","Noto Sans Mono CJK KR",monospace;tab-size:4}pre:before{content:attr(data-language);position:absolute;top:8px;left:21px;color:#9fc7ec;text-transform:uppercase;letter-spacing:1px;font-size:10px}pre code{padding:0;border-radius:0;background:transparent;color:inherit;font:inherit;white-space:inherit}
 details{border:1px solid #cfdced;border-radius:8px;background:#fbfcfe;margin:14px 0;padding:0 18px}summary{cursor:pointer;font-size:14px;font-weight:750;color:#254e7b;padding:15px 0;line-height:1.7}details[open] summary{border-bottom:1px solid #dbe4ef;margin-bottom:15px}details p{font-size:14px}.muted{font-size:13px;color:var(--sub)}footer{color:var(--sub);text-align:center;font-size:13px;padding:0 24px 34px}
-@media(max-width:850px){section{padding:25px 22px}.loop{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}h2{font-size:23px}nav[aria-label="목차"]{position:static;justify-content:flex-start}.lead{font-size:17px}}
+@media(max-width:850px){section{padding:25px 22px}.loop{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}h2{font-size:23px}nav.toc{position:static;justify-content:flex-start}.lead{font-size:17px}}
 @media(max-width:500px){main{padding:0 10px}.loop{grid-template-columns:1fr}section{padding:22px 16px;border-radius:10px}header{padding:32px 20px}pre{font-size:12px;padding-left:14px;padding-right:14px}}
-@page{size:A4;margin:15mm 13mm}@media print{html{scroll-behavior:auto}body{background:#fff;font-size:10pt;line-height:1.65}header{background:#fff;color:#172b43;padding:0 0 12mm;border-bottom:2px solid #214e84}header p,header .eyebrow{color:#344f69}header h1{font-size:25pt}.meta span{background:#eef2f7;color:#294461;border-color:#c5d2e1}nav[aria-label="목차"]{display:none}main{padding:0;margin:0;max-width:none}section{padding:7mm 0;margin:0;border:0;border-bottom:1px solid #cad5e2;border-radius:0;box-shadow:none}h2{font-size:17pt;break-after:avoid}h3{font-size:12pt;break-after:avoid}.lead{font-size:11pt}table{min-width:0;font-size:8.5pt}th,td{padding:7px}thead{display:table-header-group}tr{break-inside:avoid}.table-wrap{overflow:visible}pre{background:#f1f4f8;color:#172b43;border-color:#b9c7d8;font-size:8pt;line-height:1.6;break-inside:auto}pre:before{color:#395a7a}blockquote{font-size:10.5pt}.loop li,.gate{font-size:9pt}.legend span{font-size:9pt}details{border:0;padding:0}details:not([open])>:not(summary){display:block!important}summary{font-size:10pt}.two-col{grid-template-columns:1fr}footer{font-size:8pt;padding-top:10mm}a{color:#264c75}}
+@page{size:A4;margin:15mm 13mm}@media print{html{scroll-behavior:auto}body{background:#fff;font-size:10pt;line-height:1.65}header{background:#fff;color:#172b43;padding:0 0 12mm;border-bottom:2px solid #214e84}header p,header .eyebrow{color:#344f69}header h1{font-size:25pt}.meta span{background:#eef2f7;color:#294461;border-color:#c5d2e1}nav.toc{display:none}main{padding:0;margin:0;max-width:none}section{padding:7mm 0;margin:0;border:0;border-bottom:1px solid #cad5e2;border-radius:0;box-shadow:none}h2{font-size:17pt;break-after:avoid}h3{font-size:12pt;break-after:avoid}.lead{font-size:11pt}table{min-width:0;font-size:8.5pt}th,td{padding:7px}thead{display:table-header-group}tr{break-inside:avoid}.table-wrap{overflow:visible}pre{background:#f1f4f8;color:#172b43;border-color:#b9c7d8;font-size:8pt;line-height:1.6;break-inside:auto}pre:before{color:#395a7a}blockquote{font-size:10.5pt}.loop li,.gate{font-size:9pt}.legend span{font-size:9pt}details{border:0;padding:0}details:not([open])>:not(summary){display:block!important}summary{font-size:10pt}.two-col{grid-template-columns:1fr}footer{font-size:8pt;padding-top:10mm}a{color:#264c75}}
 
 :root{color-scheme:only light}.todo{margin-top:22px;padding-top:8px;border-top:1px solid #d6dfec}.todo h3{margin:10px 0}.todo .tag{color:#175c52;font-size:13px;font-weight:700}.todo details{background:#f8fafc}.teacher{border-left:4px solid #11665d}code{overflow-wrap:anywhere}
-:root{color-scheme:only light}.file-card{border:1px solid #cbd7e7;border-radius:10px;padding:18px 22px;margin:22px 0;background:#fff}.file-card h3{margin:4px 0 12px}.file-meta{font-size:13px;color:#34516e}.replace{color:#7a4015;font-weight:750}.code-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.copy-button{border:1px solid #254e7b;border-radius:6px;background:#214e84;color:#fff;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}.copy-button:hover{background:#173d6b}.copy-status{font-size:12px;color:#40536c}.checkline{display:flex;gap:10px;align-items:flex-start;border:1px solid #bad4cd;padding:12px 14px;border-radius:7px;background:#f1f8f5;margin:12px 0;font-size:14px}.checkline input{margin-top:6px;accent-color:#11665d;flex-shrink:0}.phase-status{font-size:13px;color:#28534b}.route{font-size:13px}.request-card{border-top:2px solid #c9d9ed;margin-top:25px;padding-top:12px}.request-card h3{margin-top:8px}.request-card .request-no{font-weight:800;color:#11665d}.manual{background:#fff7eb;border:1px solid #dfc49e;border-radius:8px;padding:17px 20px;margin:20px 0}.empty-file{font-size:14px;background:#f4f7fb;padding:10px 14px;border:1px dashed #a8b8cd;border-radius:6px;margin:10px 0}.map-table td:first-child{white-space:nowrap}.nowrap{white-space:nowrap}.small{font-size:13px;color:#40536c}.path{font-size:14px}pre{white-space:pre-wrap}nav[aria-label="목차"]{justify-content:flex-start}details>summary{font-size:15px}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #df9c2e;outline-offset:3px}@media print{.copy-button,.copy-status{display:none}.file-card{padding:8px 0;border:0}.checkline{break-inside:avoid}details{display:block}}
+:root{color-scheme:only light}.file-card{border:1px solid #cbd7e7;border-radius:10px;padding:18px 22px;margin:22px 0;background:#fff}.file-card h3{margin:4px 0 12px}.file-meta{font-size:13px;color:#34516e}.replace{color:#7a4015;font-weight:750}.code-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}.copy-button{border:1px solid #254e7b;border-radius:6px;background:#214e84;color:#fff;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}.copy-button:hover{background:#173d6b}.copy-status{font-size:12px;color:#40536c}.checkline{display:flex;gap:10px;align-items:flex-start;border:1px solid #bad4cd;padding:12px 14px;border-radius:7px;background:#f1f8f5;margin:12px 0;font-size:14px}.checkline input{margin-top:6px;accent-color:#11665d;flex-shrink:0}.phase-status{font-size:13px;color:#28534b}.route{font-size:13px}.request-card{border-top:2px solid #c9d9ed;margin-top:25px;padding-top:12px}.request-card h3{margin-top:8px}.request-card .request-no{font-weight:800;color:#11665d}.manual{background:#fff7eb;border:1px solid #dfc49e;border-radius:8px;padding:17px 20px;margin:20px 0}.empty-file{font-size:14px;background:#f4f7fb;padding:10px 14px;border:1px dashed #a8b8cd;border-radius:6px;margin:10px 0}.map-table td:first-child{white-space:nowrap}.nowrap{white-space:nowrap}.small{font-size:13px;color:#40536c}.path{font-size:14px}pre{white-space:pre-wrap}nav.toc{justify-content:flex-start}details>summary{font-size:15px}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #df9c2e;outline-offset:3px}@media print{.copy-button,.copy-status{display:none}.file-card{padding:8px 0;border:0}.checkline{break-inside:avoid}details{display:block}}
 
-:root{color-scheme:only light}html{scroll-padding-top:140px}nav[aria-label="목차"]{gap:6px 14px;padding:10px 22px}.progress-meta{font-size:13px;margin-left:auto;color:#40536c;font-weight:700}pre code{display:block}pre{overflow-x:auto}details>summary{overflow-wrap:anywhere}.file-card h3{overflow-wrap:anywhere}.file-card .file-meta{font-weight:700}.request-card h3{overflow-wrap:anywhere}@media(max-width:850px){html{scroll-padding-top:20px}.progress-meta{margin-left:0}}@media print{.progress-meta{display:none}}
+:root{color-scheme:only light}html{scroll-padding-top:140px}nav.toc{gap:6px 14px;padding:10px 22px}.progress-meta{font-size:13px;margin-left:auto;color:#40536c;font-weight:700}pre code{display:block}pre{overflow-x:auto}details>summary{overflow-wrap:anywhere}.file-card h3{overflow-wrap:anywhere}.file-card .file-meta{font-weight:700}.request-card h3{overflow-wrap:anywhere}@media(max-width:850px){html{scroll-padding-top:20px}.progress-meta{margin-left:0}}@media print{.progress-meta{display:none}}
 /* v2: distinguish supplied checks from implementation without changing the original design. */
 .v2-overview,.v2-stage{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 22px}.v2-overview>div,.v2-stage>div{border:1px solid #cbd8e7;background:#f6f8fb;padding:15px 18px;border-radius:8px;min-width:0;font-size:14px;line-height:1.75}.v2-overview b,.v2-stage b{display:block;color:#214e84;font-size:15px;line-height:1.65}.v2-overview span,.v2-stage span{display:block;color:#40536c;font-size:13px}.v2-stage>div:last-child{background:#f1f7f5;border-color:#c5dcd5}.v2-stage>div:last-child b{color:#175c52}.v2-stage a{color:#215d54;font-weight:700}.v2-stage>div>span{font-weight:700;margin-bottom:4px}.v2-return{font-size:13px;margin:12px 0;color:#40536c}.v2-return a{margin-right:10px}.v2-ref{font-size:13px;color:#40536c}.v2-source-note{font-size:13px;color:#40536c}.v2-stage a:focus-visible{outline-offset:2px}@media(max-width:650px){.v2-overview,.v2-stage{grid-template-columns:1fr;gap:8px}.v2-overview>div,.v2-stage>div{padding:12px 14px}}@media print{.v2-stage,.v2-overview{break-inside:avoid}.v2-return{display:none}}
 </style><style>
 @media(min-width:851px){html{scroll-padding-top:156px}}
 </style><style>
-.day30-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:12px max(16px,calc((100% - 1180px)/2));background:#10243a}
-.day30-tabs a{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border:1px solid #567592;border-radius:999px;color:#dcecff;font-weight:700;text-decoration:none}
-.day30-tabs a:hover,.day30-tabs a:focus-visible{border-color:#fff}
-.day30-tabs a[aria-current="page"]{background:#e9f3ff;border-color:#e9f3ff;color:#142c49}
-@media print{.day30-tabs{display:none}}
+.file-card details{border-color:#b8cbe2;border-left:4px solid #214e84;background:#f5f8fc}
+.file-card details>summary{list-style:none;display:flex;align-items:center;gap:10px}
+.file-card details>summary::-webkit-details-marker{display:none}
+.file-card details>summary::before{content:"";flex:none;width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin:0 3px}
+.file-card details[open]>summary::before{transform:rotate(45deg)}
+.file-card details[open]{background:#fbfcfe}
 
-body:has(.cn-nav) nav[aria-label="목차"]{top:3rem}</style></head><body><div class="day30-tabs" role="navigation" aria-label="Day30 프로젝트 자료"><a data-site href="../">요구사항 명세서 v1.1</a><a data-site href="./" aria-current="page">Basic 완주 안내 v2</a></div><header><div class="eyebrow">Day30 · LangChain AI Technical Report Agent · Basic 완주 안내서</div><h1>빈 폴더에서 Basic 완성까지 · v2</h1><p class="lead">main.py → API·Runtime 뼈대 → DB·Agent·Tool → RAG 내부 구현 → 최종 통합<br/>민준튜터 · 공통 검증 파일 000~016 제공 · SRS v1.0 · 2026-11-27 수업</p><div class="meta"><span>Windows 11 · VS Code · Git Bash</span><span>기존 DB report_agent_lab</span><span>Basic B-01~15 / T-01~10</span><span>2026-11-26 실환경 오류 반영</span><span>Top-down · 단계별 실제 연결</span><span>v2 · common/test/ 기반</span></div></header><nav aria-label="목차"><a href="#start">시작</a><a href="#prepare">01 준비</a><a href="#skeleton">02 main·API</a><a href="#database">03 DB 점검</a><a href="#foundation">04 DB 구현</a><a href="#agent_shell">05 Agent·Tool</a><a href="#retrieval">06 E5·검색</a><a href="#rerank">07 Reranking</a><a href="#rag">08 Runnable RAG</a><a href="#agent">09 최종 조립</a><a href="#api">10 FastAPI</a><a href="#tests">11 테스트</a><a href="#live">12 실제 검증</a><a href="#postman">13 Postman</a><a href="#finish">14 완료</a><a href="#troubleshoot">15 문제 해결</a><a href="#sources">16 기준 자료</a><span aria-live="polite" class="progress-meta" id="progressMeta"></span></nav><main><section id="start"><div class="eyebrow">완성 목표 · DAY30 BASIC</div><h2>빈 폴더에서 실제 LangChain AI Agent 완성까지</h2><div class="v2-overview"><div><b>직접 구현</b><code>app/</code> · <code>scripts/</code> · 프로젝트 문서<br/><span>서비스 진입점부터 기능을 연결합니다. Runtime은 임시 버전 1 → 2 → 최종 버전 3으로 발전합니다.</span></div><div><b>공통 제공 · 복사</b><code>common/test/ → test/</code><br/><code>common/tests/01_basic/ → tests/</code><br/><span>검증 코드는 다시 타이핑하지 않습니다. 구현이 끝난 단계의 검증만 실행합니다.</span></div></div><p><strong> 정답을 처음부터 구현하는 순차 안내서입니다.</strong> 11월 20일에는 보고서 DB와 CRUD 서비스를 만들었지만, 이번에는 그 DB만 읽어 기술 보고서의 근거와 현재 인덱싱 상태를 답하는 단일 AI Agent를 개발합니다.</p><aside class="note"><strong>이번 수정본의 기준 · 2026-11-26</strong> <code>Day30_20261127_pjt_단계별검증본.zip</code>의 mentor Basic을 완성합니다. 이번 안내서는 Basic 구현에 한정합니다.</p></aside><ol class="loop"><li><strong>서비스 뼈대</strong><br/>main.py → API → Schema → Runtime 경계</li><li><strong>첫 기능 연결</strong><br/>DB → Agent·Tool 등록 → 실제 상태 조회</li><li><strong>RAG 내부 구현</strong><br/>E5 → pgvector → Cross-Encoder → Runnable</li><li><strong>완성·검증</strong><br/>Runtime 최종 연결 → pytest → Live → Postman</li></ol><div class="table-wrap"><table><thead><tr><th scope="col">출발</th><th scope="col">진행</th><th scope="col">완료</th></tr></thead><tbody><tr><td>빈 <code>langchain-report-assistant/</code></td><td>공통 설정·test/ 복사, 업무 Python은 이 문서에서 하나씩 작성</td><td>강사용 <code>mentor/01_basic</code>과 같은 파일·API</td></tr><tr><td>기존 <code>report_agent_lab</code></td><td>읽기 전용 SELECT, 기존 Overview Vector 사용</td><td>DB 행 수·내용 해시 불변</td></tr><tr><td>실제 CUDA·LLM</td><td>실제 Tool 결과 및 인용 검증</td><td>B-01~15 / T-01~10, Postman Basic 요청 9개</td></tr></tbody></table></div><aside class="note"><strong>따라가는 방법</strong><p>먼저 서비스 진입점과 인터페이스를 작성하고, 필요한 하위 구현을 하나씩 채웁니다. 실행 가능한 최소 뼈대 → DB 조회 경로 → RAG 경로 → 전체 통합 순서입니다. 업무 파일의 전체 코드 버튼을 펼쳐 입력하고, 공통 제공 test/의 번호별 검증을 실행합니다. 검증 파일은 이미 제공하므로 다시 작성하지 않습니다. <strong>mentor 폴더를 통째로 복사하지 않습니다.</strong> 체크박스는 본인 결과를 확인한 후 직접 표시합니다.</p></aside><div class="table-wrap"><table><thead><tr><th>구현 순서</th><th>이번 단계에서 무엇을 만드는가</th><th>실제로 확인하는 것</th><th scope="col">단계별 검증 파일</th></tr></thead><tbody><tr><td>01 → 02</td><td>환경 준비 → main.py, Router, Schema, Runtime 뼈대</td><td>/docs·OpenAPI, 잘못된 입력 422, 아직 미구현인 기능은 NOT_IMPLEMENTED</td><td><a href="#stage-test-000">000</a> · <a href="#stage-test-001">001</a> · <a href="#stage-test-002">002</a></td></tr><tr><td>03 → 04</td><td>기존 DB 확인 → Settings·Repository·Preflight</td><td>실제 DB 읽기, CUDA 확인, 시작 Snapshot</td><td><a href="#stage-test-003">003</a> · <a href="#stage-test-004">004</a> · <a href="#stage-test-005">005</a></td></tr><tr><td>05</td><td>AgentService → Tool·Validator → DB 연결 Runtime</td><td>실제 lookup_status와 /health. RAG는 아직 미구현</td><td><a href="#stage-test-006">006</a></td></tr><tr><td>06 → 08</td><td>E5·Retriever → Cross-Encoder → RagPipeline</td><td>벡터·검색·재정렬·Context를 각각 실측</td><td><a href="#stage-test-007">007</a> · <a href="#stage-test-008">008</a> · <a href="#stage-test-009">009</a> · <a href="#stage-test-010">010</a> · <a href="#stage-test-011">011</a></td></tr><tr><td>09 → 10</td><td>최종 Runtime으로 교체 → 서비스 실행</td><td>모든 구성요소 연결, HTTP 준비 상태</td><td><a href="#stage-test-012">012</a> · <a href="#stage-test-013">013</a> (선택 유료) · <a href="#stage-test-014">014</a> (선택 유료) · <a href="#stage-test-015">015</a></td></tr><tr><td>11 → 16</td><td>테스트·Live·Postman·완료</td><td>기존 계약·정답·검증 범위 유지</td><td>pytest · Live · Postman · <a href="#stage-test-016">016</a></td></tr></tbody></table></div><p class="small">검증 번호를 누르면 해당 공통 제공 파일의 원본이 열립니다. 실제 실행은 각 절의 명령을 따르세요. <a href="#stage-tests">전체 검증 파일 목록과 실행 조건</a></p><aside class="attention"><strong>이번에는 DB를 만들거나 변경하지 않습니다</strong><p>Day25의 CREATE DATABASE, schema.sql, seed.sql, index_overviews.py, CRUD 요청은 사용하지 않습니다. 기존 데이터에 유효한 벡터가 없는 경우 Day30을 미완료로 기록하고 이전 DB의 복구는 강사와 별도로 협의합니다.</p></aside><div class="table-wrap"><table><thead><tr><th scope="col">구분</th><th scope="col">이번 범위</th></tr></thead><tbody><tr><td>Basic</td><td>실제 <code>create_agent</code>, <code>rag_search</code>, <code>lookup_status</code>, API-00/01</td></tr><tr><td>Intermediate / Advanced</td><td>이번 순차 안내서에서는 구현하지 않음. 각각 별도 정답과 SRS의 I/A 요구사항 참조</td></tr><tr><td>검증</td><td>Fixture 및 Live를 구분. 모든 실제 DB·CUDA·LLM 연결은 교실에서 확인</td></tr></tbody></table></div></section><section id="prepare"><div class="eyebrow">01 · B-01~02</div><h2>공통 자료와 CUDA 가상환경을 준비합니다</h2><div class="v2-stage"><div><span>이번 구현</span><b>공통자료 복사 및 CUDA 준비</b></div><div><span>검증 <a href="#stage-test-000">000</a> · <a href="#stage-test-001">001</a></span><b>실제 GPU Tensor 연산, 의존성 검사</b></div></div><p>강사용 전체 ZIP <code>Day30_20261127_pjt_단계별검증본.zip</code>을 풉니다. 그 결과의 <code>Day30_20261127_pjt/</code>와 새 프로젝트를 같은 상위 폴더에 둡니다. 아래 예시 경로는 실제 수정 ZIP의 최상위 폴더 이름을 기준으로 합니다. 이미 동일 이름의 프로젝트가 있다면 다른 빈 작업 경로를 선택합니다.</p><h3>1-1. 새 프로젝트 생성 · Git Bash</h3><div class="code-tools"><button class="copy-button" data-copy="code-1" type="button">전체 내용 복사</button><span aria-live="polite" class="copy-status"></span></div><pre data-language="bash"><code id="code-1">mkdir langchain-report-assistant
+@media (prefers-color-scheme:dark){
+:root{color-scheme:dark;--ink:#e5eaf2;--sub:#9ab6d4;--blue:#93c5fd;--teal:#7fd3c4;--border:#29384e;--paper:#102137;--wash:#0b1220;--soft:#132a44;--warn:#f3c98b;--warn-bg:#2b2112;}
+a{color:#93c5fd}a:hover{color:#bfdbfe}
+.meta span{background:#1c3554;border-color:#3b6182}
+section{box-shadow:none}
+blockquote{background:#10292a;color:#cdeee6}blockquote span{color:#8fd3c3}
+.note{background:#112438;border-color:#2d4863}.note strong{color:#b4d9f5}
+.attention{border-color:#6b5224}.attention strong{color:#f3c98b}
+th,td{border-right-color:#29384e;border-bottom-color:#29384e}th{background:#17304a;color:#e3f4ff}tbody tr:nth-child(even){background:#0f1e31}
+code{background:#172940;color:#9fe4d1}
+pre{background:#091321;color:#ccdfef;border-color:#2c4560}pre:before{color:#7fb3e0}
+details{background:#0f1e31;border-color:#2d4863}summary{color:#b4d9f5}details[open] summary{border-bottom-color:#29384e}
+.todo{border-top-color:#29384e}.todo .tag{color:#7fd3c4}.todo details{background:#0f1e31}
+.file-card{background:#102137;border-color:#35536d}.file-meta,.small,.copy-status{color:#9ab6d4}.replace{color:#f3c98b}
+.copy-button{background:#93c5fd;border-color:#93c5fd;color:#0b1220}.copy-button:hover{background:#bfdbfe}
+.checkline{background:#10292a;border-color:#2c5a52}.checkline input{accent-color:#7fd3c4}
+.request-card{border-top-color:#2d4863}.request-card .request-no{color:#7fd3c4}
+.manual{background:#2b2112;border-color:#6b5224}
+.empty-file{background:#0f1e31;border-color:#3b6182}
+.file-card details{background:#0d1b2c;border-color:#3b6182;border-left-color:#93c5fd}.file-card details[open]{background:#0f1e31}
+}
+
+.guide-page main{min-width:0}
+.guide-page:has(.cn-nav) .code-tools{display:none}
+.guide-page pre{padding-top:16px}
+.guide-page .cp-wrap>pre{padding-top:42px}
+.guide-page pre::before{display:none}
+.guide-page pre code{background:none;color:inherit;padding:0}
+.guide-page .progress-meta{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:500px){
+  .guide-page .file-card{padding:14px 12px}
+  .guide-page .file-card details{padding:0 10px}
+  .guide-page pre,.guide-page pre code{white-space:pre;overflow-wrap:normal;word-break:normal}
+  .guide-page pre{overflow-x:auto}
+  .guide-page .cp-wrap>pre{padding-right:14px}
+}
+@media (prefers-color-scheme:dark){
+  .v2-overview>div,.v2-stage>div{background:var(--soft);border-color:var(--border)}
+  .v2-overview b,.v2-stage b,.v2-return a{color:var(--blue)}
+  .v2-overview p,.v2-stage p{color:var(--ink)}
+  .v2-overview span,.v2-stage span,.v2-ref,.v2-source-note,.v2-return{color:var(--sub)}
+  .v2-stage>div:last-child{background:#10292a;border-color:#2c5a52}
+  .v2-stage>div:last-child b,.v2-stage a{color:#a8e3d6}
+  .v2-return{border-color:var(--border)}
+  .guide-page .file-card h3,.guide-page .request-card h3{color:var(--blue)}
+  .guide-page details .muted{color:var(--sub)}
+}
+
+:root{
+  --day30-heading:linear-gradient(110deg,#172d49,#1d3a5f);
+  --day30-heading-sub:#dce8f5;
+  --day30-heading-eyebrow:#c9ddf3;
+  --day30-surface:#fff;
+  --day30-line:#cbd7e3;
+  --day30-ink:#162237;
+  --day30-link:#214e84;
+  --day30-hover:#eaf1fa;
+  --day30-current:#172d49;
+  --day30-current-ink:#fff;
+  --day30-nav-height:0px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --day30-heading:linear-gradient(110deg,#0f2139,#132c45);
+    --day30-heading-sub:#bcd1e0;
+    --day30-heading-eyebrow:#a9c6e1;
+    --day30-surface:#102137;
+    --day30-line:#35536d;
+    --day30-ink:#e5eaf2;
+    --day30-link:#a8cdf2;
+    --day30-hover:#17304a;
+    --day30-current:#93c5fd;
+    --day30-current-ink:#0b1220;
+  }
+}
+.day30-page .day30-heading{
+  display:flex;flex-direction:column;min-height:190px;
+  padding:31px max(20px,calc((100% - 1180px)/2));margin:0;
+  background:var(--day30-heading);border-bottom:1px solid #2d4863;color:#fff;line-height:1.5;
+}
+.day30-page .day30-heading .eyebrow{color:var(--day30-heading-eyebrow);font-size:12px;letter-spacing:.09em}
+.day30-page .day30-heading h1{font-size:33px;line-height:1.35;letter-spacing:-.025em;color:#fff;margin:7px 0}
+.day30-page .day30-heading h1 em{font-style:normal;color:#fff}
+.day30-page .day30-heading p{font-size:15px;line-height:1.65;color:var(--day30-heading-sub);max-width:930px;margin:0}
+.day30-page .day30-heading strong{color:inherit}
+.day30-tabs{display:flex;flex-wrap:wrap;gap:8px;max-width:1220px;margin:0 auto;padding:16px 20px}
+.day30-tabs a{
+  display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;
+  border:1px solid var(--day30-line);background:var(--day30-surface);border-radius:999px;
+  color:var(--day30-ink);font-size:15px;font-weight:700;text-decoration:none;
+}
+.day30-tabs a:hover,.day30-tabs a:focus-visible{border-color:var(--day30-link)}
+.day30-tabs a[aria-current="page"]{background:var(--day30-current);border-color:var(--day30-current);color:var(--day30-current-ink)}
+.day30-page nav.toc{
+  position:sticky;top:var(--day30-nav-height);z-index:20;
+  display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:4px;
+  width:100%;max-height:none;margin:0;padding:7px max(16px,calc((100% - 1180px)/2));
+  overflow-x:auto;scrollbar-width:none;border:0;border-radius:0;
+  background:var(--day30-surface);box-shadow:0 1px 0 var(--day30-line);
+}
+.day30-page nav.toc a{
+  display:block;flex:none;margin:0;padding:6px 9px;border-radius:999px;
+  color:var(--day30-link);font-size:13px;font-weight:700;line-height:1.5;white-space:nowrap;text-decoration:none;
+}
+.day30-page nav.toc a:hover{background:var(--day30-hover)}
+.day30-page nav.toc a[aria-current="location"]{background:var(--day30-current);color:var(--day30-current-ink)}
+.day30-page nav.toc a:focus-visible{outline:2px solid var(--day30-link);outline-offset:0}
+.day30-page :is(section, details)[id]{scroll-margin-top:0}
+.day30-page .cn-nav a{color:#fff}
+.day30-page pre,.day30-page .cp-wrap,.day30-page .table-scroll,.day30-page .table-wrap{min-width:0;max-width:100%}
+.day30-page .cp-btn{color:#e6effa}
+.day30-page .doc-part{color:var(--day30-ink);font-size:19px;margin:34px 0 12px;border-bottom:2px solid var(--day30-line);padding-bottom:8px}
+@media(max-width:720px){
+  .day30-page .day30-heading{min-height:217px;padding:22px 16px}
+  .day30-page .day30-heading .eyebrow{min-height:3em}
+  .day30-page .day30-heading h1{font-size:26px;min-height:2.7em}
+  .day30-tabs{padding:12px 16px}
+  .day30-tabs a{font-size:13px;padding-inline:10px}
+}
+@media(max-width:520px){
+  .day30-page .day30-heading{min-height:242px}
+}
+@media(max-width:420px){
+  .day30-page .day30-heading{min-height:267px}
+}
+@media(max-width:350px){
+  .day30-page .day30-heading{min-height:292px}
+}
+@media print{
+  .day30-tabs,.day30-page nav.toc{display:none!important}
+  .day30-page .day30-heading{display:block;min-height:0;padding:0 0 10mm;background:white;color:#172b40}
+  .day30-page .day30-heading :is(h1,h1 em,.eyebrow,p,strong){color:#172b40}
+}
+
+.pg{position:fixed;z-index:850;width:204px;box-sizing:border-box;padding:0 14px 12px;border:1px solid #214e8433;border-radius:14px;overflow:hidden;
+  background:var(--paper);color:var(--ink);font-size:13px;line-height:1.5;
+  box-shadow:0 22px 48px -14px #0f1e3159,0 6px 16px -4px #0f1e3124,0 0 0 4px #214e840d;
+  animation:pgIn .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.pg.bump{animation:pgBump .7s ease}
+@keyframes pgBump{0%{box-shadow:0 22px 48px -14px #0f1e3159,0 6px 16px -4px #0f1e3124,0 0 0 4px #11665d55}
+  100%{box-shadow:0 22px 48px -14px #0f1e3159,0 6px 16px -4px #0f1e3124,0 0 0 4px #214e840d}}
+.pg-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 -14px 12px;padding:10px 14px 9px;
+  background:linear-gradient(110deg,#172d49,#1d3a5f);color:#fff}
+.pg-head b{font-size:13px}
+.pg-num{font-size:14px;font-weight:800;color:#9fe0d4;font-variant-numeric:tabular-nums;display:inline-block}
+.pg.bump .pg-num{animation:pgNum .5s ease}
+@keyframes pgNum{0%{transform:scale(1)}35%{transform:scale(1.22)}100%{transform:scale(1)}}
+.pg-bar{height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-bottom:12px}
+.pg-bar span{display:block;height:100%;width:0;border-radius:99px;background:var(--teal);transition:width .3s}
+.pg-g{margin:0 0 10px}
+.pg-g-h{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-bottom:4px}
+.pg-g-h span{font-variant-numeric:tabular-nums}
+.pg-cells{display:grid;grid-template-columns:repeat(16,1fr);gap:2px}
+.pg-cell{aspect-ratio:1;min-width:0;padding:0;margin:0;border:1px solid var(--border);border-radius:3px;background:transparent;cursor:pointer}
+.pg-cell:hover{border-color:var(--blue)}
+.pg-cell.on{background:var(--teal);border-color:var(--teal)}
+.pg-cell:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.pg-next{display:block;width:100%;margin:12px 0 0;padding:8px 10px;border:0;border-radius:8px;background:var(--soft);color:var(--blue);
+  font:inherit;font-size:12px;text-align:left;cursor:pointer}
+.pg-next b{display:block;font-size:13px;color:var(--ink)}
+.pg-next:hover{filter:brightness(.97)}
+.pg-next[disabled]{cursor:default;color:var(--teal)}
+.pg-clear{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:12px;color:var(--sub)}
+.pg-clear button{padding:2px 0;border:0;background:none;color:var(--sub);font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.pg-clear button[disabled]{opacity:.45;cursor:default}
+.pg-clear .pg-yes{color:#b42318;font-weight:700;margin-left:6px}.pg-clear .pg-no{margin-left:8px}
+.checkline.pg-flash{animation:pgFlash 1.4s ease}
+@keyframes pgFlash{0%,40%{box-shadow:0 0 0 3px var(--blue)}100%{box-shadow:0 0 0 0 transparent}}
+.pg-chip{position:fixed;right:80px;bottom:28px;z-index:900;height:36px;padding:0 13px;border:1px solid var(--border);border-radius:999px;
+  background:var(--paper);color:var(--ink);font:700 13px/1 "Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  box-shadow:0 4px 14px #0f1e3129;cursor:pointer;display:none;align-items:center;gap:7px;font-variant-numeric:tabular-nums}
+.pg-chip i{display:block;width:8px;height:8px;border-radius:99px;background:var(--teal)}
+@media(max-width:1099px){
+  .pg-chip{display:inline-flex}
+  .pg{right:16px;bottom:76px;width:min(300px,calc(100vw - 32px));display:none}
+  .pg.open{display:block}
+}
+@media(min-width:1652px){.pg{right:max(16px,calc((100vw - 1180px)/2 - 220px))}}
+/* 노트북 폭: 본문 왼쪽 끝은 그대로 두고 오른쪽만 줄여 패널 자리를 만든다 (머리말·탭 줄·목차 띠는 그대로) */
+@media(min-width:1100px) and (max-width:1651px){main{margin-left:max(0px,calc((100% - 1220px)/2));margin-right:232px}.pg{right:16px}}
+@media (prefers-color-scheme:dark){
+  .pg{border-color:#93c5fd40;box-shadow:0 22px 48px -12px #000000b3,0 6px 16px -4px #00000080,0 0 0 4px #93c5fd14}
+  .pg-head{background:linear-gradient(110deg,#1c3a5c,#24507a)}
+  .pg-chip{box-shadow:0 6px 22px #00000066}.pg-clear .pg-yes{color:#fda29b}}
+@media (prefers-reduced-motion:reduce){.pg,.pg.bump,.pg.bump .pg-num{animation:none}}
+@media print{.pg,.pg-chip{display:none!important}}
+
+.pg{max-height:calc(100dvh - var(--day30-sticky, 88px) - 32px);overflow-y:auto}
+.pg[aria-label]{overscroll-behavior:contain}
+@media(max-width:1099px){
+  .pg{max-height:calc(100dvh - var(--day30-sticky, 88px) - 90px)}
+}
+</style></head><body class="day30-page guide-page"><header class="day30-heading"><div class="eyebrow">Day30 · LangChain AI Technical Report Agent · Basic 완주 안내서</div><h1>빈 폴더에서 Basic 완성까지 · v2</h1><p class="lead">main.py → API·Runtime 뼈대 → DB·Agent·Tool → RAG 내부 구현 → 최종 통합 민준튜터 · 공통 검증 파일 000~016 제공 · SRS v1.0 · 2026-11-27 수업</p></header><div class="day30-tabs" role="navigation" aria-label="Day30 프로젝트 자료"><a data-site href="../">요구사항 명세서 v1.1</a><a data-site href="./" aria-current="page">Basic 완주 안내 v2</a></div><nav class="toc" aria-label="목차"><a href="#start">시작</a><a href="#prepare">01 준비</a><a href="#skeleton">02 main·API</a><a href="#database">03 DB 점검</a><a href="#foundation">04 DB 구현</a><a href="#agent_shell">05 Agent·Tool</a><a href="#retrieval">06 E5·검색</a><a href="#rerank">07 Reranking</a><a href="#rag">08 Runnable RAG</a><a href="#agent">09 최종 조립</a><a href="#api">10 FastAPI</a><a href="#tests">11 테스트</a><a href="#live">12 실제 검증</a><a href="#postman">13 Postman</a><a href="#finish">14 완료</a><a href="#troubleshoot">15 문제 해결</a><a href="#sources">16 기준 자료</a><span aria-live="polite" class="progress-meta" id="progressMeta"></span></nav><main><div class="meta"><span>Windows 11 · VS Code · Git Bash</span><span>기존 DB report_agent_lab</span><span>Basic B-01~15 / T-01~10</span><span>2026-11-26 실환경 오류 반영</span><span>Top-down · 단계별 실제 연결</span><span>v2 · common/test/ 기반</span></div><section id="start"><div class="eyebrow">완성 목표 · DAY30 BASIC</div><h2>빈 폴더에서 실제 LangChain AI Agent 완성까지</h2><div class="v2-overview"><div><b>직접 구현</b><code>app/</code> · <code>scripts/</code> · 프로젝트 문서<br/><span>서비스 진입점부터 기능을 연결합니다. Runtime은 임시 버전 1 → 2 → 최종 버전 3으로 발전합니다.</span></div><div><b>공통 제공 · 복사</b><code>common/test/ → test/</code><br/><code>common/tests/01_basic/ → tests/</code><br/><span>검증 코드는 다시 타이핑하지 않습니다. 구현이 끝난 단계의 검증만 실행합니다.</span></div></div><p><strong> 정답을 처음부터 구현하는 순차 안내서입니다.</strong> 11월 20일에는 보고서 DB와 CRUD 서비스를 만들었지만, 이번에는 그 DB만 읽어 기술 보고서의 근거와 현재 인덱싱 상태를 답하는 단일 AI Agent를 개발합니다.</p><aside class="note"><strong>이번 수정본의 기준 · 2026-11-26</strong> <code>Day30_20261127_pjt_단계별검증본.zip</code>의 mentor Basic을 완성합니다. 이번 안내서는 Basic 구현에 한정합니다.</p></aside><ol class="loop"><li><strong>서비스 뼈대</strong><br/>main.py → API → Schema → Runtime 경계</li><li><strong>첫 기능 연결</strong><br/>DB → Agent·Tool 등록 → 실제 상태 조회</li><li><strong>RAG 내부 구현</strong><br/>E5 → pgvector → Cross-Encoder → Runnable</li><li><strong>완성·검증</strong><br/>Runtime 최종 연결 → pytest → Live → Postman</li></ol><div class="table-wrap"><table><thead><tr><th scope="col">출발</th><th scope="col">진행</th><th scope="col">완료</th></tr></thead><tbody><tr><td>빈 <code>langchain-report-assistant/</code></td><td>공통 설정·test/ 복사, 업무 Python은 이 문서에서 하나씩 작성</td><td>강사용 <code>mentor/01_basic</code>과 같은 파일·API</td></tr><tr><td>기존 <code>report_agent_lab</code></td><td>읽기 전용 SELECT, 기존 Overview Vector 사용</td><td>DB 행 수·내용 해시 불변</td></tr><tr><td>실제 CUDA·LLM</td><td>실제 Tool 결과 및 인용 검증</td><td>B-01~15 / T-01~10, Postman Basic 요청 9개</td></tr></tbody></table></div><aside class="note"><strong>따라가는 방법</strong><p>먼저 서비스 진입점과 인터페이스를 작성하고, 필요한 하위 구현을 하나씩 채웁니다. 실행 가능한 최소 뼈대 → DB 조회 경로 → RAG 경로 → 전체 통합 순서입니다. 업무 파일의 전체 코드 버튼을 펼쳐 입력하고, 공통 제공 test/의 번호별 검증을 실행합니다. 검증 파일은 이미 제공하므로 다시 작성하지 않습니다. <strong>mentor 폴더를 통째로 복사하지 않습니다.</strong> 체크박스는 본인 결과를 확인한 후 직접 표시합니다.</p></aside><div class="table-wrap"><table><thead><tr><th>구현 순서</th><th>이번 단계에서 무엇을 만드는가</th><th>실제로 확인하는 것</th><th scope="col">단계별 검증 파일</th></tr></thead><tbody><tr><td>01 → 02</td><td>환경 준비 → main.py, Router, Schema, Runtime 뼈대</td><td>/docs·OpenAPI, 잘못된 입력 422, 아직 미구현인 기능은 NOT_IMPLEMENTED</td><td><a href="#stage-test-000">000</a> · <a href="#stage-test-001">001</a> · <a href="#stage-test-002">002</a></td></tr><tr><td>03 → 04</td><td>기존 DB 확인 → Settings·Repository·Preflight</td><td>실제 DB 읽기, CUDA 확인, 시작 Snapshot</td><td><a href="#stage-test-003">003</a> · <a href="#stage-test-004">004</a> · <a href="#stage-test-005">005</a></td></tr><tr><td>05</td><td>AgentService → Tool·Validator → DB 연결 Runtime</td><td>실제 lookup_status와 /health. RAG는 아직 미구현</td><td><a href="#stage-test-006">006</a></td></tr><tr><td>06 → 08</td><td>E5·Retriever → Cross-Encoder → RagPipeline</td><td>벡터·검색·재정렬·Context를 각각 실측</td><td><a href="#stage-test-007">007</a> · <a href="#stage-test-008">008</a> · <a href="#stage-test-009">009</a> · <a href="#stage-test-010">010</a> · <a href="#stage-test-011">011</a></td></tr><tr><td>09 → 10</td><td>최종 Runtime으로 교체 → 서비스 실행</td><td>모든 구성요소 연결, HTTP 준비 상태</td><td><a href="#stage-test-012">012</a> · <a href="#stage-test-013">013</a> (선택 유료) · <a href="#stage-test-014">014</a> (선택 유료) · <a href="#stage-test-015">015</a></td></tr><tr><td>11 → 16</td><td>테스트·Live·Postman·완료</td><td>기존 계약·정답·검증 범위 유지</td><td>pytest · Live · Postman · <a href="#stage-test-016">016</a></td></tr></tbody></table></div><p class="small">검증 번호를 누르면 해당 공통 제공 파일의 원본이 열립니다. 실제 실행은 각 절의 명령을 따르세요. <a href="#stage-tests">전체 검증 파일 목록과 실행 조건</a></p><aside class="attention"><strong>이번에는 DB를 만들거나 변경하지 않습니다</strong><p>Day25의 CREATE DATABASE, schema.sql, seed.sql, index_overviews.py, CRUD 요청은 사용하지 않습니다. 기존 데이터에 유효한 벡터가 없는 경우 Day30을 미완료로 기록하고 이전 DB의 복구는 강사와 별도로 협의합니다.</p></aside><div class="table-wrap"><table><thead><tr><th scope="col">구분</th><th scope="col">이번 범위</th></tr></thead><tbody><tr><td>Basic</td><td>실제 <code>create_agent</code>, <code>rag_search</code>, <code>lookup_status</code>, API-00/01</td></tr><tr><td>Intermediate / Advanced</td><td>이번 순차 안내서에서는 구현하지 않음. 각각 별도 정답과 SRS의 I/A 요구사항 참조</td></tr><tr><td>검증</td><td>Fixture 및 Live를 구분. 모든 실제 DB·CUDA·LLM 연결은 교실에서 확인</td></tr></tbody></table></div></section><section id="prepare"><div class="eyebrow">01 · B-01~02</div><h2>공통 자료와 CUDA 가상환경을 준비합니다</h2><div class="v2-stage"><div><span>이번 구현</span><b>공통자료 복사 및 CUDA 준비</b></div><div><span>검증 <a href="#stage-test-000">000</a> · <a href="#stage-test-001">001</a></span><b>실제 GPU Tensor 연산, 의존성 검사</b></div></div><p>강사용 전체 ZIP <code>Day30_20261127_pjt_단계별검증본.zip</code>을 풉니다. 그 결과의 <code>Day30_20261127_pjt/</code>와 새 프로젝트를 같은 상위 폴더에 둡니다. 아래 예시 경로는 실제 수정 ZIP의 최상위 폴더 이름을 기준으로 합니다. 이미 동일 이름의 프로젝트가 있다면 다른 빈 작업 경로를 선택합니다.</p><h3>1-1. 새 프로젝트 생성 · Git Bash</h3><div class="code-tools"><button class="copy-button" data-copy="code-1" type="button">전체 내용 복사</button><span aria-live="polite" class="copy-status"></span></div><pre data-language="bash"><code id="code-1">mkdir langchain-report-assistant
 cd langchain-report-assistant
 code .
 pwd
@@ -2405,4 +2599,203 @@ def check_completed(data, required_tools):
 
 (()=>{const all=[...document.querySelectorAll('input[data-check]')];const refresh=()=>{document.getElementById('progressMeta').textContent='직접 확인 '+all.filter(x=>x.checked).length+' / '+all.length;};all.forEach(x=>x.addEventListener('change',refresh));refresh();})();
 (()=>{function reveal(){const id=location.hash.slice(1);if(!id)return;const el=document.getElementById(id);if(el&&el.tagName==='DETAILS'){el.open=true;el.scrollIntoView({block:'start'});}}document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#stage-test-"]');if(a){const d=document.getElementById(a.getAttribute('href').slice(1));if(d&&d.tagName==='DETAILS')d.open=true;}});window.addEventListener('hashchange',reveal);reveal();})();
+</script><script>
+(() => {
+  const toc = document.querySelector('nav.toc');
+  const root = document.documentElement;
+  const siteBar = document.querySelector('.cn-nav');
+  const links = [...toc.querySelectorAll('a[href^="#"]')];
+  const sections = links.map(link => ({
+    link,
+    target: document.getElementById(link.hash.slice(1)),
+  })).filter(item => item.target);
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  if (!siteBar) {
+    const colorPreference = matchMedia('(prefers-color-scheme: dark)');
+    const syncTheme = () => { root.dataset.theme = colorPreference.matches ? 'dark' : 'light'; };
+    syncTheme();
+    colorPreference.addEventListener('change', syncTheme);
+  }
+  let current;
+  let pending = false;
+
+  function measure() {
+    const navHeight = siteBar?.getBoundingClientRect().height || 0;
+    const offset = navHeight + toc.getBoundingClientRect().height;
+    root.style.setProperty('--day30-nav-height', navHeight + 'px');
+    root.style.setProperty('--day30-sticky', offset + 'px');
+    root.style.scrollPaddingTop = (offset + 14) + 'px';
+  }
+
+  function markActive() {
+    pending = false;
+    const line = toc.getBoundingClientRect().bottom + 30;
+    let active = sections[0];
+    for (const item of sections) {
+      if (item.target.getBoundingClientRect().top <= line) active = item;
+    }
+    if (scrollY + innerHeight >= root.scrollHeight - 3) active = sections.at(-1);
+    if (!active || current === active.link) return;
+    current?.removeAttribute('aria-current');
+    current = active.link;
+    current.setAttribute('aria-current', 'location');
+    const { left, width } = current.getBoundingClientRect();
+    const bounds = toc.getBoundingClientRect();
+    toc.scrollTo({
+      left: toc.scrollLeft + left - bounds.left - (bounds.width - width) / 2,
+      behavior: reducedMotion.matches ? 'instant' : 'smooth',
+    });
+  }
+
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(markActive);
+  }
+
+  const observer = new ResizeObserver(() => { measure(); schedule(); });
+  observer.observe(toc);
+  if (siteBar) observer.observe(siteBar);
+  addEventListener('scroll', schedule, { passive: true });
+  measure();
+  markActive();
+})();
+
+(() => {
+  const inputs = [...document.querySelectorAll('input[data-check]')];
+  if (!inputs.length) return;
+  const tocText = id => (document.querySelector('nav.toc a[href="#' + id + '"]') || {}).textContent || '';
+  const groups = [
+    { key: 'step', label: '구현·검증 단계', items: [] },
+    { key: 'postman', label: 'Postman 요청', items: [] },
+    { key: 'finish', label: '완료 기준', items: [] },
+  ];
+  inputs.forEach(input => {
+    const sec = input.closest('section');
+    const id = sec ? sec.id : '';
+    const g = id === 'postman' ? groups[1] : id === 'finish' ? groups[2] : groups[0];
+    const text = (input.closest('.checkline') || input.parentElement).textContent.trim();
+    const name = g.key === 'postman'
+      ? input.closest('.request-card')?.querySelector('h3, h4')?.textContent.trim() || text
+      : [tocText(id), text].filter(Boolean).join(' · ');
+    g.items.push({ input, name });
+  });
+  const all = groups.flatMap(g => g.items);
+
+  const panel = document.createElement('aside');
+  panel.className = 'pg';
+  panel.id = 'basic-progress';
+  panel.setAttribute('aria-label', '체크 진행 상황');
+  panel.innerHTML = '<div class="pg-head"><b>진행 상황</b><span class="pg-num"></span></div><div class="pg-bar"><span></span></div>' +
+    groups.map(g => '<div class="pg-g"><div class="pg-g-h">' + g.label + '<span></span></div><div class="pg-cells"></div></div>').join('') +
+    '<button type="button" class="pg-next"></button><div class="pg-clear"></div>';
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'pg-chip';
+  chip.setAttribute('aria-expanded', 'false');
+  chip.setAttribute('aria-controls', panel.id);
+  chip.innerHTML = '<i></i><span></span>';
+  document.body.append(panel, chip);
+
+  const groupEls = [...panel.querySelectorAll('.pg-g')];
+  groups.forEach((g, gi) => {
+    const box = groupEls[gi].querySelector('.pg-cells');
+    g.items.forEach(item => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pg-cell';
+      b.title = item.name;
+      b.addEventListener('click', () => go(item));
+      item.cell = b;
+      box.append(b);
+    });
+  });
+  const narrow = matchMedia('(max-width:1099px)');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function go(item) {
+    const line = item.input.closest('.checkline') || item.input;
+    line.scrollIntoView({ behavior: motion.matches ? 'auto' : 'smooth', block: 'center' });
+    line.classList.remove('pg-flash'); void line.offsetWidth; line.classList.add('pg-flash');
+    if (narrow.matches) toggle(false);
+    item.input.focus({ preventScroll: true });
+  }
+
+  let confirming = false;
+  function update() {
+    const done = all.filter(i => i.input.checked).length;
+    panel.querySelector('.pg-num').textContent = done + ' / ' + all.length;
+    panel.querySelector('.pg-bar span').style.width = (100 * done / all.length) + '%';
+    chip.querySelector('span').textContent = done + '/' + all.length;
+    chip.setAttribute('aria-label', '체크 진행 상황 ' + done + '/' + all.length);
+    groups.forEach((g, gi) => {
+      groupEls[gi].querySelector('.pg-g-h span').textContent = g.items.filter(i => i.input.checked).length + '/' + g.items.length;
+      g.items.forEach(i => { i.cell.classList.toggle('on', i.input.checked); i.cell.setAttribute('aria-label', i.name + (i.input.checked ? ' · 완료' : ' · 남음')); });
+    });
+    const next = all.find(i => !i.input.checked);
+    const nb = panel.querySelector('.pg-next');
+    nb.disabled = !next;
+    nb.innerHTML = next ? '다음 할 일 →<b></b>' : '<b>모두 체크했어요</b>';
+    if (next) nb.querySelector('b').textContent = next.name;
+    nb.onclick = next ? () => go(next) : null;
+    const clear = panel.querySelector('.pg-clear');
+    if (confirming && done) {
+      clear.innerHTML = '체크 ' + done + '개를 지울까요?<button type="button" class="pg-yes">지우기</button><button type="button" class="pg-no">취소</button>';
+      clear.querySelector('.pg-yes').onclick = () => {
+        confirming = false;
+        all.forEach(i => { if (i.input.checked) { i.input.checked = false; i.input.dispatchEvent(new Event('change', { bubbles: true })); } });
+        update();
+      };
+      clear.querySelector('.pg-no').onclick = () => {
+        confirming = false;
+        update();
+        clear.querySelector('button').focus();
+      };
+    } else {
+      confirming = false;
+      clear.innerHTML = '<button type="button">전체 지우기</button>';
+      const b = clear.querySelector('button');
+      b.disabled = !done;
+      b.onclick = () => {
+        confirming = true;
+        update();
+        clear.querySelector('.pg-no')?.focus();
+      };
+    }
+  }
+
+  function toggle(open) {
+    panel.classList.toggle('open', open);
+    chip.setAttribute('aria-expanded', String(open));
+  }
+  chip.addEventListener('click', e => { e.stopPropagation(); toggle(!panel.classList.contains('open')); });
+  document.addEventListener('click', e => { if (narrow.matches && panel.classList.contains('open') && !panel.contains(e.target)) toggle(false); });
+
+  // 넓은 화면: 목차 띠 바로 아래에 붙여 둔다 (맨 위에서는 목차 띠를 따라 내려와 있다)
+  const toc = document.querySelector('nav.toc');
+  let ticking = false;
+  function place() {
+    ticking = false;
+    if (narrow.matches) { panel.style.top = ''; return; }
+    const top = toc ? toc.getBoundingClientRect().bottom : 0;
+    panel.style.top = Math.max(top, 0) + 16 + 'px';
+  }
+  const req = () => { if (!ticking) { ticking = true; requestAnimationFrame(place); } };
+  addEventListener('scroll', req, { passive: true });
+  addEventListener('resize', req);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && panel.classList.contains('open')) {
+      toggle(false);
+      chip.focus();
+    }
+  });
+  narrow.addEventListener('change', () => { toggle(false); place(); });
+
+  document.addEventListener('change', e => {
+    if (!(e.target.matches && e.target.matches('input[data-check]'))) return;
+    update();
+    panel.classList.remove('bump'); void panel.offsetWidth; panel.classList.add('bump');   // 체크가 반영됐다는 것을 보여 준다
+  });
+  update(); place();
+})();
 </script></body></html>
