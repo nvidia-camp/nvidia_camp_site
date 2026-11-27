@@ -173,3 +173,4 @@
 | 2026-11-18 | setup/python-venv | 가상환경 이름을 .gpuenv · .backendenv로 통일해 공개 (main 7131ee6, Day24·Docker 제외) | 배포 |
 | 2026-11-25 | cheatsheet/lang-ecosystem | LLM·RAG 과목 참고 문서에 LangChain 생태계 도식 공개 | 배포 |
 | 2026-11-27 | llm/20261127 | Day30 사전 준비·v1.1 명세서·오전 강의 공개 | deploy |
+| 2026-11-27 | llm/20261127 | 강사 원본 명세서·Basic 완주 안내 두 탭 공개 | deploy |
