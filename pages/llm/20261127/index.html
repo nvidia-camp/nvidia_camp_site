@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Day30 · AI Technical Report Agent</title><style>
+:root{
+  --bg:#eef2f6;--surface:#ffffff;--text:#162237;--heading:#142c49;--subhead:#163c64;--muted:#40546a;
+  --border:#d8e1eb;--tbl-border:#ccd7e3;--th-bg:#e7eef6;--tr-even:#f8fafc;
+  --soft:#f8fafc;--code-bg:#edf1f5;--code-fg:#14253c;--pre-bg:#eff3f7;--pre-border:#cbd7e3;
+  --notice-bg:#eef6ff;--notice-border:#b8d0e9;--link:#124d8a;
+  --hdr-bg:linear-gradient(110deg,#172d49,#1d3a5f);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#c9ddf3;--hdr-p:#dce8f5;
+  --tab-bg:#ffffff;--tab-border:#cbd7e3;--tab-fg:#162237;--tab-n-bg:#e7eef6;--tab-n-fg:#172d49;
+  --tab-act-bg:#172d49;--tab-act-fg:#ffffff;--tab-lec-bg:#eef6ff;--tab-lec-border:#b8d0e9;--tab-lec-fg:#124d8a;
+  --cell-bg:#142032;--cell-fg:#e6effa;--cell-border:#2c425d;
+  --dl-bg:#f7fbff;--dl-btn-bg:#ffffff;--dl-btn-border:#b7cce3;--dl-btn-hover:#eaf3fd;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1220;--surface:#102137;--text:#e5eaf2;--heading:#e5eaf2;--subhead:#a8cdf2;--muted:#98aec5;
+  --border:#29384e;--tbl-border:#2d425d;--th-bg:#182d47;--tr-even:#16263b;
+  --soft:#16263b;--code-bg:#1c2e47;--code-fg:#a5e3d0;--pre-bg:#0d1828;--pre-border:#2d425d;
+  --notice-bg:#132840;--notice-border:#315478;--link:#93c5fd;
+  --hdr-bg:linear-gradient(110deg,#0f2139,#132c45);--hdr-border:#2d4863;--hdr-fg:#ffffff;--hdr-eye:#95b9d5;--hdr-p:#bcd1e0;
+  --tab-bg:#102137;--tab-border:#35536d;--tab-fg:#e5eaf2;--tab-n-bg:#1c3554;--tab-n-fg:#93c5fd;
+  --tab-act-bg:#93c5fd;--tab-act-fg:#0b1220;--tab-lec-bg:#132c45;--tab-lec-border:#3b6182;--tab-lec-fg:#b4d9f5;
+  --cell-bg:#091321;--cell-fg:#ccdfef;--cell-border:#2c4560;
+  --dl-bg:#132840;--dl-btn-bg:#182d47;--dl-btn-border:#35536d;--dl-btn-hover:#203a5a;
+}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;font-size:16px;line-height:1.75}
+header{background:var(--hdr-bg);color:var(--hdr-fg);padding:34px max(30px,calc((100% - 1180px)/2));border-bottom:1px solid var(--hdr-border)}
+header h1{color:var(--hdr-fg);margin:.4rem 0;font-size:33px}
+header p{max-width:1000px;color:var(--hdr-p);margin:0;font-size:15px}header p.eyebrow{color:var(--hdr-eye);font-size:13px;font-weight:700;letter-spacing:.12em}
+.tabs-wrap{max-width:1240px;margin:18px auto 0;padding:0 30px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tabs a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 15px 6px 8px;border:1px solid var(--tab-border);border-radius:999px;background:var(--tab-bg);color:var(--tab-fg);text-decoration:none;font-size:15px;font-weight:650}
+.tabs a:hover{border-color:var(--link)}
+.tabs .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:999px;background:var(--tab-n-bg);color:var(--tab-n-fg);font-size:13px;font-weight:700}
+.tabs a[aria-current='page']{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
+.tabs a[aria-current='page'] .n{background:var(--tab-act-fg);color:var(--tab-act-bg)}
+.tabs a.lec{margin-left:auto;padding:6px 14px;background:var(--tab-lec-bg);border-color:var(--tab-lec-border);color:var(--tab-lec-fg)}
+.tabs a.lec:hover{border-color:var(--link)}
+a{color:var(--link);text-underline-offset:3px}
+main{max-width:1180px;margin:20px auto 48px;padding:0;min-width:0}
+h2{font-size:24px;line-height:1.45;margin:0 0 18px;color:var(--heading)}
+h3{font-size:19px;color:var(--subhead);margin:28px 0 10px}
+main>section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 34px;margin:0 0 16px;scroll-margin-top:64px}
+main>section.notice{background:var(--notice-bg);border-color:var(--notice-border)}
+/* 섹션 카드 + PART 묶음: 큰 카드 하나 대신 섹션마다 카드, 섹션 몇 개를 PART 제목 줄로 묶는다 */
+.part{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:44px 2px 14px;padding-bottom:10px;border-bottom:2px solid var(--heading);scroll-margin-top:64px}
+main>.part:first-of-type{margin-top:4px}
+.part-n{font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--link)}
+.part-t{font-size:22px;line-height:1.4;color:var(--heading)}
+.part-d{font-size:14px;color:var(--muted)}
+nav.sec-nav{display:flex;flex-wrap:wrap;gap:8px 20px;margin:0 2px 20px}nav.sec-nav a{font-weight:650}
+.notice h2{font-size:21px}
+p,li,td,th{overflow-wrap:break-word}
+p{margin:12px 0}li{margin:8px 0}
+code{font:0.91em/1.6 Consolas,"Malgun Gothic",monospace;background:var(--code-bg);color:var(--code-fg);padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}
+/* 실행 명령은 명세서와 같은 어두운 코드 셀 (라이트·다크 모두) */
+pre{background:var(--cell-bg);color:var(--cell-fg);padding:16px 18px;max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;border:1px solid var(--cell-border);border-radius:10px;font-size:13px;line-height:1.6}
+pre code{background:none;color:inherit;padding:0;font-size:inherit;white-space:pre-wrap;overflow-wrap:anywhere}
+.table{overflow-x:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border:1px solid var(--tbl-border);padding:12px 14px;vertical-align:top;text-align:left}
+th{background:var(--th-bg);color:var(--heading)}
+tbody tr:nth-child(even){background:var(--tr-even)}
+#database td:nth-child(2) code{white-space:nowrap}
+#files td:first-child{min-width:260px}
+details{border:1px solid var(--pre-border);border-radius:7px;padding:16px 18px;margin:18px 0;background:var(--soft)}
+summary{font-weight:700;color:var(--subhead);cursor:pointer}
+.sources{font-size:14px}
+footer{max-width:1240px;margin:0 auto;padding:0 30px 30px;color:var(--muted);font-size:13px}
+main>section.dl-box{border-color:var(--notice-border);background:var(--dl-bg)}
+.dl-box h2{margin:0 0 8px;font-size:20px;color:var(--heading)}
+.dl-box p{margin:0 0 14px;font-size:15px;color:var(--muted)}
+.dl-group{margin-top:12px}.dl-label{display:block;margin:0 0 6px;font-size:13px;font-weight:700;color:var(--muted)}
+.dl-list{display:flex;flex-wrap:wrap;gap:8px}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--dl-btn-border);border-radius:8px;background:var(--dl-btn-bg);color:var(--link);font-size:14px;font-weight:650;text-decoration:none}
+.dl-btn:hover{background:var(--dl-btn-hover);border-color:var(--link)}
+.dl-btn.primary{background:var(--tab-act-bg);border-color:var(--tab-act-bg);color:var(--tab-act-fg)}
+.dl-btn.primary:hover{opacity:.92}
+@media(max-width:720px){header{padding:25px 20px}header h1{font-size:26px}.tabs-wrap{padding:0 16px}.tabs a.lec{margin-left:0}main{margin:12px 0 0;padding:0}main>section{padding:20px 16px;border-left:0;border-right:0;border-radius:0;margin-bottom:12px}.part{margin:32px 16px 12px}nav.sec-nav{margin:0 16px 16px}footer{padding:16px}h2{font-size:22px}table{font-size:14px}th,td{padding:10px}#files td:first-child{min-width:180px}body{font-size:15px}}
+@media print{body{background:white;color:#111}nav.sec-nav,.tabs-wrap{display:none}header{background:white;color:#111;padding:0 0 20px}header h1,header p,header p.eyebrow{color:#111}main{padding:0;border:0;margin:0}details{display:block}details>*{display:block}section{break-inside:auto}h2,h3{break-after:avoid}tr{break-inside:avoid}footer{padding:20px 0}}
+</style></head>
+<body>
+<header>
+  <p class="eyebrow">DAY 30 · 2026.11.27</p>
+  <h1>AI Technical Report Agent</h1>
+  <p>보고서 내용은 RAG로 찾고, 현재 상태는 기존 DB에서 읽습니다. 두 도구를 LangChain Agent에 연결하고 실제 호출과 출처를 검증합니다.</p>
+</header>
+<div class="tabs-wrap">
+  <nav class="tabs" aria-label="Day30 자료">
+    <a data-site href="./" aria-current="page">사전 준비</a>
+    <a data-site href="spec/">요구사항 명세서 v1.1</a>
+    <a href="https://nvidiaai2.slack.com/archives/C0C8L2C7CH5/p1795738146812939">완주 안내 · Slack</a>
+    <a class="lec" data-site href="lecture/">오전 강의 자료</a>
+  </nav>
+</div>
+<main>
+  <section class="notice">
+    <h2>11월 20일 DB 이어 쓰기</h2>
+    <p>기존 <code>report_agent_lab</code>의 데이터와 벡터를 읽기 전용으로 사용합니다. 오늘은 새 Python 프로젝트에서 시작합니다. DB 생성·시드·재색인은 건너뜁니다.</p>
+  </section>
+  <section class="dl-box">
+    <h2>실습 준비 파일</h2>
+    <div class="dl-list">
+      <a class="dl-btn" data-site href="01_read_only_check.sql" download>DB 점검 SQL</a>
+      <a class="dl-btn" data-site href="Day30_Report_Agent.postman_collection.json" download>Postman Collection</a>
+      <a class="dl-btn" data-site href="Day30_Local.postman_environment.json" download>Postman Environment</a>
+      <a class="dl-btn" data-site href="acceptance_checklist.csv" download>제출용 검증표</a>
+    </div>
+    <p>수강생용 실습 자료와 민준튜터 완주 안내서 v2는 상단 Slack 게시물에서 받으세요.</p>
+  </section>
+  <section>
+    <h2>실습 전 확인</h2>
+    <ol>
+      <li>Basic·Intermediate·Advanced 중 하나를 선택하고 해당 프로젝트 루트를 VS Code에서 엽니다.</li>
+      <li>기존 CUDA PyTorch 환경에서 GPU와 패키지를 확인합니다. <code>.env</code>에 DB 접속 정보와 Tool Calling 및 네이티브 구조화 출력을 지원하는 수업 모델을 설정합니다.</li>
+      <li>pgAdmin에서 <code>report_agent_lab</code>에 연결해 점검 SQL을 실행합니다. 6종 카테고리와 유효한 벡터를 확인하고, 실제 존재하는 ID와 존재하지 않는 ID를 테스트에 지정합니다.</li>
+    </ol>
+  </section>
+  <section>
+    <h2>구현과 완료 확인</h2>
+    <ol>
+      <li>API 뼈대와 DB 상태 조회를 붙인 뒤 CUDA E5 → pgvector → Document → Cross-Encoder → Runnable RAG 순서로 점검합니다.</li>
+      <li><code>rag_search</code>와 <code>lookup_status</code>를 <code>create_agent</code>에 연결합니다. 복합 질문에서 각 도구의 실제 호출과 출처가 맞는지 확인합니다.</li>
+      <li>단계별 테스트 후 pytest·Preflight·Live·Postman으로 검증합니다. Postman은 <code>/health</code>와 무료 요청부터 확인하고, 실제 유료 요청은 비용을 확인해 명시적으로 실행합니다.</li>
+      <li>실습 전후 DB 스냅샷을 비교하고 Basic T-01~10, Intermediate T-01~14, Advanced T-01~19 중 해당 결과와 실행 증거를 제출합니다.</li>
+    </ol>
+  </section>
+</main>
+</body></html>

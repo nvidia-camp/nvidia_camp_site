@@ -194,6 +194,8 @@ public = true
 [day_pages]
 "llm/20261120" = [["", "사전 준비"], ["spec", "요구사항 명세서"], ["basic", "Basic 완주 안내"]]
 
+"llm/20261127" = [["", "사전 준비"], ["spec", "요구사항 명세서 v1.1"]]
+
 # 페이지와 함께 내려받게 둘 파일: 사이트 경로 = [파일 이름]. 페이지에서는 data-site를 붙여 링크한다
 [files]
 "setup/local-ai" = ["SETUP_FOR_AI.md"]
@@ -209,6 +211,8 @@ public = true
   "Report_Agent.postman_environment.json",
   "requirements.txt",
 ]
+
+"llm/20261127" = ["01_read_only_check.sql", "Day30_Report_Agent.postman_collection.json", "Day30_Local.postman_environment.json", "acceptance_checklist.csv"]
 
 # Colab 실습 폴더: "과목/날짜" = Google Drive 폴더 주소 (링크가 있는 모든 사용자 · 뷰어)
 [colab]
